@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Français CP/CE1 - Les Mots Magiques</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #fdc830 0%, #f37335 100%); color: #333; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
+        #app-container { background: white; padding: 25px 35px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-width: 800px; width: 100%; text-align: center; }
+        h1 { color: #d35400; font-weight: 900; font-size: 2.2rem; margin-bottom: 20px; }
+        #hud { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; }
+        .xp-text { color: #e67e22; font-weight: 900; }
+        #dessin-box { font-size: 5rem; margin: 10px 0; animation: flotte 2s infinite ease-in-out; }
+        @keyframes flotte { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        #mot-a-construire { display: flex; justify-content: center; gap: 10px; margin: 20px 0; min-height: 60px; flex-wrap: wrap;}
+        .case-lettre { width: 45px; height: 60px; border-bottom: 4px solid #bdc3c7; display: flex; justify-content: center; align-items: flex-end; font-size: 2.2rem; font-weight: 900; color: #2c3e50; padding-bottom: 5px; }
+        #lettres-melangees { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 30px; }
+        .tuile-lettre { background: #f39c12; color: white; width: 55px; height: 55px; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 2rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #d35400; transition: transform 0.1s; }
+        .tuile-lettre:active { transform: translateY(4px); box-shadow: none; }
+        .tuile-lettre.utilisee { opacity: 0; pointer-events: none; }
+        .btn { font-family: 'Nunito', sans-serif; font-size: 1.2rem; font-weight: bold; padding: 15px 25px; border: none; border-radius: 10px; cursor: pointer; color: white; margin: 8px 5px; transition: transform 0.1s; width: 80%; max-width: 320px; display: inline-block;}
+        .btn:active { transform: scale(0.95); }
+        .btn-cp { background: #e67e22; box-shadow: 0 4px #d35400; }
+        .btn-ce1 { background: #8e44ad; box-shadow: 0 4px #6c3483; }
+        .btn-secondaire { background: #bdc3c7; box-shadow: 0 4px #95a5a6; color: #2c3e50; }
+        .erreur { animation: secousse 0.4s; color: #e74c3c !important; border-color: #e74c3c !important; }
+        @keyframes secousse { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        .ecran { display: none; }
+        .ecran.actif { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+        #feedback { font-size: 1.5rem; font-weight: bold; height: 40px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <div id="ecran-accueil" class="ecran actif">
+            <h1>Français CP / CE1 📖</h1>
+            <p style="font-size: 1.1rem; color: #666; margin-bottom: 20px;">Reconstruis les mots magiques !</p>
+            
+            <p>⭐️ Niveau CP :</p>
+            <button class="btn btn-cp" onclick="lancerNiveau('animaux')">🐶 Les Animaux</button>
+            <button class="btn btn-cp" onclick="lancerNiveau('ecole')">✏️ L'École</button>
+            
+            <p style="margin-top: 15px;">🚀 Évolution CE1 (Sons complexes) :</p>
+            <button class="btn btn-ce1" onclick="lancerNiveau('ce1_sons')">🗣️ Sons CH, OU, GN, OI</button>
+            
+            <div style="margin-top: 20px; font-size: 1.2rem; font-weight: bold;">
+                XP Français : <span id="ui-xp-accueil" style="color:#d35400;">0</span> ⭐
+            </div>
+            <button class="btn btn-secondaire" style="margin-top: 25px;" onclick="window.location.href='academie.html'">🏠 Retour au Coin de Lola</button>
+        </div>
+
+        <div id="ecran-jeu" class="ecran">
+            <div id="hud"><span id="ui-vies" style="letter-spacing: 5px;">❤️❤️❤️</span><span id="ui-progression" style="color: #7f8c8d;">1 / 5</span></div>
+            <div id="dessin-box">🐱</div>
+            <div id="mot-a-construire"></div>
+            <div id="lettres-melangees"></div>
+            <div id="feedback"></div>
+            <button class="btn btn-secondaire" onclick="retourAccueil()">Abandonner</button>
+        </div>
+
+        <div id="ecran-fin" class="ecran">
+            <h1 style="color:#27ae60;">Magnifique, Lola ! 🎉</h1>
+            <p style="font-size: 1.5rem; font-weight: bold; margin: 20px 0; color: #e67e22;">+<span id="gain-xp"></span> XP !</p>
+            <button class="btn btn-cp" onclick="window.location.href='academie.html'">Retour à l'Académie</button>
+        </div>
+    </div>
+
+    <script>
+        const dictionnaire = {
+            animaux: [{ mot: "CHAT", emoji: "🐱" }, { mot: "CHIEN", emoji: "🐶" }, { mot: "LOUP", emoji: "🐺" }, { mot: "LION", emoji: "🦁" }, { mot: "OURS", emoji: "🐻" }],
+            ecole: [{ mot: "LIVRE", emoji: "📚" }, { mot: "STYLO", emoji: "🖊️" }, { mot: "CRAIE", emoji: "🖍️" }, { mot: "TABLE", emoji: "🪑" }, { mot: "ECOLE", emoji: "🏫" }],
+            ce1_sons: [ // COMPLEXE CE1
+                { mot: "CHAUVE", emoji: "🦇" }, { mot: "BOUCHON", emoji: "🍾" }, 
+                { mot: "SINGE", emoji: "🐒" }, { mot: "OISEAU", emoji: "🐦" }, { mot: "CHAMPIGNON", emoji: "🍄" }
+            ]
+        };
+
+        let profil = JSON.parse(localStorage.getItem('francaisLola')) || { xp: 0 };
+        let vies = 3; let indexMot = 0; let motsNiveau = []; let motAttendu = ""; let motSaisi = "";
+        const E = (id) => document.getElementById(id);
+
+        function majAccueil() { E('ui-xp-accueil').textContent = profil.xp; }
+        function sauverProfil() { localStorage.setItem('francaisLola', JSON.stringify(profil)); majAccueil(); }
+        function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); E(id).classList.add('actif'); }
+        function retourAccueil() { changerEcran('ecran-accueil'); majAccueil(); }
+
+        function lancerNiveau(themeId) {
+            vies = 3; indexMot = 0; motsNiveau = [...dictionnaire[themeId]].sort(() => Math.random() - 0.5);
+            E('ui-vies').textContent = "❤️❤️❤️"; E('feedback').textContent = ""; changerEcran('ecran-jeu'); poserQuestion();
+        }
+
+        function poserQuestion() {
+            if (vies <= 0 || indexMot >= motsNiveau.length) return finirJeu();
+            E('ui-progression').textContent = `${indexMot + 1} / ${motsNiveau.length}`; E('feedback').textContent = "";
+            let dataMot = motsNiveau[indexMot]; motAttendu = dataMot.mot; motSaisi = "";
+            E('dessin-box').textContent = dataMot.emoji;
+            
+            const boxMot = E('mot-a-construire'); boxMot.innerHTML = '';
+            for(let i=0; i<motAttendu.length; i++) { let div = document.createElement('div'); div.className = 'case-lettre'; boxMot.appendChild(div); }
+            
+            let lettres = motAttendu.split('').sort(() => Math.random() - 0.5);
+            const boxLettres = E('lettres-melangees'); boxLettres.innerHTML = '';
+            lettres.forEach((lettre) => {
+                let tuile = document.createElement('div'); tuile.className = 'tuile-lettre'; tuile.textContent = lettre;
+                tuile.onclick = () => cliquerLettre(tuile, lettre); boxLettres.appendChild(tuile);
+            });
+        }
+
+        function cliquerLettre(tuileElement, lettre) {
+            motSaisi += lettre; tuileElement.classList.add('utilisee');
+            let cases = document.querySelectorAll('.case-lettre'); cases[motSaisi.length - 1].textContent = lettre;
+            if (motSaisi.length === motAttendu.length) verifierMot();
+        }
+
+        function verifierMot() {
+            const fb = E('feedback');
+            if (motSaisi === motAttendu) {
+                fb.textContent = "Bravo Lola ! 🌟"; fb.style.color = "#27ae60"; profil.xp += 10; sauverProfil();
+                setTimeout(() => { indexMot++; poserQuestion(); }, 1000);
+            } else {
+                fb.textContent = "Oups ! Regarde bien 🔴"; fb.style.color = "#c0392b";
+                vies--; E('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3 - vies);
+                document.querySelectorAll('.case-lettre').forEach(c => c.classList.add('erreur'));
+                if (vies <= 0) { setTimeout(() => { alert("Plus de vies ! Entraîne-toi encore."); retourAccueil(); }, 1500); } 
+                else { setTimeout(() => { poserQuestion(); }, 1500); }
+            }
+        }
+
+        function finirJeu() {
+            if (vies > 0) {
+                let bonus = vies * 10; let gainTotal = (motsNiveau.length * 10) + bonus;
+                profil.xp += bonus; sauverProfil(); E('gain-xp').textContent = gainTotal; changerEcran('ecran-fin');
+            }
+        }
+        majAccueil();
+    </script>
+</body>
+</html>

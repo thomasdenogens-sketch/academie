@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Maths CP/CE1 - L'Aventure des Nombres</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body { font-family: 'Poppins', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #333; text-align: center; }
+        #conteneur-appli { width: 95%; max-width: 550px; background-color: #ffffff; padding: 25px 30px; border-radius: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .ecran { display: none; animation: fadeIn 0.4s ease-out; }
+        .ecran.actif { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        h1 { font-size: 1.8rem; color: #ff6b6b; margin-bottom: 10px; }
+        h2 { font-size: 1.3rem; color: #777; margin-bottom: 15px; font-weight: bold;}
+        p { margin-bottom: 10px; color: #555; font-size: 1.1rem; font-weight: bold;}
+        
+        .btn { font-family: 'Poppins', sans-serif; font-size: 1.1rem; font-weight: 600; padding: 12px; margin: 6px 0; border: none; border-radius: 15px; cursor: pointer; width: 100%; color: white; transition: transform 0.1s; }
+        .btn:active { transform: scale(0.98); }
+        .btn-cp { background-color: #4ecdc4; box-shadow: 0 4px #16a085; }
+        .btn-ce1 { background-color: #9b59b6; box-shadow: 0 4px #732d91; }
+        .btn-neutre { background-color: #95a5a6; box-shadow: 0 4px #7f8c8d; }
+        
+        #infos-jeu { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2rem; margin-bottom: 20px; }
+        #question { font-size: 4.5rem; font-weight: 900; margin: 20px 0; color: #2c3e50; }
+        
+        #zone-saisie { display: flex; justify-content: center; gap: 10px; margin-top: 20px; }
+        #reponse { font-size: 3rem; width: 150px; padding: 10px; text-align: center; border: 4px solid #f39c12; border-radius: 15px; font-weight: bold; outline: none; color: #d35400; }
+        #btn-valider { width: auto; margin: 0; padding: 0 30px; font-size: 1.5rem; background: #27ae60; box-shadow: 0 5px #2ecc71; color: white; border:none; border-radius: 15px; cursor:pointer;}
+        
+        #feedback { height: 40px; font-size: 1.5rem; margin-top: 15px; font-weight: 900; }
+        .rapport-box { background: #f8f9fa; padding: 15px; border-radius: 10px; text-align: left; margin-bottom: 15px; }
+        .stat-highlight { float: right; font-weight: bold; color: #ff6b6b; }
+    </style>
+</head>
+<body>
+
+    <div id="conteneur-appli">
+        <div id="ecran-selection" class="ecran actif">
+            <h1>L'Aventure des Nombres V2 🦄</h1>
+            
+            <p>⭐️ Niveau CP :</p>
+            <button onclick="lancerJeu('add10')" class="btn btn-cp">➕ Additions jusqu'à 10</button>
+            <button onclick="lancerJeu('soustr')" class="btn btn-cp">➖ Petites Soustractions</button>
+            
+            <p style="margin-top: 15px;">🚀 Évolution CE1 (À la demande de Lola !) :</p>
+            <button onclick="lancerJeu('add50')" class="btn btn-ce1">➕ Grands Nombres (jusqu'à 50)</button>
+            <button onclick="lancerJeu('tables_ce1')" class="btn btn-ce1">✖️ Premières Tables (x2, x5)</button>
+            
+            <div style="margin-top: 20px; font-size: 1.2rem; font-weight: bold;">
+                Ton XP : <span id="profil-xp" style="color:#ff6b6b;">0</span> ⭐
+            </div>
+            
+            <button class="btn btn-neutre" style="margin-top: 25px;" onclick="window.location.href='academie.html'">🏠 Retour au Coin de Lola</button>
+        </div>
+
+        <div id="ecran-jeu" class="ecran">
+            <div id="infos-jeu"><span id="infos-vies" style="letter-spacing: 5px;">❤️❤️❤️</span><span id="infos-progression">1 / 10</span></div>
+            <div id="question">...</div>
+            <div id="zone-saisie">
+                <input type="number" id="reponse" autocomplete="off">
+                <button id="btn-valider" onclick="verifierReponse()">OK</button>
+            </div>
+            <div id="feedback"></div>
+        </div>
+
+        <div id="ecran-fin" class="ecran">
+            <h1 style="color:#27ae60; margin-bottom:20px;">Superbe réussite ! 🎉</h1>
+            <div class="rapport-box"><p style="font-size:1.3rem;">XP Gagné : <span id="fin-xp" class="stat-highlight">+0</span></p></div>
+            <button onclick="montrerEcran('ecran-selection')" class="btn btn-cp">Menu Principal</button>
+        </div>
+    </div>
+
+    <script>
+        let profil = { xp: 0 };
+        let vies = 3; let indexQuestion = 0; let nbQuestions = 10;
+        let modeActuel = ''; let reponseAttendue = 0; let xpPartie = 0;
+        const E = (id) => document.getElementById(id);
+
+        function chargerProfil() { const saved = localStorage.getItem('mathsLola'); if (saved) profil = JSON.parse(saved); E('profil-xp').textContent = profil.xp; }
+        function sauverProfil() { localStorage.setItem('mathsLola', JSON.stringify(profil)); E('profil-xp').textContent = profil.xp; }
+        function montrerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); E(id).classList.add('actif'); }
+
+        function lancerJeu(mode) {
+            modeActuel = mode; vies = 3; indexQuestion = 1; xpPartie = 0;
+            E('infos-vies').textContent = "❤️❤️❤️"; montrerEcran('ecran-jeu'); poserQuestion();
+        }
+
+        function poserQuestion() {
+            if (vies <= 0 || indexQuestion > nbQuestions) return finirJeu(vies > 0);
+            E('infos-progression').textContent = `${indexQuestion} / ${nbQuestions}`;
+            let n1, n2, txt;
+
+            if (modeActuel === 'add10') {
+                n1 = Math.floor(Math.random() * 9) + 1; n2 = Math.floor(Math.random() * (10 - n1)) + 1;
+                reponseAttendue = n1 + n2; txt = `${n1} + ${n2} =`;
+            } else if (modeActuel === 'soustr') {
+                n1 = Math.floor(Math.random() * 10) + 5; n2 = Math.floor(Math.random() * (n1 - 1)) + 1;
+                reponseAttendue = n1 - n2; txt = `${n1} - ${n2} =`;
+            } else if (modeActuel === 'add50') { // NIVEAU CE1
+                n1 = Math.floor(Math.random() * 30) + 10; n2 = Math.floor(Math.random() * 15) + 5;
+                reponseAttendue = n1 + n2; txt = `${n1} + ${n2} =`;
+            } else if (modeActuel === 'tables_ce1') { // NIVEAU CE1
+                n1 = Math.random() > 0.5 ? 2 : 5; n2 = Math.floor(Math.random() * 9) + 1; // Tables de 2 ou 5
+                reponseAttendue = n1 * n2; txt = `${n1} x ${n2} =`;
+            }
+            
+            E('question').textContent = txt; E('reponse').value = ''; E('reponse').disabled = false; E('btn-valider').style.display = 'inline-block'; E('reponse').focus(); E('feedback').textContent = '';
+        }
+
+        function verifierReponse() {
+            let valeur = E('reponse').value; if (valeur.trim() === '') return;
+            E('reponse').disabled = true; E('btn-valider').style.display = 'none';
+            
+            if (parseInt(valeur) === reponseAttendue) { 
+                E('feedback').textContent = "Bravo Lola ! ✨"; E('feedback').style.color = "#27ae60"; 
+                xpPartie += 10; indexQuestion++; setTimeout(poserQuestion, 1000); 
+            } else { 
+                vies--; E('infos-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3 - vies);
+                E('feedback').textContent = "Oups ! C'était " + reponseAttendue; E('feedback').style.color = "#c0392b"; 
+                if (vies <= 0) { setTimeout(() => { alert("Dommage ! Réessaie encore !"); lancerJeu(modeActuel); }, 2000); } 
+                else { setTimeout(() => { indexQuestion++; poserQuestion(); }, 2000); }
+            }
+        }
+
+        function finirJeu(victoire) { let bonus = vies * 10; profil.xp += xpPartie + bonus; sauverProfil(); E('fin-xp').textContent = "+" + (xpPartie + bonus); montrerEcran('ecran-fin'); }
+        E('reponse').addEventListener("keyup", (e) => { if (e.key === "Enter" && !E('reponse').disabled) verifierReponse(); });
+        chargerProfil();
+    </script>
+</body>
+</html>

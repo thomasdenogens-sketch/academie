@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Histoire - La Machine à Remonter le Temps V2</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #d4a373 0%, #faedcd 100%);
+            color: #333; display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh; padding: 20px;
+        }
+
+        #app-container {
+            background: white; padding: 25px 35px; border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            max-width: 950px; width: 100%; text-align: center;
+        }
+
+        h1 { color: #8b5a2b; font-weight: 900; font-size: 2.2rem; margin-bottom: 5px; }
+        .sous-titre { color: #888; margin-bottom: 20px; font-weight: 700; }
+
+        /* HUD */
+        #hud {
+            display: flex; justify-content: space-between;
+            background: #f8f9fa; padding: 12px 20px; border-radius: 12px;
+            margin-bottom: 20px; font-weight: bold; font-size: 1.1rem;
+        }
+        .xp-text { color: #e67e22; font-weight: 900; }
+        .vies-text { letter-spacing: 5px; }
+
+        /* Frise Chronologique */
+        #frise-container {
+            display: flex; justify-content: space-between; align-items: stretch;
+            background: #e9ecef; padding: 20px; border-radius: 15px; margin-bottom: 30px;
+            position: relative; gap: 10px; flex-wrap: wrap;
+        }
+        
+        #frise-container::before {
+            content: ''; position: absolute; top: 50%; left: 5%; right: 5%;
+            height: 6px; background: #adb5bd; z-index: 0; border-radius: 3px;
+        }
+
+        .emplacement {
+            flex: 1; min-height: 130px; min-width: 120px; background: white; border: 3px dashed #adb5bd;
+            border-radius: 10px; z-index: 1; display: flex; justify-content: center; align-items: center;
+            padding: 10px; cursor: pointer; transition: all 0.2s; position: relative;
+        }
+        .emplacement.surbrillance { border-color: #f39c12; background: #fdfae6; transform: scale(1.05); }
+
+        /* Cartes d'événements */
+        #deck-container {
+            display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;
+            min-height: 130px; padding: 15px; background: #f8f9fa; border-radius: 15px;
+        }
+
+        .carte-event {
+            background: #fff; border: 2px solid #ddd; padding: 15px 10px; border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; font-weight: bold; color: #444;
+            width: 140px; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; font-size: 0.95rem;
+        }
+        .carte-event .emoji { font-size: 2rem; margin-bottom: 5px; }
+        .carte-event:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+        .carte-event.selectionnee { border-color: #f39c12; background: #f39c12; color: white; transform: scale(1.1); box-shadow: 0 8px 15px rgba(243, 156, 18, 0.4); }
+        .carte-event.erreur { background: #e74c3c; color: white; border-color: #c0392b; animation: secousse 0.4s; }
+
+        @keyframes secousse {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Boutons */
+        .btn {
+            font-family: 'Nunito', sans-serif; font-size: 1.1rem; font-weight: bold;
+            padding: 12px 25px; border: none; border-radius: 10px; cursor: pointer;
+            color: white; margin: 5px; transition: transform 0.1s; display: inline-block;
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn-primaire { background: #e67e22; box-shadow: 0 4px #d35400; }
+        .btn-secondaire { background: #95a5a6; box-shadow: 0 4px #7f8c8d; }
+        .btn-supprimer { background: #e74c3c; padding: 12px 15px; box-shadow: 0 4px #c0392b; }
+
+        /* Configuration */
+        #zone-config {
+            background: #fff3cd; padding: 20px; border-radius: 15px; margin-top: 20px;
+            border: 2px dashed #ffeeba; text-align: left;
+        }
+        input, textarea {
+            width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px;
+            font-family: 'Nunito', sans-serif; font-size: 1rem;
+        }
+
+        .ecran { display: none; }
+        .ecran.actif { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+        
+        #feedback { font-size: 1.2rem; font-weight: bold; height: 30px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        
+        <div id="ecran-accueil" class="ecran actif">
+            <h1>Histoire ⏳</h1>
+            <p class="sous-titre">La Machine à Remonter le Temps V2</p>
+            
+            <div id="hud" style="justify-content: center;">
+                <span class="xp-text">XP Histoire : <span id="ui-xp-accueil">0</span> ⭐</span>
+            </div>
+
+            <h3>Les Grandes Périodes :</h3>
+            <div style="margin-bottom: 20px;">
+                <button class="btn btn-primaire" onclick="lancerNiveau('prehistoire', false)">🦖 La Préhistoire</button>
+                <button class="btn btn-primaire" style="background:#c0392b; box-shadow:0 4px #922b21;" onclick="lancerNiveau('antiquite', false)">🏛️ L'Antiquité</button>
+                <button class="btn btn-primaire" style="background:#2980b9; box-shadow:0 4px #1f618d;" onclick="lancerNiveau('moyen_age', false)">🏰 Le Moyen Âge</button>
+                <button class="btn btn-primaire" style="background:#8e44ad; box-shadow:0 4px #5b2c6f;" onclick="lancerNiveau('temps_modernes', false)">🚂 Temps Modernes & Époque Contemp.</button>
+            </div>
+
+            <hr style="border: 1px solid #eee; margin: 20px 0;">
+
+            <h3>Tes propres frises :</h3>
+            <div id="liste-themes-custom">
+                </div>
+
+            <div style="margin-top: 30px;">
+                <button class="btn btn-primaire" style="background: #27ae60; box-shadow: 0 4px #1e8449;" onclick="changerEcran('ecran-config')">➕ Créer une Frise</button>
+                <br>
+                <button class="btn btn-secondaire" style="margin-top: 15px;" onclick="window.location.href='academie.html'">🏠 Retour à l'Académie</button>
+            </div>
+        </div>
+
+        <div id="ecran-jeu" class="ecran">
+            <div id="hud">
+                <span class="vies-text" id="ui-vies">❤️❤️❤️</span>
+                <span id="ui-theme-titre" style="color: #8b5a2b;">Mission : ...</span>
+                <span class="xp-text">XP : <span id="ui-xp-jeu">0</span> ⭐</span>
+            </div>
+
+            <p style="font-weight: bold; margin-bottom: 5px; color: #8b5a2b;">L'ordre chronologique (du plus ancien au plus récent) :</p>
+            
+            <div id="frise-container"></div>
+            <div id="deck-container"></div>
+            <div id="feedback"></div>
+
+            <button id="btn-verifier" class="btn btn-primaire" style="display: none;" onclick="verifierFrise()">Vérifier ma frise</button>
+            <button class="btn btn-secondaire" onclick="retourAccueil()">Abandonner</button>
+        </div>
+
+        <div id="ecran-config" class="ecran">
+            <h2 style="color: #27ae60;">✍️ Créateur de Frises</h2>
+            <p>Tape les événements <strong>dans l'ordre chronologique</strong> (1 par ligne).</p>
+            <p style="font-size: 0.9rem; color: #888;">Le jeu se chargera de les mélanger ! (Tu peux ajouter des emojis).</p>
+            
+            <div id="zone-config">
+                <label><strong>Titre de la frise :</strong></label>
+                <input type="text" id="input-nom-theme" placeholder="Ex: La Révolution Française">
+                
+                <label><strong>Événements (du plus ancien au plus récent) :</strong></label>
+                <textarea id="input-mots" rows="6" placeholder="Prise de la Bastille ⚔️&#10;Déclaration des droits de l'homme 📜&#10;Napoléon Empereur 👑"></textarea>
+                
+                <button class="btn btn-primaire" style="background: #27ae60; box-shadow: 0 4px #1e8449;" onclick="sauvegarderTheme()">Sauvegarder ma frise</button>
+                <p id="msg-config" style="color: green; font-weight: bold; margin-top: 10px;"></p>
+            </div>
+
+            <button class="btn btn-secondaire" style="margin-top: 20px;" onclick="retourAccueil()">Retour Menu</button>
+        </div>
+
+        <div id="ecran-fin" class="ecran">
+            <h1>Mission Accomplie ! 🎉</h1>
+            <p class="sous-titre">Tu as restauré la ligne du temps !</p>
+            <div id="hud" style="justify-content: center;">
+                <span class="xp-text" style="font-size: 1.5rem;">+<span id="gain-xp"></span> XP gagnés !</span>
+            </div>
+            <button class="btn btn-primaire" onclick="window.location.href='academie.html'">Retour à l'Académie</button>
+            <button class="btn btn-secondaire" onclick="retourAccueil()">Faire une autre mission</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DONNÉES DU JEU (Programme complet Histoire CM1) ---
+        const donneesBase = {
+            prehistoire: { nom: "La Préhistoire", events: [
+                { ordre: 1, texte: "Apparition des premiers humains", emoji: "🚶" },
+                { ordre: 2, texte: "Maîtrise du feu", emoji: "🔥" },
+                { ordre: 3, texte: "Peintures de Lascaux", emoji: "🎨" },
+                { ordre: 4, texte: "Début de l'agriculture", emoji: "🌾" },
+                { ordre: 5, texte: "Invention de l'écriture", emoji: "✍️" }
+            ]},
+            antiquite: { nom: "L'Antiquité", events: [
+                { ordre: 1, texte: "Fondation de Rome", emoji: "🏛️" },
+                { ordre: 2, texte: "Bataille d'Alésia (Vercingétorix)", emoji: "⚔️" },
+                { ordre: 3, texte: "Conquête de la Gaule par Jules César", emoji: "🛡️" },
+                { ordre: 4, texte: "Naissance de Jésus-Christ", emoji: "🌟" },
+                { ordre: 5, texte: "Chute de l'Empire Romain", emoji: "🔥" }
+            ]},
+            moyen_age: { nom: "Le Moyen Âge", events: [
+                { ordre: 1, texte: "Baptême de Clovis", emoji: "👑" },
+                { ordre: 2, texte: "Couronnement de Charlemagne", emoji: "🦅" },
+                { ordre: 3, texte: "Guerre de Cent Ans (Jeanne d'Arc)", emoji: "⚜️" },
+                { ordre: 4, texte: "Invention de l'imprimerie (Gutenberg)", emoji: "📖" },
+                { ordre: 5, texte: "Découverte de l'Amérique (C. Colomb)", emoji: "⛵" }
+            ]},
+            temps_modernes: { nom: "Temps Modernes & Époque Contemp.", events: [
+                { ordre: 1, texte: "Règne de Louis XIV (Versailles)", emoji: "🏰" },
+                { ordre: 2, texte: "La Révolution Française (1789)", emoji: "✊" },
+                { ordre: 3, texte: "Abolition de l'esclavage", emoji: "⛓️‍💥" },
+                { ordre: 4, texte: "Première Guerre Mondiale", emoji: "🎖️" },
+                { ordre: 5, texte: "Premier homme sur la Lune", emoji: "🚀" }
+            ]}
+        };
+
+        let customThemes = JSON.parse(localStorage.getItem('histoireCustomV2')) || {};
+        let profil = JSON.parse(localStorage.getItem('histoireSaveV1')) || { xp: 0 };
+        
+        let vies = 3;
+        let carteSelectionnee = null;
+        let themeActuelId = "";
+        let isThemeCustom = false;
+        let eventsPartie = [];
+
+        // --- INITIALISATION ---
+        function majAccueil() {
+            document.getElementById('ui-xp-accueil').textContent = profil.xp;
+            
+            const conteneurCustom = document.getElementById('liste-themes-custom');
+            conteneurCustom.innerHTML = '';
+            
+            if (Object.keys(customThemes).length === 0) {
+                conteneurCustom.innerHTML = "<p style='color:#bbb; font-style:italic;'>Aucune frise créée.</p>";
+            } else {
+                for (let id in customThemes) {
+                    let div = document.createElement('div'); div.style.display = "inline-block";
+                    let btn = document.createElement('button');
+                    btn.className = 'btn btn-primaire';
+                    btn.style.backgroundColor = '#16a085'; btn.style.boxShadow = '0 4px #117864';
+                    btn.textContent = customThemes[id].nom + " ⭐";
+                    btn.onclick = () => lancerNiveau(id, true);
+                    
+                    let btnDel = document.createElement('button');
+                    btnDel.className = 'btn btn-supprimer'; btnDel.textContent = "X";
+                    btnDel.onclick = () => { delete customThemes[id]; sauverCustom(); majAccueil(); };
+                    
+                    div.appendChild(btn); div.appendChild(btnDel);
+                    conteneurCustom.appendChild(div);
+                }
+            }
+        }
+
+        function sauverProfil() {
+            localStorage.setItem('histoireSaveV1', JSON.stringify(profil));
+            document.getElementById('ui-xp-accueil').textContent = profil.xp;
+            document.getElementById('ui-xp-jeu').textContent = profil.xp;
+        }
+
+        function sauverCustom() { localStorage.setItem('histoireCustomV2', JSON.stringify(customThemes)); }
+
+        function sauvegarderTheme() {
+            let nom = document.getElementById('input-nom-theme').value.trim();
+            let motsBruts = document.getElementById('input-mots').value;
+            if(!nom || !motsBruts) return alert("Remplis le titre et les événements !");
+
+            let lignes = motsBruts.split('\n');
+            let listeEvents = [];
+
+            // On lit les lignes. L'ordre est automatique (ligne 1 = ordre 1, etc.)
+            let ordreActuel = 1;
+            for(let ligne of lignes) {
+                let txt = ligne.trim();
+                if(txt.length > 0) {
+                    // On essaie d'extraire l'emoji s'il y en a un à la fin ou au début (basique)
+                    // Pour simplifier l'espace parents, on met tout le texte et pas d'emoji séparé
+                    listeEvents.push({ ordre: ordreActuel, texte: txt, emoji: "" });
+                    ordreActuel++;
+                }
+            }
+
+            if(listeEvents.length < 3) return alert("Il faut au moins 3 événements pour faire une frise !");
+            if(listeEvents.length > 8) return alert("Maximum 8 événements pour que ça rentre sur l'écran !");
+
+            let id = 'custom_' + Date.now();
+            customThemes[id] = { nom: nom, events: listeEvents };
+            sauverCustom();
+
+            document.getElementById('msg-config').textContent = "Frise sauvegardée !";
+            document.getElementById('input-nom-theme').value = ""; document.getElementById('input-mots').value = "";
+            setTimeout(() => document.getElementById('msg-config').textContent = "", 3000);
+            majAccueil();
+        }
+
+        function changerEcran(id) {
+            document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif'));
+            document.getElementById(id).classList.add('actif');
+        }
+
+        function retourAccueil() { changerEcran('ecran-accueil'); majAccueil(); }
+
+        // --- MOTEUR DE JEU ---
+        function lancerNiveau(idTheme, isCustom) {
+            vies = 3; carteSelectionnee = null;
+            themeActuelId = idTheme; isThemeCustom = isCustom;
+            
+            let themeData = isCustom ? customThemes[idTheme] : donneesBase[idTheme];
+            eventsPartie = [...themeData.events];
+
+            document.getElementById('ui-vies').textContent = "❤️❤️❤️";
+            document.getElementById('ui-xp-jeu').textContent = profil.xp;
+            document.getElementById('ui-theme-titre').textContent = themeData.nom;
+            document.getElementById('feedback').textContent = "";
+            document.getElementById('btn-verifier').style.display = "none";
+
+            preparerPlateau();
+            changerEcran('ecran-jeu');
+        }
+
+        function preparerPlateau() {
+            const frise = document.getElementById('frise-container');
+            const deck = document.getElementById('deck-container');
+            frise.innerHTML = ''; deck.innerHTML = '';
+
+            // 1. Créer les emplacements de la frise
+            for (let i = 1; i <= eventsPartie.length; i++) {
+                let slot = document.createElement('div');
+                slot.className = 'emplacement';
+                slot.dataset.ordreAttendu = i;
+                slot.onclick = () => clicEmplacement(slot);
+                frise.appendChild(slot);
+            }
+
+            // 2. Mélanger les événements et créer les cartes
+            let evenementsMelanges = [...eventsPartie].sort(() => Math.random() - 0.5);
+
+            evenementsMelanges.forEach(evt => {
+                let carte = document.createElement('div');
+                carte.className = 'carte-event';
+                carte.id = "evt_" + evt.ordre;
+                
+                // S'il y a un emoji défini, on le met en gros au-dessus
+                if (evt.emoji) {
+                    carte.innerHTML = `<div class="emoji">${evt.emoji}</div><div>${evt.texte}</div>`;
+                } else {
+                    carte.textContent = evt.texte;
+                }
+                
+                carte.dataset.ordre = evt.ordre;
+                carte.onclick = (e) => {
+                    e.stopPropagation(); // Évite que le clic se propage
+                    clicCarte(carte);
+                };
+                deck.appendChild(carte);
+            });
+        }
+
+        // --- LOGIQUE DE SELECTION ---
+        function clicCarte(carte) {
+            if (carteSelectionnee === carte) {
+                carte.classList.remove('selectionnee');
+                carteSelectionnee = null; retirerSurbrillance(); return;
+            }
+
+            if (carte.parentElement.id !== 'deck-container') {
+                document.getElementById('deck-container').appendChild(carte);
+                verifierSiComplet(); return;
+            }
+
+            if (carteSelectionnee) carteSelectionnee.classList.remove('selectionnee');
+            
+            carte.classList.add('selectionnee');
+            carteSelectionnee = carte;
+
+            document.querySelectorAll('.emplacement').forEach(slot => {
+                if (slot.children.length === 0) slot.classList.add('surbrillance');
+            });
+        }
+
+        function clicEmplacement(slot) {
+            if (!carteSelectionnee) return;
+
+            if (slot.children.length > 0) {
+                let ancienneCarte = slot.children[0];
+                document.getElementById('deck-container').appendChild(ancienneCarte);
+            }
+
+            slot.appendChild(carteSelectionnee);
+            carteSelectionnee.classList.remove('selectionnee');
+            carteSelectionnee = null; retirerSurbrillance();
+            verifierSiComplet();
+        }
+
+        function retirerSurbrillance() { document.querySelectorAll('.emplacement').forEach(slot => { slot.classList.remove('surbrillance'); }); }
+
+        function verifierSiComplet() {
+            const emplacementsVides = document.querySelectorAll('.emplacement:empty').length;
+            document.getElementById('btn-verifier').style.display = (emplacementsVides === 0) ? "inline-block" : "none";
+        }
+
+        // --- VALIDATION ---
+        function verifierFrise() {
+            const emplacements = document.querySelectorAll('.emplacement');
+            let toutesBonnes = true;
+
+            emplacements.forEach(slot => {
+                let carte = slot.children[0];
+                if (carte && carte.dataset.ordre !== slot.dataset.ordreAttendu) {
+                    toutesBonnes = false;
+                    carte.classList.add('erreur');
+                    setTimeout(() => carte.classList.remove('erreur'), 1000);
+                    setTimeout(() => {
+                        document.getElementById('deck-container').appendChild(carte);
+                        verifierSiComplet();
+                    }, 1000);
+                }
+            });
+
+            const feedback = document.getElementById('feedback');
+
+            if (toutesBonnes) {
+                feedback.textContent = "Parfait ! La frise est exacte ! ✨";
+                feedback.style.color = "#27ae60";
+                
+                let gain = 50 + (vies * 10);
+                profil.xp += gain;
+                sauverProfil();
+
+                setTimeout(() => {
+                    document.getElementById('gain-xp').textContent = gain;
+                    changerEcran('ecran-fin');
+                }, 1500);
+
+            } else {
+                vies--;
+                document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3 - vies);
+                feedback.textContent = "Aïe, il y a des erreurs chronologiques !";
+                feedback.style.color = "#c0392b";
+                
+                if (vies <= 0) {
+                    setTimeout(() => { alert("Plus de vies ! Retente ta chance."); lancerNiveau(themeActuelId, isThemeCustom); }, 1500);
+                } else {
+                    setTimeout(() => feedback.textContent = "", 2000);
+                }
+            }
+        }
+
+        majAccueil();
+
+    </script>
+</body>
+</html>

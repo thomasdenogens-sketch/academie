@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Géographie CP - Découverte du Monde</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #a8e063 0%, #56ab2f 100%); color: #333; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
+        #app-container { background: white; padding: 25px 35px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-width: 800px; width: 100%; text-align: center; }
+        h1 { color: #27ae60; font-weight: 900; font-size: 2.2rem; margin-bottom: 20px; }
+        #hud { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; }
+        .xp-text { color: #2980b9; font-weight: 900; }
+        
+        #question-box { background: #ecf0f1; padding: 20px; border-radius: 15px; margin-bottom: 30px; font-size: 1.6rem; font-weight: 900; color: #2c3e50; border-bottom: 5px solid #bdc3c7; }
+        
+        #reponses-container { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; align-items: center;}
+        .btn-reponse { background: white; border: 3px solid #3498db; padding: 15px 20px; border-radius: 15px; font-size: 1.5rem; font-weight: bold; color: #3498db; cursor: pointer; transition: all 0.2s; box-shadow: 0 5px 0 #2980b9; display: flex; align-items: center; justify-content: flex-start; width: 100%; max-width: 400px; gap: 15px;}
+        .btn-reponse:active { transform: translateY(5px); box-shadow: none; }
+        
+        .emoji-rep { font-size: 2.5rem; }
+        
+        .btn-reponse.correcte { background: #2ecc71; color: white; border-color: #27ae60; box-shadow: 0 5px 0 #2196f3; }
+        .btn-reponse.erreur { background: #e74c3c; color: white; border-color: #c0392b; box-shadow: 0 5px 0 #c0392b; animation: secousse 0.4s; }
+        @keyframes secousse { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+        .btn { font-family: 'Nunito', sans-serif; font-size: 1.2rem; font-weight: bold; padding: 15px 25px; border: none; border-radius: 10px; cursor: pointer; color: white; margin: 10px 5px; transition: transform 0.1s; width: 80%; max-width: 300px; display: inline-block;}
+        .btn:active { transform: scale(0.95); }
+        .btn-primaire { background: #27ae60; box-shadow: 0 4px #219a52; }
+        .btn-secondaire { background: #bdc3c7; box-shadow: 0 4px #95a5a6; color: #2c3e50; }
+        
+        .ecran { display: none; }
+        .ecran.actif { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+        #feedback { font-size: 1.5rem; font-weight: bold; height: 40px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <div id="ecran-accueil" class="ecran actif">
+            <h1>Géographie CP 🌍</h1>
+            <p style="font-size: 1.2rem; color: #666; margin-bottom: 20px; font-weight: bold;">Découverte du Monde</p>
+            
+            <div style="margin-bottom: 30px;">
+                <button class="btn btn-primaire" style="background:#f1c40f; box-shadow:0 4px #f39c12;" onclick="lancerNiveau('paysages')">🏜️ Les Paysages</button><br>
+                <button class="btn btn-primaire" style="background:#3498db; box-shadow:0 4px #2980b9;" onclick="lancerNiveau('transports')">✈️ Les Transports</button><br>
+                <button class="btn btn-primaire" style="background:#e67e22; box-shadow:0 4px #d35400;" onclick="lancerNiveau('animaux')">🦁 Où vivent-ils ?</button>
+            </div>
+            
+            <div style="margin-top: 20px; font-size: 1.2rem; font-weight: bold;">
+                XP Géographie : <span id="ui-xp-accueil" style="color:#27ae60;">0</span> ⭐
+            </div>
+
+            <button class="btn btn-secondaire" style="margin-top: 30px;" onclick="window.location.href='academie.html'">🏠 Le Coin de Lola</button>
+        </div>
+
+        <div id="ecran-jeu" class="ecran">
+            <div id="hud">
+                <span id="ui-vies" style="letter-spacing: 5px;">❤️❤️❤️</span>
+                <span id="ui-progression" style="color: #7f8c8d;">1 / 5</span>
+            </div>
+            
+            <div id="question-box">Question...</div>
+            
+            <div id="reponses-container">
+                </div>
+            
+            <div id="feedback"></div>
+            <button class="btn btn-secondaire" onclick="retourAccueil()">Abandonner</button>
+        </div>
+
+        <div id="ecran-fin" class="ecran">
+            <h1 style="color:#2980b9;">Génial Lola ! 🗺️</h1>
+            <p style="font-size: 1.5rem; font-weight: bold; margin: 20px 0; color: #27ae60;">+<span id="gain-xp"></span> XP !</p>
+            <button class="btn btn-primaire" onclick="window.location.href='academie.html'">Retour à l'Académie</button>
+        </div>
+    </div>
+
+    <script>
+        const donneesJeu = {
+            paysages: [
+                { q: "Où trouve-t-on beaucoup de sable ?", choix: [{t: "À la mer", e: "🏖️"}, {t: "À la montagne", e: "⛰️"}, {t: "En ville", e: "🏙️"}], correct: 0 },
+                { q: "Où y a-t-il souvent de la neige ?", choix: [{t: "Dans le désert", e: "🏜️"}, {t: "À la montagne", e: "🏔️"}, {t: "À la plage", e: "⛱️"}], correct: 1 },
+                { q: "Où y a-t-il beaucoup de grands immeubles ?", choix: [{t: "À la campagne", e: "🚜"}, {t: "Dans la forêt", e: "🌲"}, {t: "En ville", e: "🏢"}], correct: 2 },
+                { q: "Où trouve-t-on des vaches et des tracteurs ?", choix: [{t: "À la campagne", e: "🐄"}, {t: "Sur l'océan", e: "🌊"}, {t: "Dans le ciel", e: "☁️"}], correct: 0 }
+            ],
+            transports: [
+                { q: "Le bateau navigue sur...", choix: [{t: "La route", e: "🛣️"}, {t: "L'eau", e: "💧"}, {t: "Les rails", e: "🛤️"}], correct: 1 },
+                { q: "L'avion vole dans...", choix: [{t: "Le ciel", e: "☁️"}, {t: "La mer", e: "🌊"}, {t: "La terre", e: "🌱"}], correct: 0 },
+                { q: "Le train roule sur...", choix: [{t: "L'herbe", e: "🌿"}, {t: "Des rails", e: "🛤️"}, {t: "L'eau", e: "💦"}], correct: 1 },
+                { q: "La voiture roule sur...", choix: [{t: "La route", e: "🛣️"}, {t: "Les nuages", e: "☁️"}, {t: "La plage", e: "🏖️"}], correct: 0 }
+            ],
+            animaux: [
+                { q: "Où vit le lion ?", choix: [{t: "Dans la savane", e: "🦁"}, {t: "Sur la banquise", e: "🧊"}, {t: "Dans la ville", e: "🏙️"}], correct: 0 },
+                { q: "Où vit l'ours polaire ?", choix: [{t: "Dans le désert", e: "🐫"}, {t: "Dans la forêt", e: "🌳"}, {t: "Sur la glace", e: "❄️"}], correct: 2 },
+                { q: "Où vit le requin ?", choix: [{t: "Dans la montagne", e: "⛰️"}, {t: "Dans l'océan", e: "🦈"}, {t: "Dans le ciel", e: "🦅"}], correct: 1 },
+                { q: "Où vit le singe ?", choix: [{t: "Dans la mer", e: "🌊"}, {t: "Dans la jungle", e: "🌴"}, {t: "Sur la lune", e: "🌔"}], correct: 1 }
+            ]
+        };
+
+        let profil = JSON.parse(localStorage.getItem('geoLola')) || { xp: 0 };
+        let vies = 3; let indexQuestion = 0; let questionsNiveau = []; 
+
+        const E = (id) => document.getElementById(id);
+
+        function majAccueil() { E('ui-xp-accueil').textContent = profil.xp; }
+        function sauverProfil() { localStorage.setItem('geoLola', JSON.stringify(profil)); majAccueil(); }
+        function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); E(id).classList.add('actif'); }
+        function retourAccueil() { changerEcran('ecran-accueil'); majAccueil(); }
+
+        function lancerNiveau(themeId) {
+            vies = 3; indexQuestion = 0;
+            // On mélange les questions du thème
+            questionsNiveau = [...donneesJeu[themeId]].sort(() => Math.random() - 0.5);
+            E('ui-vies').textContent = "❤️❤️❤️"; E('feedback').textContent = "";
+            changerEcran('ecran-jeu');
+            poserQuestion();
+        }
+
+        function poserQuestion() {
+            if (vies <= 0 || indexQuestion >= questionsNiveau.length) return finirJeu();
+            
+            E('ui-progression').textContent = `${indexQuestion + 1} / ${questionsNiveau.length}`;
+            E('feedback').textContent = "";
+            
+            let dataQ = questionsNiveau[indexQuestion];
+            E('question-box').textContent = dataQ.q;
+            
+            // Créer les boutons de réponse
+            const conteneur = E('reponses-container');
+            conteneur.innerHTML = '';
+            
+            // On associe l'index original (pour savoir si c'est la bonne réponse) aux choix
+            let choixMelanges = dataQ.choix.map((c, i) => ({...c, originalIndex: i}))
+                                            .sort(() => Math.random() - 0.5);
+            
+            choixMelanges.forEach(choix => {
+                let btn = document.createElement('div');
+                btn.className = 'btn-reponse';
+                btn.innerHTML = `<span class="emoji-rep">${choix.e}</span> <span>${choix.t}</span>`;
+                btn.onclick = () => verifierReponse(btn, choix.originalIndex === dataQ.correct);
+                conteneur.appendChild(btn);
+            });
+        }
+
+        function verifierReponse(boutonElement, estCorrect) {
+            document.querySelectorAll('.btn-reponse').forEach(b => b.onclick = null); // Bloque les autres clics
+            const fb = E('feedback');
+
+            if (estCorrect) {
+                boutonElement.classList.add('correcte');
+                fb.textContent = "Oui ! C'est ça ! 🌟"; fb.style.color = "#27ae60";
+                profil.xp += 15; sauverProfil();
+                setTimeout(() => { indexQuestion++; poserQuestion(); }, 1200);
+            } else {
+                boutonElement.classList.add('erreur');
+                fb.textContent = "Oh non... 🔴"; fb.style.color = "#e74c3c";
+                vies--; E('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3 - vies);
+                
+                // Montre la bonne réponse
+                let dataQ = questionsNiveau[indexQuestion];
+                document.querySelectorAll('.btn-reponse').forEach(b => {
+                    if (b.innerText.includes(dataQ.choix[dataQ.correct].t)) {
+                        b.style.background = "#2ecc71"; b.style.color = "white"; b.style.borderColor = "#27ae60";
+                    }
+                });
+
+                if (vies <= 0) {
+                    setTimeout(() => { alert("Plus de vies ! Réessaie."); retourAccueil(); }, 2000);
+                } else {
+                    setTimeout(() => { indexQuestion++; poserQuestion(); }, 2500);
+                }
+            }
+        }
+
+        function finirJeu() {
+            if (vies > 0) {
+                let bonus = vies * 20;
+                profil.xp += bonus; sauverProfil();
+                E('gain-xp').textContent = (questionsNiveau.length * 15) + bonus;
+                changerEcran('ecran-fin');
+            }
+        }
+
+        majAccueil();
+    </script>
+</body>
+</html>

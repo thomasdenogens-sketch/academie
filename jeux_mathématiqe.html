@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Défi des Tables V8 - Pro</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body { font-family: 'Poppins', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: #333; text-align: center; }
+        #conteneur-appli { width: 95%; max-width: 550px; background-color: #ffffff; padding: 25px 30px; border-radius: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative; }
+        .ecran { display: none; animation: fadeIn 0.4s ease-out; }
+        .ecran.actif { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        h1 { font-size: 1.8rem; color: #007bff; margin-bottom: 10px; }
+        h2 { font-size: 1.4rem; color: #0056b3; margin-bottom: 15px; }
+        p { margin-bottom: 15px; color: #666; }
+        .btn { font-family: 'Poppins', sans-serif; font-size: 1.1rem; font-weight: 600; padding: 12px; margin: 10px 0; border: none; border-radius: 12px; cursor: pointer; width: 100%; color: white; transition: transform 0.1s; }
+        .btn:active { transform: scale(0.98); }
+        .btn-principal { background-color: #007bff; box-shadow: 0 4px #0056b3; }
+        .btn-secondaire { background-color: #17a2b8; box-shadow: 0 4px #117a8b; }
+        .btn-neutre { background-color: #95a5a6; box-shadow: 0 4px #7f8c8d; }
+        .btn-vert { background-color: #28a745; box-shadow: 0 4px #218838; }
+        .grille-tables { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; padding: 0 20px; }
+        .check-table { display: none; }
+        .label-table { display: block; padding: 15px 0; background: #f0f2f5; border: 2px solid #ddd; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 1.2rem; color: #aaa; transition: all 0.2s; }
+        .check-table:checked + .label-table { background: #007bff; color: white; border-color: #0056b3; transform: translateY(-2px); }
+        .switch-container { display: flex; align-items: center; justify-content: center; background: #fff3cd; padding: 10px; border-radius: 10px; margin-bottom: 15px; }
+        .switch-label { margin-left: 10px; font-weight: bold; color: #856404; cursor: pointer;}
+        #barre-temps-conteneur { width: 100%; height: 8px; background: #eee; border-radius: 5px; margin-bottom: 20px; overflow: hidden; opacity: 0; }
+        #barre-temps-remplissage { height: 100%; width: 100%; background: #007bff; }
+        #header-manche { background: #e9ecef; border-radius: 10px; padding: 8px 15px; display: inline-block; margin-bottom: 15px; font-weight: bold; color: #495057; }
+        #infos-jeu { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; }
+        #question { font-size: 3.5rem; font-weight: 700; margin: 10px 0; color: #333; }
+        #reponse { font-size: 2.5rem; width: 180px; padding: 5px; text-align: center; border: 3px solid #ccc; border-radius: 15px; font-weight: bold; outline: none; }
+        #reponse:focus { border-color: #007bff; }
+        #feedback { height: 30px; font-size: 1.3rem; margin-top: 10px; font-weight: 600; }
+        .rapport-box { background: #f8f9fa; padding: 15px; border-radius: 10px; text-align: left; margin-bottom: 15px; }
+        .stat-highlight { float: right; font-weight: bold; color: #007bff; }
+        .erreur-item { color: #dc3545; font-weight: bold; display: block; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div id="conteneur-appli">
+        <div id="ecran-selection" class="ecran actif">
+            <h1>L'Ascension Pro</h1>
+            <p>Choisis les tables (2 à 9) :</p>
+            <div class="grille-tables">
+                <label><input type="checkbox" class="check-table" value="2"><span class="label-table">2</span></label>
+                <label><input type="checkbox" class="check-table" value="3"><span class="label-table">3</span></label>
+                <label><input type="checkbox" class="check-table" value="4"><span class="label-table">4</span></label>
+                <label><input type="checkbox" class="check-table" value="5" checked><span class="label-table">5</span></label>
+                <label><input type="checkbox" class="check-table" value="6" checked><span class="label-table">6</span></label>
+                <label><input type="checkbox" class="check-table" value="7"><span class="label-table">7</span></label>
+                <label><input type="checkbox" class="check-table" value="8"><span class="label-table">8</span></label>
+                <label><input type="checkbox" class="check-table" value="9"><span class="label-table">9</span></label>
+            </div>
+            <div class="switch-container">
+                <input type="checkbox" id="option-chrono">
+                <label for="option-chrono" class="switch-label">Activer le mode Chrono ⏱️</label>
+            </div>
+            <button onclick="lancerAscension('classique')" class="btn btn-principal">Mode Classique (6 x 7 = ?)</button>
+            <button onclick="lancerAscension('trous')" class="btn btn-secondaire">Mode à Trous (6 x ? = 42)</button>
+            <div style="margin-top: 15px; font-size: 0.9rem; color: #888;">
+                Rang : <span id="profil-rang">Débutant</span> | XP : <span id="profil-xp">0</span>
+            </div>
+            <button class="btn btn-neutre" style="margin-top: 20px;" onclick="window.location.href='academie.html'">🏠 Retour à l'Académie</button>
+        </div>
+
+        <div id="ecran-jeu" class="ecran">
+            <div id="barre-temps-conteneur"><div id="barre-temps-remplissage"></div></div>
+            <div id="header-manche">Manche 1</div>
+            <div id="infos-jeu"><span id="infos-vies">❤️❤️❤️</span><span id="infos-progression">1 / 5</span></div>
+            <div id="question">...</div>
+            <input type="number" id="reponse" autocomplete="off">
+            <div id="feedback"></div>
+        </div>
+
+        <div id="ecran-inter-manche" class="ecran">
+            <h2 id="titre-inter">Manche Terminée !</h2>
+            <p>Bon travail ! On continue ?</p>
+            <div class="rapport-box"><p>Précision manche : <span id="inter-precision" class="stat-highlight">100%</span></p></div>
+            <button id="btn-suite" class="btn btn-vert">Lancer la suite !</button>
+        </div>
+
+        <div id="ecran-fin" class="ecran">
+            <h2>Session Terminée !</h2>
+            <h1 style="color:#28a745; margin-bottom:20px;">Super !</h1>
+            <div class="rapport-box"><p>XP Gagné : <span id="fin-xp" class="stat-highlight">+0</span></p><p>Temps moyen : <span id="fin-temps" class="stat-highlight">0s</span></p></div>
+            <div class="rapport-box" id="bloc-erreurs" style="display:none;"><p><strong>Erreurs (à revoir) :</strong></p><div id="liste-erreurs"></div></div>
+            <button onclick="montrerEcran('ecran-selection')" class="btn btn-principal">Menu Principal</button>
+        </div>
+    </div>
+
+    <script>
+        const configManches = [{ nom: "Échauffement", nbQuestions: 5 }, { nom: "La Montée", nbQuestions: 10 }, { nom: "Le Sommet", nbQuestions: 15 }];
+        const configRangs = [{ nom: "Débutant", xp: 0 }, { nom: "Apprenti", xp: 100 }, { nom: "Confirmé", xp: 300 }, { nom: "Expert", xp: 700 }, { nom: "Maître", xp: 1500 }, { nom: "Légende", xp: 3000 }];
+        let profil = { xp: 0 };
+        let session = { tables: [], mode: 'classique', chronoActif: false, mancheActuelle: 0, vies: 3, scoreSession: 0, questionsPoseesSession: 0, tempsTotalSession: 0, erreursSession: [], xpGagneSession: 0, fileQuestions: [] };
+        let tour = { reponseAttendue: 0, debutQuestion: 0, timerInterval: null, questionActuelleObj: null };
+        const E = (id) => document.getElementById(id);
+        const ecrans = ['ecran-selection', 'ecran-jeu', 'ecran-inter-manche', 'ecran-fin'];
+
+        function chargerProfil() { const saved = localStorage.getItem('mathsV8'); if (saved) profil = JSON.parse(saved); majProfilUI(); }
+        function sauverProfil() { localStorage.setItem('mathsV8', JSON.stringify(profil)); majProfilUI(); }
+        function majProfilUI() { let rang = configRangs.slice().reverse().find(r => profil.xp >= r.xp) || configRangs[0]; E('profil-rang').textContent = rang.nom; E('profil-xp').textContent = profil.xp; }
+        function montrerEcran(id) { ecrans.forEach(e => E(e).classList.remove('actif')); E(id).classList.add('actif'); }
+
+        function genererDeckDeQuestions(nbQuestionsNecessaires) {
+            let deckUnique = []; let pairesVues = new Set();
+            session.tables.forEach(table => {
+                for (let i = 2; i <= 9; i++) {
+                    let n1 = Math.min(table, i); let n2 = Math.max(table, i); let cle = `${n1}-${n2}`;
+                    if (!pairesVues.has(cle)) { deckUnique.push({n1: n1, n2: n2}); pairesVues.add(cle); }
+                }
+            });
+            deckUnique.sort(() => Math.random() - 0.5);
+            let fileFinale = [];
+            while (fileFinale.length < nbQuestionsNecessaires) { let copie = [...deckUnique].sort(() => Math.random() - 0.5); fileFinale = fileFinale.concat(copie); }
+            return fileFinale.slice(0, nbQuestionsNecessaires);
+        }
+
+        function lancerAscension(mode) {
+            const checkboxes = document.querySelectorAll('.check-table:checked');
+            session.tables = Array.from(checkboxes).map(cb => parseInt(cb.value));
+            if (session.tables.length === 0) return alert("Choisis au moins une table !");
+            session.mode = mode; session.chronoActif = E('option-chrono').checked; session.mancheActuelle = 0; session.vies = 3; session.scoreSession = 0; session.questionsPoseesSession = 0; session.tempsTotalSession = 0; session.erreursSession = []; session.xpGagneSession = 0;
+            demarrerManche(0);
+        }
+
+        function demarrerManche(indexManche) {
+            session.mancheActuelle = indexManche; let config = configManches[indexManche];
+            session.fileQuestions = genererDeckDeQuestions(config.nbQuestions);
+            E('header-manche').textContent = `Manche ${indexManche + 1} : ${config.nom}`;
+            E('barre-temps-conteneur').style.opacity = session.chronoActif ? "1" : "0";
+            montrerEcran('ecran-jeu'); poserQuestion();
+        }
+
+        function poserQuestion() {
+            let config = configManches[session.mancheActuelle];
+            let indexQ = config.nbQuestions - session.fileQuestions.length + 1;
+            if (session.vies <= 0) return finirJeu(false); 
+            if (session.fileQuestions.length === 0) return finDeManche();
+            let paire = session.fileQuestions.pop(); tour.questionActuelleObj = paire;
+            E('infos-progression').textContent = `${indexQ} / ${config.nbQuestions}`; E('infos-vies').textContent = "❤️".repeat(session.vies);
+            let n1, n2; if (Math.random() > 0.5) { n1 = paire.n1; n2 = paire.n2; } else { n1 = paire.n2; n2 = paire.n1; }
+            tour.reponseAttendue = n1 * n2;
+            let txt = "";
+            if (session.mode === 'classique') { txt = `${n1} x ${n2} =`; } else { let p = n1 * n2; if (Math.random() > 0.5) { txt = `${n1} x ? = ${p}`; tour.reponseAttendue = n2; } else { txt = `? x ${n2} = ${p}`; tour.reponseAttendue = n1; } }
+            E('question').textContent = txt; E('reponse').value = ''; E('reponse').disabled = false; E('reponse').focus(); E('feedback').textContent = '';
+            tour.debutQuestion = Date.now(); if (session.chronoActif) lancerTimer();
+        }
+
+        function lancerTimer() {
+            clearInterval(tour.timerInterval); let duree = 10000; let fin = Date.now() + duree; let barre = E('barre-temps-remplissage');
+            barre.style.transition = "none"; barre.style.width = "100%"; void barre.offsetWidth; barre.style.transition = "width 10s linear"; barre.style.width = "0%";
+            tour.timerInterval = setInterval(() => { if (Date.now() >= fin) { clearInterval(tour.timerInterval); verifierReponse(null, true); } }, 100);
+        }
+
+        function verifierReponse(valeur, tempsEcoule = false) {
+            clearInterval(tour.timerInterval); let tempsPasse = (Date.now() - tour.debutQuestion) / 1000; session.tempsTotalSession += tempsPasse; session.questionsPoseesSession++;
+            E('reponse').disabled = true; let correct = (!tempsEcoule &&
