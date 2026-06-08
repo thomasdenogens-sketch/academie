@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Le Portail Familial - Académie</title>
+    <title>Le Portail Familial - Académie Pro Cloud</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
         
@@ -20,7 +20,6 @@
             transition: background 0.5s; 
         }
         
-        /* --- ÉCRAN SÉLECTION PROFIL --- */
         #ecran-profils { 
             display: flex; 
             flex-direction: column; 
@@ -55,7 +54,6 @@
         .avatar-lola { background: linear-gradient(135deg, #ff9a9e, #fecfef); }
         .profil-name { font-size: 1.5rem; font-weight: 900; color: #2c3e50; }
 
-        /* --- DASHBOARD --- */
         #dashboard { 
             display: none; 
             background: white; 
@@ -86,7 +84,7 @@
         .sous-titre { color: #7f8c8d; margin-bottom: 30px; font-size: 1.2rem; }
 
         .stats-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 35px; }
-        .stat-box { background: #f8f9fa; padding: 20px; border-radius: 15px; flex: 1; min-width: 150px; border: 2px solid #eee; transition: transform 0.2s; }
+        .stat-box { background: #f8f9fa; padding: 20px; border-radius: 15px; flex: 1; min-width: 150px; border: 2px solid #eee; }
         .stat-valeur { font-size: 2.2rem; font-weight: 900; margin: 10px 0; }
         .stat-label { font-size: 0.9rem; color: #95a5a6; text-transform: uppercase; font-weight: bold; }
 
@@ -107,7 +105,6 @@
             overflow: hidden; 
             min-height: 160px; 
         }
-        .carte-jeu:active { transform: scale(0.95); }
         
         .carte-jeu h2 { font-size: 1.6rem; margin-bottom: 5px; z-index: 1; text-shadow: 1px 1px 3px rgba(0,0,0,0.2); }
         .desc-jeu { font-size: 0.9rem; margin-bottom: 15px; font-weight: normal; opacity: 0.9; z-index: 1; }
@@ -121,7 +118,6 @@
         .j-histoire { background: linear-gradient(135deg, #d4a373, #e9b485); }
         .j-anglais { background: linear-gradient(135deg, #ff9a9e, #fecfef); }
         .j-geo { background: linear-gradient(135deg, #a8e063, #56ab2f); }
-        .j-francais { background: linear-gradient(135deg, #fdc830, #f37335); }
     </style>
 </head>
 <body>
@@ -142,15 +138,13 @@
 
     <div id="dashboard">
         <button id="btn-changer-profil" onclick="deconnecter()">🔄 Changer de profil</button>
-        
         <h1 class="titre-dash" id="titre-bienvenue">L'Académie</h1>
-        <p class="sous-titre" id="sous-titre-dash">Ton QG d'entraînement !</p>
+        <p class="sous-titre" id="sous-titre-dash">Ton QG d'entraînement connecté !</p>
 
         <div class="stats-container">
             <div class="stat-box">
                 <div class="stat-label">✨ Expérience Totale</div>
-                <div class="stat-valeur" id="total-xp" style="color: #f39c12;">0 ⭐</div>
-                <div style="font-size: 0.8rem; color: #bdc3c7;">Points cumulés</div>
+                <div class="stat-valeur" id="total-xp" style="color: #f39c12;">Chargement...</div>
             </div>
         </div>
 
@@ -159,89 +153,69 @@
     </div>
 
     <script>
+        // URL de votre base de données Cloud
+        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
         let utilisateurActuel = null;
+        let cloudData = {};
 
-        // Jeux de Théo (CM1)
         const jeuxTheo = [
-            { id: "maths", nom: "Mathématiques", desc: "Tables, Fractions & Défi 5 min", icone: "📊", classe: "j-maths", href: "jeu_maths_theo.html", saveKey: "mathsV8" },
+            { id: "maths", nom: "Mathématiques", desc: "Tables & Défi", icone: "📊", classe: "j-maths", href: "jeu_maths_theo.html", saveKey: "mathsV8" },
             { id: "conj", nom: "Conjugaison", desc: "Le Héros des Temps", icone: "✍️", classe: "j-conj", href: "jeu_conjugaison_v6.html", saveKey: "conjHero9" },
             { id: "mots", nom: "Orthographe", desc: "Chasseur de Mots", icone: "🔎", classe: "j-mots", href: "mots_meles_v3.html", saveKey: "motsSaveV3" },
-            { id: "hist", nom: "Histoire", desc: "La Machine du Temps V2", icone: "⏳", classe: "j-histoire", href: "jeu_histoire.html", saveKey: "histoireSaveV1" },
+            { id: "hist", nom: "Histoire", desc: "La Machine du Temps", icone: "⏳", classe: "j-histoire", href: "jeu_histoire.html", saveKey: "histoireSaveV1" },
             { id: "angl", nom: "Anglais", desc: "Le Défi Bilingue", icone: "🇬🇧", classe: "j-anglais", href: "jeu_anglais.html", saveKey: "anglaisSaveV1" },
             { id: "geo", nom: "Géographie", desc: "Le Globe-Trotter", icone: "🌍", classe: "j-geo", href: "jeu_geo.html", saveKey: "geoSaveV1" },
-            { id: "echecs", nom: "Échecs", desc: "Stratégies & Ouvertures", icone: "👑", classe: "j-histoire", href: "echecs_coach.html", saveKey: "echecsSave" }
+            { id: "echecs", nom: "Échecs", desc: "Stratégies & Pro IA", icone: "👑", classe: "j-histoire", href: "echecs_coach.html", saveKey: "echecsSave" }
         ];
 
-        // Jeux de Lola (CP/CE1)
         const jeuxLola = [
             { id: "maths_lola", nom: "Mathématiques", desc: "Additions & Soustractions", icone: "➕", classe: "j-maths", href: "jeu_maths_lola.html", saveKey: "mathsLola" },
-            { id: "francais_lola", nom: "Français", desc: "Les mots magiques", icone: "📖", classe: "j-francais", href: "jeu_francais_lola.html", saveKey: "francaisLola" },
+            { id: "francais_lola", nom: "Français", desc: "Les mots magiques", icone: "📖", classe: "j-conj", href: "jeu_francais_lola.html", saveKey: "francaisLola" },
             { id: "angl_lola", nom: "Anglais", desc: "Mes premiers mots", icone: "🇬🇧", classe: "j-anglais", href: "jeu_anglais_lola.html", saveKey: "anglaisLola" },
             { id: "geo_lola", nom: "Géographie", desc: "Découverte du Monde", icone: "🌍", classe: "j-geo", href: "jeu_geo_lola.html", saveKey: "geoLola" }
         ];
 
-        function choisirProfil(pseudo) {
+        async function fetchCloudData() {
+            try {
+                let res = await fetch(`${FIREBASE_URL}scores.json`);
+                cloudData = await res.json() || {};
+            } catch(e) { console.error("Erreur de connexion Cloud", e); }
+        }
+
+        async function choisirProfil(pseudo) {
             utilisateurActuel = pseudo;
             localStorage.setItem('sessionActiveFamille', pseudo);
-
             document.getElementById('ecran-profils').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
+
+            await fetchCloudData(); // Charge les données depuis Google
 
             if (pseudo === 'theo') {
                 document.body.style.background = "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)";
                 document.getElementById('titre-bienvenue').textContent = "L'Académie de Théo 🎓";
-                document.getElementById('titre-bienvenue').style.color = "#2c3e50";
-                genererMenu(jeuxTheo);
+                genererMenu(jeuxTheo, 'theo');
             } else {
                 document.body.style.background = "linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)";
                 document.getElementById('titre-bienvenue').textContent = "Le Coin de Lola 🦄";
-                document.getElementById('titre-bienvenue').style.color = "#d63031";
-                genererMenu(jeuxLola);
+                genererMenu(jeuxLola, 'lola');
             }
         }
 
-        function deconnecter() {
-            localStorage.removeItem('sessionActiveFamille');
-            document.getElementById('dashboard').style.display = 'none';
-            document.getElementById('ecran-profils').style.display = 'flex';
-            document.body.style.background = "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)";
-        }
-
-        function genererMenu(listeJeux) {
+        function genererMenu(listeJeux, joueur) {
             const menu = document.getElementById('menu-jeux-dynamique');
             menu.innerHTML = '';
             let totalXP = 0;
 
-            // Fonction BLINDÉE pour récupérer l'XP
-            const getXP = (cle) => { 
-                try {
-                    let saved = localStorage.getItem(cle);
-                    if (!saved) return 0; // Si pas de sauvegarde, on renvoie 0
-                    
-                    let data = JSON.parse(saved); // Si la sauvegarde est corrompue, ça plante ici...
-                    return data.xp ? parseInt(data.xp) : 0; // Et on renvoie l'XP
-                    
-                } catch (erreur) {
-                    // ... et le Catch attrape l'erreur au lieu de faire planter tout le site !
-                    console.error("Sauvegarde cassée ignorée :", cle);
-                    return 0; 
-                }
-            };
-
-            let clesCalculees = new Set();
+            let joueurData = cloudData[joueur] || {};
 
             listeJeux.forEach(jeu => {
-                let xpDuJeu = getXP(jeu.saveKey);
-                
-                if (!clesCalculees.has(jeu.saveKey)) {
-                    totalXP += xpDuJeu;
-                    clesCalculees.add(jeu.saveKey);
-                }
+                let jeuSaved = joueurData[jeu.saveKey] || { xp: 0 };
+                let xpDuJeu = parseInt(jeuSaved.xp) || 0;
+                totalXP += xpDuJeu;
 
                 let a = document.createElement('a');
                 a.href = jeu.href;
                 a.className = `carte-jeu ${jeu.classe}`;
-                
                 a.innerHTML = `
                     <span class="icone-fond">${jeu.icone}</span>
                     <h2>${jeu.nom}</h2>
@@ -254,15 +228,15 @@
             document.getElementById('total-xp').textContent = totalXP + " ⭐";
         }
 
-        // Vérification au démarrage si une session était déjà ouverte (Blindée également)
-        try {
-            let session = localStorage.getItem('sessionActiveFamille');
-            if (session === 'theo' || session === 'lola') {
-                choisirProfil(session);
-            }
-        } catch(e) {
-            console.error("Impossible de lire la session auto.");
+        function deconnecter() {
+            localStorage.removeItem('sessionActiveFamille');
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('ecran-profils').style.display = 'flex';
+            document.body.style.background = "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)";
         }
+
+        let session = localStorage.getItem('sessionActiveFamille');
+        if (session) choisirProfil(session);
     </script>
 </body>
 </html>

@@ -3,518 +3,276 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Échecs Coach - Édition Pro</title>
+    <title>Échecs Coach - Édition Pro Cloud</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap');
-        
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-        
         body { 
             font-family: 'Poppins', sans-serif; 
             background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%); 
-            color: #102a43; 
-            display: flex; flex-direction: column; align-items: center; 
+            color: #102a43; display: flex; flex-direction: column; align-items: center; 
             min-height: 100vh; padding: 20px; 
         }
-        
         #app-container { 
             background: #ffffff; padding: 30px; border-radius: 25px; 
             box-shadow: 0 15px 40px rgba(16, 42, 67, 0.15); 
-            max-width: 1050px; width: 100%; text-align: center; border: 1px solid #dee2e6;
-            position: relative;
+            max-width: 1050px; width: 100%; text-align: center; border: 1px solid #dee2e6; position: relative;
         }
-        
         h1 { color: #0b69a3; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
         .sous-titre { color: #627d98; margin-bottom: 25px; font-size: 1.1rem; font-weight: 600; }
-        .xp-display { position: absolute; top: 20px; right: 30px; font-weight: bold; font-size: 1.2rem; color: #f39c12; background: #fff3cd; padding: 5px 15px; border-radius: 20px; border: 2px solid #ffeeba; transition: transform 0.2s;}
-
+        .xp-display { position: absolute; top: 20px; right: 30px; font-weight: bold; font-size: 1.2rem; color: #f39c12; background: #fff3cd; padding: 5px 15px; border-radius: 20px; border: 2px solid #ffeeba; }
         .onglets { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
-        .tab-btn { 
-            background: #eaeaea; color: #486581; border: none; padding: 10px 18px; 
-            border-radius: 12px; cursor: pointer; font-weight: 700; font-family: 'Poppins'; 
-            transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.05); font-size: 0.95rem;
-        }
-        .tab-btn:hover { color: #102a43; background: #dcdcdc; }
-        .tab-btn.actif { background: #0b69a3; color: #ffffff; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(11,105,163,0.25); }
-
-        .ecran { display: none; animation: fadeIn 0.4s ease-out; }
-        .ecran.actif { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
+        .tab-btn { background: #eaeaea; color: #486581; border: none; padding: 10px 18px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 0.95rem; }
+        .tab-btn.actif { background: #0b69a3; color: #ffffff; }
+        .ecran { display: none; } .ecran.actif { display: block; }
         .grid-cours { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 20px; }
-        .carte-cours { 
-            background: #f0f4f8; padding: 20px; border-radius: 16px; text-align: left; 
-            border-top: 6px solid #0b69a3; box-shadow: 0 5px 15px rgba(0,0,0,0.04);
-            display: flex; flex-direction: column; justify-content: space-between;
-        }
-        .carte-cours h3 { color: #0b69a3; margin-bottom: 10px; font-size: 1.1rem; }
-        .carte-cours p { font-size: 0.9rem; color: #334e68; line-height: 1.5; margin-bottom: 10px;}
-        
-        .btn-action-lecon {
-            background: #2ecc71; color: white; border: none; padding: 10px 15px; 
-            border-radius: 8px; font-weight: bold; cursor: pointer;
-            width: 100%; transition: 0.2s; box-shadow: 0 4px #27ae60;
-        }
-        .btn-action-lecon:active { transform: translateY(4px); box-shadow: none; }
-        .btn-verrouille { background: #95a5a6; box-shadow: 0 4px #7f8c8d; cursor: not-allowed; }
-
+        .carte-cours { background: #f0f4f8; padding: 20px; border-radius: 16px; text-align: left; border-top: 6px solid #0b69a3; }
+        .btn-action-lecon { background: #2ecc71; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
+        .btn-verrouille { background: #95a5a6; cursor: not-allowed; }
         #layout-jeu { display: flex; gap: 20px; justify-content: center; align-items: flex-start; flex-wrap: wrap; margin-top: 15px; }
-        
-        .assistant-box {
-            background: #f0f4f8; padding: 20px; border-radius: 16px; width: 100%; max-width: 260px;
-            text-align: left; box-shadow: 0 5px 15px rgba(0,0,0,0.04); border: 1px solid #cbd5e1;
-        }
-        .assistant-box h4 { color: #0b69a3; margin-bottom: 10px; font-size: 1.2rem; border-bottom: 2px solid #cbd5e1; padding-bottom: 5px;}
-        .assistant-box p { font-size: 0.95rem; color: #334e68; line-height: 1.4; min-height: 60px; font-weight: 600;}
-
-        .select-ia { width: 100%; padding: 8px; border-radius: 8px; border: 2px solid #cbd5e1; font-family: 'Poppins'; font-weight: bold; color: #102a43; margin-top: 10px; cursor: pointer; }
-
+        .assistant-box { background: #f0f4f8; padding: 20px; border-radius: 16px; width: 100%; max-width: 260px; text-align: left; border: 1px solid #cbd5e1; }
+        .select-ia { width: 100%; padding: 8px; border-radius: 8px; font-weight: bold; margin-top: 10px; }
         #board-container { width: 100%; max-width: 440px; }
-        #board { 
-            display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); 
-            width: 100%; aspect-ratio: 1; border: 6px solid #486581; border-radius: 8px; 
-            box-shadow: 0 15px 30px rgba(16, 42, 67, 0.2); 
-        }
-        
-        .case { display: flex; justify-content: center; align-items: center; font-size: clamp(1.8rem, 7vw, 3.2rem); cursor: pointer; position: relative; overflow: hidden; }
-        .case.blanche { background-color: #ebecd0; }
-        .case.noire { background-color: #739552; } 
-        
+        #board { display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); width: 100%; aspect-ratio: 1; border: 6px solid #486581; border-radius: 8px; }
+        .case { display: flex; justify-content: center; align-items: center; font-size: clamp(1.8rem, 7vw, 3.2rem); cursor: pointer; position: relative; }
+        .case.blanche { background-color: #ebecd0; } .case.noire { background-color: #739552; } 
         .case.selectionnee { background-color: #f1c40f !important; }
         .case.coup-valide::after { content: ''; position: absolute; width: 30%; height: 30%; background: rgba(0, 0, 0, 0.2); border-radius: 50%; }
         .case.coup-attaque::after { content: ''; position: absolute; width: 80%; height: 80%; border: 6px solid rgba(0, 0, 0, 0.2); border-radius: 50%; }
-        .case.guide-ouverture { background-color: #3498db !important; animation: pulseGlow 1.5s infinite; }
-        
-        @keyframes pulseGlow { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
-
-        #panneau-historique {
-            width: 100%; max-width: 200px; height: 440px; 
-            background: #ffffff; border: 2px solid #cbd5e1; border-radius: 8px;
-            display: flex; flex-direction: column; overflow: hidden;
-        }
-        #hist-titre { background: #486581; color: white; padding: 10px; font-weight: bold; font-size: 0.9rem; margin: 0; }
-        #hist-liste { flex: 1; overflow-y: auto; padding: 10px; text-align: left; font-family: monospace; font-size: 1rem; color: #334e68; }
-        .hist-ligne { display: flex; padding: 4px 0; border-bottom: 1px solid #f0f4f8; }
-        .hist-num { width: 30px; color: #94a3b8; font-weight: bold; }
-        .hist-blanc { width: 60px; font-weight: 600; color: #0b69a3; }
-        .hist-noir { width: 60px; font-weight: 600; color: #e74c3c; }
-
-        .btn { font-family: 'Poppins'; font-size: 0.95rem; font-weight: 700; padding: 10px 20px; border: none; border-radius: 12px; cursor: pointer; color: white; margin: 5px; transition: all 0.1s; }
-        .btn:active { transform: scale(0.98); }
-        .btn-primaire { background: #2ecc71; box-shadow: 0 4px #27ae60; }
-        .btn-secondaire { background: #627d98; box-shadow: 0 4px #486581; }
-        .btn-oups { background: #e74c3c; box-shadow: 0 4px #c0392b; }
-        
+        .case.guide-ouverture { background-color: #3498db !important; }
+        #panneau-historique { width: 100%; max-width: 200px; height: 440px; background: #ffffff; border: 2px solid #cbd5e1; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; }
+        #hist-titre { background: #486581; color: white; padding: 10px; font-weight: bold; }
+        #hist-liste { flex: 1; overflow-y: auto; padding: 10px; font-family: monospace; }
+        .btn { font-family: 'Poppins'; font-size: 0.95rem; font-weight: 700; padding: 10px 20px; border: none; border-radius: 12px; cursor: pointer; color: white; margin: 5px; }
+        .btn-primaire { background: #2ecc71; } .btn-secondaire { background: #627d98; } .btn-oups { background: #e74c3c; }
         #statut-partie { margin-top: 15px; font-size: 1.1rem; font-weight: 900; color: #2ecc71; height: 40px; }
     </style>
 </head>
 <body>
 
     <div id="app-container">
-        <div class="xp-display" id="hud-xp">XP: 0 ⭐</div>
+        <div class="xp-display" id="hud-xp">XP: ... ⭐</div>
         <h1>Échecs Coach 👑</h1>
-        <p class="sous-titre">Édition Spéciale "Grand Maître" (Moteur Pro)</p>
+        <p class="sous-titre">Édition Spéciale Pro Cloud</p>
 
         <div class="onglets">
-            <button class="tab-btn" onclick="changerOnglet('cours')">🏰 Règles Magiques</button>
+            <button class="tab-btn" onclick="changerOnglet('cours')">🏰 Règles</button>
             <button class="tab-btn" onclick="changerOnglet('ouvertures')">📖 Ouvertures</button>
             <button class="tab-btn" onclick="changerOnglet('cassetetes')">🧩 Casse-Têtes</button>
             <button class="tab-btn actif" onclick="changerOnglet('jeu')">🤖 Contre l'IA</button>
         </div>
 
         <div id="onglet-cours" class="ecran">
-            <p style="margin-bottom: 20px; color:#627d98;">Apprends les coups spéciaux en les jouant toi-même sur le plateau :</p>
             <div class="grid-cours">
-                <div class="carte-cours">
-                    <h3>🏰 Le Roque</h3><p>Pour mettre ton Roi à l'abri et sortir ta Tour d'un seul coup.</p>
-                    <button class="btn-action-lecon" onclick="chargerLecon('roque')">Tester le Roque</button>
-                </div>
-                <div class="carte-cours">
-                    <h3>♟️ La Prise en Passant</h3><p>Le coup secret du pion en diagonale. Difficile mais très puissant !</p>
-                    <button class="btn-action-lecon" onclick="chargerLecon('passant')">Tester la Prise en Passant</button>
-                </div>
-                <div class="carte-cours">
-                    <h3>👑 La Promotion</h3><p>Quand ton pion arrive tout au bout, il se transforme en Reine.</p>
-                    <button class="btn-action-lecon" onclick="chargerLecon('promotion')">Tester la Promotion</button>
-                </div>
+                <div class="carte-cours"><h3>🏰 Le Roque</h3><p>Mets ton roi à l'abri !</p><button class="btn-action-lecon" onclick="chargerLecon('roque')">Tester</button></div>
+                <div class="carte-cours"><h3>♟️ Prise en Passant</h3><p>Coup de pion spécial.</p><button class="btn-action-lecon" onclick="chargerLecon('passant')">Tester</button></div>
+                <div class="carte-cours"><h3>👑 La Promotion</h3><p>Atteins le bout du plateau !</p><button class="btn-action-lecon" onclick="chargerLecon('promotion')">Tester</button></div>
             </div>
-            <button class="btn btn-secondaire" onclick="window.location.href='academie.html'">🏠 Quitter</button>
         </div>
 
         <div id="onglet-ouvertures" class="ecran">
-            <p style="margin-bottom: 20px; color:#627d98;">Mémorise les premiers coups des champions :</p>
             <div class="grid-cours">
-                <div class="carte-cours" style="border-top-color: #2ecc71;">
-                    <h3>🇪🇸 Espagnole</h3><p>La reine des attaques centrales.</p>
-                    <button class="btn-action-lecon" onclick="chargerLecon('espagnole')">Lancer la leçon</button>
-                </div>
-                <div class="carte-cours" style="border-top-color: #3498db;">
-                    <h3>🇮🇹 Italienne</h3><p>Une stratégie d'attaque ultra-rapide.</p>
-                    <button class="btn-action-lecon" onclick="chargerLecon('italienne')">Lancer la leçon</button>
-                </div>
-                <div class="carte-cours" style="border-top-color: #e74c3c;">
-                    <h3>🛡️ Sicilienne</h3><p>La contre-attaque quand on a les Noirs.</p>
-                    <button class="btn-action-lecon" onclick="chargerLecon('sicilienne')">Lancer la leçon</button>
-                </div>
+                <div class="carte-cours"><h3>🇪🇸 Espagnole</h3><button class="btn-action-lecon" onclick="chargerLecon('espagnole')">Lancer</button></div>
+                <div class="carte-cours"><h3>🇮🇹 Italienne</h3><button class="btn-action-lecon" onclick="chargerLecon('italienne')">Lancer</button></div>
+                <div class="carte-cours"><h3>🛡️ Sicilienne</h3><button class="btn-action-lecon" onclick="chargerLecon('sicilienne')">Lancer</button></div>
             </div>
         </div>
 
         <div id="onglet-cassetetes" class="ecran">
-            <p style="margin-bottom: 20px; color:#627d98;">Gagne de l'XP pour débloquer de nouvelles tactiques de Maître !</p>
-            <div class="grid-cours" id="grille-defis">
-                </div>
+            <div class="grid-cours" id="grille-defis"></div>
         </div>
 
         <div id="onglet-jeu" class="ecran actif">
             <div id="layout-jeu">
                 <div class="assistant-box">
-                    <h4 id="assistant-titre">🤖 Match VS IA</h4>
-                    <p id="assistant-consigne">À toi de jouer (Blancs) !</p>
-                    
-                    <div id="options-ia" style="margin-top: 10px; border-top: 1px solid #cbd5e1; padding-top: 10px;">
-                        <label for="niveau-ia" style="font-size: 0.9rem; font-weight: bold; color: #102a43;">Niveau de l'Ordinateur :</label>
-                        <select id="niveau-ia" class="select-ia" onchange="changerNiveauIA()">
-                            <option value="1">🟢 1. Débutant (Rigolo et distrait)</option>
-                            <option value="2" selected>🟠 2. Club (Fait attention)</option>
-                            <option value="3">🔴 3. Expert (Anticipe 2 coups)</option>
-                        </select>
-                    </div>
-
+                    <h4>🤖 Match VS IA</h4>
+                    <p id="assistant-consigne">À toi de jouer !</p>
+                    <select id="niveau-ia" class="select-ia" onchange="changerNiveauIA()">
+                        <option value="1">🟢 1. Débutant</option>
+                        <option value="2" selected>🟠 2. Club</option>
+                        <option value="3">🔴 3. Expert</option>
+                    </select>
                     <div id="statut-partie">Partie en cours</div>
                 </div>
-                
-                <div id="board-container">
-                    <div id="board"></div>
-                </div>
-
-                <div id="panneau-historique">
-                    <h4 id="hist-titre">📝 Coups Joués</h4>
-                    <div id="hist-liste"></div>
-                </div>
+                <div id="board-container"><div id="board"></div></div>
+                <div id="panneau-historique"><h4 id="hist-titre">📝 Coups</h4><div id="hist-liste"></div></div>
             </div>
-
             <div style="margin-top: 20px;">
-                <button class="btn btn-oups" id="btn-annuler" onclick="annulerCoup()">↩️ Oups ! (Annuler)</button>
-                <button class="btn btn-primaire" onclick="lancerModeMatch()">🔄 Relancer Partie</button>
-                <button class="btn btn-secondaire" onclick="window.location.href='academie.html'">🏠 Menu Académie</button>
+                <button class="btn btn-oups" onclick="annulerCoup()">↩️ Oups !</button>
+                <button class="btn btn-primaire" onclick="lancerModeMatch()">🔄 Recommencer</button>
+                <button class="btn btn-secondaire" onclick="window.location.href='index.html'">🏠 Académie</button>
             </div>
         </div>
     </div>
 
     <script>
-        if (typeof Chess === 'undefined') { alert("Erreur: Impossible de charger le moteur Pro."); }
+        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+        const joueurActif = localStorage.getItem('sessionActiveFamille') || 'theo';
 
-        const E = (id) => document.getElementById(id);
+        const PIECES_UNICODE = { 'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟', 'R': '♜', 'N': '♞', 'B': '♝', 'Q': '♛', 'K': '♚', 'P': '♟' };
+        let game = new Chess(), selectedSquare = null, validMoves = [], modeActuel = 'match', tourBloque = false, niveauIA = 2, xpDuJoueur = 0;
+        let leconActuelle = null, leconIndex = 0, defiActuel = null;
 
-        const PIECES_UNICODE = {
-            'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟', 
-            'R': '♜', 'N': '♞', 'B': '♝', 'Q': '♛', 'K': '♚', 'P': '♟'  
-        };
-
-        let game = new Chess();
-        let selectedSquare = null;
-        let validMoves = []; 
-        let modeActuel = 'match'; 
-        let tourBloque = false; 
-        let niveauIA = 2; 
-
-        // --- RÈGLES & OUVERTURES ---
         const leconsToutes = {
-            roque: { nom: "Le Roque", fen: '4k2r/8/8/8/8/8/8/4K2R w Kk - 0 1', coups: ['O-O'], msg: ["Déplace le Roi blanc de DEUX cases vers la droite (sur g1). La Tour bougera toute seule !"] },
-            passant: { nom: "La Prise en Passant", fen: '8/8/8/3pP3/8/8/8/8 w - d6 0 1', coups: ['exd6'], msg: ["Le pion noir vient de faire un double pas. Capture-le en avançant ton pion en diagonale sur la case d6 !"] },
-            promotion: { nom: "La Promotion", fen: '8/P7/8/8/8/8/8/8 w - - 0 1', coups: ['a8=Q'], msg: ["Avance ton pion sur la dernière case (a8) pour le transformer en Reine !"] },
-            espagnole: { nom: "L'Espagnole", coups: ['e4', 'e5', 'Nf3', 'Nc6', 'Bb5'], msg: ["Avance le pion en e4.", "L'IA joue e5.", "Cavalier en f3.", "L'IA défend avec Nc6.", "Fou en b5. L'Espagnole est activée !"] },
-            italienne: { nom: "L'Italienne", coups: ['e4', 'e5', 'Nf3', 'Nc6', 'Bc4'], msg: ["Avance le pion en e4.", "L'IA joue e5.", "Cavalier en f3.", "L'IA défend avec Nc6.", "Fou en c4. Il vise le point faible f7 !"] },
-            sicilienne: { nom: "La Sicilienne", coups: ['e4', 'c5'], msg: ["L'ordinateur joue e4.", "Tu as les Noirs : Joue c5. C'est la Sicilienne !"] }
+            roque: { nom: "Le Roque", fen: '4k2r/8/8/8/8/8/8/4K2R w Kk - 0 1', coups: ['O-O'], msg: ["Déplace le Roi blanc de deux cases vers la droite (sur g1)."] },
+            passant: { nom: "La Prise en Passant", fen: '8/8/8/3pP3/8/8/8/8 w - d6 0 1', coups: ['exd6'], msg: ["Capture le pion noir en diagonale sur la case d6 !"] },
+            promotion: { nom: "La Promotion", fen: '8/P7/8/8/8/8/8/8 w - - 0 1', coups: ['a8=Q'], msg: ["Avance ton pion sur la dernière case (a8) !"] },
+            espagnole: { nom: "L'Espagnole", coups: ['e4', 'e5', 'Nf3', 'Nc6', 'Bb5'], msg: ["Pion en e4.", "L'IA joue e5.", "Cavalier en f3.", "L'IA joue Nc6.", "Fou en b5 !"] },
+            italienne: { nom: "L'Italienne", coups: ['e4', 'e5', 'Nf3', 'Nc6', 'Bc4'], msg: ["Pion en e4.", "L'IA joue e5.", "Cavalier en f3.", "L'IA joue Nc6.", "Fou en c4 !"] },
+            sicilienne: { nom: "La Sicilienne", coups: ['e4', 'c5'], msg: ["L'ordinateur joue e4.", "Joue c5. C'est la Sicilienne !"] }
         };
 
-        // --- DÉFIS TACTIQUES (Base de données) ---
         const defisCasseTetes = [
-            { id: "mat_couloir", nom: "Mat du Couloir", xpRequis: 0, gainXP: 5, fen: '6k1/1p3ppp/8/8/8/8/1P3PPP/R5K1 w - - 0 1', rep: 'a8', msg: "Trouve le coup de Tour qui fait échec et mat ! (+5 XP)" },
-            { id: "fourchette", nom: "La Fourchette", xpRequis: 0, gainXP: 5, fen: 'q3k3/8/8/3N4/8/8/8/1K6 w - - 0 1', rep: 'c7', msg: "Attaque le Roi et la Reine en même temps avec ton Cavalier ! (+5 XP)" },
-            { id: "clouage", nom: "Le Clouage", xpRequis: 30, gainXP: 10, fen: '8/8/4k3/4r3/8/4B3/4Q3/4K3 w - - 0 1', rep: 'd4', msg: "La Tour noire protège son roi, elle ne peut pas bouger. Mets ton Fou en d4 pour l'attaquer ! (+10 XP)" },
-            { id: "mat_berger", nom: "Mat du Berger", xpRequis: 60, gainXP: 15, fen: 'r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 0 1', rep: 'f7', msg: "Prends le pion f7 avec ta Reine protégée par le Fou pour un Échec et Mat fulgurant ! (+15 XP)" },
-            { id: "etouffe", nom: "Mat à l'étouffé", xpRequis: 100, gainXP: 25, fen: '6rk/6pp/8/5N2/8/8/8/7K w - - 0 1', rep: 'h6', msg: "Le Roi noir est étouffé par ses propres pions. Le Cavalier en h6 fait Mat ! (+25 XP)" }
+            { id: "mat_couloir", nom: "Mat du Couloir", xpRequis: 0, gainXP: 5, fen: '6k1/1p3ppp/8/8/8/8/1P3PPP/R5K1 w - - 0 1', rep: 'a8', msg: "Fais échec et mat avec ta Tour ! (+5 XP)" },
+            { id: "fourchette", nom: "La Fourchette", xpRequis: 0, gainXP: 5, fen: 'q3k3/8/8/3N4/8/8/8/1K6 w - - 0 1', rep: 'c7', msg: "Attaque le Roi et la Reine en même temps avec le Cavalier ! (+5 XP)" },
+            { id: "clouage", nom: "Le Clouage", xpRequis: 30, gainXP: 10, fen: '8/8/4k3/4r3/8/4B3/4Q3/4K3 w - - 0 1', rep: 'd4', msg: "Attaque la Tour noire bloquée avec ton Fou en d4 ! (+10 XP)" }
         ];
 
-        let leconActuelle = null;
-        let leconIndex = 0;
-        let defiActuel = null;
-
-        // --- GESTION XP ET DÉBLOCAGE ---
-        let profilXP = { xp: 0 };
-        try { let saved = localStorage.getItem('echecsSave'); if(saved) profilXP = JSON.parse(saved); } catch(e){}
-        
-        function majXP(points) {
-            profilXP.xp += points; 
-            E('hud-xp').textContent = `XP: ${profilXP.xp} ⭐`;
-            E('hud-xp').style.transform = "scale(1.2)";
-            setTimeout(() => { E('hud-xp').style.transform = "scale(1)"; }, 300);
-            localStorage.setItem('echecsSave', JSON.stringify(profilXP));
-            afficherDefis(); // Met à jour les cadenas
+        async function chargerXP() {
+            try {
+                let res = await fetch(`${FIREBASE_URL}scores/${joueurActif}/echecsSave.json`);
+                let data = await res.json();
+                xpDuJoueur = data ? (parseInt(data.xp) || 0) : 0;
+                E('hud-xp').textContent = `XP: ${xpDuJoueur} ⭐`;
+                afficherDefis();
+            } catch(e) { console.error(e); }
         }
-        
+
+        async function majXP(points) {
+            xpDuJoueur += points;
+            E('hud-xp').textContent = `XP: ${xpDuJoueur} ⭐`;
+            await fetch(`${FIREBASE_URL}scores/${joueurActif}/echecsSave.json`, {
+                method: 'PUT', body: JSON.stringify({ xp: xpDuJoueur })
+            });
+            afficherDefis();
+        }
+
         function afficherDefis() {
-            let grille = E('grille-defis');
-            grille.innerHTML = "";
+            let grille = E('grille-defis'); grille.innerHTML = "";
             defisCasseTetes.forEach(defi => {
-                let estDebloque = profilXP.xp >= defi.xpRequis;
-                let btnHtml = estDebloque 
-                    ? `<button class="btn-action-lecon" onclick="chargerDefi('${defi.id}')">Jouer ce défi</button>`
-                    : `<button class="btn-action-lecon btn-verrouille" disabled>🔒 Débloqué à ${defi.xpRequis} XP</button>`;
-                
-                grille.innerHTML += `
-                    <div class="carte-cours">
-                        <h3>${defi.nom}</h3>
-                        <p>${defi.msg}</p>
-                        ${btnHtml}
-                    </div>`;
+                let estDebloque = xpDuJoueur >= defi.xpRequis;
+                grille.innerHTML += `<div class="carte-cours"><h3>${defi.nom}</h3><p>${defi.msg}</p>${estDebloque ? `<button class="btn-action-lecon" onclick="chargerDefi('${defi.id}')">Jouer</button>` : `<button class="btn-action-lecon btn-verrouille" disabled>🔒 ${defi.xpRequis} XP</button>`}</div>`;
             });
         }
-        afficherDefis();
-        majXP(0);
 
-        // --- NAVIGATION ET MODES ---
         function changerOnglet(onglet) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('actif'));
             document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif'));
-            E('btn-tab-'+onglet)?.classList.add('actif'); E('onglet-'+onglet)?.classList.add('actif');
+            event.target.classList.add('actif'); E('onglet-'+onglet).classList.add('actif');
             if(onglet === 'jeu' && modeActuel !== 'match') lancerModeMatch();
         }
 
         function changerNiveauIA() { niveauIA = parseInt(E('niveau-ia').value); }
 
         function lancerModeMatch() {
-            modeActuel = 'match'; changerOnglet('jeu');
-            game.reset(); selectedSquare = null; validMoves = []; tourBloque = false;
-            E('assistant-titre').textContent = "🤖 Match VS IA";
-            E('assistant-consigne').textContent = "C'est une vraie partie professionnelle.";
-            E('options-ia').style.display = "block"; E('btn-annuler').style.display = "inline-block";
-            actualiserStatut(); drawBoard();
+            modeActuel = 'match'; game.reset(); selectedSquare = null; validMoves = []; tourBloque = false;
+            E('options-ia').style.display = "block"; actualiserStatut(); drawBoard();
         }
 
         function chargerDefi(idDefi) {
-            defiActuel = defisCasseTetes.find(d => d.id === idDefi);
-            modeActuel = 'defi'; 
-            changerOnglet('jeu');
+            defiActuel = defisCasseTetes.find(d => d.id === idDefi); modeActuel = 'defi';
             game.load(defiActuel.fen); selectedSquare = null; validMoves = []; tourBloque = false;
-            
-            E('assistant-titre').textContent = `🧩 ${defiActuel.nom}`;
-            E('assistant-consigne').textContent = "Trouve l'unique coup gagnant !";
-            E('options-ia').style.display = "none"; E('btn-annuler').style.display = "none";
-            E('statut-partie').textContent = "À toi de jouer !"; E('statut-partie').style.color = "#3498db";
-            drawBoard();
+            E('options-ia').style.display = "none"; E('statut-partie').textContent = "À toi !"; drawBoard();
         }
 
         function chargerLecon(id) {
-            modeActuel = 'lecon';
-            leconActuelle = leconsToutes[id]; leconIndex = 0;
-            changerOnglet('jeu');
-            
-            if (leconActuelle.fen) { game.load(leconActuelle.fen); } else { game.reset(); }
-            selectedSquare = null; validMoves = []; tourBloque = false;
-            
-            E('assistant-titre').textContent = `🎓 Leçon : ${leconActuelle.nom}`;
-            E('options-ia').style.display = "none"; E('btn-annuler').style.display = "none";
-            
+            modeActuel = 'lecon'; leconActuelle = leconsToutes[id]; leconIndex = 0;
+            if (leconActuelle.fen) game.load(leconActuelle.fen); else game.reset();
+            selectedSquare = null; validMoves = []; tourBloque = false; E('options-ia').style.display = "none";
             executerEtapeLecon();
         }
 
         function executerEtapeLecon() {
-            if(leconIndex >= leconActuelle.coups.length) {
-                E('assistant-consigne').textContent = "Bravo Théo ! Tu as parfaitement exécuté cette leçon.";
-                E('statut-partie').textContent = "Leçon Terminée ! 🎉"; E('statut-partie').style.color = "#f1c40f";
-                tourBloque = true; drawBoard(); return;
-            }
-
+            if(leconIndex >= leconActuelle.coups.length) { E('statut-partie').textContent = "Terminé ! 🎉"; tourBloque = true; drawBoard(); return; }
             E('assistant-consigne').textContent = leconActuelle.msg[leconIndex];
-            E('statut-partie').textContent = "Suis les instructions..."; E('statut-partie').style.color = "#3498db";
-            
-            let moveObj = game.move(leconActuelle.coups[leconIndex]); 
-            game.undo(); 
-
+            let moveObj = game.move(leconActuelle.coups[leconIndex]); game.undo();
             if (moveObj.color !== game.turn()) {
                 tourBloque = true; drawBoard();
-                setTimeout(() => {
-                    game.move(leconActuelle.coups[leconIndex]);
-                    leconIndex++; drawBoard(); tourBloque = false;
-                    setTimeout(executerEtapeLecon, 600);
-                }, 1500);
+                setTimeout(() => { game.move(leconActuelle.coups[leconIndex]); leconIndex++; drawBoard(); tourBloque = false; executerEtapeLecon(); }, 1500);
             } else { tourBloque = false; drawBoard(); }
         }
 
-        function annulerCoup() {
-            if (tourBloque) return;
-            game.undo(); game.undo(); 
-            selectedSquare = null; validMoves = [];
-            actualiserStatut(); drawBoard();
-        }
+        function annulerCoup() { if (!tourBloque) { game.undo(); game.undo(); selectedSquare = null; validMoves = []; actualiserStatut(); drawBoard(); } }
 
-        // --- AFFICHAGE ---
         function posToSquare(r, c) { return String.fromCharCode(97 + c) + (8 - r); }
 
         function drawBoard() {
-            const boardDiv = E('board');
-            boardDiv.innerHTML = '';
-            let boardLayout = game.board(); 
-
+            const boardDiv = E('board'); boardDiv.innerHTML = ''; let layout = game.board();
             for (let r = 0; r < 8; r++) {
                 for (let c = 0; c < 8; c++) {
-                    let squareId = posToSquare(r, c);
-                    let squareDiv = document.createElement('div');
-                    squareDiv.className = `case ${(r + c) % 2 === 1 ? 'noire' : 'blanche'}`;
-                    
-                    let pieceObj = boardLayout[r][c];
-                    if (pieceObj) {
-                        squareDiv.textContent = PIECES_UNICODE[pieceObj.type.toLowerCase()];
-                        if (pieceObj.color === 'w') {
-                            squareDiv.style.color = "#ffffff"; 
-                            squareDiv.style.textShadow = "0 2px 4px rgba(0,0,0,0.6), -2px -2px 0 #2c3e50, 2px -2px 0 #2c3e50, -2px 2px 0 #2c3e50, 2px 2px 0 #2c3e50"; 
-                        } else {
-                            squareDiv.style.color = "#1e293b"; 
-                            squareDiv.style.textShadow = "0 2px 4px rgba(0,0,0,0.3)";
-                        }
+                    let sqId = posToSquare(r, c); let sqDiv = document.createElement('div');
+                    sqDiv.className = `case ${(r + c) % 2 === 1 ? 'noire' : 'blanche'}`;
+                    let p = layout[r][c];
+                    if (p) {
+                        sqDiv.textContent = PIECES_UNICODE[p.type.toLowerCase()];
+                        sqDiv.style.color = p.color === 'w' ? "#ffffff" : "#1e293b";
+                        if(p.color === 'w') sqDiv.style.textShadow = "0 2px 4px rgba(0,0,0,0.6), -2px -2px 0 #2c3e50, 2px -2px 0 #2c3e50, -2px 2px 0 #2c3e50, 2px 2px 0 #2c3e50";
                     }
-
-                    if (selectedSquare === squareId) squareDiv.classList.add('selectionnee');
-                    
-                    let moveDetails = validMoves.find(m => m.to === squareId);
-                    if (moveDetails) squareDiv.classList.add(pieceObj ? 'coup-attaque' : 'coup-valide');
-
+                    if (selectedSquare === sqId) sqDiv.classList.add('selectionnee');
+                    if (validMoves.find(m => m.to === sqId)) sqDiv.classList.add(p ? 'coup-attaque' : 'coup-valide');
                     if (modeActuel === 'lecon' && !tourBloque && leconIndex < leconActuelle.coups.length) {
-                        let m = game.move(leconActuelle.coups[leconIndex]); game.undo();
-                        if (m.from === squareId || m.to === squareId) squareDiv.classList.add('guide-ouverture');
+                        let m = game.move(leconActuelle.coups[leconIndex]); game.undo(); if (m.from === sqId || m.to === sqId) sqDiv.classList.add('guide-ouverture');
                     }
-
-                    squareDiv.onclick = () => clicCase(squareId);
-                    boardDiv.appendChild(squareDiv);
+                    sqDiv.onclick = () => clicCase(sqId); boardDiv.appendChild(sqDiv);
                 }
             }
-            majHistorique();
+            let hist = game.history(); let hList = E('hist-liste'); hList.innerHTML = '';
+            for(let i=0; i<hist.length; i+=2) { hList.innerHTML += `<div>${(i/2)+1}. ${hist[i]} ${hist[i+1]||''}</div>`; }
         }
 
-        function majHistorique() {
-            let histDiv = E('hist-liste');
-            let history = game.history(); 
-            histDiv.innerHTML = '';
-            
-            for(let i=0; i<history.length; i+=2) {
-                let w = history[i];
-                let b = history[i+1] ? history[i+1] : '';
-                histDiv.innerHTML += `<div class="hist-ligne"><div class="hist-num">${(i/2)+1}.</div><div class="hist-blanc">${w}</div><div class="hist-noir">${b}</div></div>`;
-            }
-            histDiv.scrollTop = histDiv.scrollHeight; 
-        }
-
-        // --- INTERACTION ---
         function clicCase(sq) {
             if (tourBloque) return;
-
-            let moveDetails = validMoves.find(m => m.to === sq);
-
-            if (moveDetails) {
+            let mDetails = validMoves.find(m => m.to === sq);
+            if (mDetails) {
                 if (modeActuel === 'lecon') {
-                    let moveAttendu = game.move(leconActuelle.coups[leconIndex]); game.undo();
-                    if (selectedSquare === moveAttendu.from && sq === moveAttendu.to) {
-                        game.move({from: selectedSquare, to: sq, promotion: 'q'});
-                        selectedSquare = null; validMoves = []; leconIndex++; drawBoard();
-                        setTimeout(executerEtapeLecon, 400);
-                    }
+                    let mAttendu = game.move(leconActuelle.coups[leconIndex]); game.undo();
+                    if (selectedSquare === mAttendu.from && sq === mAttendu.to) { game.move({from: selectedSquare, to: sq, promotion: 'q'}); leconIndex++; drawBoard(); setTimeout(executerEtapeLecon, 400); }
                     return;
                 }
-
-                game.move({ from: selectedSquare, to: sq, promotion: 'q' });
-                selectedSquare = null; validMoves = []; drawBoard();
-
+                game.move({ from: selectedSquare, to: sq, promotion: 'q' }); selectedSquare = null; validMoves = []; drawBoard();
                 if (modeActuel === 'defi') {
-                    if (sq === defiActuel.rep) {
-                        E('statut-partie').textContent = "🌟 DÉFI RÉUSSI !"; E('statut-partie').style.color = "#f1c40f";
-                        majXP(defiActuel.gainXP); tourBloque = true;
-                    } else {
-                        E('statut-partie').textContent = "❌ Mauvais coup..."; E('statut-partie').style.color = "#e74c3c";
-                        game.undo(); setTimeout(drawBoard, 1000);
-                    }
+                    if (sq === defiActuel.rep) { E('statut-partie').textContent = "🌟 GAGNÉ !"; majXP(defiActuel.gainXP); tourBloque = true; }
+                    else { E('statut-partie').textContent = "❌ Non..."; game.undo(); setTimeout(drawBoard, 1000); }
                     return;
                 }
-
                 if (verifierFinPartie()) return;
-
-                tourBloque = true;
-                E('statut-partie').textContent = "L'ordinateur réfléchit... 🤖"; E('statut-partie').style.color = "#e74c3c";
-                setTimeout(jouerCoupIA, (niveauIA === 3 ? 1200 : 500));
-                return;
+                tourBloque = true; E('statut-partie').textContent = "Réflexion... 🤖";
+                setTimeout(jouerCoupIA, niveauIA === 3 ? 1200 : 500); return;
             }
-
-            let pieceInfo = game.get(sq);
-            if (pieceInfo && pieceInfo.color === game.turn()) {
-                selectedSquare = sq;
-                validMoves = game.moves({ square: sq, verbose: true });
-                drawBoard();
-            } else { selectedSquare = null; validMoves = []; drawBoard(); }
+            let p = game.get(sq); if (p && p.color === game.turn()) { selectedSquare = sq; validMoves = game.moves({ square: sq, verbose: true }); drawBoard(); }
         }
 
         function verifierFinPartie() {
-            if (game.in_checkmate()) {
-                E('statut-partie').textContent = game.turn() === 'b' ? "ÉCHEC ET MAT ! Tu as gagné 🏆" : "ÉCHEC ET MAT ! L'IA a gagné 💀";
-                E('statut-partie').style.color = game.turn() === 'b' ? "#2ecc71" : "#e74c3c";
-                if(game.turn() === 'b') majXP(20);
-                tourBloque = true; return true;
-            }
-            if (game.in_draw() || game.in_stalemate() || game.in_threefold_repetition()) {
-                E('statut-partie').textContent = "Match Nul ! (Égalité) 🤝"; E('statut-partie').style.color = "#f1c40f";
-                tourBloque = true; return true;
-            }
+            if (game.in_checkmate()) { E('statut-partie').textContent = game.turn() === 'b' ? "Gagné ! 🏆" : "Perdu... 💀"; if(game.turn() === 'b') majXP(20); tourBloque = true; return true; }
+            if (game.in_draw()) { E('statut-partie').textContent = "Match Nul 🤝"; tourBloque = true; return true; }
             return false;
         }
 
-        function actualiserStatut() {
-            if (verifierFinPartie()) return;
-            if (game.in_check()) {
-                E('statut-partie').textContent = "⚠️ ÉCHEC ! Protège ton Roi !"; E('statut-partie').style.color = "#e67e22";
-            } else {
-                E('statut-partie').textContent = "À ton tour ! (Blancs)"; E('statut-partie').style.color = "#2ecc71";
-            }
-        }
-
-        // --- INTELLIGENCE ARTIFICIELLE ---
-        function evaluerPlateauPro(gameInstance) {
-            let valeurs = { p: 10, n: 30, b: 30, r: 50, q: 90, k: 900 };
-            let score = 0;
-            gameInstance.board().forEach(row => { row.forEach(p => { if (p) score += (p.color === 'b' ? valeurs[p.type] : -valeurs[p.type]); }); });
-            return score;
-        }
+        function actualiserStatut() { if (!verifierFinPartie()) E('statut-partie').textContent = game.in_check() ? "⚠️ ÉCHEC !" : "À toi !"; }
 
         function jouerCoupIA() {
-            let moves = game.moves({ verbose: true });
-            if (moves.length === 0) return;
-
-            let meilleurCoup;
-
-            if (niveauIA === 1) {
-                meilleurCoup = moves[Math.floor(Math.random() * moves.length)];
-            } 
+            let moves = game.moves({ verbose: true }); if (moves.length === 0) return;
+            let meilleur;
+            if (niveauIA === 1) meilleur = moves[Math.floor(Math.random() * moves.length)];
             else if (niveauIA === 2) {
-                let captures = moves.filter(m => m.flags.includes('c'));
-                meilleurCoup = (captures.length > 0 && Math.random() > 0.4) 
-                    ? captures[Math.floor(Math.random() * captures.length)] 
-                    : moves[Math.floor(Math.random() * moves.length)];
-            }
-            else {
-                let meilleurScore = -9999;
-                moves.sort(() => Math.random() - 0.5); 
+                let cap = moves.filter(m => m.flags.includes('c'));
+                meilleur = cap.length > 0 && Math.random() > 0.4 ? cap[Math.floor(Math.random() * cap.length)] : moves[Math.floor(Math.random() * moves.length)];
+            } else {
+                let bestS = -9999; moves.sort(() => Math.random() - 0.5);
                 for (let i = 0; i < moves.length; i++) {
-                    game.move(moves[i]); let score = evaluerPlateauPro(game); game.undo();
-                    if (score > meilleurScore) { meilleurScore = score; meilleurCoup = moves[i]; }
+                    game.move(moves[i]); let s = evaluerPlateauPro(game); game.undo(); if (s > bestS) { bestS = s; meilleur = moves[i]; }
                 }
             }
-
-            game.move(meilleurCoup);
-            tourBloque = false;
-            actualiserStatut(); drawBoard();
+            game.move(meilleur); tourBloque = false; actualiserStatut(); drawBoard();
         }
 
-        lancerModeMatch();
+        function evaluerPlateauPro(g) {
+            let v = { p: 10, n: 30, b: 30, r: 50, q: 90, k: 900 }, score = 0;
+            g.board().forEach(row => { row.forEach(p => { if (p) score += (p.color === 'b' ? v[p.type] : -v[p.type]); }); }); return score;
+        }
+
+        chargerXP();
     </script>
 </body>
 </html>
