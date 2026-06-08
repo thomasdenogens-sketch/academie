@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Maths CP/CE1 - L'Aventure des Nombres</title>
+    <title>Maths CP/CE1 - L'Aventure des Nombres (Cloud)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
@@ -48,10 +48,10 @@
             <button onclick="lancerJeu('tables_ce1')" class="btn btn-ce1">✖️ Premières Tables (x2, x5)</button>
             
             <div style="margin-top: 20px; font-size: 1.2rem; font-weight: bold;">
-                Ton XP : <span id="profil-xp" style="color:#ff6b6b;">0</span> ⭐
+                Ton XP : <span id="profil-xp" style="color:#ff6b6b;">...</span> ⭐
             </div>
             
-            <button class="btn btn-neutre" style="margin-top: 25px;" onclick="window.location.href='academie.html'">🏠 Retour au Coin de Lola</button>
+            <button class="btn btn-neutre" style="margin-top: 25px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
         <div id="ecran-jeu" class="ecran">
@@ -72,13 +72,38 @@
     </div>
 
     <script>
+        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+        const DB_URL = `${FIREBASE_URL}scores/lola/mathsLola.json`;
+
         let profil = { xp: 0 };
         let vies = 3; let indexQuestion = 0; let nbQuestions = 10;
         let modeActuel = ''; let reponseAttendue = 0; let xpPartie = 0;
         const E = (id) => document.getElementById(id);
 
-        function chargerProfil() { const saved = localStorage.getItem('mathsLola'); if (saved) profil = JSON.parse(saved); E('profil-xp').textContent = profil.xp; }
-        function sauverProfil() { localStorage.setItem('mathsLola', JSON.stringify(profil)); E('profil-xp').textContent = profil.xp; }
+        // --- SAUVEGARDE CLOUD FIREBASE ---
+        async function chargerProfilCloud() {
+            try {
+                let res = await fetch(DB_URL);
+                let data = await res.json();
+                if (data && data.xp !== undefined) {
+                    profil.xp = parseInt(data.xp) || 0;
+                }
+            } catch(e) {}
+            E('profil-xp').textContent = profil.xp;
+        }
+
+        async function sauverProfilCloud() {
+            try {
+                await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) });
+            } catch(e) {}
+        }
+        // ---------------------------------
+
+        function sauverProfil() { 
+            E('profil-xp').textContent = profil.xp; 
+            sauverProfilCloud();
+        }
+
         function montrerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); E(id).classList.add('actif'); }
 
         function lancerJeu(mode) {
@@ -125,7 +150,8 @@
 
         function finirJeu(victoire) { let bonus = vies * 10; profil.xp += xpPartie + bonus; sauverProfil(); E('fin-xp').textContent = "+" + (xpPartie + bonus); montrerEcran('ecran-fin'); }
         E('reponse').addEventListener("keyup", (e) => { if (e.key === "Enter" && !E('reponse').disabled) verifierReponse(); });
-        chargerProfil();
+        
+        chargerProfilCloud();
     </script>
 </body>
 </html>
