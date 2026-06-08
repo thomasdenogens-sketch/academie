@@ -54,7 +54,7 @@
     <div id="app-container">
         <div class="xp-display" id="hud-xp">XP: ... ⭐</div>
         <h1>Échecs Coach 👑</h1>
-        <p class="sous-titre">Édition Spéciale Pro Cloud</p>
+        <p class="sous-titre">Édition Spéciale Théo - Connectée au Carnet</p>
 
         <div class="onglets">
             <button class="tab-btn" onclick="changerOnglet('cours')">🏰 Règles</button>
@@ -101,14 +101,15 @@
             <div style="margin-top: 20px;">
                 <button class="btn btn-oups" onclick="annulerCoup()">↩️ Oups !</button>
                 <button class="btn btn-primaire" onclick="lancerModeMatch()">🔄 Recommencer</button>
-                <button class="btn btn-secondaire" onclick="window.location.href='index.html'">🏠 Académie</button>
+                <button class="btn btn-secondaire" onclick="window.location.href='index.html'">🏠 Menu Principal</button>
             </div>
         </div>
     </div>
 
     <script>
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
-        const joueurActif = localStorage.getItem('sessionActiveFamille') || 'theo';
+        // Fix strict pour Théo (assure la liaison parfaite avec le Carnet de Bord)
+        const URL_SAUVEGARDE = `${FIREBASE_URL}scores/theo/echecsSave.json`;
 
         const PIECES_UNICODE = { 'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟', 'R': '♜', 'N': '♞', 'B': '♝', 'Q': '♛', 'K': '♚', 'P': '♟' };
         let game = new Chess(), selectedSquare = null, validMoves = [], modeActuel = 'match', tourBloque = false, niveauIA = 2, xpDuJoueur = 0;
@@ -125,28 +126,30 @@
 
         const defisCasseTetes = [
             { id: "mat_couloir", nom: "Mat du Couloir", xpRequis: 0, gainXP: 5, fen: '6k1/1p3ppp/8/8/8/8/1P3PPP/R5K1 w - - 0 1', rep: 'a8', msg: "Fais échec et mat avec ta Tour ! (+5 XP)" },
-            { id: "fourchette", nom: "La Fourchette", xpRequis: 0, gainXP: 5, fen: 'q3k3/8/8/3N4/8/8/8/1K6 w - - 0 1', rep: 'c7', msg: "Attaque le Roi et la Reine en même temps avec le Cavalier ! (+5 XP)" },
+            { id: "fourchette", nom: "La Fourchette", xpRequis: 0, gainXP: 5, fen: 'q3k3/8/8/3N4/8/8/8/1K6 w - - 0 1', rep: 'c7', msg: "Attaque le Roi et la Reine avec ton Cavalier ! (+5 XP)" },
             { id: "clouage", nom: "Le Clouage", xpRequis: 30, gainXP: 10, fen: '8/8/4k3/4r3/8/4B3/4Q3/4K3 w - - 0 1', rep: 'd4', msg: "Attaque la Tour noire bloquée avec ton Fou en d4 ! (+10 XP)" }
         ];
 
         async function chargerXP() {
             try {
-                let res = await fetch(`${FIREBASE_URL}scores/${joueurActif}/echecsSave.json`);
+                let res = await fetch(URL_SAUVEGARDE);
                 let data = await res.json();
                 xpDuJoueur = data ? (parseInt(data.xp) || 0) : 0;
                 E('hud-xp').textContent = `XP: ${xpDuJoueur} ⭐`;
                 afficherDefis();
-            } catch(e) { console.error(e); }
+            } catch(e) { console.error("Erreur de chargement Firebase:", e); }
         }
 
         async function majXP(points) {
             xpDuJoueur += points;
             E('hud-xp').textContent = `XP: ${xpDuJoueur} ⭐`;
-            await fetch(`${FIREBASE_URL}scores/${joueurActif}/echecsSave.json`, {
-                method: 'PUT', body: JSON.stringify({ xp: xpDuJoueur })
-            });
+            try {
+                await fetch(URL_SAUVEGARDE, { method: 'PUT', body: JSON.stringify({ xp: xpDuJoueur }) });
+            } catch(e) { console.error("Erreur de sauvegarde Firebase:", e); }
             afficherDefis();
         }
+
+        const E = (id) => document.getElementById(id);
 
         function afficherDefis() {
             let grille = E('grille-defis'); grille.innerHTML = "";
@@ -167,19 +170,20 @@
 
         function lancerModeMatch() {
             modeActuel = 'match'; game.reset(); selectedSquare = null; validMoves = []; tourBloque = false;
-            E('options-ia').style.display = "block"; actualiserStatut(); drawBoard();
+            E('statut-partie').textContent = "À toi de jouer !";
+            drawBoard();
         }
 
         function chargerDefi(idDefi) {
             defiActuel = defisCasseTetes.find(d => d.id === idDefi); modeActuel = 'defi';
             game.load(defiActuel.fen); selectedSquare = null; validMoves = []; tourBloque = false;
-            E('options-ia').style.display = "none"; E('statut-partie').textContent = "À toi !"; drawBoard();
+            E('statut-partie').textContent = "À toi !"; drawBoard();
         }
 
         function chargerLecon(id) {
             modeActuel = 'lecon'; leconActuelle = leconsToutes[id]; leconIndex = 0;
             if (leconActuelle.fen) game.load(leconActuelle.fen); else game.reset();
-            selectedSquare = null; validMoves = []; tourBloque = false; E('options-ia').style.display = "none";
+            selectedSquare = null; validMoves = []; tourBloque = false;
             executerEtapeLecon();
         }
 
@@ -272,7 +276,9 @@
             g.board().forEach(row => { row.forEach(p => { if (p) score += (p.color === 'b' ? v[p.type] : -v[p.type]); }); }); return score;
         }
 
+        // --- INITIALISATION DU JEU ---
         chargerXP();
+        lancerModeMatch(); // Fix : Affichage immédiat du plateau !
     </script>
 </body>
 </html>
