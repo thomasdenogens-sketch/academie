@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Français CP/CE1 - Les Mots Magiques</title>
+    <title>Français CP/CE1 - Les Mots Magiques (Cloud)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
@@ -47,9 +47,9 @@
             <button class="btn btn-ce1" onclick="lancerNiveau('ce1_sons')">🗣️ Sons CH, OU, GN, OI</button>
             
             <div style="margin-top: 20px; font-size: 1.2rem; font-weight: bold;">
-                XP Français : <span id="ui-xp-accueil" style="color:#d35400;">0</span> ⭐
+                XP Français : <span id="ui-xp-accueil" style="color:#d35400;">...</span> ⭐
             </div>
-            <button class="btn btn-secondaire" style="margin-top: 25px;" onclick="window.location.href='academie.html'">🏠 Retour au Coin de Lola</button>
+            <button class="btn btn-secondaire" style="margin-top: 25px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
         <div id="ecran-jeu" class="ecran">
@@ -64,26 +64,54 @@
         <div id="ecran-fin" class="ecran">
             <h1 style="color:#27ae60;">Magnifique, Lola ! 🎉</h1>
             <p style="font-size: 1.5rem; font-weight: bold; margin: 20px 0; color: #e67e22;">+<span id="gain-xp"></span> XP !</p>
-            <button class="btn btn-cp" onclick="window.location.href='academie.html'">Retour à l'Académie</button>
+            <button class="btn btn-cp" onclick="window.location.href='index.html'">Retour à l'Académie</button>
         </div>
     </div>
 
     <script>
+        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+        // L'adresse de sauvegarde spécifique pour le Français de Lola
+        const DB_URL = `${FIREBASE_URL}scores/lola/francaisLola.json`;
+
         const dictionnaire = {
             animaux: [{ mot: "CHAT", emoji: "🐱" }, { mot: "CHIEN", emoji: "🐶" }, { mot: "LOUP", emoji: "🐺" }, { mot: "LION", emoji: "🦁" }, { mot: "OURS", emoji: "🐻" }],
             ecole: [{ mot: "LIVRE", emoji: "📚" }, { mot: "STYLO", emoji: "🖊️" }, { mot: "CRAIE", emoji: "🖍️" }, { mot: "TABLE", emoji: "🪑" }, { mot: "ECOLE", emoji: "🏫" }],
-            ce1_sons: [ // COMPLEXE CE1
+            ce1_sons: [
                 { mot: "CHAUVE", emoji: "🦇" }, { mot: "BOUCHON", emoji: "🍾" }, 
                 { mot: "SINGE", emoji: "🐒" }, { mot: "OISEAU", emoji: "🐦" }, { mot: "CHAMPIGNON", emoji: "🍄" }
             ]
         };
 
-        let profil = JSON.parse(localStorage.getItem('francaisLola')) || { xp: 0 };
+        let profil = { xp: 0 };
         let vies = 3; let indexMot = 0; let motsNiveau = []; let motAttendu = ""; let motSaisi = "";
         const E = (id) => document.getElementById(id);
 
+        // --- SAUVEGARDE CLOUD FIREBASE ---
+        async function chargerProfilCloud() {
+            try {
+                let res = await fetch(DB_URL);
+                let data = await res.json();
+                if (data && data.xp !== undefined) {
+                    profil.xp = parseInt(data.xp) || 0;
+                }
+            } catch(e) {}
+            majAccueil();
+        }
+
+        async function sauverProfilCloud() {
+            try {
+                await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) });
+            } catch(e) {}
+        }
+        // ---------------------------------
+
         function majAccueil() { E('ui-xp-accueil').textContent = profil.xp; }
-        function sauverProfil() { localStorage.setItem('francaisLola', JSON.stringify(profil)); majAccueil(); }
+        
+        function sauverProfil() { 
+            majAccueil(); 
+            sauverProfilCloud(); 
+        }
+        
         function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); E(id).classList.add('actif'); }
         function retourAccueil() { changerEcran('ecran-accueil'); majAccueil(); }
 
@@ -135,7 +163,8 @@
                 profil.xp += bonus; sauverProfil(); E('gain-xp').textContent = gainTotal; changerEcran('ecran-fin');
             }
         }
-        majAccueil();
+        
+        chargerProfilCloud();
     </script>
 </body>
 </html>
