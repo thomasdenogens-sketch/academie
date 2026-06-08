@@ -39,6 +39,8 @@
 
     <script>
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+        const DB_URL = `${FIREBASE_URL}scores/lola/geoLola.json`;
+        
         let xpGlobale = 0, niveauActuel = 1, questionActuelle = null;
 
         const questionsN1 = [
@@ -57,18 +59,22 @@
 
         async function chargerXP() {
             try {
-                let res = await fetch(`${FIREBASE_URL}scores/lola/geoLola.json`);
+                let res = await fetch(DB_URL);
                 let data = await res.json();
-                xpGlobale = data ? (parseInt(data.xp) || 0) : 0;
+                if (data && data.xp !== undefined) {
+                    xpGlobale = parseInt(data.xp) || 0;
+                }
                 document.getElementById('hud-xp').textContent = `XP: ${xpGlobale} ⭐`;
-            } catch(e) { console.error(e); }
+            } catch(e) { console.error("Erreur Firebase:", e); }
             NouvelleQuestion();
         }
 
         async function ajouterXP(p) {
             xpGlobale += p;
             document.getElementById('hud-xp').textContent = `XP: ${xpGlobale} ⭐`;
-            await fetch(`${FIREBASE_URL}scores/lola/geoLola.json`, { method: 'PUT', body: JSON.stringify({ xp: xpGlobale }) });
+            try {
+                await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: xpGlobale }) });
+            } catch(e) { console.error("Erreur Firebase:", e); }
         }
 
         function changerNiveau() {
