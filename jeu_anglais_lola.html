@@ -2,127 +2,96 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Anglais CP - Mes Premiers Mots</title>
+    <title>English Kids - Lola Cloud</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-        body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: #333; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
-        #app-container { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-width: 800px; width: 100%; text-align: center; }
-        h1 { color: #d63031; font-weight: 900; font-size: 2.2rem; margin-bottom: 20px; }
-        #hud { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; }
-        .xp-text { color: #0984e3; font-weight: 900; }
-        #plateau-jeu { display: flex; justify-content: space-around; gap: 10px; background: #f1f2f6; padding: 15px; border-radius: 15px; margin-bottom: 20px; }
-        .colonne { display: flex; flex-direction: column; gap: 10px; width: 45%; }
-        .carte-mot { background: white; border: 3px solid #dfe6e9; padding: 15px; border-radius: 12px; font-size: 1.4rem; font-weight: bold; color: #2d3436; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .carte-en.selectionnee { border-color: #0984e3; background: #e7f3ff; color: #0984e3; transform: scale(1.05); }
-        .carte-fr.selectionnee { border-color: #d63031; background: #ffeaea; color: #d63031; transform: scale(1.05); }
-        .trouvee { visibility: hidden; opacity: 0; transition: visibility 0s 0.3s, opacity 0.3s linear; }
-        .erreur { animation: secousse 0.4s; background: #ff7675 !important; color: white !important; border-color: #d63031 !important; }
-        @keyframes secousse { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-        .btn { font-family: 'Nunito', sans-serif; font-size: 1.2rem; font-weight: bold; padding: 15px 25px; border: none; border-radius: 10px; cursor: pointer; color: white; margin: 5px; transition: transform 0.1s; width: 80%; max-width: 300px; display: inline-block;}
-        .btn:active { transform: scale(0.95); }
-        .btn-primaire { background: #0984e3; box-shadow: 0 4px #076aba; }
-        .btn-secondaire { background: #b2bec3; box-shadow: 0 4px #636e72; color: #2d3436; }
-        .ecran { display: none; }
-        .ecran.actif { display: block; animation: fadeIn 0.4s; }
-        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-        #feedback { font-size: 1.4rem; font-weight: bold; height: 30px; margin: 15px 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght=400;700;900&display=swap');
+        body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: #2c3e50; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
+        #app { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); max-width: 600px; width: 100%; text-align: center; position: relative; }
+        h1 { color: #e91e63; font-weight: 900; margin-bottom: 5px; }
+        .xp { position: absolute; top: 20px; right: 25px; font-weight: bold; background: #fff3cd; color: #f39c12; padding: 5px 15px; border-radius: 20px; border: 2px solid #ffeeba; }
+        #mot-anglais { font-size: 2.5rem; font-weight: 900; color: #34495e; margin: 30px 0; background: #f8f9fa; padding: 15px; border-radius: 15px; border: 2px dashed #e91e63; }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .btn-opt { background: #ffffff; border: 2px solid #cbd5e1; padding: 15px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-opt:hover { background: #f1f5f9; transform: scale(1.03); }
+        .btn { background: #627d98; color: white; padding: 10px 20px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1rem; text-decoration: none; display: inline-block; }
+        #feedback { font-size: 1.3rem; font-weight: 900; height: 30px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
-    <div id="app-container">
-        <div id="ecran-accueil" class="ecran actif">
-            <h1>English CP 🇬🇧</h1>
-            
-            <div style="margin-bottom: 30px;">
-                <button class="btn btn-primaire" style="background:#e84393; box-shadow:0 4px #b83275;" onclick="lancerNiveau('couleurs')">🎨 Les Couleurs</button><br>
-                <button class="btn btn-primaire" style="background:#00b894; box-shadow:0 4px #009476;" onclick="lancerNiveau('animaux')">🐶 Les Animaux</button><br>
-                <button class="btn btn-primaire" style="background:#f39c12; box-shadow:0 4px #d68910;" onclick="lancerNiveau('nombres')">🔢 De 1 à 5</button>
-            </div>
-            
-            <div style="margin-top: 20px; font-size: 1.2rem; font-weight: bold;">
-                XP Anglais : <span id="ui-xp-accueil" style="color:#0984e3;">0</span> ⭐
-            </div>
+    <div id="app">
+        <div class="xp" id="hud-xp">XP: ... ⭐</div>
+        <h1>Hello Lola ! 🇬🇧</h1>
+        <p style="color: #7f8c8d; font-weight: bold;">Apprends tes premiers mots en t'amusant</p>
 
-            <button class="btn btn-secondaire" style="margin-top: 30px;" onclick="window.location.href='academie.html'">🏠 Le Coin de Lola</button>
-        </div>
+        <div id="mot-anglais">...</div>
+        <div class="options" id="zone-options"></div>
+        <div id="feedback"></div>
 
-        <div id="ecran-jeu" class="ecran">
-            <div id="hud">
-                <span id="ui-vies" style="letter-spacing: 5px;">❤️❤️❤️</span>
-                <span id="ui-theme-titre" style="color: #636e72;">...</span>
-            </div>
-            <div id="plateau-jeu"><div class="colonne" id="col-en"></div><div class="colonne" id="col-fr"></div></div>
-            <div id="feedback"></div>
-            <button class="btn btn-secondaire" onclick="retourAccueil()">Abandonner</button>
-        </div>
-
-        <div id="ecran-fin" class="ecran">
-            <h1>Well Done Lola ! 🎉</h1>
-            <p style="font-size: 1.5rem; font-weight: bold; margin: 20px 0; color: #0984e3;">+<span id="gain-xp"></span> XP !</p>
-            <button class="btn btn-primaire" onclick="window.location.href='academie.html'">Retour à l'Académie</button>
-        </div>
+        <button class="btn" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
     </div>
 
     <script>
-        // Mots très simples
-        const vocabulaireBase = {
-            couleurs: { nom: "Couleurs", mots: [{ en: "Red", fr: "Rouge" }, { en: "Blue", fr: "Bleu" }, { en: "Pink", fr: "Rose" }, { en: "Green", fr: "Vert" }] },
-            animaux: { nom: "Animaux", mots: [{ en: "Dog", fr: "Chien" }, { en: "Cat", fr: "Chat" }, { en: "Pig", fr: "Cochon" }, { en: "Cow", fr: "Vache" }] },
-            nombres: { nom: "Nombres 1 à 5", mots: [{ en: "One", fr: "Un" }, { en: "Two", fr: "Deux" }, { en: "Three", fr: "Trois" }, { en: "Four", fr: "Quatre" }, { en: "Five", fr: "Cinq" }] }
-        };
+        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+        let xpGlobale = 0, questionActuelle = null;
 
-        let profil = JSON.parse(localStorage.getItem('anglaisLola')) || { xp: 0 };
-        let vies = 3; let pairesTrouvees = 0; let totalPaires = 0; let themeActuelId = "";
-        let selectionEn = null; let selectionFr = null;
+        const dictionnaire = [
+            { en: "A cat 🐱", r: ["Un chat", "Un chien", "Un oiseau", "Un cheval"], c: 0 },
+            { en: "A dog 🐶", r: ["Un chat", "Un lapin", "Un chien", "Un poisson"], c: 2 },
+            { en: "The sun ☀️", r: ["La lune", "La pluie", "Le soleil", "Une étoile"], c: 2 },
+            { en: "An apple 🍎", r: ["Une poire", "Une pomme", "Une banane", "Une fraise"], c: 1 },
+            { en: "One, Two, Three 🔢", r: ["4, 5, 6", "7, 8, 9", "1, 2, 3", "Bleu, Blanc, Rouge"], c: 2 },
+            { en: "Red 🔴", r: ["Vert", "Bleu", "Jaune", "Rouge"], c: 3 },
+            { en: "Blue 🔵", r: ["Bleu", "Rouge", "Vert", "Noir"], c: 0 }
+        ];
 
-        function majAccueil() { document.getElementById('ui-xp-accueil').textContent = profil.xp; }
-        function sauverProfil() { localStorage.setItem('anglaisLola', JSON.stringify(profil)); document.getElementById('ui-xp-accueil').textContent = profil.xp; }
-        function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); document.getElementById(id).classList.add('actif'); }
-        function retourAccueil() { changerEcran('ecran-accueil'); majAccueil(); }
-
-        function lancerNiveau(idTheme) {
-            vies = 3; pairesTrouvees = 0; selectionEn = null; selectionFr = null; themeActuelId = idTheme;
-            let themeData = vocabulaireBase[idTheme]; totalPaires = themeData.mots.length;
-            document.getElementById('ui-vies').textContent = "❤️❤️❤️"; document.getElementById('ui-theme-titre').textContent = themeData.nom; document.getElementById('feedback').textContent = "";
-            preparerPlateau(themeData.mots); changerEcran('ecran-jeu');
+        async function chargerXP() {
+            try {
+                let res = await fetch(`${FIREBASE_URL}scores/lola/anglaisLola.json`);
+                let data = await res.json();
+                xpGlobale = data ? (parseInt(data.xp) || 0) : 0;
+                document.getElementById('hud-xp').textContent = `XP: ${xpGlobale} ⭐`;
+            } catch(e) { console.error(e); }
+            NouvelleQuestion();
         }
 
-        function preparerPlateau(listeMots) {
-            const colEn = document.getElementById('col-en'); const colFr = document.getElementById('col-fr');
-            colEn.innerHTML = ''; colFr.innerHTML = '';
-            let motsEn = [...listeMots].sort(() => Math.random() - 0.5); let motsFr = [...listeMots].sort(() => Math.random() - 0.5);
-            motsEn.forEach(paire => { let div = document.createElement('div'); div.className = 'carte-mot carte-en'; div.textContent = paire.en; div.onclick = () => clicCarte(div, 'en', paire.en, paire.fr); colEn.appendChild(div); });
-            motsFr.forEach(paire => { let div = document.createElement('div'); div.className = 'carte-mot carte-fr'; div.textContent = paire.fr; div.onclick = () => clicCarte(div, 'fr', paire.fr, paire.en); colFr.appendChild(div); });
+        async function ajouterXP(p) {
+            xpGlobale += p;
+            document.getElementById('hud-xp').textContent = `XP: ${xpGlobale} ⭐`;
+            await fetch(`${FIREBASE_URL}scores/lola/anglaisLola.json`, { method: 'PUT', body: JSON.stringify({ xp: xpGlobale }) });
         }
 
-        function clicCarte(element, langue, motTexte, motAssocie) {
-            if (element.classList.contains('trouvee')) return;
-            if (langue === 'en') { if (selectionEn) selectionEn.element.classList.remove('selectionnee'); if (selectionEn && selectionEn.element === element) { selectionEn = null; return; } selectionEn = { element: element, associe: motAssocie }; element.classList.add('selectionnee'); } 
-            else { if (selectionFr) selectionFr.element.classList.remove('selectionnee'); if (selectionFr && selectionFr.element === element) { selectionFr = null; return; } selectionFr = { element: element, texte: motTexte }; element.classList.add('selectionnee'); }
-            if (selectionEn && selectionFr) verifierPaire();
+        function NouvelleQuestion() {
+            document.getElementById('feedback').textContent = "";
+            questionActuelle = dictionnaire[Math.floor(Math.random() * dictionnaire.length)];
+            
+            document.getElementById('mot-anglais').textContent = questionActuelle.en;
+            const zone = document.getElementById('zone-options');
+            zone.innerHTML = "";
+
+            questionActuelle.r.forEach((opt, idx) => {
+                let b = document.createElement('button');
+                b.className = "btn-opt";
+                b.textContent = opt;
+                b.onclick = () => verifierReponse(idx);
+                zone.appendChild(b);
+            });
         }
 
-        function verifierPaire() {
+        function verifierReponse(idx) {
             const fb = document.getElementById('feedback');
-            if (selectionEn.associe === selectionFr.texte) {
-                fb.textContent = "Bravo ! 🌟"; fb.style.color = "#00b894";
-                selectionEn.element.style.background = "#55efc4"; selectionEn.element.style.color = "white"; selectionFr.element.style.background = "#55efc4"; selectionFr.element.style.color = "white";
-                let elEn = selectionEn.element; let elFr = selectionFr.element; setTimeout(() => { elEn.classList.add('trouvee'); elFr.classList.add('trouvee'); }, 500);
-                profil.xp += 10; sauverProfil(); pairesTrouvees++; if (pairesTrouvees === totalPaires) setTimeout(gagnerNiveau, 1000);
+            if (idx === questionActuelle.c) {
+                fb.textContent = "🌟 YES! Good job Lola !";
+                fb.style.color = "#2ecc71";
+                ajouterXP(5);
+                setTimeout(NouvelleQuestion, 1800);
             } else {
-                fb.textContent = "Oups ! 🔴"; fb.style.color = "#d63031"; vies--; document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3 - vies);
-                selectionEn.element.classList.add('erreur'); selectionFr.element.classList.add('erreur');
-                let elEn = selectionEn.element; let elFr = selectionFr.element;
-                setTimeout(() => { elEn.classList.remove('erreur', 'selectionnee'); elFr.classList.remove('erreur', 'selectionnee'); fb.textContent = ""; }, 800);
-                if (vies <= 0) { setTimeout(() => { alert("Plus de vies ! Réessaie."); lancerNiveau(themeActuelId); }, 1000); }
+                fb.textContent = "❌ Oh no... Try again !";
+                fb.style.color = "#e74c3c";
             }
-            selectionEn = null; selectionFr = null;
         }
 
-        function gagnerNiveau() { let bonus = vies * 10; profil.xp += 50 + bonus; sauverProfil(); document.getElementById('gain-xp').textContent = 50 + bonus + (totalPaires * 10); changerEcran('ecran-fin'); }
-        majAccueil();
+        chargerXP();
     </script>
 </body>
 </html>
