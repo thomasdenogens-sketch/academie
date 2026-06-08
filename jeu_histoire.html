@@ -42,8 +42,8 @@
     <div id="app-container">
         <div id="ecran-accueil" class="ecran actif">
             <h1>Histoire ⏳</h1>
-            <p class="sous-titre">La Machine à Remonter le Temps V2</p>
-            <div id="hud" style="justify-content: center;"><span class="xp-text">XP Histoire : <span id="ui-xp-accueil">0</span> ⭐</span></div>
+            <p class="sous-titre">La Machine à Remonter le Temps (Cloud)</p>
+            <div id="hud" style="justify-content: center;"><span class="xp-text">XP Histoire : <span id="ui-xp-accueil">...</span> ⭐</span></div>
 
             <h3>Les Grandes Périodes (7 étapes) :</h3>
             <div style="margin-bottom: 20px;">
@@ -59,7 +59,7 @@
 
             <div style="margin-top: 30px;">
                 <button class="btn btn-primaire" style="background: #27ae60; box-shadow: 0 4px #1e8449;" onclick="changerEcran('ecran-config')">➕ Créer une Frise</button>
-                <br><button class="btn btn-secondaire" style="margin-top: 15px;" onclick="window.location.href='academie.html'">🏠 Retour à l'Académie</button>
+                <br><button class="btn btn-secondaire" style="margin-top: 15px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
             </div>
         </div>
 
@@ -90,12 +90,15 @@
             <h1>Mission Accomplie ! 🎉</h1>
             <p class="sous-titre">Tu as restauré la ligne du temps !</p>
             <div id="hud" style="justify-content: center;"><span class="xp-text" style="font-size: 1.5rem;">+<span id="gain-xp"></span> XP gagnés !</span></div>
-            <button class="btn btn-primaire" onclick="window.location.href='academie.html'">Retour à l'Académie</button>
+            <button class="btn btn-primaire" onclick="window.location.href='index.html'">Retour à l'Académie</button>
             <button class="btn btn-secondaire" onclick="retourAccueil()">Autre mission</button>
         </div>
     </div>
 
     <script>
+        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+        const DB_URL = `${FIREBASE_URL}scores/theo/histoireSaveV1.json`;
+
         const donneesBase = {
             prehistoire: { nom: "La Préhistoire", events: [
                 { ordre: 1, texte: "Apparition de la vie sur Terre", emoji: "🦠" },
@@ -136,8 +139,27 @@
         };
 
         let customThemes = JSON.parse(localStorage.getItem('histoireCustomV2')) || {};
-        let profil = JSON.parse(localStorage.getItem('histoireSaveV1')) || { xp: 0 };
+        let profil = { xp: 0 };
         let vies = 3; let carteSelectionnee = null; let themeActuelId = ""; let isThemeCustom = false; let eventsPartie = [];
+
+        // --- SAUVEGARDE CLOUD FIREBASE ---
+        async function chargerProfilCloud() {
+            try {
+                let res = await fetch(DB_URL);
+                let data = await res.json();
+                if (data && data.xp !== undefined) {
+                    profil.xp = parseInt(data.xp) || 0;
+                }
+            } catch(e) { console.error("Erreur Firebase:", e); }
+            majAccueil();
+        }
+
+        async function sauverProfilCloud() {
+            try {
+                await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) });
+            } catch(e) { console.error("Erreur Firebase:", e); }
+        }
+        // ---------------------------------
 
         function majAccueil() {
             document.getElementById('ui-xp-accueil').textContent = profil.xp;
@@ -153,8 +175,14 @@
             }
         }
 
-        function sauverProfil() { localStorage.setItem('histoireSaveV1', JSON.stringify(profil)); document.getElementById('ui-xp-accueil').textContent = profil.xp; document.getElementById('ui-xp-jeu').textContent = profil.xp; }
+        function sauverProfil() { 
+            document.getElementById('ui-xp-accueil').textContent = profil.xp; 
+            document.getElementById('ui-xp-jeu').textContent = profil.xp; 
+            sauverProfilCloud();
+        }
+        
         function sauverCustom() { localStorage.setItem('histoireCustomV2', JSON.stringify(customThemes)); }
+        
         function sauvegarderTheme() {
             let nom = document.getElementById('input-nom-theme').value.trim(); let motsBruts = document.getElementById('input-mots').value;
             if(!nom || !motsBruts) return alert("Remplis le titre et les événements !");
@@ -228,7 +256,8 @@
                 if (vies <= 0) { setTimeout(() => { alert("Plus de vies ! Retente ta chance."); lancerNiveau(themeActuelId, isThemeCustom); }, 1500); } else { setTimeout(() => feedback.textContent = "", 2000); }
             }
         }
-        majAccueil();
+        
+        chargerProfilCloud();
     </script>
 </body>
 </html>
