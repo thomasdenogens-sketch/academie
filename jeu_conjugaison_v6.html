@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conjugaison Héro 9</title>
+    <title>Conjugaison Héro 9 - Édition Cloud</title>
     <style>
         :root { --primary: #6c5ce7; --secondary: #00cec9; --bonus: #e84393; --bg: #dfe6e9; --card: #ffffff; --text: #2d3436; --success: #00b894; --warning: #fdcb6e; --danger: #d63031; --font: 'Verdana', sans-serif; }
         body { font-family: var(--font); background-color: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
@@ -32,7 +32,7 @@
         .fb-warning { background: #fff3cd; border: 2px solid var(--warning); color: #856404; }
         .fb-error { background: #ff7675; border: 2px solid var(--danger); color: white; }
         .fb-title { font-weight: bold; font-size: 1.2em; margin-bottom: 5px; display: block; }
-        .fb-correction { font-size: 1.3em; font-weight: bold; margin-top: 5px; display: block; text-decoration: underline;}
+        .fb-correction { font-size: 1.3em; font-weight: bold; margin-top: 5px; display: text-decoration: underline;}
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 500px; text-align: center; max-height: 90vh; overflow-y: auto; }
         .cfg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; text-align: left; }
@@ -47,13 +47,13 @@
 <header>
     <div class="header-inner">
         <div class="stats-box">
-            <div>Niveau <b id="lvl-display">1</b></div>
+            <div>XP Total <b id="lvl-display" style="color: #e84393;">0</b> ⭐</div>
             <div class="xp-track"><div class="xp-fill" id="xp-fill"></div></div>
             <div style="font-size:0.8em" id="xp-text">0/100</div>
         </div>
         <div class="hearts-container" id="hearts-display">❤️❤️❤️</div>
         <div style="display:flex; gap:10px;">
-            <button class="btn-cfg" onclick="window.location.href='academie.html'">🏠 Académie</button>
+            <button class="btn-cfg" onclick="window.location.href='index.html'">🏠 Académie</button>
             <button class="btn-cfg" onclick="openSettings()">⚙️ Options</button>
         </div>
     </div>
@@ -99,13 +99,15 @@
             <div class="cfg-grid" id="verb-list" style="max-height:150px; overflow-y:auto; margin-top:10px;"></div>
         </div>
         <div style="text-align:center;">
-            <button style="background:#d63031; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;" onclick="hardReset()">🗑️ Tout effacer</button>
             <button class="btn-main" style="padding:10px 30px; margin-left:10px; font-size:1em;" onclick="saveSettings()">OK</button>
         </div>
     </div>
 </div>
 
 <script>
+    const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+    const DB_URL = `${FIREBASE_URL}scores/theo/conjHero9.json`;
+
     const PRONOUNS = ['je', 'tu', 'il', 'elle', 'on', 'nous', 'vous', 'ils', 'elles'];
     const SUBJECTS = [{txt:"Mon frère", i:2}, {txt:"Ma soeur", i:3}, {txt:"Le chat", i:2}, {txt:"Les enfants", i:7}, {txt:"Mes amies", i:8}, {txt:"Toi et moi", i:5}, {txt:"Lui et toi", i:6}];
     const VERBS = {
@@ -121,8 +123,39 @@
         'venir': { aux:'être', comp:'ici', present:['viens','viens','vient','vient','vient','venons','venez','viennent','viennent'], imparfait:['venais','venais','venait','venait','venait','venions','veniez','venaient','venaient'], futur:['viendrai','viendras','viendra','viendra','viendra','viendrons','viendrez','viendront','viendront'], pp:'venu' },
         'prendre': { aux:'avoir', comp:'le bus', present:['prends','prends','prend','prend','prend','prenons','prenez','prennent','prennent'], imparfait:['prenais','prenais','prenait','prenait','prenait','prenions','preniez','prenaient','prenaient'], futur:['prendrai','prendras','prendra','prendra','prendra','prendrons','prendrez','prendront','prendront'], pp:'pris' }
     };
-    let gameData = { level:1, xp:0, xpNext:100, activeTenses:['present','imparfait','passe_compose'], activeVerbs: Object.keys(VERBS) };
+    
+    let gameData = { totalXP:0, xpNext:100, activeTenses:['present','imparfait','passe_compose'], activeVerbs: Object.keys(VERBS) };
     let session = { round:1, lives:3, qDone:0, qTotal:10, mistakes:[], current:null };
+
+    // --- SAUVEGARDE CLOUD FIREBASE ---
+    async function loadGame() {
+        try {
+            let res = await fetch(DB_URL);
+            let data = await res.json();
+            if (data && data.xp !== undefined) {
+                gameData.totalXP = parseInt(data.xp) || 0;
+            }
+        } catch(e) {}
+        
+        // Charger les paramètres de verbes locaux pour ne pas les perdre
+        let localData = JSON.parse(localStorage.getItem('conjSettingsHero9'));
+        if(localData) {
+            gameData.activeTenses = localData.activeTenses;
+            gameData.activeVerbs = localData.activeVerbs;
+        }
+        updateUI();
+    }
+
+    async function saveGameCloud() {
+        try {
+            await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: gameData.totalXP }) });
+        } catch(e) {}
+    }
+
+    function saveSettingsLocal() {
+        localStorage.setItem('conjSettingsHero9', JSON.stringify({ activeTenses: gameData.activeTenses, activeVerbs: gameData.activeVerbs }));
+    }
+    // ----------------------------------
 
     function conjuguer(verb, tense, i) {
         let v = VERBS[verb];
@@ -140,9 +173,11 @@
         }
         return v[tense][i];
     }
+    
     function getAdjAccord(verb, i) { let c = VERBS[verb].comp; if(verb === 'être') { if(i >= 5 && !c.endsWith('x')) c += 's'; } return c; }
     function tenseLabelWithPrep(t) { if(t === 'imparfait') return "à l'Imparfait"; if(t === 'present') return "au Présent"; if(t === 'futur') return "au Futur"; if(t === 'passe_compose') return "au Passé Composé"; return "au " + t; }
-    function init() { loadGame(); updateUI(); startRound(1); }
+    
+    async function init() { await loadGame(); startRound(1); }
 
     function startRound(r) {
         session.round = r; session.lives = 3; session.qDone = 0; session.mistakes = [];
@@ -150,6 +185,7 @@
         if(r === 4) { badge.innerText = "⭐ SUPER DÉFI ⭐"; badge.className = "round-tag bonus-mode"; } else { badge.innerText = `Manche ${r} / 3`; badge.className = "round-tag"; }
         document.getElementById('modal-round').style.display = 'none'; updateUI(); nextQ();
     }
+    
     function nextQ() {
         if(session.qDone >= session.qTotal) { finishRound(true); return; }
         document.getElementById('feedback-area').style.display = 'none'; document.getElementById('inp-answer').value = ''; document.getElementById('inp-answer').focus(); document.getElementById('q-idx').innerText = session.qDone + 1;
@@ -162,14 +198,30 @@
         else if(session.round === 4) { let iNew = Math.floor(Math.random()*9); while(iNew===i) iNew = Math.floor(Math.random()*9); let srcTense = (tense === 'present') ? 'imparfait' : 'present'; let sSrc = getSubj(i, verb, srcTense); let vSrc = conjuguer(verb, srcTense, i); let c = getAdjAccord(verb, i); let srcPhrase = `${sSrc} ${vSrc} ${c}`; let sTarget = getSubj(iNew, verb, tense, true); let vTarget = conjuguer(verb, tense, iNew); let c2 = getAdjAccord(verb, iNew); let finalPhrase = `${sTarget} ${vTarget} ${c2}`; q.display = `<small>Phrase de départ :</small><br><i>"${srcPhrase}"</i><br><br>👉 Transforme avec <b class="highlight">${sTarget}</b> <b class="tense-hl">${tenseLabelWithPrep(tense)}</b> :`; q.expected = finalPhrase; q.verbOnly = vTarget; q.type = 'phrase'; document.getElementById('instruction').innerText = "DOUBLE DÉFI : Change le sujet ET le temps !"; }
         session.current = q; document.getElementById('q-content').innerHTML = q.display;
     }
+    
     function checkAnswer() {
         let u = clean(document.getElementById('inp-answer').value); if(!u) return; let exp = clean(session.current.expected); let vOnly = clean(session.current.verbOnly); let status = 'wrong';
         if(session.current.type === 'mot') { let p = clean(session.current.checkPro); if(u === vOnly || u === clean(p+" "+vOnly)) status = 'correct'; } else { if(u === exp) status = 'correct'; else if(u.includes(vOnly)) status = 'warning'; }
         let fb = document.getElementById('feedback-area'); let ft = document.getElementById('fb-title'); let fm = document.getElementById('fb-msg'); let fc = document.getElementById('fb-corr'); fb.style.display = 'block';
-        if(status === 'correct') { fb.className = 'fb-success'; ft.innerText = "✨ Bravo !"; fm.innerText = "Réponse parfaite."; fc.innerText = ""; addXP(10 + session.round*5); setTimeout(() => { session.qDone++; nextQ(); }, 1500); } 
-        else if(status === 'warning') { fb.className = 'fb-warning'; ft.innerText = "⚠️ Presque !"; fm.innerText = "Le verbe est bon, mais attention à l'orthographe autour."; fc.innerText = session.current.expected; addXP(5); setTimeout(() => { session.qDone++; nextQ(); }, 4000); } 
-        else { fb.className = 'fb-error'; ft.innerText = "❌ Aïe !"; fm.innerText = "Erreur de conjugaison."; fc.innerText = session.current.expected; session.lives--; session.mistakes.push({q:session.current.display, u:document.getElementById('inp-answer').value, c:session.current.expected}); updateUI(); if(session.lives <= 0) setTimeout(() => finishRound(false), 2000); else setTimeout(() => { session.qDone++; nextQ(); }, 4000); }
+        
+        if(status === 'correct') { 
+            fb.className = 'fb-success'; ft.innerText = "✨ Bravo !"; fm.innerText = "Réponse parfaite."; fc.innerText = ""; 
+            addXP(10 + session.round*5); 
+            setTimeout(() => { session.qDone++; nextQ(); }, 1500); 
+        } 
+        else if(status === 'warning') { 
+            fb.className = 'fb-warning'; ft.innerText = "⚠️ Presque !"; fm.innerText = "Le verbe est bon, mais attention à l'orthographe autour."; fc.innerText = session.current.expected; 
+            addXP(5); 
+            setTimeout(() => { session.qDone++; nextQ(); }, 4000); 
+        } 
+        else { 
+            fb.className = 'fb-error'; ft.innerText = "❌ Aïe !"; fm.innerText = "Erreur de conjugaison."; fc.innerText = session.current.expected; 
+            session.lives--; session.mistakes.push({q:session.current.display, u:document.getElementById('inp-answer').value, c:session.current.expected}); 
+            updateUI(); 
+            if(session.lives <= 0) setTimeout(() => finishRound(false), 2000); else setTimeout(() => { session.qDone++; nextQ(); }, 4000); 
+        }
     }
+    
     function finishRound(win) {
         let m = document.getElementById('modal-round'); let t = document.getElementById('mod-title'); let b = document.getElementById('mod-body'); let acts = document.getElementById('mod-actions'); m.style.display = 'flex'; acts.innerHTML = ""; 
         if(!win) { t.innerText = "Perdu !"; t.style.color = "#d63031"; b.innerHTML = "<p>Plus de vies... Il faut retenter !</p>"; let btn = mkBtn("Recommencer", () => startRound(session.round), false); acts.appendChild(btn); return; }
@@ -179,17 +231,47 @@
         else if(session.round === 3) { acts.appendChild(mkBtn("Terminer", () => startRound(1), false)); let bonusBtn = document.createElement("button"); bonusBtn.className = "btn-main btn-bonus"; bonusBtn.style.fontSize = "1em"; bonusBtn.innerText = "🚀 SUPER DÉFI !"; bonusBtn.onclick = () => startRound(4); acts.appendChild(bonusBtn); } 
         else { b.innerHTML += "<p style='font-size:1.2em; font-weight:bold; color:#e84393;'>Tu es un champion de la conjugaison !</p>"; acts.appendChild(mkBtn("Nouvelle Partie", () => startRound(1), true)); }
     }
+    
     function mkBtn(txt, fn, primary) { let b = document.createElement("button"); b.className = "btn-main"; if(!primary) { b.style.background = "#b2bec3"; b.style.boxShadow="none"; } b.style.fontSize = "1em"; b.style.padding = "10px 20px"; b.innerText = txt; b.onclick = fn; return b; }
     function clean(s) { return s.toLowerCase().replace(/[.,!?;:]/g,'').replace(/\s+/g,' ').replace(/’/g,"'").trim(); }
     function getSubj(i, v, t, cx=false) { let txt = PRONOUNS[i]; if(cx && Math.random()<0.4) { let m = SUBJECTS.filter(x=>x.i===i); if(m.length) txt = m[Math.floor(Math.random()*m.length)].txt; } let st = conjuguer(v,t,i)[0]; if(i===0 && ['a','e','i','o','u','y','h'].includes(st)) { if(txt==='je') return "j'"; } return txt.charAt(0).toUpperCase()+txt.slice(1); }
-    function addXP(n) { gameData.xp += n; if(gameData.xp >= gameData.xpNext) { gameData.level++; gameData.xp -= gameData.xpNext; gameData.xpNext = Math.floor(gameData.xpNext*1.2); } saveGame(); updateUI(); }
-    function updateUI() { document.getElementById('lvl-display').innerText = gameData.level; document.getElementById('xp-fill').style.width = (gameData.xp/gameData.xpNext*100)+"%"; document.getElementById('xp-text').innerText = `${gameData.xp}/${gameData.xpNext}`; let h = ""; for(let i=0; i<3; i++) h += (i < session.lives) ? "❤️" : "🖤"; document.getElementById('hearts-display').innerText = h; }
-    function saveGame() { localStorage.setItem('conjHero9', JSON.stringify(gameData)); }
-    function loadGame() { let d = JSON.parse(localStorage.getItem('conjHero9')); if(d) { gameData = d; if(!gameData.activeVerbs) gameData.activeVerbs=Object.keys(VERBS); } }
-    function hardReset() { if(confirm("Reset total ?")) { localStorage.removeItem('conjHero9'); location.reload(); } }
+    
+    function addXP(n) { 
+        gameData.totalXP += n; 
+        
+        // Calcul visuel du "niveau" (100xp par niveau pour la jauge locale)
+        let visualXP = gameData.totalXP % 100;
+        document.getElementById('xp-fill').style.width = (visualXP) + "%"; 
+        document.getElementById('xp-text').innerText = `${visualXP}/100`; 
+        
+        saveGameCloud(); 
+        updateUI(); 
+    }
+    
+    function updateUI() { 
+        document.getElementById('lvl-display').innerText = gameData.totalXP; 
+        
+        let visualXP = gameData.totalXP % 100;
+        document.getElementById('xp-fill').style.width = (visualXP) + "%"; 
+        document.getElementById('xp-text').innerText = `${visualXP}/100`; 
+
+        let h = ""; for(let i=0; i<3; i++) h += (i < session.lives) ? "❤️" : "🖤"; 
+        document.getElementById('hearts-display').innerText = h; 
+    }
+    
     function openSettings() { ['pres','imp','pc','fut'].forEach(k => { let v = k==='pres'?'present':k==='imp'?'imparfait':k==='pc'?'passe_compose':'futur'; document.getElementById(`t-${k}`).checked = gameData.activeTenses.includes(v); }); let c = document.getElementById('verb-list'); c.innerHTML=''; Object.keys(VERBS).forEach(v => { let ch = gameData.activeVerbs.includes(v)?'checked':''; c.innerHTML += `<label><input type="checkbox" value="${v}" ${ch}> ${v}</label>`; }); document.getElementById('modal-settings').style.display='flex'; }
     function toggleAllVerbs() { let els = document.querySelectorAll('#verb-list input'); let all = Array.from(els).every(e=>e.checked); els.forEach(e=>e.checked = !all); }
-    function saveSettings() { let t=[]; if(document.getElementById('t-pres').checked) t.push('present'); if(document.getElementById('t-imp').checked) t.push('imparfait'); if(document.getElementById('t-pc').checked) t.push('passe_compose'); if(document.getElementById('t-fut').checked) t.push('futur'); let v=[]; document.querySelectorAll('#verb-list input:checked').forEach(e=>v.push(e.value)); if(t.length && v.length) { gameData.activeTenses = t; gameData.activeVerbs = v; saveGame(); document.getElementById('modal-settings').style.display='none'; startRound(session.round); } else alert("Choix invalide"); }
+    function saveSettings() { 
+        let t=[]; if(document.getElementById('t-pres').checked) t.push('present'); if(document.getElementById('t-imp').checked) t.push('imparfait'); if(document.getElementById('t-pc').checked) t.push('passe_compose'); if(document.getElementById('t-fut').checked) t.push('futur'); 
+        let v=[]; document.querySelectorAll('#verb-list input:checked').forEach(e=>v.push(e.value)); 
+        if(t.length && v.length) { 
+            gameData.activeTenses = t; gameData.activeVerbs = v; 
+            saveSettingsLocal(); 
+            document.getElementById('modal-settings').style.display='none'; 
+            startRound(session.round); 
+        } else alert("Choix invalide"); 
+    }
+    
     document.getElementById('inp-answer').addEventListener('keypress', e=>{if(e.key==='Enter') checkAnswer();});
     init();
 </script>
