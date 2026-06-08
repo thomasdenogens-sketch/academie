@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Géographie - Le Globe-Trotter</title>
+    <title>Géographie - Le Globe-Trotter Cloud</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
@@ -39,8 +39,8 @@
     <div id="app-container">
         <div id="ecran-accueil" class="ecran actif">
             <h1>Géographie 🌍</h1>
-            <p class="sous-titre">Le Globe-Trotter</p>
-            <div id="hud" style="justify-content: center;"><span class="xp-text">XP Géo : <span id="ui-xp-accueil">0</span> ⭐</span></div>
+            <p class="sous-titre">Le Globe-Trotter (Cloud)</p>
+            <div id="hud" style="justify-content: center;"><span class="xp-text">XP Géo : <span id="ui-xp-accueil">...</span> ⭐</span></div>
 
             <h3>Missions de base :</h3>
             <div style="margin-bottom: 20px;">
@@ -57,7 +57,7 @@
 
             <div style="margin-top: 30px;">
                 <button class="btn btn-primaire" style="background: #f39c12; box-shadow: 0 4px #d68910;" onclick="changerEcran('ecran-config')">➕ Créer un Quiz</button>
-                <br><button class="btn btn-secondaire" style="margin-top: 15px;" onclick="window.location.href='academie.html'">Retour à l'Académie</button>
+                <br><button class="btn btn-secondaire" style="margin-top: 15px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
             </div>
         </div>
 
@@ -88,12 +88,15 @@
             <h1>Explorateur de Génie ! 🧭</h1>
             <p class="sous-titre">Tu as terminé l'expédition !</p>
             <div id="hud" style="justify-content: center;"><span class="xp-text" style="font-size: 1.5rem;">+<span id="gain-xp"></span> XP gagnés !</span></div>
-            <button class="btn btn-primaire" onclick="window.location.href='academie.html'">Retour à l'Académie</button>
+            <button class="btn btn-primaire" onclick="window.location.href='index.html'">Retour à l'Académie</button>
             <button class="btn btn-secondaire" onclick="retourAccueil()">Faire un autre quiz</button>
         </div>
     </div>
 
     <script>
+        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+        const DB_URL = `${FIREBASE_URL}scores/theo/geoSaveV1.json`;
+
         const donneesBase = {
             capitales_europe: { nom: "Capitales d'Europe", questions: [ { q: "Capitale de la France ?", a: "Paris" }, { q: "Capitale de l'Espagne ?", a: "Madrid" }, { q: "Capitale de l'Italie ?", a: "Rome" }, { q: "Capitale du Royaume-Uni ?", a: "Londres" }, { q: "Capitale de l'Allemagne ?", a: "Berlin" }, { q: "Capitale du Portugal ?", a: "Lisbonne" }, { q: "Capitale de la Belgique ?", a: "Bruxelles" }, { q: "Capitale de la Grèce ?", a: "Athènes" } ]},
             fleuves_france: { nom: "Fleuves de France", questions: [ { q: "Fleuve qui traverse Paris ?", a: "La Seine" }, { q: "Plus long fleuve de France ?", a: "La Loire" }, { q: "Fleuve qui traverse Lyon ?", a: "Le Rhône" }, { q: "Fleuve qui passe à Bordeaux ?", a: "La Garonne" }, { q: "Fleuve qui forme la frontière avec l'Allemagne ?", a: "Le Rhin" } ]},
@@ -102,8 +105,28 @@
             oceans_continents: { nom: "Océans & Continents", questions: [ { q: "L'océan entre l'Europe et l'Amérique ?", a: "Océan Atlantique" }, { q: "Le plus grand océan du monde ?", a: "Océan Pacifique" }, { q: "Continent où se trouve l'Egypte ?", a: "L'Afrique" }, { q: "Continent où se trouve la France ?", a: "L'Europe" }, { q: "Continent le plus froid ?", a: "L'Antarctique" }, { q: "Continent où se trouve le Japon ?", a: "L'Asie" } ]}
         };
 
-        let customThemes = JSON.parse(localStorage.getItem('geoCustomV1')) || {}; let profil = JSON.parse(localStorage.getItem('geoSaveV1')) || { xp: 0 };
+        let customThemes = JSON.parse(localStorage.getItem('geoCustomV1')) || {}; 
+        let profil = { xp: 0 };
         let vies = 3; let indexQuestion = 0; let questionsPartie = []; let scorePartie = 0; let themeActuelId = ""; let isThemeCustom = false;
+
+        // --- SAUVEGARDE CLOUD FIREBASE ---
+        async function chargerProfilCloud() {
+            try {
+                let res = await fetch(DB_URL);
+                let data = await res.json();
+                if (data && data.xp !== undefined) {
+                    profil.xp = parseInt(data.xp) || 0;
+                }
+            } catch(e) {}
+            majAccueil();
+        }
+
+        async function sauverProfilCloud() {
+            try {
+                await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) });
+            } catch(e) {}
+        }
+        // ---------------------------------
 
         function majAccueil() {
             document.getElementById('ui-xp-accueil').textContent = profil.xp;
@@ -119,8 +142,14 @@
             }
         }
 
-        function sauverProfil() { localStorage.setItem('geoSaveV1', JSON.stringify(profil)); document.getElementById('ui-xp-accueil').textContent = profil.xp; document.getElementById('ui-xp-jeu').textContent = profil.xp; }
+        function sauverProfil() { 
+            document.getElementById('ui-xp-accueil').textContent = profil.xp; 
+            document.getElementById('ui-xp-jeu').textContent = profil.xp; 
+            sauverProfilCloud(); 
+        }
+        
         function sauverCustom() { localStorage.setItem('geoCustomV1', JSON.stringify(customThemes)); }
+        
         function sauvegarderTheme() {
             let nom = document.getElementById('input-nom-theme').value.trim(); let motsBruts = document.getElementById('input-mots').value;
             if(!nom || !motsBruts) return alert("Remplis le titre et les questions !");
@@ -173,7 +202,8 @@
         }
 
         function finirJeu(victoire) { let bonus = vies * 20; profil.xp += bonus; scorePartie += bonus; sauverProfil(); document.getElementById('gain-xp').textContent = scorePartie; changerEcran('ecran-fin'); }
-        majAccueil();
+        
+        chargerProfilCloud();
     </script>
 </body>
 </html>
