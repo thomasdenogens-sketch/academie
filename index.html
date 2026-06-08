@@ -2,7 +2,8 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Le Portail Familial - Académie Pro Cloud</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'Académie de Théo & Lola</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
         
@@ -10,233 +11,114 @@
         
         body { 
             font-family: 'Nunito', sans-serif; 
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); 
-            color: #333; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            min-height: 100vh; 
-            padding: 20px; 
-            transition: background 0.5s; 
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #2c3e50; display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; padding: 40px 20px; 
         }
         
-        #ecran-profils { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            min-height: 80vh; 
-        }
-        #ecran-profils h1 { font-size: 3rem; color: #2c3e50; margin-bottom: 40px; text-align: center; }
-        .profils-container { display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; }
-        
-        .profil-card { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            cursor: pointer; 
-            transition: transform 0.2s; 
-        }
-        .profil-card:hover { transform: scale(1.1); }
-        
-        .avatar { 
-            width: 150px; 
-            height: 150px; 
-            border-radius: 20px; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            font-size: 5rem; 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2); 
-            margin-bottom: 15px; 
-        }
-        .avatar-theo { background: linear-gradient(135deg, #4facfe, #00f2fe); }
-        .avatar-lola { background: linear-gradient(135deg, #ff9a9e, #fecfef); }
-        .profil-name { font-size: 1.5rem; font-weight: 900; color: #2c3e50; }
+        .container { max-width: 900px; width: 100%; text-align: center; }
 
-        #dashboard { 
-            display: none; 
-            background: white; 
-            padding: 30px; 
-            border-radius: 20px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
-            max-width: 900px; 
-            width: 100%; 
-            text-align: center; 
-            position: relative; 
-        }
+        h1 { font-size: 3rem; font-weight: 900; color: #2c3e50; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+        .subtitle { font-size: 1.2rem; font-weight: 700; color: #34495e; margin-bottom: 30px; }
 
-        #btn-changer-profil { 
-            position: absolute; 
-            top: 20px; 
-            right: 20px; 
-            background: #eee; 
-            border: none; 
-            padding: 8px 15px; 
-            border-radius: 10px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            transition: 0.2s; 
+        /* BOUTON CARNET DE BORD */
+        .btn-stats-container { margin-bottom: 40px; }
+        .btn-stats { 
+            background: #f39c12; color: white; padding: 15px 35px; 
+            border-radius: 50px; text-decoration: none; font-size: 1.5rem; font-weight: 900; 
+            box-shadow: 0 8px 20px rgba(243, 156, 18, 0.4); display: inline-block;
+            transition: all 0.3s ease; border: 3px solid #fff;
         }
-        #btn-changer-profil:hover { background: #ddd; }
+        .btn-stats:hover { transform: scale(1.05) translateY(-3px); box-shadow: 0 12px 25px rgba(243, 156, 18, 0.6); }
+
+        .kids-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+
+        /* SECTIONS DES ENFANTS */
+        .kid-section { background: white; border-radius: 30px; padding: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
         
-        .titre-dash { font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
-        .sous-titre { color: #7f8c8d; margin-bottom: 30px; font-size: 1.2rem; }
+        .theo-section { border-top: 15px solid #3498db; }
+        .lola-section { border-top: 15px solid #e91e63; }
 
-        .stats-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 35px; }
-        .stat-box { background: #f8f9fa; padding: 20px; border-radius: 15px; flex: 1; min-width: 150px; border: 2px solid #eee; }
-        .stat-valeur { font-size: 2.2rem; font-weight: 900; margin: 10px 0; }
-        .stat-label { font-size: 0.9rem; color: #95a5a6; text-transform: uppercase; font-weight: bold; }
+        .kid-header { font-size: 2.5rem; font-weight: 900; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; gap: 15px; }
+        .theo-section .kid-header { color: #3498db; }
+        .lola-section .kid-header { color: #e91e63; }
 
-        .menu-jeux { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-        .carte-jeu { 
-            padding: 25px 20px; 
-            border-radius: 15px; 
-            cursor: pointer; 
-            color: white; 
-            font-weight: bold; 
-            text-decoration: none; 
-            transition: transform 0.2s; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            position: relative; 
-            overflow: hidden; 
-            min-height: 160px; 
+        .games-list { display: flex; flex-direction: column; gap: 15px; }
+
+        /* BOUTONS DES JEUX */
+        .game-btn {
+            display: flex; align-items: center; gap: 15px; padding: 15px 20px;
+            border-radius: 15px; text-decoration: none; font-size: 1.2rem; font-weight: 800;
+            color: #2c3e50; background: #f8f9fa; border: 2px solid #e2e8f0;
+            transition: 0.2s;
         }
         
-        .carte-jeu h2 { font-size: 1.6rem; margin-bottom: 5px; z-index: 1; text-shadow: 1px 1px 3px rgba(0,0,0,0.2); }
-        .desc-jeu { font-size: 0.9rem; margin-bottom: 15px; font-weight: normal; opacity: 0.9; z-index: 1; }
-        .xp-bulle { font-size: 0.9rem; background: rgba(0,0,0,0.25); padding: 5px 12px; border-radius: 20px; z-index: 1; backdrop-filter: blur(5px); }
+        .theo-section .game-btn:hover { background: #ebf5fb; border-color: #3498db; transform: translateX(5px); }
+        .lola-section .game-btn:hover { background: #fce4ec; border-color: #e91e63; transform: translateX(5px); }
         
-        .icone-fond { position: absolute; font-size: 6rem; right: -10px; bottom: -20px; opacity: 0.2; transform: rotate(-15deg); }
+        .game-icon { font-size: 1.8rem; }
 
-        .j-maths { background: linear-gradient(135deg, #4facfe, #00f2fe); }
-        .j-conj { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
-        .j-mots { background: linear-gradient(135deg, #84fab0, #8fd3f4); }
-        .j-histoire { background: linear-gradient(135deg, #d4a373, #e9b485); }
-        .j-anglais { background: linear-gradient(135deg, #ff9a9e, #fecfef); }
-        .j-geo { background: linear-gradient(135deg, #a8e063, #56ab2f); }
     </style>
 </head>
 <body>
 
-    <div id="ecran-profils">
-        <h1>Qui s'entraîne aujourd'hui ?</h1>
-        <div class="profils-container">
-            <div class="profil-card" onclick="choisirProfil('theo')">
-                <div class="avatar avatar-theo">👦🏼</div>
-                <div class="profil-name">Théo (CM1)</div>
+    <div class="container">
+        <h1>🎓 L'Académie de la Famille</h1>
+        <p class="subtitle">Apprendre, jouer et progresser ensemble !</p>
+
+        <div class="btn-stats-container">
+            <a href="stats_enfants.html" class="btn-stats">🏆 Voir notre Carnet de Bord !</a>
+        </div>
+
+        <div class="kids-grid">
+            
+            <div class="kid-section theo-section">
+                <div class="kid-header">👦 Théo</div>
+                <div class="games-list">
+                    <a href="jeu_maths_theo.html" class="game-btn">
+                        <span class="game-icon">🧮</span><span>Mathématiques</span>
+                    </a>
+                    <a href="jeu_echecs_theo.html" class="game-btn">
+                        <span class="game-icon">♞</span><span>Échecs</span>
+                    </a>
+                    <a href="jeu_conj_theo.html" class="game-btn">
+                        <span class="game-icon">✍️</span><span>Conjugaison</span>
+                    </a>
+                    <a href="jeu_ortho_theo.html" class="game-btn">
+                        <span class="game-icon">📖</span><span>Orthographe</span>
+                    </a>
+                    <a href="jeu_histoire_theo.html" class="game-btn">
+                        <span class="game-icon">🏰</span><span>Histoire</span>
+                    </a>
+                    <a href="jeu_anglais_theo.html" class="game-btn">
+                        <span class="game-icon">🇬🇧</span><span>Anglais</span>
+                    </a>
+                    <a href="jeu_geo_theo.html" class="game-btn">
+                        <span class="game-icon">🌍</span><span>Géographie</span>
+                    </a>
+                </div>
             </div>
-            <div class="profil-card" onclick="choisirProfil('lola')">
-                <div class="avatar avatar-lola">👧🏼</div>
-                <div class="profil-name">Lola (CP / CE1)</div>
+
+            <div class="kid-section lola-section">
+                <div class="kid-header">👧 Lola</div>
+                <div class="games-list">
+                    <a href="jeu_maths_lola.html" class="game-btn">
+                        <span class="game-icon">🧮</span><span>Mathématiques</span>
+                    </a>
+                    <a href="jeu_francais_lola.html" class="game-btn">
+                        <span class="game-icon">📚</span><span>Français</span>
+                    </a>
+                    <a href="jeu_anglais_lola.html" class="game-btn">
+                        <span class="game-icon">🇬🇧</span><span>Anglais Découverte</span>
+                    </a>
+                    <a href="jeu_geo_lola.html" class="game-btn">
+                        <span class="game-icon">🌍</span><span>Géographie</span>
+                    </a>
+                </div>
             </div>
+
         </div>
     </div>
 
-    <div id="dashboard">
-        <button id="btn-changer-profil" onclick="deconnecter()">🔄 Changer de profil</button>
-        <h1 class="titre-dash" id="titre-bienvenue">L'Académie</h1>
-        <p class="sous-titre" id="sous-titre-dash">Ton QG d'entraînement connecté !</p>
-
-        <div class="stats-container">
-            <div class="stat-box">
-                <div class="stat-label">✨ Expérience Totale</div>
-                <div class="stat-valeur" id="total-xp" style="color: #f39c12;">Chargement...</div>
-            </div>
-        </div>
-
-        <h3 style="text-align: left; margin-bottom: 20px; color: #2c3e50;">Choisis ta mission :</h3>
-        <div class="menu-jeux" id="menu-jeux-dynamique"></div>
-    </div>
-
-    <script>
-        // URL de votre base de données Cloud
-        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
-        let utilisateurActuel = null;
-        let cloudData = {};
-
-        const jeuxTheo = [
-            { id: "maths", nom: "Mathématiques", desc: "Tables & Défi", icone: "📊", classe: "j-maths", href: "jeu_maths_theo.html", saveKey: "mathsV8" },
-            { id: "conj", nom: "Conjugaison", desc: "Le Héros des Temps", icone: "✍️", classe: "j-conj", href: "jeu_conjugaison_v6.html", saveKey: "conjHero9" },
-            { id: "mots", nom: "Orthographe", desc: "Chasseur de Mots", icone: "🔎", classe: "j-mots", href: "mots_meles_v3.html", saveKey: "motsSaveV3" },
-            { id: "hist", nom: "Histoire", desc: "La Machine du Temps", icone: "⏳", classe: "j-histoire", href: "jeu_histoire.html", saveKey: "histoireSaveV1" },
-            { id: "angl", nom: "Anglais", desc: "Le Défi Bilingue", icone: "🇬🇧", classe: "j-anglais", href: "jeu_anglais.html", saveKey: "anglaisSaveV1" },
-            { id: "geo", nom: "Géographie", desc: "Le Globe-Trotter", icone: "🌍", classe: "j-geo", href: "jeu_geo.html", saveKey: "geoSaveV1" },
-            { id: "echecs", nom: "Échecs", desc: "Stratégies & Pro IA", icone: "👑", classe: "j-histoire", href: "echecs_coach.html", saveKey: "echecsSave" }
-        ];
-
-        const jeuxLola = [
-            { id: "maths_lola", nom: "Mathématiques", desc: "Additions & Soustractions", icone: "➕", classe: "j-maths", href: "jeu_maths_lola.html", saveKey: "mathsLola" },
-            { id: "francais_lola", nom: "Français", desc: "Les mots magiques", icone: "📖", classe: "j-conj", href: "jeu_francais_lola.html", saveKey: "francaisLola" },
-            { id: "angl_lola", nom: "Anglais", desc: "Mes premiers mots", icone: "🇬🇧", classe: "j-anglais", href: "jeu_anglais_lola.html", saveKey: "anglaisLola" },
-            { id: "geo_lola", nom: "Géographie", desc: "Découverte du Monde", icone: "🌍", classe: "j-geo", href: "jeu_geo_lola.html", saveKey: "geoLola" }
-        ];
-
-        async function fetchCloudData() {
-            try {
-                let res = await fetch(`${FIREBASE_URL}scores.json`);
-                cloudData = await res.json() || {};
-            } catch(e) { console.error("Erreur de connexion Cloud", e); }
-        }
-
-        async function choisirProfil(pseudo) {
-            utilisateurActuel = pseudo;
-            localStorage.setItem('sessionActiveFamille', pseudo);
-            document.getElementById('ecran-profils').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
-
-            await fetchCloudData(); // Charge les données depuis Google
-
-            if (pseudo === 'theo') {
-                document.body.style.background = "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)";
-                document.getElementById('titre-bienvenue').textContent = "L'Académie de Théo 🎓";
-                genererMenu(jeuxTheo, 'theo');
-            } else {
-                document.body.style.background = "linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)";
-                document.getElementById('titre-bienvenue').textContent = "Le Coin de Lola 🦄";
-                genererMenu(jeuxLola, 'lola');
-            }
-        }
-
-        function genererMenu(listeJeux, joueur) {
-            const menu = document.getElementById('menu-jeux-dynamique');
-            menu.innerHTML = '';
-            let totalXP = 0;
-
-            let joueurData = cloudData[joueur] || {};
-
-            listeJeux.forEach(jeu => {
-                let jeuSaved = joueurData[jeu.saveKey] || { xp: 0 };
-                let xpDuJeu = parseInt(jeuSaved.xp) || 0;
-                totalXP += xpDuJeu;
-
-                let a = document.createElement('a');
-                a.href = jeu.href;
-                a.className = `carte-jeu ${jeu.classe}`;
-                a.innerHTML = `
-                    <span class="icone-fond">${jeu.icone}</span>
-                    <h2>${jeu.nom}</h2>
-                    <span class="desc-jeu">${jeu.desc}</span>
-                    <span class="xp-bulle">XP : ${xpDuJeu} ⭐</span>
-                `;
-                menu.appendChild(a);
-            });
-
-            document.getElementById('total-xp').textContent = totalXP + " ⭐";
-        }
-
-        function deconnecter() {
-            localStorage.removeItem('sessionActiveFamille');
-            document.getElementById('dashboard').style.display = 'none';
-            document.getElementById('ecran-profils').style.display = 'flex';
-            document.body.style.background = "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)";
-        }
-
-        let session = localStorage.getItem('sessionActiveFamille');
-        if (session) choisirProfil(session);
-    </script>
 </body>
 </html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Carnet de Bord - Académie</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            color: #2c3e50; 
+            display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; padding: 30px 20px; 
+        }
+        
+        .container {
+            max-width: 900px; width: 100%;
+        }
+
+        .header {
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 30px; background: white; padding: 20px 30px; 
+            border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+
+        .header h1 { color: #f39c12; font-size: 2.2rem; font-weight: 900; }
+        .btn-retour { 
+            background: #34495e; color: white; padding: 12px 24px; 
+            border-radius: 12px; text-decoration: none; font-weight: 900; 
+            transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn-retour:hover { background: #2c3e50; transform: translateY(-2px); }
+
+        .cards-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;
+        }
+
+        /* --- CARTES DES ENFANTS --- */
+        .kid-card {
+            background: white; padding: 30px; border-radius: 25px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            position: relative; overflow: hidden;
+        }
+
+        .card-theo { border-top: 10px solid #3498db; }
+        .card-lola { border-top: 10px solid #e91e63; }
+
+        .kid-header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
+        .kid-avatar { font-size: 3.5rem; background: #f8f9fa; width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; border-radius: 50%; box-shadow: inset 0 4px 6px rgba(0,0,0,0.05);}
+        .kid-name { font-size: 2rem; font-weight: 900; }
+        .card-theo .kid-name { color: #3498db; }
+        .card-lola .kid-name { color: #e91e63; }
+
+        .total-xp-box {
+            background: #fff3cd; color: #f39c12; padding: 15px; border-radius: 15px;
+            text-align: center; font-size: 1.5rem; font-weight: 900; margin-bottom: 25px;
+            border: 2px dashed #ffeeba;
+        }
+
+        /* --- BARRES DE PROGRESSION --- */
+        .subject-row { margin-bottom: 15px; }
+        .subject-info { display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 5px; font-size: 1.1rem; color: #34495e;}
+        
+        .progress-bg {
+            background: #ecf0f1; height: 16px; border-radius: 10px; overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .progress-bar {
+            height: 100%; border-radius: 10px; width: 0%;
+            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bg-theo { background: linear-gradient(90deg, #3498db, #2980b9); }
+        .bg-lola { background: linear-gradient(90deg, #e91e63, #c2185b); }
+
+        .xp-val { font-weight: 900; }
+        .card-theo .xp-val { color: #2980b9; }
+        .card-lola .xp-val { color: #c2185b; }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>🏆 Le Carnet de Bord</h1>
+            <a href="index.html" class="btn-retour">🏠 Retour à l'Académie</a>
+        </div>
+
+        <div class="cards-grid">
+            
+            <div class="kid-card card-theo">
+                <div class="kid-header">
+                    <div class="kid-avatar">👦</div>
+                    <div class="kid-name">Théo</div>
+                </div>
+                
+                <div class="total-xp-box" id="theo-total">Total: 0 ⭐</div>
+
+                <div id="theo-subjects">
+                    </div>
+            </div>
+
+            <div class="kid-card card-lola">
+                <div class="kid-header">
+                    <div class="kid-avatar">👧</div>
+                    <div class="kid-name">Lola</div>
+                </div>
+                
+                <div class="total-xp-box" id="lola-total">Total: 0 ⭐</div>
+
+                <div id="lola-subjects">
+                    </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+
+        // Configuration des matières pour afficher de jolis noms
+        const dictMatieres = {
+            mathsV8: "🧮 Mathématiques",
+            echecsSave: "♞ Échecs",
+            conjHero9: "✍️ Conjugaison",
+            motsSaveV3: "📖 Orthographe",
+            histoireSaveV1: "🏰 Histoire",
+            anglaisSaveV1: "🇬🇧 Anglais",
+            geoSaveV1: "🌍 Géographie",
+            
+            mathsLola: "🧮 Mathématiques",
+            francaisLola: "📚 Français",
+            anglaisLola: "🇬🇧 Anglais",
+            geoLola: "🌍 Géographie"
+        };
+
+        async function chargerStatistiques() {
+            try {
+                // 1. Récupérer les données de Théo
+                let resTheo = await fetch(`${FIREBASE_URL}scores/theo.json`);
+                let dataTheo = await resTheo.json() || {};
+                
+                // 2. Récupérer les données de Lola
+                let resLola = await fetch(`${FIREBASE_URL}scores/lola.json`);
+                let dataLola = await resLola.json() || {};
+
+                construireCarte(dataTheo, 'theo');
+                construireCarte(dataLola, 'lola');
+
+            } catch(e) {
+                console.error("Erreur de connexion Cloud :", e);
+            }
+        }
+
+        function construireCarte(data, enfant) {
+            let total = 0;
+            let divSubjects = document.getElementById(`${enfant}-subjects`);
+            divSubjects.innerHTML = "";
+            let bgClass = enfant === 'theo' ? 'bg-theo' : 'bg-lola';
+
+            // Trouver le score maximum pour calculer le pourcentage des barres
+            let maxScore = 100; // Minimum visuel
+            for (const key in data) {
+                if(data[key].xp > maxScore) maxScore = data[key].xp;
+            }
+            // On ajoute une petite marge pour que la jauge ne touche pas le bord si on est au max
+            maxScore = maxScore * 1.2; 
+
+            for (const key in data) {
+                let xp = parseInt(data[key].xp) || 0;
+                total += xp;
+
+                let nomJoli = dictMatieres[key] || key;
+                let pourcentage = Math.min((xp / maxScore) * 100, 100);
+
+                // Création du HTML pour la barre
+                let html = `
+                    <div class="subject-row">
+                        <div class="subject-info">
+                            <span>${nomJoli}</span>
+                            <span class="xp-val">${xp} ⭐</span>
+                        </div>
+                        <div class="progress-bg">
+                            <div class="progress-bar ${bgClass}" style="width: 0%" data-width="${pourcentage}%"></div>
+                        </div>
+                    </div>
+                `;
+                divSubjects.innerHTML += html;
+            }
+
+            // Afficher le total
+            document.getElementById(`${enfant}-total`).textContent = `Total: ${total} ⭐`;
+
+            // Lancer l'animation des barres avec un petit délai
+            setTimeout(() => {
+                let bars = divSubjects.querySelectorAll('.progress-bar');
+                bars.forEach(bar => {
+                    bar.style.width = bar.getAttribute('data-width');
+                });
+            }, 300);
+        }
+
+        chargerStatistiques();
+    </script>
+</body>
+</html>
