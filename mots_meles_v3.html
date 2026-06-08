@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Chasseur de Mots V3 - L'Aventure</title>
+    <title>Chasseur de Mots V3 - L'Aventure Cloud</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
@@ -44,8 +44,8 @@
     <div id="app-container">
         <div id="ecran-accueil" class="ecran actif">
             <h1>Chasseur de Mots V3</h1>
-            <p class="sous-titre">Le mode Aventure</p>
-            <div id="hud" style="justify-content: center;"><span class="xp-text">Mon XP : <span id="ui-xp-accueil">0</span> ⭐</span></div>
+            <p class="sous-titre">Édition Connectée (Théo)</p>
+            <div id="hud" style="justify-content: center;"><span class="xp-text">Mon XP : <span id="ui-xp-accueil">...</span> ⭐</span></div>
             <h2>Le Chemin de l'Aventure :</h2>
             <div class="grille-niveaux" id="liste-niveaux-aventure"></div>
             <hr style="margin: 30px 0; border: 1px solid #eee;">
@@ -54,7 +54,7 @@
             <div id="liste-themes-custom"></div>
             <button class="btn btn-secondaire" style="margin-top: 20px;" onclick="changerEcran('ecran-config')">⚙️ Espace Parents (Ajouter une liste)</button>
             <br>
-            <button class="btn btn-secondaire" style="margin-top: 15px;" onclick="window.location.href='academie.html'">🏠 Retour à l'Académie</button>
+            <button class="btn btn-secondaire" style="margin-top: 15px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
         <div id="ecran-jeu" class="ecran">
@@ -93,6 +93,9 @@
     </div>
 
     <script>
+        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+        const DB_URL = `${FIREBASE_URL}scores/theo/motsSaveV3.json`;
+
         const parcoursAventure = [
             { id: 1, nom: "Niveau 1 : La Forêt", xpRequis: 0, taille: 10, mode: 'facile', mots: ["RENARD", "LOUP", "ARBRE", "FEUILLE", "CHOUETTE"] },
             { id: 2, nom: "Niveau 2 : L'Océan", xpRequis: 50, taille: 12, mode: 'facile', mots: ["BALEINE", "REQUIN", "ALGUE", "POISSON", "CORAIL", "VAGUE"] },
@@ -103,8 +106,27 @@
         ];
 
         let customThemes = JSON.parse(localStorage.getItem('motsCustomV3')) || {};
-        let profil = JSON.parse(localStorage.getItem('motsSaveV3')) || { xp: 0 };
+        let profil = { xp: 0 };
         let difficultePartie = { taille: 10, mode: 'facile' }; let motsAFinir = []; let lettresGrille = []; let selection = null; let pointsGagnesCettePartie = 0;
+
+        // --- SAUVEGARDE CLOUD FIREBASE ---
+        async function chargerProfilCloud() {
+            try {
+                let res = await fetch(DB_URL);
+                let data = await res.json();
+                if (data && data.xp !== undefined) {
+                    profil.xp = parseInt(data.xp) || 0;
+                }
+            } catch(e) { console.error("Erreur de connexion Firebase", e); }
+            majAccueil();
+        }
+
+        async function sauverProfilCloud() {
+            try {
+                await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) });
+            } catch(e) { console.error("Erreur de sauvegarde Firebase", e); }
+        }
+        // ---------------------------------
 
         function majAccueil() {
             document.getElementById('ui-xp-accueil').textContent = profil.xp;
@@ -128,8 +150,15 @@
             }
         }
 
-        function sauverProfil() { localStorage.setItem('motsSaveV3', JSON.stringify(profil)); document.getElementById('ui-xp-accueil').textContent = profil.xp; document.getElementById('ui-xp-jeu').textContent = profil.xp; }
+        // Met à jour l'UI locale puis pousse vers le Cloud
+        function sauverProfil() { 
+            document.getElementById('ui-xp-accueil').textContent = profil.xp; 
+            document.getElementById('ui-xp-jeu').textContent = profil.xp; 
+            sauverProfilCloud(); 
+        }
+
         function sauverCustom() { localStorage.setItem('motsCustomV3', JSON.stringify(customThemes)); }
+        
         function sauvegarderTheme() {
             let nom = document.getElementById('input-nom-theme').value.trim(); let motsBruts = document.getElementById('input-mots').value;
             if(!nom || !motsBruts) return alert("Remplissez les champs !");
@@ -206,7 +235,8 @@
              if(e1) { e1.classList.add('erreur'); setTimeout(() => e1.classList.remove('erreur'), 400); } if(e2) { e2.classList.add('erreur'); setTimeout(() => e2.classList.remove('erreur'), 400); }
         }
 
-        majAccueil();
+        // Lancement initial
+        chargerProfilCloud();
     </script>
 </body>
 </html>
