@@ -122,7 +122,7 @@
             <div id="question">...</div>
             <div id="zone-saisie">
                 <input type="number" id="reponse" autocomplete="off">
-                <button id="btn-valider" class="btn btn-principal" onclick="validerSaisie()">Valider</button>
+                <button id="btn-valider" class="btn btn-principal" onclick="verifierReponseClavier()">Valider</button>
             </div>
             <div id="reponses-fractions" style="display:none;"></div>
             <div id="feedback"></div>
@@ -182,7 +182,7 @@
         const E = (id) => document.getElementById(id);
         const configManches = [{ nom: "Échauffement", q: 5 }, { nom: "La Montée", q: 10 }, { nom: "Le Sommet", q: 15 }];
 
-        // --- NOUVEAU SYSTÈME DE SAUVEGARDE FIREBASE ---
+        // --- SAUVEGARDE FIREBASE ---
         async function chargerProfil() {
             try {
                 let res = await fetch(`${FIREBASE_URL}scores/theo/mathsV8.json`);
@@ -319,18 +319,25 @@
         function startChronoVisuel() {
             clearInterval(tour.interval); let fin = Date.now() + 10000; let b = E('barre-temps-remplissage');
             b.style.transition = "none"; b.style.width = "100%"; void b.offsetWidth; b.style.transition = "width 10s linear"; b.style.width = "0%";
-            tour.interval = setInterval(() => { if(Date.now() >= fin) { clearInterval(tour.interval); validerSaisie(null, true); } }, 100);
+            tour.interval = setInterval(() => { if(Date.now() >= fin) { clearInterval(tour.interval); evaluerReponse(null, true); } }, 100);
         }
 
-        function validerSaisie(val, timeout = false) {
+        // --- CORRECTION DU BUG : Fonction unique d'évaluation de saisie ---
+        function verifierReponseClavier() {
+            evaluerReponse(E('reponse').value, false);
+        }
+
+        function evaluerReponse(val, isTimeout) {
             let inputVal = (val === undefined || val === null) ? E('reponse').value : val;
-            if(!timeout && inputVal.trim() === '' && gameMode !== 'fractions') return;
+            
+            // Si le champ est vide et qu'on n'est pas en time-out, on annule l'action (sauf si mode fraction)
+            if(!isTimeout && inputVal.trim() === '' && gameMode !== 'fractions') return;
             
             clearInterval(tour.interval);
             E('reponse').disabled = true; 
             E('btn-valider').style.display = 'none'; 
             
-            let correct = (!timeout && parseInt(inputVal) === tour.attendu);
+            let correct = (!isTimeout && parseInt(inputVal) === tour.attendu);
 
             if(gameMode === 'tables') {
                 session.tempsTotal += (Date.now() - tour.debut)/1000;
@@ -341,7 +348,7 @@
                 } else { 
                     session.vies--; 
                     session.erreurs.push(tour.questionStr); 
-                    E('feedback').textContent = timeout ? "Trop long..." : `Oups ! C'était ${tour.attendu}`; 
+                    E('feedback').textContent = isTimeout ? "Trop long..." : `Oups ! C'était ${tour.attendu}`; 
                     E('feedback').style.color = "red"; 
                     setTimeout(poserQuestion, 2000); 
                 }
@@ -352,6 +359,13 @@
                 poserQuestion(); 
             }
         }
+
+        // Écoute de la touche Entrée pour déclencher la validation unique
+        E('reponse').addEventListener("keyup", (e) => { 
+            if (e.key === "Enter" && !E('reponse').disabled) {
+                verifierReponseClavier(); 
+            }
+        });
 
         function finDeMancheTables() {
             if(session.mancheIdx < 2) {
@@ -455,12 +469,12 @@
                 if(session.modeZen) {
                     let min = Math.floor(session.tempsEcouleZen / 60);
                     let sec = session.tempsEcouleZen % 60;
-                    tempsTotalAffichage = min > 0 ? `${min} minute(s) et ${sec} seconde(s)` : `${sec} seconde(s)`;
+                    tempsTotalAffichage = min > 0 ? `${min} min et ${sec} sec` : `${sec} sec`;
                 } else {
                     let tempsMisCo = 300 - session.tempsRestant;
                     let min = Math.floor(tempsMisCo / 60);
                     let sec = tempsMisCo % 60;
-                    tempsTotalAffichage = min > 0 ? `${min} minute(s) et ${sec} seconde(s)` : `${sec} seconde(s)`;
+                    tempsTotalAffichage = min > 0 ? `${min} min et ${sec} sec` : `${sec} sec`;
                 }
                 E('df-temps-total-txt').textContent = tempsTotalAffichage;
 
@@ -489,13 +503,6 @@
                 E('ecran-fin-standard').style.display = 'block';
             }
         }
-
-        function validerSaisie() { validerSaisie(E('reponse').value); }
-        E('reponse').addEventListener("keyup", (e) => { 
-            if (e.key === "Enter" && !E('reponse').disabled) {
-                validerSaisie(); 
-            }
-        });
 
         chargerProfil();
     </script>
