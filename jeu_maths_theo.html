@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Mathématiques - Centre d'Entraînement CM1</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
         body { font-family: 'Poppins', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: #333; text-align: center; }
-        #conteneur-appli { width: 95%; max-width: 600px; background-color: #ffffff; padding: 25px 30px; border-radius: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative; }
+        #conteneur-appli { width: 95%; max-width: 650px; background-color: #ffffff; padding: 25px 30px; border-radius: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative; }
         .ecran { display: none; animation: fadeIn 0.4s ease-out; }
         .ecran.actif { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -23,6 +24,7 @@
         .btn-defi { background-color: #e74c3c; box-shadow: 0 4px #c0392b; }
         .btn-neutre { background-color: #95a5a6; box-shadow: 0 4px #7f8c8d; }
         .btn-vert { background-color: #28a745; box-shadow: 0 4px #218838; }
+        .btn-outil { background-color: #f1f2f6; color: #333; box-shadow: 0 4px #dcdde1; border-radius: 12px; padding: 0 15px; cursor: pointer; font-weight: bold; border: none; font-size: 1.2rem;}
         
         .grille-tables { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; padding: 0 20px; }
         .check-table { display: none; }
@@ -60,6 +62,13 @@
         
         .timer-defi { font-size: 1.6rem; color: #d63031; background: #ffeaea; padding: 3px 12px; border-radius: 8px; border: 2px solid #ff7675; }
         .score-circle { border: 3px solid #2d3436; border-radius: 50%; width: 100px; height: 100px; display: flex; justify-content: center; align-items: center; margin: 0 auto; font-size: 2.2rem; font-weight: 900; }
+
+        /* Styles spécifiques pour le récapitulatif du défi */
+        #recap-defi-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 1rem; }
+        #recap-defi-table th { background: #e9ecef; padding: 8px; border-bottom: 2px solid #ccc; position: sticky; top: 0; }
+        #recap-defi-table td { padding: 8px; border-bottom: 1px solid #eee; }
+        .recap-vert { color: #27ae60; font-weight: bold; }
+        .recap-rouge { color: #c0392b; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -120,10 +129,14 @@
                 <span id="infos-progression-saisie">1 / 5</span>
             </div>
             <div id="question">...</div>
+            
             <div id="zone-saisie">
+                <button id="btn-undo" class="btn-outil" onclick="undoQuestion()" style="display:none;" title="Corriger la dernière réponse">⬅️</button>
                 <input type="number" id="reponse" autocomplete="off">
                 <button id="btn-valider" class="btn btn-principal" onclick="verifierReponseClavier()">Valider</button>
+                <button id="btn-passer" class="btn-outil" onclick="passerQuestion()" style="display:none;" title="Remettre à plus tard">Passer ⏭️</button>
             </div>
+            
             <div id="reponses-fractions" style="display:none;"></div>
             <div id="feedback"></div>
         </div>
@@ -149,23 +162,27 @@
 
         <div id="ecran-fin-defi" class="ecran">
             <h2 style="color:#e74c3c;">Bilan du Défi</h2>
-            <div style="display: flex; justify-content: space-around; margin: 20px 0;">
+            <div style="display: flex; justify-content: space-around; margin: 15px 0;">
                 <div>
                     <p style="font-size:0.8rem; font-weight:bold;">Bonnes réponses</p>
                     <div class="score-circle" id="df-bonnes" style="color:#007bff;">0</div>
                 </div>
                 <div>
-                    <p style="font-size:0.8rem; font-weight:bold;">1ère Erreur (N°)</p>
-                    <div class="score-circle" id="df-erreur" style="color:#e84393;">0</div>
+                    <p style="font-size:0.8rem; font-weight:bold;">Temps mis</p>
+                    <div class="score-circle" style="color:#e84393; font-size:1.5rem;" id="df-temps-total-txt">0s</div>
                 </div>
             </div>
-            <div style="font-size: 1.3rem; font-weight: bold; background: #f1f2f6; padding: 12px; border-radius: 12px; margin-bottom: 10px;">
-                Score Total : <span id="df-score-total" style="color:#28a745; font-size:1.8rem;">0</span>
-            </div>
-            <div style="font-weight: bold; font-size: 1.1rem; color: #17a2b8; margin-bottom: 15px;" id="df-temps-total-box">
-                ⏱️ Temps mis : <span id="df-temps-total-txt">0s</span>
-            </div>
+            
             <p style="color:#f39c12; font-weight:bold; margin-bottom:15px;">XP Gagné : +<span id="df-xp">0</span></p>
+
+            <div style="width: 100%; height: 200px; margin-bottom: 20px;">
+                <canvas id="graph-defi"></canvas>
+            </div>
+
+            <h3 style="text-align:left; font-size:1.2rem; color:#333; margin-bottom:5px;">Récapitulatif des 50 calculs :</h3>
+            <div id="recap-defi-container" style="max-height: 250px; overflow-y: auto; text-align: left; margin-bottom: 20px; border: 2px solid #eee; border-radius: 10px; background: #fdfdfd;">
+               </div>
+
             <button onclick="ouvrirSousMenu('hub')" class="btn btn-principal">Retour au Menu</button>
         </div>
 
@@ -173,11 +190,12 @@
 
     <script>
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
-        let profil = { xp: 0 };
+        let profil = { xp: 0, historiqueDefi: [] };
         let gameMode = ''; 
         let subMode = '';  
-        let session = { vies: 3, indexQ: 0, totalQ: 5, score: 0, tempsTotal: 0, erreurs: [], fileQuestions: [], mancheIdx: 0, modeZen: false, tempsRestant: 300, tempsEcouleZen: 0 };
+        let session = { vies: 3, indexQ: 0, totalQ: 5, score: 0, tempsTotal: 0, erreurs: [], fileQuestions: [], mancheIdx: 0, modeZen: false, tempsRestant: 300, tempsEcouleZen: 0, historyDefi: [] };
         let tour = { attendu: 0, debut: 0, interval: null, questionStr: "" };
+        let monGraphique = null;
         
         const E = (id) => document.getElementById(id);
         const configManches = [{ nom: "Échauffement", q: 5 }, { nom: "La Montée", q: 10 }, { nom: "Le Sommet", q: 15 }];
@@ -187,8 +205,9 @@
             try {
                 let res = await fetch(`${FIREBASE_URL}scores/theo/mathsV8.json`);
                 let data = await res.json();
-                if (data && data.xp !== undefined) {
-                    profil.xp = data.xp;
+                if (data) {
+                    if (data.xp !== undefined) profil.xp = data.xp;
+                    if (data.historiqueDefi !== undefined) profil.historiqueDefi = data.historiqueDefi;
                 }
             } catch(e) { console.error("Erreur de chargement Firebase:", e); }
             E('hub-xp').textContent = profil.xp;
@@ -199,7 +218,7 @@
             try {
                 await fetch(`${FIREBASE_URL}scores/theo/mathsV8.json`, {
                     method: 'PUT',
-                    body: JSON.stringify({ xp: profil.xp })
+                    body: JSON.stringify({ xp: profil.xp, historiqueDefi: profil.historiqueDefi })
                 });
             } catch(e) { console.error("Erreur de sauvegarde Firebase:", e); }
         }
@@ -228,6 +247,8 @@
             E('infos-vies-saisie').style.visibility = 'visible'; 
             E('zone-saisie').style.display = 'flex'; 
             E('reponses-fractions').style.display = 'none';
+            E('btn-undo').style.display = 'none';
+            E('btn-passer').style.display = 'none';
             
             demarrerMancheTables(0);
         }
@@ -260,7 +281,7 @@
             poserQuestion();
         }
 
-        function poserQuestion() {
+        function poserQuestion(prefill = '') {
             if (gameMode !== 'defi' && session.vies <= 0) return terminerSession(false);
             
             if (gameMode !== 'defi') {
@@ -268,7 +289,7 @@
             }
             
             E('feedback').textContent = ''; 
-            E('reponse').value = ''; 
+            E('reponse').value = prefill; 
             E('reponse').disabled = false; 
             E('btn-valider').style.display = 'inline-block';
             
@@ -306,8 +327,11 @@
                 });
             }
             else if(gameMode === 'defi') {
-                if(session.indexQ >= 50) return terminerSession(true);
-                session.indexQ++; E('infos-progression-saisie').textContent = `${session.indexQ} / 50`;
+                // On s'arrête quand on a répondu à 50 questions (historique plein)
+                if(session.historyDefi.length >= 50) return terminerSession(true);
+                
+                session.indexQ++; 
+                E('infos-progression-saisie').textContent = `${session.historyDefi.length + 1} / 50`;
                 
                 let qData = session.fileQuestions[session.indexQ - 1];
                 E('question').textContent = qData.q; tour.attendu = qData.a;
@@ -322,7 +346,6 @@
             tour.interval = setInterval(() => { if(Date.now() >= fin) { clearInterval(tour.interval); evaluerReponse(null, true); } }, 100);
         }
 
-        // --- CORRECTION DU BUG : Fonction unique d'évaluation de saisie ---
         function verifierReponseClavier() {
             evaluerReponse(E('reponse').value, false);
         }
@@ -330,7 +353,6 @@
         function evaluerReponse(val, isTimeout) {
             let inputVal = (val === undefined || val === null) ? E('reponse').value : val;
             
-            // Si le champ est vide et qu'on n'est pas en time-out, on annule l'action (sauf si mode fraction)
             if(!isTimeout && inputVal.trim() === '' && gameMode !== 'fractions') return;
             
             clearInterval(tour.interval);
@@ -355,17 +377,55 @@
             }
             else if(gameMode === 'defi') {
                 if(correct) { session.score++; } 
-                else { if(session.firstErr === 50) session.firstErr = session.indexQ; }
+                
+                // On enregistre dans l'historique de la partie pour le récapitulatif
+                session.historyDefi.push({
+                    qData: session.fileQuestions[session.indexQ - 1],
+                    userAns: inputVal,
+                    isCorrect: correct
+                });
+
                 poserQuestion(); 
             }
         }
 
-        // Écoute de la touche Entrée pour déclencher la validation unique
+        // Écoute de la touche Entrée
         E('reponse').addEventListener("keyup", (e) => { 
             if (e.key === "Enter" && !E('reponse').disabled) {
                 verifierReponseClavier(); 
             }
         });
+
+        // --- NOUVELLES FONCTIONS : PASSER & UNDO ---
+        function passerQuestion() {
+            if (gameMode !== 'defi' || session.historyDefi.length >= 50) return;
+            
+            // On prend la question actuelle et on la remet à la toute fin de la file d'attente
+            let currentQData = session.fileQuestions[session.indexQ - 1];
+            session.fileQuestions.push(currentQData);
+            
+            // L'index avance pour passer à la suivante
+            poserQuestion();
+        }
+
+        function undoQuestion() {
+            if (gameMode !== 'defi' || session.historyDefi.length === 0) return;
+            
+            // On récupère la toute dernière question répondue
+            let lastAnswered = session.historyDefi.pop();
+            
+            // On annule le point si elle était correcte
+            if (lastAnswered.isCorrect) session.score--;
+            
+            // On recule l'index de lecture du fichier de questions
+            session.indexQ--;
+            
+            // On replace la question dans la file à la position actuelle pour la reposer
+            session.fileQuestions[session.indexQ] = lastAnswered.qData;
+            
+            // On relance la question en pré-remplissant avec la faute de frappe
+            poserQuestion(lastAnswered.userAns);
+        }
 
         function finDeMancheTables() {
             if(session.mancheIdx < 2) {
@@ -383,6 +443,8 @@
             E('infos-vies-saisie').style.visibility = 'visible'; 
             E('header-manche-saisie').textContent = "Atelier des Fractions";
             E('zone-saisie').style.display = 'none'; E('reponses-fractions').style.display = 'flex';
+            E('btn-undo').style.display = 'none';
+            E('btn-passer').style.display = 'none';
             
             const fracGen = (n,d) => `<div class="fraction-display"><span>${n}</span><span>${d}</span></div>`;
             session.fileQuestions = [
@@ -416,12 +478,16 @@
 
         // --- DÉFI 50 CALCULS ---
         function lancerDefi() {
-            gameMode = 'defi'; session.indexQ = 0; session.score = 0; session.firstErr = 50; session.tempsEcouleZen = 0;
+            gameMode = 'defi'; session.indexQ = 0; session.score = 0; session.tempsEcouleZen = 0; session.historyDefi = [];
             session.modeZen = E('option-zen-defi').checked;
             E('barre-temps-conteneur').style.opacity = "0";
             E('header-manche-saisie').textContent = "Le Défi Chrono";
             E('infos-vies-saisie').style.visibility = 'hidden'; 
             E('zone-saisie').style.display = 'flex'; E('reponses-fractions').style.display = 'none';
+            
+            // Affichage des nouveaux outils
+            E('btn-undo').style.display = 'block';
+            E('btn-passer').style.display = 'block';
             
             if(session.modeZen) { 
                 E('ui-timer-defi').style.display = 'none'; 
@@ -453,34 +519,91 @@
             if(session.tempsRestant <= 0) { clearInterval(tour.interval); terminerSession(true); }
         }
 
+        function dessinerGraphique() {
+            if(!profil.historiqueDefi || profil.historiqueDefi.length === 0) return;
+            
+            let ctx = E('graph-defi').getContext('2d');
+            if(monGraphique) monGraphique.destroy(); // Détruit l'ancien graphique s'il existe
+            
+            monGraphique = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: profil.historiqueDefi.map((_, i) => `Partie ${i+1}`),
+                    datasets: [{
+                        label: 'Bonnes réponses (sur 50)',
+                        data: profil.historiqueDefi.map(h => h.score),
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0,123,255,0.2)',
+                        tension: 0.3,
+                        fill: true,
+                        pointBackgroundColor: '#e74c3c',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { 
+                        y: { min: 0, max: 50, ticks: { stepSize: 10 } } 
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
         // --- FIN DE SESSIONS & RAPPORTS ---
         function terminerSession(victoire) {
             clearInterval(tour.interval);
             document.querySelectorAll('.ecran').forEach(e => e.style.display = 'none');
             
             if(gameMode === 'defi') {
-                if(session.firstErr === 50 && session.indexQ < 50) session.firstErr = session.indexQ;
-                let totalScoreDefi = session.score + session.firstErr;
                 E('df-bonnes').textContent = session.score;
-                E('df-erreur').textContent = session.firstErr;
-                E('df-score-total').textContent = totalScoreDefi;
                 
                 let tempsTotalAffichage = "";
                 if(session.modeZen) {
                     let min = Math.floor(session.tempsEcouleZen / 60);
                     let sec = session.tempsEcouleZen % 60;
-                    tempsTotalAffichage = min > 0 ? `${min} min et ${sec} sec` : `${sec} sec`;
+                    tempsTotalAffichage = min > 0 ? `${min}m ${sec}s` : `${sec}s`;
                 } else {
                     let tempsMisCo = 300 - session.tempsRestant;
                     let min = Math.floor(tempsMisCo / 60);
                     let sec = tempsMisCo % 60;
-                    tempsTotalAffichage = min > 0 ? `${min} min et ${sec} sec` : `${sec} sec`;
+                    tempsTotalAffichage = min > 0 ? `${min}m ${sec}s` : `${sec}s`;
                 }
                 E('df-temps-total-txt').textContent = tempsTotalAffichage;
 
+                // Construction du tableau récapitulatif
+                let htmlRecap = `<table id="recap-defi-table">
+                    <tr><th>Calcul</th><th>Ta réponse</th><th>Correction</th></tr>`;
+                
+                session.historyDefi.forEach(item => {
+                    let cssClass = item.isCorrect ? 'recap-vert' : 'recap-rouge';
+                    let answerDisplay = item.userAns.trim() === '' ? '<em>Vide</em>' : item.userAns;
+                    htmlRecap += `<tr class="${cssClass}">
+                        <td>${item.qData.q}</td>
+                        <td>${answerDisplay}</td>
+                        <td>${item.qData.a}</td>
+                    </tr>`;
+                });
+                htmlRecap += `</table>`;
+                E('recap-defi-container').innerHTML = htmlRecap;
+
+                // Mise à jour de l'historique et du graphique
+                profil.historiqueDefi = profil.historiqueDefi || [];
+                profil.historiqueDefi.push({
+                    date: new Date().toLocaleDateString('fr-FR'),
+                    score: session.score
+                });
+                if(profil.historiqueDefi.length > 15) profil.historiqueDefi.shift(); // Garde les 15 dernières parties
+                
                 let xpGagne = session.score * 2; E('df-xp').textContent = xpGagne;
-                profil.xp += xpGagne; sauverProfil();
+                profil.xp += xpGagne; 
+                sauverProfil();
+                
                 E('ecran-fin-defi').style.display = 'block';
+                dessinerGraphique(); // On dessine le graphique une fois l'écran affiché
             } 
             else {
                 E('titre-fin-standard').textContent = victoire ? "Félicitations ! 🎉" : "Partie terminée... 📋";
