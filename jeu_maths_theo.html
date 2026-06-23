@@ -179,10 +179,11 @@
                 <canvas id="graph-defi"></canvas>
             </div>
 
-            <h3 style="text-align:left; font-size:1.2rem; color:#333; margin-bottom:5px;">Récapitulatif des 50 calculs :</h3>
+            <h3 style="text-align:left; font-size:1.2rem; color:#333; margin-bottom:5px;">Récapitulatif des calculs :</h3>
             <div id="recap-defi-container" style="max-height: 250px; overflow-y: auto; text-align: left; margin-bottom: 20px; border: 2px solid #eee; border-radius: 10px; background: #fdfdfd;">
                </div>
 
+            <button id="btn-training-erreurs" onclick="lancerTrainingErreurs()" class="btn btn-vert" style="display:none; margin-bottom:10px;">Refaire les erreurs</button>
             <button onclick="ouvrirSousMenu('hub')" class="btn btn-principal">Retour au Menu</button>
         </div>
 
@@ -193,6 +194,7 @@
         let profil = { xp: 0, historiqueDefi: [] };
         let gameMode = ''; 
         let subMode = '';  
+        let isProcessing = false; // Sécurité pour empêcher la validation multiple
         let session = { vies: 3, indexQ: 0, totalQ: 5, score: 0, tempsTotal: 0, erreurs: [], fileQuestions: [], mancheIdx: 0, modeZen: false, tempsRestant: 300, tempsEcouleZen: 0, historyDefi: [] };
         let tour = { attendu: 0, debut: 0, interval: null, questionStr: "" };
         let monGraphique = null;
@@ -207,7 +209,7 @@
                 let data = await res.json();
                 if (data) {
                     if (data.xp !== undefined) profil.xp = data.xp;
-                    if (data.historiqueDefi !== undefined) profil.historiqueDefi = data.historiqueDefi;
+                    if (data.historiqueDefi !== undefined) profil.historiqueDefi = data.historiqueDefi || [];
                 }
             } catch(e) { console.error("Erreur de chargement Firebase:", e); }
             E('hub-xp').textContent = profil.xp;
@@ -282,6 +284,7 @@
         }
 
         function poserQuestion(prefill = '') {
+            isProcessing = false;
             if (gameMode !== 'defi' && session.vies <= 0) return terminerSession(false);
             
             if (gameMode !== 'defi') {
@@ -326,12 +329,13 @@
                     b.onclick = () => verifierFraction(b, i === qData.correct); rCont.appendChild(b);
                 });
             }
-            else if(gameMode === 'defi') {
-                // On s'arrête quand on a répondu à 50 questions (historique plein)
-                if(session.historyDefi.length >= 50) return terminerSession(true);
+            else if(gameMode === 'defi' || gameMode === 'training') {
+                let targetTotal = gameMode === 'training' ? session.fileQuestions.length : 50;
+
+                if(session.historyDefi.length >= targetTotal) return terminerSession(true);
                 
                 session.indexQ++; 
-                E('infos-progression-saisie').textContent = `${session.historyDefi.length + 1} / 50`;
+                E('infos-progression-saisie').textContent = `${session.historyDefi.length + 1} / ${targetTotal}`;
                 
                 let qData = session.fileQuestions[session.indexQ - 1];
                 E('question').textContent = qData.q; tour.attendu = qData.a;
@@ -346,15 +350,17 @@
             tour.interval = setInterval(() => { if(Date.now() >= fin) { clearInterval(tour.interval); evaluerReponse(null, true); } }, 100);
         }
 
+        // Fonction unique de validation
         function verifierReponseClavier() {
+            if (isProcessing) return; // Sécurité si on a déjà validé
             evaluerReponse(E('reponse').value, false);
         }
 
         function evaluerReponse(val, isTimeout) {
             let inputVal = (val === undefined || val === null) ? E('reponse').value : val;
-            
             if(!isTimeout && inputVal.trim() === '' && gameMode !== 'fractions') return;
             
+            isProcessing = true;
             clearInterval(tour.interval);
             E('reponse').disabled = true; 
             E('btn-valider').style.display = 'none'; 
@@ -375,10 +381,9 @@
                     setTimeout(poserQuestion, 2000); 
                 }
             }
-            else if(gameMode === 'defi') {
+            else if(gameMode === 'defi' || gameMode === 'training') {
                 if(correct) { session.score++; } 
                 
-                // On enregistre dans l'historique de la partie pour le récapitulatif
                 session.historyDefi.push({
                     qData: session.fileQuestions[session.indexQ - 1],
                     userAns: inputVal,
@@ -391,39 +396,30 @@
 
         // Écoute de la touche Entrée
         E('reponse').addEventListener("keyup", (e) => { 
-            if (e.key === "Enter" && !E('reponse').disabled) {
+            if (e.key === "Enter" && !E('reponse').disabled && !isProcessing) {
                 verifierReponseClavier(); 
             }
         });
 
-        // --- NOUVELLES FONCTIONS : PASSER & UNDO ---
+        // --- FONCTIONS PASSER & UNDO ---
         function passerQuestion() {
-            if (gameMode !== 'defi' || session.historyDefi.length >= 50) return;
+            if ((gameMode !== 'defi' && gameMode !== 'training') || session.historyDefi.length >= session.fileQuestions.length || isProcessing) return;
             
-            // On prend la question actuelle et on la remet à la toute fin de la file d'attente
             let currentQData = session.fileQuestions[session.indexQ - 1];
             session.fileQuestions.push(currentQData);
             
-            // L'index avance pour passer à la suivante
             poserQuestion();
         }
 
         function undoQuestion() {
-            if (gameMode !== 'defi' || session.historyDefi.length === 0) return;
+            if ((gameMode !== 'defi' && gameMode !== 'training') || session.historyDefi.length === 0 || isProcessing) return;
             
-            // On récupère la toute dernière question répondue
             let lastAnswered = session.historyDefi.pop();
-            
-            // On annule le point si elle était correcte
             if (lastAnswered.isCorrect) session.score--;
             
-            // On recule l'index de lecture du fichier de questions
             session.indexQ--;
-            
-            // On replace la question dans la file à la position actuelle pour la reposer
             session.fileQuestions[session.indexQ] = lastAnswered.qData;
             
-            // On relance la question en pré-remplissant avec la faute de frappe
             poserQuestion(lastAnswered.userAns);
         }
 
@@ -485,7 +481,6 @@
             E('infos-vies-saisie').style.visibility = 'hidden'; 
             E('zone-saisie').style.display = 'flex'; E('reponses-fractions').style.display = 'none';
             
-            // Affichage des nouveaux outils
             E('btn-undo').style.display = 'block';
             E('btn-passer').style.display = 'block';
             
@@ -512,6 +507,28 @@
             montrerPlateauJeu();
         }
 
+        // --- ENTRAINEMENT ERREURS ---
+        function lancerTrainingErreurs() {
+            let questionsRatees = session.historyDefi.filter(h => !h.isCorrect).map(h => h.qData);
+            if(questionsRatees.length === 0) return;
+
+            gameMode = 'training'; session.indexQ = 0; session.score = 0; session.tempsEcouleZen = 0; session.historyDefi = [];
+            session.modeZen = true; // Forcé en Zen
+            E('barre-temps-conteneur').style.opacity = "0";
+            E('header-manche-saisie').textContent = "Training Erreurs";
+            E('infos-vies-saisie').style.visibility = 'hidden'; 
+            E('zone-saisie').style.display = 'flex'; E('reponses-fractions').style.display = 'none';
+            E('ui-timer-defi').style.display = 'none'; 
+            
+            E('btn-undo').style.display = 'block';
+            E('btn-passer').style.display = 'block';
+
+            tour.interval = setInterval(() => { session.tempsEcouleZen++; }, 1000);
+            session.fileQuestions = questionsRatees;
+
+            montrerPlateauJeu();
+        }
+
         function timerDefiTick() {
             session.tempsRestant--;
             let m = Math.floor(session.tempsRestant / 60); let s = session.tempsRestant % 60;
@@ -523,7 +540,7 @@
             if(!profil.historiqueDefi || profil.historiqueDefi.length === 0) return;
             
             let ctx = E('graph-defi').getContext('2d');
-            if(monGraphique) monGraphique.destroy(); // Détruit l'ancien graphique s'il existe
+            if(monGraphique) monGraphique.destroy(); 
             
             monGraphique = new Chart(ctx, {
                 type: 'line',
@@ -543,12 +560,8 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { 
-                        y: { min: 0, max: 50, ticks: { stepSize: 10 } } 
-                    },
-                    plugins: {
-                        legend: { display: false }
-                    }
+                    scales: { y: { min: 0, max: 50, ticks: { stepSize: 10 } } },
+                    plugins: { legend: { display: false } }
                 }
             });
         }
@@ -558,7 +571,7 @@
             clearInterval(tour.interval);
             document.querySelectorAll('.ecran').forEach(e => e.style.display = 'none');
             
-            if(gameMode === 'defi') {
+            if(gameMode === 'defi' || gameMode === 'training') {
                 E('df-bonnes').textContent = session.score;
                 
                 let tempsTotalAffichage = "";
@@ -590,20 +603,31 @@
                 htmlRecap += `</table>`;
                 E('recap-defi-container').innerHTML = htmlRecap;
 
-                // Mise à jour de l'historique et du graphique
-                profil.historiqueDefi = profil.historiqueDefi || [];
-                profil.historiqueDefi.push({
-                    date: new Date().toLocaleDateString('fr-FR'),
-                    score: session.score
-                });
-                if(profil.historiqueDefi.length > 15) profil.historiqueDefi.shift(); // Garde les 15 dernières parties
+                // Affichage du bouton "Refaire les erreurs"
+                let nbErreurs = session.historyDefi.filter(h => !h.isCorrect).length;
+                if(nbErreurs > 0 && gameMode === 'defi') {
+                    E('btn-training-erreurs').style.display = 'inline-block';
+                    E('btn-training-erreurs').textContent = `S'entraîner sur les ${nbErreurs} erreurs`;
+                } else {
+                    E('btn-training-erreurs').style.display = 'none';
+                }
+
+                // Sauvegarde de l'historique uniquement en vrai mode défi
+                if(gameMode === 'defi') {
+                    profil.historiqueDefi = profil.historiqueDefi || [];
+                    profil.historiqueDefi.push({
+                        date: new Date().toLocaleDateString('fr-FR'),
+                        score: session.score
+                    });
+                    if(profil.historiqueDefi.length > 15) profil.historiqueDefi.shift(); 
+                }
                 
                 let xpGagne = session.score * 2; E('df-xp').textContent = xpGagne;
                 profil.xp += xpGagne; 
                 sauverProfil();
                 
                 E('ecran-fin-defi').style.display = 'block';
-                dessinerGraphique(); // On dessine le graphique une fois l'écran affiché
+                dessinerGraphique(); 
             } 
             else {
                 E('titre-fin-standard').textContent = victoire ? "Félicitations ! 🎉" : "Partie terminée... 📋";
