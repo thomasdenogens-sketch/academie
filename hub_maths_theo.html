@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Hub Mathématiques - Théo</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body { font-family: 'Poppins', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: #333; text-align: center; }
+        #conteneur-appli { width: 95%; max-width: 650px; background-color: #ffffff; padding: 25px 30px; border-radius: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative; }
+        .ecran { display: none; animation: fadeIn 0.4s ease-out; }
+        .ecran.actif { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        h1 { font-size: 1.8rem; color: #007bff; margin-bottom: 10px; }
+        h2 { font-size: 1.4rem; color: #0056b3; margin-bottom: 15px; }
+        p { margin-bottom: 15px; color: #666; }
+        
+        .btn { font-family: 'Poppins', sans-serif; font-size: 1.1rem; font-weight: 600; padding: 12px; margin: 8px 0; border: none; border-radius: 12px; cursor: pointer; width: 100%; color: white; transition: transform 0.1s; }
+        .btn:active { transform: scale(0.98); }
+        .btn-principal { background-color: #007bff; box-shadow: 0 4px #0056b3; }
+        .btn-secondaire { background-color: #f39c12; box-shadow: 0 4px #d35400; }
+        .btn-defi { background-color: #e74c3c; box-shadow: 0 4px #c0392b; }
+        .btn-neutre { background-color: #95a5a6; box-shadow: 0 4px #7f8c8d; }
+        .btn-vert { background-color: #28a745; box-shadow: 0 4px #218838; }
+        .btn-outil { background-color: #f1f2f6; color: #333; box-shadow: 0 4px #dcdde1; border-radius: 12px; padding: 0 15px; cursor: pointer; font-weight: bold; border: none; font-size: 1.2rem;}
+        
+        /* GRILLES ET SWITCHES */
+        .grille-tables { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; padding: 0 20px; }
+        .check-table { display: none; }
+        .label-table { display: block; padding: 12px 0; background: #f0f2f5; border: 2px solid #ddd; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 1.2rem; color: #aaa; }
+        .check-table:checked + .label-table { background: #007bff; color: white; border-color: #0056b3; transform: translateY(-2px); }
+        
+        .grid-niveaux { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .btn-niveau-frac { background: #f8f9fa; border: 2px solid #cbd5e1; padding: 15px 10px; border-radius: 12px; cursor: pointer; text-align: left; transition: 0.2s; }
+        .btn-niveau-frac:hover { border-color: #f39c12; background: #fffdf5; }
+        .btn-niveau-frac h3 { color: #2c3e50; font-size: 1rem; margin-bottom: 5px; }
+        .btn-niveau-frac span { color: #7f8c8d; font-size: 0.8rem; font-weight: 600; }
+
+        .switch-container { display: flex; align-items: center; justify-content: center; background: #fff3cd; padding: 10px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #ffeeba; }
+        .switch-label { margin-left: 10px; font-weight: bold; color: #856404; cursor: pointer;}
+        
+        /* ZONE DE JEU - GLOBALE */
+        #barre-temps-conteneur { width: 100%; height: 8px; background: #eee; border-radius: 5px; margin-bottom: 20px; overflow: hidden; opacity: 0; }
+        #barre-temps-remplissage { height: 100%; width: 100%; background: #007bff; }
+        #header-manche { background: #e9ecef; border-radius: 10px; padding: 8px 15px; display: inline-block; margin-bottom: 15px; font-weight: bold; color: #495057; }
+        #infos-jeu { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; align-items: center; }
+        
+        #question { font-size: 3.2rem; font-weight: 700; margin: 15px 0; color: #333; min-height: 80px; display: flex; justify-content: center; align-items: center; }
+        
+        /* SAISIE CLAVIER (Tables / Défi) */
+        #zone-saisie { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
+        #reponse { font-size: 2.5rem; width: 140px; padding: 5px; text-align: center; border: 3px solid #ccc; border-radius: 15px; font-weight: bold; outline: none; color: #333; }
+        #reponse:focus { border-color: #007bff; }
+        #btn-valider { width: auto; margin: 0; padding: 0 25px; font-size: 1.2rem; }
+        
+        /* SAISIE FRACTIONS (Boutons) */
+        #zone-fractions { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 15px;}
+        .btn-reponse-frac { background: white; border: 3px solid #3498db; padding: 10px 20px; border-radius: 15px; font-size: 1.5rem; font-weight: bold; color: #2980b9; cursor: pointer; box-shadow: 0 4px 0 #2980b9; }
+        .btn-reponse-frac.correct { background: #2ecc71; color: white; border-color: #27ae60; box-shadow: 0 4px 0 #2196f3; }
+        .btn-reponse-frac.erreur { background: #e74c3c; color: white; border-color: #c0392b; box-shadow: 0 4px 0 #c0392b; }
+
+        .frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 5px; font-weight: 900;}
+        .frac span:first-child { border-bottom: 3px solid currentColor; padding: 0 5px; }
+        .frac span:last-child { padding: 0 5px; }
+
+        #feedback { height: 30px; font-size: 1.3rem; margin-top: 10px; font-weight: 600; }
+        .rapport-box { background: #f8f9fa; padding: 15px; border-radius: 10px; text-align: left; margin-bottom: 15px; }
+        .stat-highlight { float: right; font-weight: bold; color: #007bff; }
+        .erreur-item { color: #dc3545; font-weight: bold; display: block; margin-top: 5px; }
+        
+        .timer-defi { font-size: 1.6rem; color: #d63031; background: #ffeaea; padding: 3px 12px; border-radius: 8px; border: 2px solid #ff7675; }
+        .score-circle { border: 3px solid #2d3436; border-radius: 50%; width: 100px; height: 100px; display: flex; justify-content: center; align-items: center; margin: 0 auto; font-size: 2.2rem; font-weight: 900; }
+
+        #recap-defi-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 1rem; }
+        #recap-defi-table th { background: #e9ecef; padding: 8px; border-bottom: 2px solid #ccc; position: sticky; top: 0; }
+        #recap-defi-table td { padding: 8px; border-bottom: 1px solid #eee; }
+        .recap-vert { color: #27ae60; font-weight: bold; }
+        .recap-rouge { color: #c0392b; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="conteneur-appli">
+        
+        <div id="ecran-hub" class="ecran actif">
+            <h1>Centre Mathématiques Théo</h1>
+            <p>Choisis le domaine que tu veux travailler :</p>
+            
+            <button onclick="ouvrirSousMenu('tables')" class="btn btn-principal">✖️ 1. L'Ascension des Tables</button>
+            <button onclick="ouvrirSousMenu('fractions')" class="btn btn-secondaire">🍕 2. Le Labo des Fractions</button>
+            <button onclick="ouvrirSousMenu('defi')" class="btn btn-defi">⏱️ 3. Défi 50 calculs</button>
+            
+            <div style="margin-top: 20px; font-weight: bold; color:#777;">XP global Maths : <span id="hub-xp">...</span> ⭐</div>
+            <button class="btn btn-neutre" style="margin-top: 20px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+        </div>
+
+        <div id="ecran-sous-tables" class="ecran">
+            <h2>L'Ascension des Tables</h2>
+            <p>Sélectionne les tables à réviser :</p>
+            <div class="grille-tables">
+                <label><input type="checkbox" class="check-table" value="2"><span class="label-table">2</span></label>
+                <label><input type="checkbox" class="check-table" value="3"><span class="label-table">3</span></label>
+                <label><input type="checkbox" class="check-table" value="4"><span class="label-table">4</span></label>
+                <label><input type="checkbox" class="check-table" value="5" checked><span class="label-table">5</span></label>
+                <label><input type="checkbox" class="check-table" value="6" checked><span class="label-table">6</span></label>
+                <label><input type="checkbox" class="check-table" value="7"><span class="label-table">7</span></label>
+                <label><input type="checkbox" class="check-table" value="8"><span class="label-table">8</span></label>
+                <label><input type="checkbox" class="check-table" value="9"><span class="label-table">9</span></label>
+            </div>
+            <div class="switch-container">
+                <input type="checkbox" id="option-chrono-tables">
+                <label for="option-chrono-tables" class="switch-label">Activer la barre de temps ⏱️</label>
+            </div>
+            <button onclick="lancerTables('classique')" class="btn btn-principal">Mode Classique (6 x 7 = ?)</button>
+            <button onclick="lancerTables('trous')" class="btn btn-principal" style="background:#0984e3;">Mode à Trous (6 x ? = 42)</button>
+            <button onclick="ouvrirSousMenu('hub')" class="btn btn-neutre">Retour</button>
+        </div>
+
+        <div id="ecran-sous-fractions" class="ecran">
+            <h2>Le Laboratoire des Fractions</h2>
+            <p>Choisis ton niveau (CM1 ou Prépa CM2) :</p>
+            <div class="grid-niveaux">
+                <button class="btn-niveau-frac" onclick="lancerFractions(1)">
+                    <h3>🟢 Niveau 1</h3><span>CM1 - Noms & Écritures</span>
+                </button>
+                <button class="btn-niveau-frac" onclick="lancerFractions(2)">
+                    <h3>🟠 Niveau 2</h3><span>CM1 - Comparaison</span>
+                </button>
+                <button class="btn-niveau-frac" onclick="lancerFractions(3)">
+                    <h3>🔴 Niveau 3</h3><span>Prépa CM2 - Additions</span>
+                </button>
+                <button class="btn-niveau-frac" onclick="lancerFractions(4)">
+                    <h3>🟣 Niveau 4</h3><span>Prépa CM2 - Décimales</span>
+                </button>
+            </div>
+            <button onclick="ouvrirSousMenu('hub')" class="btn btn-neutre">Retour</button>
+        </div>
+
+        <div id="ecran-sous-defi" class="ecran">
+            <h2>Défi 50 Calculs</h2>
+            <p>Entraîne-toi à répondre le plus vite possible.</p>
+            <div class="switch-container">
+                <input type="checkbox" id="option-zen-defi" checked>
+                <label for="option-zen-defi" class="switch-label">✨ Mode Zen (Pas de chrono visible)</label>
+            </div>
+            <button onclick="lancerDefi()" class="btn btn-defi">Lancer le Défi !</button>
+            <button onclick="ouvrirSousMenu('hub')" class="btn btn-neutre">Retour</button>
+        </div>
+
+        <div id="ecran-jeu-saisie" class="ecran">
+            <div id="barre-temps-conteneur"><div id="barre-temps-remplissage"></div></div>
+            <div id="infos-jeu-saisie">
+                <span id="infos-vies-saisie" style="letter-spacing: 5px;">❤️❤️❤️</span>
+                <span id="header-manche-saisie" style="font-weight:bold; color:#666;">...</span>
+                <span id="ui-timer-defi" class="timer-defi" style="display:none;">05:00</span>
+                <span id="infos-progression-saisie">1 / 5</span>
+            </div>
+            <div id="question" style="font-size: 2.5rem;">...</div>
+            
+            <div id="zone-saisie">
+                <button id="btn-undo" class="btn-outil" onclick="undoQuestion()" style="display:none;" title="Corriger la dernière réponse">⬅️</button>
+                <input type="number" id="reponse" autocomplete="off">
+                <button id="btn-valider" class="btn btn-principal" onclick="verifierReponseClavier()">Valider</button>
+                <button id="btn-passer" class="btn-outil" onclick="passerQuestion()" style="display:none;" title="Remettre à plus tard">Passer ⏭️</button>
+            </div>
+            
+            <div id="zone-fractions" style="display:none;"></div>
+            
+            <div id="feedback"></div>
+        </div>
+
+        <div id="ecran-inter-manche" class="ecran">
+            <h2>Manche Terminée !</h2>
+            <p>Bon travail ! Prêt pour la suite ?</p>
+            <button id="btn-suite-manche" class="btn btn-vert">Lancer la suite !</button>
+        </div>
+
+        <div id="ecran-fin-standard" class="ecran">
+            <h2 id="titre-fin-standard">Série Terminée !</h2>
+            <div class="rapport-box">
+                <p>Score / XP Gagné : <span id="fin-xp-std" class="stat-highlight">+0</span></p>
+                <p id="p-temps-std">Temps moyen : <span id="fin-temps-std" class="stat-highlight">0s</span></p>
+            </div>
+            <div class="rapport-box" id="bloc-erreurs-std" style="display:none;">
+                <p><strong>Erreurs à revoir :</strong></p>
+                <div id="liste-erreurs-std"></div>
+            </div>
+            <button onclick="ouvrirSousMenu('hub')" class="btn btn-principal">Retour au Menu</button>
+        </div>
+
+        <div id="ecran-fin-defi" class="ecran">
+            <h2 style="color:#e74c3c;">Bilan du Défi</h2>
+            <div style="display: flex; justify-content: space-around; margin: 15px 0;">
+                <div>
+                    <p style="font-size:0.8rem; font-weight:bold;">Bonnes réponses</p>
+                    <div class="score-circle" id="df-bonnes" style="color:#007bff;">0</div>
+                </div>
+                <div>
+                    <p style="font-size:0.8rem; font-weight:bold;">Temps mis</p>
+                    <div class="score-circle" style="color:#e84393; font-size:1.5rem;" id="df-temps-total-txt">0s</div>
+                </div>
+            </div>
+            
+            <p style="color:#f39c12; font-weight:bold; margin-bottom:15px;">XP Gagné : +<span id="df-xp">0</span></p>
+
+            <div style="width: 100%; height: 200px; margin-bottom: 20px;">
+                <canvas id="graph-defi"></canvas>
+            </div>
+
+            <h3 style="text-align:left; font-size:1.2rem; color:#333; margin-bottom:5px;">Récapitulatif des calculs :</h3>
+            <div id="recap-defi-container" style="max-height: 250px; overflow-y: auto; text-align: left; margin-bottom: 20px; border: 2px solid #eee; border-radius: 10px; background: #fdfdfd;"></div>
+
+            <button id="btn-training-erreurs" onclick="lancerTrainingErreurs()" class="btn btn-vert" style="display:none; margin-bottom:10px;">Refaire les erreurs</button>
+            <button onclick="ouvrirSousMenu('hub')" class="btn btn-principal">Retour au Menu</button>
+        </div>
+
+    </div>
+
+    <script>
+        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+        let profil = { xp: 0, historiqueDefi: [] };
+        
+        // Variables d'état Global
+        let gameMode = ''; 
+        let subMode = '';  
+        let isProcessing = false; 
+        let session = { vies: 3, indexQ: 0, totalQ: 5, score: 0, tempsTotal: 0, erreurs: [], fileQuestions: [], mancheIdx: 0, modeZen: false, tempsRestant: 300, tempsEcouleZen: 0, historyDefi: [] };
+        let tour = { attendu: 0, debut: 0, interval: null, questionStr: "" };
+        let monGraphique = null;
+        
+        const E = (id) => document.getElementById(id);
+        const configManches = [{ nom: "Échauffement", q: 5 }, { nom: "La Montée", q: 10 }, { nom: "Le Sommet", q: 15 }];
+
+        // Dicos Fractions
+        const numerateursTxt = ["Un", "Deux", "Trois", "Quatre", "Cinq", "Six", "Sept", "Huit", "Neuf", "Dix"];
+        const denominateursTxt = ["", "", "demi", "tiers", "quart", "cinquième", "sixième", "septième", "huitième", "neuvième", "dixième"];
+        function formatterFrac(n, d) { return `<div class="frac"><span>${n}</span><span>${d}</span></div>`; }
+        function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+        // --- SAUVEGARDE FIREBASE ---
+        async function chargerProfil() {
+            try {
+                let res = await fetch(`${FIREBASE_URL}scores/theo/mathsV8.json`);
+                let data = await res.json();
+                if (data) {
+                    if (data.xp !== undefined) profil.xp = data.xp;
+                    if (data.historiqueDefi !== undefined) profil.historiqueDefi = data.historiqueDefi || [];
+                }
+            } catch(e) {}
+            E('hub-xp').textContent = profil.xp;
+        }
+
+        async function sauverProfil() {
+            E('hub-xp').textContent = profil.xp;
+            try {
+                await fetch(`${FIREBASE_URL}scores/theo/mathsV8.json`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ xp: profil.xp, historiqueDefi: profil.historiqueDefi })
+                });
+            } catch(e) {}
+        }
+
+        // --- NAVIGATION HUB ---
+        function ouvrirSousMenu(menu) {
+            chargerProfil();
+            document.querySelectorAll('.ecran').forEach(e => e.style.display = 'none');
+            clearInterval(tour.interval);
+            if(menu === 'hub') E('ecran-hub').style.display = 'block';
+            else if(menu === 'tables') E('ecran-sous-tables').style.display = 'block';
+            else if(menu === 'fractions') E('ecran-sous-fractions').style.display = 'block';
+            else if(menu === 'defi') E('ecran-sous-defi').style.display = 'block';
+        }
+
+        // ==========================================
+        // 1. ASCENSION DES TABLES
+        // ==========================================
+        function lancerTables(type) {
+            const checkboxes = document.querySelectorAll('.check-table:checked');
+            session.tables = Array.from(checkboxes).map(cb => parseInt(cb.value));
+            if (session.tables.length === 0) return alert("Choisis au moins une table !");
+
+            gameMode = 'tables'; subMode = type; session.mancheIdx = 0; session.vies = 3; session.score = 0; session.tempsTotal = 0; session.erreurs = [];
+            session.chronoActif = E('option-chrono-tables').checked;
+            
+            preparerPlateau();
+            demarrerMancheTables(0);
+        }
+
+        function demarrerMancheTables(idx) {
+            session.mancheIdx = idx; session.indexQ = 0;
+            let config = configManches[idx]; session.totalQ = config.q;
+            
+            // Génération
+            let list = [], vus = new Set();
+            session.tables.forEach(t => {
+                for(let i=2; i<=9; i++) {
+                    let n1 = Math.min(t,i); let n2 = Math.max(t,i);
+                    if(!vus.has(`${n1}-${n2}`)) { list.push({n1:n1, n2:n2}); vus.add(`${n1}-${n2}`); }
+                }
+            });
+            let res = [];
+            while(res.length < config.q) { res = res.concat([...list].sort(() => Math.random() - 0.5)); }
+            session.fileQuestions = res.slice(0, config.q);
+
+            E('header-manche-saisie').textContent = `Manche ${idx+1} : ${config.nom}`;
+            poserQuestion();
+        }
+
+        function finDeMancheTables() {
+            if(session.mancheIdx < 2) {
+                document.querySelectorAll('.ecran').forEach(e => e.style.display = 'none');
+                E('ecran-inter-manche').style.display = 'block';
+                E('btn-suite-manche').onclick = () => demarrerMancheTables(session.mancheIdx + 1);
+            } else { terminerSession(true); }
+        }
+
+        // ==========================================
+        // 2. LABORATOIRE DES FRACTIONS
+        // ==========================================
+        function lancerFractions(nivF) {
+            gameMode = 'fractions'; subMode = nivF; session.indexQ = 0; session.totalQ = 10; session.score = 0; session.vies = 3; session.erreurs = [];
+            preparerPlateau();
+            
+            let titresF = ["CM1 - Vocabulaire", "CM1 - Comparaison", "Prépa CM2 - Additions", "Prépa CM2 - Décimales"];
+            E('header-manche-saisie').textContent = titresF[nivF - 1];
+            poserQuestion();
+        }
+
+        function genererQuestionFraction() {
+            let qStr = "", choix = [], correctIdx = 0;
+            let niv = subMode;
+
+            if(niv === 1) {
+                let n = randomInt(1, 9), d = randomInt(2, 10);
+                let nom = numerateursTxt[n-1] + " " + denominateursTxt[d] + (n > 1 && d > 1 ? "s" : "");
+                qStr = `Quelle fraction correspond à :<br><span style="color:#2980b9;">"${nom}"</span> ?`;
+                let reponseJuste = formatterFrac(n, d), faux1 = formatterFrac(d, n), faux2 = formatterFrac(n, randomInt(2,10));
+                while(faux2 === reponseJuste || faux2 === faux1) faux2 = formatterFrac(n, randomInt(2,10));
+                choix = [reponseJuste, faux1, faux2];
+            }
+            else if(niv === 2) {
+                let n = randomInt(1, 12), d = randomInt(2, 12);
+                qStr = `La fraction ${formatterFrac(n, d)} est-elle :`;
+                choix = ["Plus petite que 1", "Égale à 1", "Plus grande que 1"];
+                if(n < d) correctIdx = 0; else if(n === d) correctIdx = 1; else correctIdx = 2;
+                return { q: qStr, c: choix, a: correctIdx }; 
+            }
+            else if(niv === 3) {
+                let d = randomInt(3, 15), n1 = randomInt(1, d-1), n2 = randomInt(1, d-1);
+                qStr = `Calcule :<br>${formatterFrac(n1, d)} + ${formatterFrac(n2, d)} = ?`;
+                choix = [formatterFrac(n1+n2, d), formatterFrac(n1+n2, d+d), formatterFrac(Math.abs(n1-n2) || 1, d)];
+            }
+            else if(niv === 4) {
+                if(randomInt(1, 2) === 1) {
+                    let n = randomInt(1, 9);
+                    qStr = `Trouve la fraction équivalente :<br>${formatterFrac(n, 10)} = ?`;
+                    choix = [formatterFrac(n*10, 100), formatterFrac(n, 100), formatterFrac(n*10, 10)];
+                } else {
+                    let d1 = randomInt(1, 9), c1 = randomInt(1, 9);
+                    qStr = `Calcule :<br>${formatterFrac(d1, 10)} + ${formatterFrac(c1, 100)} = ?`;
+                    choix = [formatterFrac((d1*10)+c1, 100), formatterFrac(d1+c1, 100), formatterFrac(d1+c1, 10)];
+                }
+            }
+
+            let indices = [0, 1, 2].sort(() => Math.random() - 0.5);
+            let choixMelanges = [choix[indices[0]], choix[indices[1]], choix[indices[2]]];
+            return { q: qStr, c: choixMelanges, a: indices.indexOf(0) };
+        }
+
+        function verifierFraction(btn, isCorrect) {
+            if(isProcessing) return; isProcessing = true;
+            document.querySelectorAll('.btn-reponse-frac').forEach(b => b.onclick = null);
+
+            if(isCorrect) { 
+                btn.classList.add('correct'); E('feedback').textContent = "Excellent ! 🟢"; E('feedback').style.color="green"; 
+                session.score += 3; setTimeout(poserQuestion, 1000); 
+            } else { 
+                btn.classList.add('erreur'); 
+                document.querySelectorAll('.btn-reponse-frac')[tour.attendu].classList.add('correct'); // Montre la vraie réponse
+                session.vies--; E('feedback').textContent = "Oups, regarde la correction !"; E('feedback').style.color="red"; 
+                if(session.vies <= 0) setTimeout(() => terminerSession(false), 2500); 
+                else setTimeout(poserQuestion, 2500); 
+            }
+        }
+
+        // ==========================================
+        // 3. DEFI 50 CALCULS
+        // ==========================================
+        function lancerDefi() {
+            gameMode = 'defi'; session.indexQ = 0; session.score = 0; session.tempsEcouleZen = 0; session.historyDefi = [];
+            session.modeZen = E('option-zen-defi').checked;
+            preparerPlateau();
+            E('header-manche-saisie').textContent = "Le Défi Chrono";
+            
+            if(session.modeZen) { 
+                tour.interval = setInterval(() => { session.tempsEcouleZen++; }, 1000);
+            } else { 
+                session.tempsRestant = 300; E('ui-timer-defi').textContent = "05:00"; 
+                tour.interval = setInterval(timerDefiTick, 1000); 
+            }
+
+            session.fileQuestions = [];
+            for(let i=0; i<50; i++) {
+                let type = Math.floor(Math.random()*5); let q, a;
+                if(type === 0) { let n1=Math.floor(Math.random()*8)+2, n2=Math.floor(Math.random()*10)+2; q=`${n1} x ${n2} =`; a=n1*n2; }
+                else if(type === 1) { let n1=Math.floor(Math.random()*8)+2, res=Math.floor(Math.random()*8)+2; q=`${n1} x ... = ${n1*res}`; a=res; }
+                else if(type === 2) { let d=Math.floor(Math.random()*75)+15; q=`Le double de ${d} est :`; a=d*2; }
+                else if(type === 3) { let m=(Math.floor(Math.random()*40)+10)*2; q=`La moitié de ${m} est :`; a=m/2; }
+                else { let c=Math.random()>0.5?100:1000; let d=c===100?Math.floor(Math.random()*80)+10:Math.floor(Math.random()*800)+100; q=`${d} pour aller à ${c} :`; a=c-d; }
+                session.fileQuestions.push({q:q, a:a});
+            }
+            poserQuestion();
+        }
+
+        function lancerTrainingErreurs() {
+            let questionsRatees = session.historyDefi.filter(h => !h.isCorrect).map(h => h.qData);
+            if(questionsRatees.length === 0) return;
+
+            gameMode = 'training'; session.indexQ = 0; session.score = 0; session.tempsEcouleZen = 0; session.historyDefi = [];
+            session.modeZen = true;
+            preparerPlateau();
+            E('header-manche-saisie').textContent = "Training Erreurs";
+            tour.interval = setInterval(() => { session.tempsEcouleZen++; }, 1000);
+            session.fileQuestions = questionsRatees;
+            poserQuestion();
+        }
+
+        function timerDefiTick() {
+            session.tempsRestant--;
+            let m = Math.floor(session.tempsRestant / 60); let s = session.tempsRestant % 60;
+            E('ui-timer-defi').textContent = `0${m}:${s<10?'0':''}${s}`;
+            if(session.tempsRestant <= 0) { clearInterval(tour.interval); terminerSession(true); }
+        }
+
+        function passerQuestion() {
+            if ((gameMode !== 'defi' && gameMode !== 'training') || session.historyDefi.length >= session.fileQuestions.length || isProcessing) return;
+            let currentQData = session.fileQuestions[session.indexQ - 1];
+            session.fileQuestions.push(currentQData);
+            poserQuestion();
+        }
+
+        function undoQuestion() {
+            if ((gameMode !== 'defi' && gameMode !== 'training') || session.historyDefi.length === 0 || isProcessing) return;
+            let lastAnswered = session.historyDefi.pop();
+            if (lastAnswered.isCorrect) session.score--;
+            session.indexQ--;
+            session.fileQuestions[session.indexQ] = lastAnswered.qData;
+            poserQuestion(lastAnswered.userAns);
+        }
+
+        // ==========================================
+        // MOTEUR D'AFFICHAGE ET VALIDATION GLOBAL
+        // ==========================================
+        function preparerPlateau() {
+            document.querySelectorAll('.ecran').forEach(e => e.style.display = 'none');
+            E('ecran-jeu-saisie').style.display = 'block';
+
+            // Reset visuels
+            E('barre-temps-conteneur').style.opacity = "0";
+            E('ui-timer-defi').style.display = 'none';
+            E('btn-undo').style.display = 'none';
+            E('btn-passer').style.display = 'none';
+            E('zone-saisie').style.display = 'none'; 
+            E('zone-fractions').style.display = 'none';
+            E('infos-vies-saisie').style.visibility = 'visible';
+
+            // Affichages spécifiques
+            if (gameMode === 'tables') {
+                E('barre-temps-conteneur').style.opacity = session.chronoActif ? "1" : "0";
+                E('zone-saisie').style.display = 'flex';
+            } 
+            else if (gameMode === 'fractions') {
+                E('zone-fractions').style.display = 'flex';
+            } 
+            else if (gameMode === 'defi' || gameMode === 'training') {
+                E('zone-saisie').style.display = 'flex';
+                E('btn-undo').style.display = 'block';
+                E('btn-passer').style.display = 'block';
+                E('infos-vies-saisie').style.visibility = 'hidden';
+                if(!session.modeZen) E('ui-timer-defi').style.display = 'inline-block';
+            }
+        }
+
+        function poserQuestion(prefill = '') {
+            isProcessing = false;
+            
+            if (gameMode !== 'defi' && gameMode !== 'training' && session.vies <= 0) return terminerSession(false);
+            if (gameMode !== 'defi' && gameMode !== 'training') E('infos-vies-saisie').textContent = "❤️".repeat(session.vies) + "🖤".repeat(3-session.vies);
+            
+            E('feedback').textContent = ''; 
+            E('reponse').value = prefill; 
+            E('reponse').disabled = false; 
+            E('btn-valider').style.display = 'inline-block';
+
+            if(gameMode === 'tables') {
+                if(session.fileQuestions.length === 0) return finDeMancheTables();
+                session.indexQ++; E('infos-progression-saisie').textContent = `${session.indexQ} / ${session.totalQ}`;
+                
+                let p = session.fileQuestions.pop();
+                let n1 = Math.random() > 0.5 ? p.n1 : p.n2; let n2 = n1 === p.n1 ? p.n2 : p.n1;
+                tour.attendu = n1 * n2;
+                
+                if(subMode === 'classique') E('question').textContent = `${n1} x ${n2} =`;
+                else { 
+                    if(Math.random()>0.5) { E('question').textContent = `${n1} x ? = ${n1*n2}`; tour.attendu = n2; } 
+                    else { E('question').textContent = `? x ${n2} = ${n1*n2}`; tour.attendu = n1; } 
+                }
+                tour.questionStr = E('question').textContent.replace('?', tour.attendu);
+                
+                E('reponse').focus();
+                tour.debut = Date.now(); 
+                if(session.chronoActif) {
+                    clearInterval(tour.interval); let fin = Date.now() + 10000; let b = E('barre-temps-remplissage');
+                    b.style.transition = "none"; b.style.width = "100%"; void b.offsetWidth; b.style.transition = "width 10s linear"; b.style.width = "0%";
+                    tour.interval = setInterval(() => { if(Date.now() >= fin) { clearInterval(tour.interval); evaluerReponse(null, true); } }, 100);
+                }
+            }
+            else if(gameMode === 'fractions') {
+                if(session.indexQ >= session.totalQ) return terminerSession(true);
+                session.indexQ++; E('infos-progression-saisie').textContent = `${session.indexQ} / ${session.totalQ}`;
+                
+                let qData = genererQuestionFraction();
+                E('question').innerHTML = qData.q; tour.attendu = qData.a;
+                
+                const rCont = E('zone-fractions'); rCont.innerHTML = '';
+                qData.c.forEach((ch, i) => {
+                    let b = document.createElement('button'); b.className = 'btn-reponse-frac'; b.innerHTML = ch;
+                    b.onclick = () => verifierFraction(b, i === qData.a); rCont.appendChild(b);
+                });
+            }
+            else if(gameMode === 'defi' || gameMode === 'training') {
+                let targetTotal = gameMode === 'training' ? session.fileQuestions.length : 50;
+                if(session.historyDefi.length >= targetTotal) return terminerSession(true);
+                
+                session.indexQ++; 
+                E('infos-progression-saisie').textContent = `${session.historyDefi.length + 1} / ${targetTotal}`;
+                
+                let qData = session.fileQuestions[session.indexQ - 1];
+                E('question').textContent = qData.q; tour.attendu = qData.a;
+                tour.questionStr = qData.q; 
+                E('reponse').focus();
+            }
+        }
+
+        function verifierReponseClavier() {
+            if (isProcessing) return;
+            evaluerReponse(E('reponse').value, false);
+        }
+
+        function evaluerReponse(val, isTimeout) {
+            let inputVal = (val === undefined || val === null) ? E('reponse').value : val;
+            if(!isTimeout && inputVal.trim() === '') return;
+            
+            isProcessing = true;
+            clearInterval(tour.interval);
+            E('reponse').disabled = true; E('btn-valider').style.display = 'none'; 
+            
+            let correct = (!isTimeout && parseInt(inputVal) === tour.attendu);
+
+            if(gameMode === 'tables') {
+                session.tempsTotal += (Date.now() - tour.debut)/1000;
+                if(correct) { 
+                    E('feedback').textContent = "Bravo ! ✨"; E('feedback').style.color = "green"; 
+                    session.score += 5; setTimeout(poserQuestion, 800); 
+                } else { 
+                    session.vies--; session.erreurs.push(tour.questionStr); 
+                    E('feedback').textContent = isTimeout ? "Trop long..." : `Oups ! C'était ${tour.attendu}`; 
+                    E('feedback').style.color = "red"; setTimeout(poserQuestion, 2000); 
+                }
+            }
+            else if(gameMode === 'defi' || gameMode === 'training') {
+                if(correct) session.score++; 
+                session.historyDefi.push({ qData: session.fileQuestions[session.indexQ - 1], userAns: inputVal, isCorrect: correct });
+                poserQuestion(); 
+            }
+        }
+
+        E('reponse').addEventListener("keyup", (e) => { 
+            if (e.key === "Enter" && !E('reponse').disabled && !isProcessing) verifierReponseClavier(); 
+        });
+
+        // ==========================================
+        // FIN ET RAPPORTS
+        // ==========================================
+        function terminerSession(victoire) {
+            clearInterval(tour.interval);
+            document.querySelectorAll('.ecran').forEach(e => e.style.display = 'none');
+            
+            if(gameMode === 'defi' || gameMode === 'training') {
+                E('df-bonnes').textContent = session.score;
+                
+                let tempsTotalAffichage = "";
+                if(session.modeZen) {
+                    let min = Math.floor(session.tempsEcouleZen / 60), sec = session.tempsEcouleZen % 60;
+                    tempsTotalAffichage = min > 0 ? `${min}m ${sec}s` : `${sec}s`;
+                } else {
+                    let tempsMisCo = 300 - session.tempsRestant;
+                    let min = Math.floor(tempsMisCo / 60), sec = tempsMisCo % 60;
+                    tempsTotalAffichage = min > 0 ? `${min}m ${sec}s` : `${sec}s`;
+                }
+                E('df-temps-total-txt').textContent = tempsTotalAffichage;
+
+                let htmlRecap = `<table id="recap-defi-table"><tr><th>Calcul</th><th>Ta réponse</th><th>Correction</th></tr>`;
+                session.historyDefi.forEach(item => {
+                    let cssClass = item.isCorrect ? 'recap-vert' : 'recap-rouge';
+                    let answerDisplay = item.userAns.trim() === '' ? '<em>Vide</em>' : item.userAns;
+                    htmlRecap += `<tr class="${cssClass}"><td>${item.qData.q}</td><td>${answerDisplay}</td><td>${item.qData.a}</td></tr>`;
+                });
+                htmlRecap += `</table>`;
+                E('recap-defi-container').innerHTML = htmlRecap;
+
+                let nbErreurs = session.historyDefi.filter(h => !h.isCorrect).length;
+                if(nbErreurs > 0 && gameMode === 'defi') {
+                    E('btn-training-erreurs').style.display = 'inline-block';
+                    E('btn-training-erreurs').textContent = `S'entraîner sur les ${nbErreurs} erreurs`;
+                } else { E('btn-training-erreurs').style.display = 'none'; }
+
+                if(gameMode === 'defi') {
+                    profil.historiqueDefi = profil.historiqueDefi || [];
+                    profil.historiqueDefi.push({ date: new Date().toLocaleDateString('fr-FR'), score: session.score });
+                    if(profil.historiqueDefi.length > 15) profil.historiqueDefi.shift(); 
+                }
+                
+                let xpGagne = session.score * 2; E('df-xp').textContent = xpGagne;
+                profil.xp += xpGagne; sauverProfil();
+                
+                E('ecran-fin-defi').style.display = 'block';
+                if(gameMode === 'defi') {
+                    setTimeout(() => { // Petit délai pour s'assurer que le canvas est visible
+                        let ctx = E('graph-defi').getContext('2d');
+                        if(monGraphique) monGraphique.destroy(); 
+                        monGraphique = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: profil.historiqueDefi.map((_, i) => `Partie ${i+1}`),
+                                datasets: [{ label: 'Bonnes réponses (sur 50)', data: profil.historiqueDefi.map(h => h.score), borderColor: '#007bff', backgroundColor: 'rgba(0,123,255,0.2)', tension: 0.3, fill: true, pointBackgroundColor: '#e74c3c', pointRadius: 4 }]
+                            },
+                            options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 50, ticks: { stepSize: 10 } } }, plugins: { legend: { display: false } } }
+                        });
+                    }, 100);
+                } else {
+                    E('graph-defi').style.display = 'none'; // Cache le graphe en mode entrainement
+                }
+            } 
+            else {
+                E('titre-fin-standard').textContent = victoire ? "Félicitations ! 🎉" : "Partie terminée... 📋";
+                let bonus = victoire ? (gameMode === 'fractions' ? 10 : 50) : 0;
+                E('fin-xp-std').textContent = `+${session.score + bonus} XP`;
+                
+                if(gameMode === 'tables') {
+                    E('p-temps-std').style.display = 'block';
+                    let avg = session.indexQ > 0 ? (session.tempsTotal / session.indexQ).toFixed(1) : 0;
+                    E('fin-temps-std').textContent = `${avg}s`;
+                } else { E('p-temps-std').style.display = 'none'; }
+
+                let divErr = E('liste-erreurs-std'); divErr.innerHTML = '';
+                if(session.erreurs.length > 0) {
+                    E('bloc-erreurs-std').style.display = 'block';
+                    [...new Set(session.erreurs)].forEach(err => { let d=document.createElement('div'); d.className='erreur-item'; d.textContent=err; divErr.appendChild(d); });
+                } else { E('bloc-erreurs-std').style.display = 'none'; }
+                
+                profil.xp += session.score + bonus; sauverProfil();
+                E('ecran-fin-standard').style.display = 'block';
+            }
+        }
+
+        chargerProfil();
+    </script>
+</body>
+</html>
