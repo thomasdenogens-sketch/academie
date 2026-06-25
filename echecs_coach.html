@@ -8,324 +8,598 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        
         body { 
             font-family: 'Poppins', sans-serif; 
             background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%); 
             color: #102a43; display: flex; flex-direction: column; align-items: center; 
             min-height: 100vh; padding: 20px; 
         }
+        
         #app-container { 
             background: #ffffff; padding: 30px; border-radius: 25px; 
             box-shadow: 0 15px 40px rgba(16, 42, 67, 0.15); 
-            max-width: 1050px; width: 100%; text-align: center; border: 1px solid #dee2e6; position: relative;
+            max-width: 1100px; width: 100%; text-align: center; border: 1px solid #dee2e6; position: relative;
         }
+        
         h1 { color: #0b69a3; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
         .sous-titre { color: #627d98; margin-bottom: 25px; font-size: 1.1rem; font-weight: 600; }
         
-        .xp-display { position: absolute; top: 20px; right: 30px; font-weight: bold; font-size: 1.2rem; color: #f39c12; background: #fff3cd; padding: 5px 15px; border-radius: 20px; border: 2px solid #ffeeba; }
-        
+        /* Barre du joueur */
+        .header-joueur { display: flex; justify-content: space-between; align-items: center; background: #0b69a3; color: white; padding: 10px 20px; border-radius: 15px; margin-bottom: 25px; font-weight: bold; font-size: 1.1rem;}
+        .grade-badge { background: #f39c12; color: #fff; padding: 5px 12px; border-radius: 12px; border: 2px solid #f1c40f; }
+
         .onglets { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
-        .tab-btn { background: #eaeaea; color: #486581; border: none; padding: 10px 18px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 0.95rem; }
-        .tab-btn.actif { background: #0b69a3; color: #ffffff; }
+        .tab-btn { background: #eaeaea; color: #486581; border: none; padding: 12px 20px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 1rem; transition: 0.2s; }
+        .tab-btn:hover { background: #cbd5e1; }
+        .tab-btn.actif { background: #0b69a3; color: #ffffff; box-shadow: 0 4px 10px rgba(11, 105, 163, 0.3); }
         .ecran { display: none; } .ecran.actif { display: block; }
         
-        .grid-cours { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 20px; }
-        .carte-cours { background: #f0f4f8; padding: 20px; border-radius: 16px; text-align: left; border-top: 6px solid #0b69a3; }
-        .btn-action-lecon { background: #2ecc71; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
-        .btn-verrouille { background: #95a5a6; cursor: not-allowed; }
+        /* Grilles Menu */
+        .grid-cours { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .carte-cours { background: #f0f4f8; padding: 25px; border-radius: 16px; text-align: left; border-top: 6px solid #0b69a3; position: relative; transition: 0.2s;}
+        .carte-cours:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+        .carte-cours h3 { margin-bottom: 10px; color: #2c3e50; font-size: 1.3rem;}
+        .carte-cours p { color: #64748b; font-size: 0.9rem; margin-bottom: 15px; line-height: 1.4;}
         
-        #layout-jeu { display: flex; gap: 20px; justify-content: center; align-items: flex-start; flex-wrap: wrap; margin-top: 15px; }
-        .assistant-box { background: #f0f4f8; padding: 20px; border-radius: 16px; width: 100%; max-width: 260px; text-align: left; border: 1px solid #cbd5e1; }
-        .select-ia { width: 100%; padding: 8px; border-radius: 8px; font-weight: bold; margin-top: 10px; }
+        .btn-action-lecon { background: #2ecc71; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; width: 100%; box-shadow: 0 4px 0 #27ae60; transition: 0.1s;}
+        .btn-action-lecon:active { transform: translateY(4px); box-shadow: none; }
+        .btn-verrouille { background: #95a5a6; cursor: not-allowed; box-shadow: none; }
+        .btn-verrouille:active { transform: none; }
         
-        /* FIX DU PLATEAU QUI DANSE */
-        #board-container { width: 100%; max-width: 440px; }
+        /* ZONE DE JEU - DOUBLE COLONNE */
+        #layout-jeu { display: flex; gap: 30px; justify-content: center; align-items: flex-start; flex-wrap: wrap; margin-top: 15px; }
+        
+        /* Colonne de Gauche : Assistant */
+        .assistant-box { flex: 1; min-width: 250px; max-width: 300px; display: flex; flex-direction: column; gap: 15px; }
+        
+        .coach-panel { background: #f8fafc; padding: 20px; border-radius: 16px; text-align: left; border: 2px solid #cbd5e1; box-shadow: inset 0 0 20px rgba(0,0,0,0.02);}
+        #titre-mode-jeu { color: #0b69a3; font-size: 1.2rem; margin-bottom: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;}
+        #assistant-consigne { color: #475569; font-size: 0.95rem; line-height: 1.5; margin-bottom: 15px;}
+        #statut-partie { font-size: 1.2rem; font-weight: 900; color: #2ecc71; text-align: center; margin-top: 10px; min-height: 35px;}
+
+        /* Boutons de contrôle (Coach, Undo...) */
+        .btn-outil { background: #34495e; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 1rem; transition: 0.2s;}
+        .btn-outil:hover { background: #2c3e50; }
+        .btn-aide { background: #9b59b6; box-shadow: 0 4px 0 #8e44ad; }
+        .btn-aide:hover { background: #8e44ad; }
+        .btn-aide:active { transform: translateY(4px); box-shadow: none; }
+        
+        /* L'Échiquier */
+        #board-container { width: 100%; max-width: 480px; }
         #board { 
             display: grid; 
             grid-template-columns: repeat(8, minmax(0, 1fr)); 
             grid-template-rows: repeat(8, minmax(0, 1fr)); 
-            width: 100%; aspect-ratio: 1; border: 6px solid #486581; border-radius: 8px; 
+            width: 100%; aspect-ratio: 1; border: 8px solid #334155; border-radius: 8px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
+        
         .case { 
             display: flex; justify-content: center; align-items: center; 
-            font-size: clamp(1.5rem, 6vw, 3rem); cursor: pointer; position: relative; 
+            font-size: clamp(1.5rem, 5vw, 3.5rem); cursor: pointer; position: relative; 
             width: 100%; height: 100%; overflow: hidden; line-height: 1;
         }
-        .case.blanche { background-color: #ebecd0; } .case.noire { background-color: #739552; } 
+        .case.blanche { background-color: #f1f5f9; } .case.noire { background-color: #64748b; } 
+        
+        /* Les différentes surbrillances */
         .case.selectionnee { background-color: #f1c40f !important; }
         .case.coup-valide::after { content: ''; position: absolute; width: 30%; height: 30%; background: rgba(0, 0, 0, 0.2); border-radius: 50%; }
-        .case.coup-attaque::after { content: ''; position: absolute; width: 80%; height: 80%; border: 6px solid rgba(0, 0, 0, 0.2); border-radius: 50%; }
-        .case.guide-ouverture { background-color: #3498db !important; }
+        .case.coup-attaque::after { content: ''; position: absolute; width: 80%; height: 80%; border: 6px solid rgba(231, 76, 60, 0.8); border-radius: 50%; }
+        .case.guide-coach { background-color: #3498db !important; box-shadow: inset 0 0 15px #2980b9;}
         
-        #panneau-historique { width: 100%; max-width: 200px; height: 440px; background: #ffffff; border: 2px solid #cbd5e1; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; }
-        #hist-titre { background: #486581; color: white; padding: 10px; font-weight: bold; }
-        #hist-liste { flex: 1; overflow-y: auto; padding: 10px; font-family: monospace; }
+        /* Panneau de droite : Historique */
+        #panneau-historique { flex: 1; min-width: 200px; max-width: 250px; height: 480px; background: #ffffff; border: 2px solid #cbd5e1; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; }
+        #hist-titre { background: #334155; color: white; padding: 12px; font-weight: bold; font-size: 1rem;}
+        #hist-liste { flex: 1; overflow-y: auto; padding: 10px; font-family: monospace; font-size: 0.9rem; text-align: left; background: #f8fafc;}
+        .hist-row { display: flex; padding: 4px 0; border-bottom: 1px solid #e2e8f0; }
+        .hist-num { width: 30px; color: #94a3b8; font-weight: bold;}
+        .hist-w { flex: 1; color: #334155; font-weight: bold;}
+        .hist-b { flex: 1; color: #64748b; }
         
-        .btn { font-family: 'Poppins'; font-size: 0.95rem; font-weight: 700; padding: 10px 20px; border: none; border-radius: 12px; cursor: pointer; color: white; margin: 5px; }
-        .btn-primaire { background: #2ecc71; } .btn-secondaire { background: #627d98; } .btn-oups { background: #e74c3c; }
-        #statut-partie { margin-top: 15px; font-size: 1.1rem; font-weight: 900; color: #2ecc71; height: 40px; }
+        /* Footer */
+        .footer-actions { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: center; gap: 15px;}
+        .btn-footer { padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; text-decoration: none; border: none; font-size: 1rem;}
+        .btn-quit { background: #e74c3c; color: white;}
     </style>
 </head>
 <body>
 
     <div id="app-container">
-        <div class="xp-display" id="hud-xp">XP: ... ⭐</div>
-        <h1>Échecs Coach 👑</h1>
-        <p class="sous-titre">Édition Spéciale Théo - Connectée au Carnet</p>
+        
+        <div class="header-joueur">
+            <div>Échecs Pro Coach</div>
+            <div>Ton XP : <span id="hud-xp" style="color:#f1c40f;">...</span> ⭐</div>
+            <div class="grade-badge" id="hud-grade">Débutant</div>
+        </div>
 
         <div class="onglets">
-            <button class="tab-btn" onclick="changerOnglet('cours')">🏰 Règles</button>
-            <button class="tab-btn" onclick="changerOnglet('ouvertures')">📖 Ouvertures</button>
+            <button class="tab-btn" onclick="changerOnglet('cours')">🏰 Entraînement Ouvertures</button>
             <button class="tab-btn" onclick="changerOnglet('cassetetes')">🧩 Casse-Têtes</button>
-            <button class="tab-btn actif" onclick="changerOnglet('jeu')">🤖 Plateau de Jeu</button>
+            <button class="tab-btn actif" onclick="changerOnglet('jeu')">🤖 L'Arène VS IA</button>
         </div>
 
         <div id="onglet-cours" class="ecran">
-            <div class="grid-cours">
-                <div class="carte-cours"><h3>🏰 Le Roque</h3><p>Mets ton roi à l'abri !</p><button class="btn-action-lecon" onclick="chargerLecon('roque')">Tester</button></div>
-                <div class="carte-cours"><h3>♟️ Prise en Passant</h3><p>Coup de pion spécial.</p><button class="btn-action-lecon" onclick="chargerLecon('passant')">Tester</button></div>
-                <div class="carte-cours"><h3>👑 La Promotion</h3><p>Atteins le bout du plateau !</p><button class="btn-action-lecon" onclick="chargerLecon('promotion')">Tester</button></div>
-            </div>
-        </div>
-
-        <div id="onglet-ouvertures" class="ecran">
-            <div class="grid-cours">
-                <div class="carte-cours"><h3>🇪🇸 Espagnole</h3><button class="btn-action-lecon" onclick="chargerLecon('espagnole')">Lancer</button></div>
-                <div class="carte-cours"><h3>🇮🇹 Italienne</h3><button class="btn-action-lecon" onclick="chargerLecon('italienne')">Lancer</button></div>
-                <div class="carte-cours"><h3>🛡️ Sicilienne</h3><button class="btn-action-lecon" onclick="chargerLecon('sicilienne')">Lancer</button></div>
-            </div>
+            <div class="grid-cours" id="grille-ouvertures">
+                </div>
         </div>
 
         <div id="onglet-cassetetes" class="ecran">
-            <div class="grid-cours" id="grille-defis"></div>
+            <div class="grid-cours" id="grille-defis">
+                </div>
         </div>
 
         <div id="onglet-jeu" class="ecran actif">
             <div id="layout-jeu">
+                
                 <div class="assistant-box">
-                    <h4 id="titre-mode-jeu">🤖 Match VS IA</h4>
-                    <p id="assistant-consigne">À toi de jouer !</p>
-                    <select id="niveau-ia" class="select-ia" onchange="changerNiveauIA()">
-                        <option value="1">🟢 1. Débutant</option>
-                        <option value="2" selected>🟠 2. Club</option>
-                        <option value="3">🔴 3. Expert</option>
-                    </select>
-                    <div id="statut-partie">Partie en cours</div>
+                    <div class="coach-panel">
+                        <h4 id="titre-mode-jeu">🤖 Arène Libre</h4>
+                        <div id="assistant-consigne" style="font-style: italic;">
+                            Sélectionne ton adversaire et commence la partie. Si tu es bloqué, demande conseil au Coach !
+                        </div>
+                        
+                        <div id="zone-selection-ia">
+                            <label style="font-size: 0.9rem; font-weight: bold; color: #64748b;">Niveau de l'IA :</label>
+                            <select id="niveau-ia" style="width: 100%; padding: 10px; border-radius: 8px; margin-top: 5px; border: 2px solid #cbd5e1; font-weight: bold;">
+                                <option value="1">🟢 1. Loisir (Débutant)</option>
+                                <option value="2">🟠 2. Compétition (Initié)</option>
+                            </select>
+                        </div>
+                        
+                        <div id="statut-partie">Prêt à jouer</div>
+                    </div>
+
+                    <button class="btn-outil btn-aide" id="btn-coach-aide" onclick="demanderConseilCoach()">
+                        <span>🧠 Demander un Conseil</span>
+                    </button>
+                    
+                    <button class="btn-outil" style="background:#e74c3c;" onclick="annulerCoup()">
+                        <span>↩️ Annuler (Oups)</span>
+                    </button>
                 </div>
                 
                 <div id="board-container"><div id="board"></div></div>
-                <div id="panneau-historique"><h4 id="hist-titre">📝 Coups</h4><div id="hist-liste"></div></div>
+                
+                <div id="panneau-historique">
+                    <h4 id="hist-titre">📝 Carnet de Bord</h4>
+                    <div id="hist-liste"></div>
+                </div>
+
             </div>
             
-            <div style="margin-top: 20px;">
-                <button class="btn btn-oups" onclick="annulerCoup()">↩️ Oups !</button>
-                <button class="btn btn-primaire" onclick="lancerModeMatch()">🔄 Relancer Match IA</button>
-                <button class="btn btn-secondaire" onclick="window.location.href='index.html'">🏠 Menu Principal</button>
+            <div class="footer-actions">
+                <button class="btn-footer" style="background: #2ecc71; color:white;" onclick="lancerModeMatch()">🔄 Nouvelle Partie</button>
+                <a href="index.html" class="btn-footer btn-quit">🏠 Quitter l'Arène</a>
             </div>
         </div>
     </div>
 
     <script>
+        // CONFIGURATION FIREBASE CLOUD
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
         const URL_SAUVEGARDE = `${FIREBASE_URL}scores/theo/echecsSave.json`;
 
         const PIECES_UNICODE = { 'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟', 'R': '♜', 'N': '♞', 'B': '♝', 'Q': '♛', 'K': '♚', 'P': '♟' };
-        let game = new Chess(), selectedSquare = null, validMoves = [], modeActuel = 'match', tourBloque = false, niveauIA = 2, xpDuJoueur = 0;
-        let leconActuelle = null, leconIndex = 0, defiActuel = null;
+        
+        let game = new Chess();
+        let selectedSquare = null;
+        let validMoves = [];
+        let tourBloque = false;
+        
+        // État de la session
+        let xpDuJoueur = 0;
+        let modeActuel = 'match'; // 'match', 'lecon', 'defi'
+        
+        // Variables pour les leçons d'apprentissage
+        let sequenceLecon = [];
+        let etapeLeconIndex = 0;
+        let idEntiteActive = null; // id de l'ouverture ou du défi en cours
 
-        const leconsToutes = {
-            roque: { nom: "Le Roque", fen: '4k2r/8/8/8/8/8/8/4K2R w Kk - 0 1', coups: ['O-O'], msg: ["Déplace le Roi blanc de deux cases vers la droite (sur g1)."] },
-            passant: { nom: "La Prise en Passant", fen: '8/8/8/3pP3/8/8/8/8 w - d6 0 1', coups: ['exd6'], msg: ["Capture le pion noir en diagonale sur la case d6 !"] },
-            promotion: { nom: "La Promotion", fen: '8/P7/8/8/8/8/8/8 w - - 0 1', coups: ['a8=Q'], msg: ["Avance ton pion sur la dernière case (a8) !"] },
-            espagnole: { nom: "L'Espagnole", coups: ['e4', 'e5', 'Nf3', 'Nc6', 'Bb5'], msg: ["Pion en e4.", "L'IA joue e5.", "Cavalier en f3.", "L'IA joue Nc6.", "Fou en b5 !"] },
-            italienne: { nom: "L'Italienne", coups: ['e4', 'e5', 'Nf3', 'Nc6', 'Bc4'], msg: ["Pion en e4.", "L'IA joue e5.", "Cavalier en f3.", "L'IA joue Nc6.", "Fou en c4 !"] },
-            sicilienne: { nom: "La Sicilienne", coups: ['e4', 'c5'], msg: ["L'ordinateur joue e4.", "Joue c5. C'est la Sicilienne !"] }
-        };
-
-        const defisCasseTetes = [
-            { id: "mat_couloir", nom: "Mat du Couloir", xpRequis: 0, gainXP: 5, fen: '6k1/1p3ppp/8/8/8/8/1P3PPP/R5K1 w - - 0 1', rep: 'a8', msg: "Fais échec et mat avec ta Tour ! (+5 XP)" },
-            { id: "fourchette", nom: "La Fourchette", xpRequis: 0, gainXP: 5, fen: 'q3k3/8/8/3N4/8/8/8/1K6 w - - 0 1', rep: 'c7', msg: "Attaque le Roi et la Reine avec ton Cavalier ! (+5 XP)" },
-            { id: "clouage", nom: "Le Clouage", xpRequis: 30, gainXP: 10, fen: '8/8/4k3/4r3/8/4B3/4Q3/4K3 w - - 0 1', rep: 'd4', msg: "Attaque la Tour noire bloquée avec ton Fou en d4 ! (+10 XP)" }
+        // SYSTÈME DE RANGS
+        const RANGS = [
+            { nom: "Pion Débutant", xpMin: 0 },
+            { nom: "Cavalier Agile", xpMin: 50 },
+            { nom: "Fou Stratège", xpMin: 150 },
+            { nom: "Maître de la Tour", xpMin: 300 },
+            { nom: "Grand Maître", xpMin: 600 }
         ];
 
-        async function chargerXP() {
+        // BASE DE DONNÉES : OUVERTURES À REPRODUIRE
+        const DB_OUVERTURES = [
+            { 
+                id: "roque", nom: "🏰 Sécurité : Le Roque", xpRequis: 0, gainXP: 10,
+                desc: "Déplace tes pièces pour mettre ton Roi à l'abri au plus vite.",
+                coups_w: ['e4', 'Nf3', 'Bc4', 'O-O'], // Coups que Théo doit jouer
+                coups_b: ['e5', 'Nc6', 'Nf6'], // Réponses fixes de l'ordinateur
+                msgs: [
+                    "<b>Leçon 1 :</b> Dégage le centre. Avance ton pion devant le Roi de 2 cases (e4).",
+                    "<b>Bien !</b> Maintenant, sors ton Cavalier en f3 pour contrôler le centre.",
+                    "Sors ton Fou blanc en c4 pour libérer l'espace entre la Tour et le Roi.",
+                    "<b>Parfait !</b> Le chemin est libre. Déplace le Roi de 2 cases vers la droite (g1) pour Roquer !"
+                ]
+            },
+            {
+                id: "berger", nom: "🐑 L'Attaque du Berger", xpRequis: 20, gainXP: 15,
+                desc: "Apprends à faire Échec et Mat en seulement 4 coups !",
+                coups_w: ['e4', 'Bc4', 'Qh5', 'Qxf7'],
+                coups_b: ['e5', 'Nc6', 'Nf6'], // Si l'adversaire joue mal
+                msgs: [
+                    "<b>Le Berger :</b> Ouvre le centre avec le pion du Roi en e4.",
+                    "Vise le pion f7 de l'adversaire (le plus faible) avec ton Fou en c4.",
+                    "Sors ta Reine en h5 ! Elle vise aussi le pion f7 avec le Fou.",
+                    "<b>C'est le moment !</b> Capture le pion f7 avec ta Reine. Échec et Mat !"
+                ]
+            },
+            {
+                id: "italienne", nom: "🇮🇹 La Partie Italienne", xpRequis: 100, gainXP: 20,
+                desc: "L'ouverture la plus classique et solide du jeu d'Échecs.",
+                coups_w: ['e4', 'Nf3', 'Bc4', 'c3'],
+                coups_b: ['e5', 'Nc6', 'Bc5'], 
+                msgs: [
+                    "Ouvre sagement avec e4.",
+                    "Attaque son pion central avec ton Cavalier en f3.",
+                    "Développe ton Fou en c4. Il vise le centre et la diagonale de son Roi.",
+                    "C'est la variante classique (Giuoco Piano). Avance ton pion en c3 pour préparer une grosse poussée au centre."
+                ]
+            }
+        ];
+
+        // BASE DE DONNÉES : CASSE-TÊTES (1 coup à trouver)
+        const DB_DEFIS = [
+            { id: "mat_couloir", nom: "Mat du Couloir", xpRequis: 0, gainXP: 5, fen: '6k1/1p3ppp/8/8/8/8/1P3PPP/R5K1 w - - 0 1', rep: 'a8', msg: "Piège le Roi ennemi. Fais échec et mat avec ta Tour !" },
+            { id: "fourchette", nom: "La Fourchette Magique", xpRequis: 30, gainXP: 10, fen: 'q3k3/8/8/3N4/8/8/8/1K6 w - - 0 1', rep: 'c7', msg: "Trouve la case secrète avec ton Cavalier pour attaquer à la fois le Roi et la Reine !" },
+            { id: "clouage", nom: "Paralysie : Le Clouage", xpRequis: 80, gainXP: 15, fen: '8/8/4k3/4r3/8/4B3/4Q3/4K3 w - - 0 1', rep: 'd4', msg: "Déplace ton Fou en d4. La Tour noire ne pourra plus bouger sans mettre son propre Roi en échec !" }
+        ];
+
+        // ==========================================
+        // 1. GESTION DU CLOUD & RANGS
+        // ==========================================
+        async function chargerDatas() {
             try {
                 let res = await fetch(URL_SAUVEGARDE);
                 let data = await res.json();
                 xpDuJoueur = data ? (parseInt(data.xp) || 0) : 0;
-                E('hud-xp').textContent = `XP: ${xpDuJoueur} ⭐`;
-                afficherDefis();
             } catch(e) { console.error("Erreur Cloud:", e); }
+            majUIStats();
         }
 
-        async function majXP(points) {
+        async function ajouterXP(points) {
             xpDuJoueur += points;
-            E('hud-xp').textContent = `XP: ${xpDuJoueur} ⭐`;
+            majUIStats();
             try {
                 await fetch(URL_SAUVEGARDE, { method: 'PUT', body: JSON.stringify({ xp: xpDuJoueur }) });
             } catch(e) {}
-            afficherDefis();
         }
 
+        function majUIStats() {
+            E('hud-xp').textContent = xpDuJoueur;
+            
+            // Calcul du grade
+            let gradeActuel = RANGS[0].nom;
+            for(let i=0; i<RANGS.length; i++) {
+                if(xpDuJoueur >= RANGS[i].xpMin) gradeActuel = RANGS[i].nom;
+            }
+            E('hud-grade').textContent = gradeActuel;
+
+            // Actualisation des grilles
+            genererGrillesObjets();
+        }
+
+        // ==========================================
+        // 2. INTERFACE ET MENUS
+        // ==========================================
         const E = (id) => document.getElementById(id);
 
-        function afficherDefis() {
-            let grille = E('grille-defis'); grille.innerHTML = "";
-            defisCasseTetes.forEach(defi => {
-                let estDebloque = xpDuJoueur >= defi.xpRequis;
-                grille.innerHTML += `<div class="carte-cours"><h3>${defi.nom}</h3><p>${defi.msg}</p>${estDebloque ? `<button class="btn-action-lecon" onclick="chargerDefi('${defi.id}')">Jouer</button>` : `<button class="btn-action-lecon btn-verrouille" disabled>🔒 ${defi.xpRequis} XP</button>`}</div>`;
-            });
-        }
-
-        // GESTION SÉCURISÉE DES ONGLETS
-        function changerOnglet(onglet, autoSwitch = false) {
+        function changerOnglet(onglet) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('actif'));
             document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif'));
             
-            // Sélectionner le bon bouton visuellement
             if(onglet === 'cours') document.querySelectorAll('.tab-btn')[0].classList.add('actif');
-            if(onglet === 'ouvertures') document.querySelectorAll('.tab-btn')[1].classList.add('actif');
-            if(onglet === 'cassetetes') document.querySelectorAll('.tab-btn')[2].classList.add('actif');
-            if(onglet === 'jeu') document.querySelectorAll('.tab-btn')[3].classList.add('actif');
+            if(onglet === 'cassetetes') document.querySelectorAll('.tab-btn')[1].classList.add('actif');
+            if(onglet === 'jeu') document.querySelectorAll('.tab-btn')[2].classList.add('actif');
 
             E('onglet-'+onglet).classList.add('actif');
             
-            // Si le joueur clique sur "Plateau de Jeu", on réinitialise un match contre l'IA
-            // Sauf si on bascule automatiquement via un cours (autoSwitch)
-            if(onglet === 'jeu' && modeActuel !== 'match' && !autoSwitch) {
+            // Revenir au jeu en mode Match libre si on quitte un cours
+            if(onglet === 'jeu' && modeActuel !== 'match') {
                 lancerModeMatch();
             }
         }
 
-        function changerNiveauIA() { niveauIA = parseInt(E('niveau-ia').value); }
+        function genererGrillesObjets() {
+            // Remplir Ouvertures
+            let htmlO = "";
+            DB_OUVERTURES.forEach(o => {
+                let bloque = xpDuJoueur < o.xpRequis;
+                htmlO += `<div class="carte-cours ${bloque ? 'verrouille' : ''}">
+                    ${bloque ? '<div class="lock-icon">🔒</div>' : ''}
+                    <h3>${o.nom}</h3>
+                    <p>${o.desc}</p>
+                    ${bloque ? `<button class="btn-action-lecon btn-verrouille" disabled>Bloqué (${o.xpRequis} XP requis)</button>` : `<button class="btn-action-lecon" onclick="lancerLeconOuverture('${o.id}')">Apprendre (+${o.gainXP} XP)</button>`}
+                </div>`;
+            });
+            E('grille-ouvertures').innerHTML = htmlO;
 
+            // Remplir Défis
+            let htmlD = "";
+            DB_DEFIS.forEach(d => {
+                let bloque = xpDuJoueur < d.xpRequis;
+                htmlD += `<div class="carte-cours ${bloque ? 'verrouille' : ''}">
+                    ${bloque ? '<div class="lock-icon">🔒</div>' : ''}
+                    <h3>${d.nom}</h3>
+                    <p>Trouve le coup unique gagnant.</p>
+                    ${bloque ? `<button class="btn-action-lecon btn-verrouille" disabled>Bloqué (${d.xpRequis} XP requis)</button>` : `<button class="btn-action-lecon" onclick="lancerDefi('${d.id}')">Résoudre (+${d.gainXP} XP)</button>`}
+                </div>`;
+            });
+            E('grille-defis').innerHTML = htmlD;
+        }
+
+        // ==========================================
+        // 3. MOTEUR DU JEU CENTRAL
+        // ==========================================
         function lancerModeMatch() {
-            modeActuel = 'match'; game.reset(); selectedSquare = null; validMoves = []; tourBloque = false;
-            E('niveau-ia').style.display = "inline-block";
-            E('titre-mode-jeu').textContent = "🤖 Match VS IA";
-            E('assistant-consigne').textContent = "À toi de jouer !";
-            E('statut-partie').textContent = "Partie en cours";
-            drawBoard();
-        }
-
-        function chargerDefi(idDefi) {
-            defiActuel = defisCasseTetes.find(d => d.id === idDefi); modeActuel = 'defi';
-            game.load(defiActuel.fen); selectedSquare = null; validMoves = []; tourBloque = false;
+            modeActuel = 'match';
+            game.reset(); selectedSquare = null; validMoves = []; tourBloque = false; idEntiteActive = null;
             
-            // Mise à jour de l'interface Assistant
-            E('niveau-ia').style.display = "none";
-            E('titre-mode-jeu').textContent = "🧩 Casse-Tête";
-            E('assistant-consigne').textContent = defiActuel.msg;
+            E('titre-mode-jeu').textContent = "🤖 Arène VS Ordinateur";
+            E('assistant-consigne').textContent = "Sélectionne la difficulté et joue les Blancs.";
             E('statut-partie').textContent = "À toi !";
+            E('statut-partie').style.color = "#2ecc71";
+            
+            E('zone-selection-ia').style.display = "block";
+            E('btn-coach-aide').style.display = "flex"; // Le coach est dispo !
             
             drawBoard();
-            changerOnglet('jeu', true); // Bascule automatique vers le plateau
         }
 
-        function chargerLecon(id) {
-            modeActuel = 'lecon'; leconActuelle = leconsToutes[id]; leconIndex = 0;
-            if (leconActuelle.fen) game.load(leconActuelle.fen); else game.reset();
-            selectedSquare = null; validMoves = []; tourBloque = false;
+        function lancerLeconOuverture(id) {
+            modeActuel = 'lecon';
+            let ouverture = DB_OUVERTURES.find(o => o.id === id);
+            idEntiteActive = ouverture;
+            etapeLeconIndex = 0;
             
-            // Mise à jour de l'interface Assistant
-            E('niveau-ia').style.display = "none";
-            E('titre-mode-jeu').textContent = "📖 Leçon : " + leconActuelle.nom;
-            E('statut-partie').textContent = "Observation...";
+            game.reset(); selectedSquare = null; validMoves = []; tourBloque = false;
             
-            changerOnglet('jeu', true); // Bascule automatique vers le plateau
+            E('titre-mode-jeu').innerHTML = `🎓 ${ouverture.nom}`;
+            E('zone-selection-ia').style.display = "none";
+            E('btn-coach-aide').style.display = "none"; // Pas de coach en cours, c'est DÉJÀ un cours
+            E('statut-partie').textContent = "";
+            
+            changerOnglet('jeu');
             executerEtapeLecon();
         }
 
-        function executerEtapeLecon() {
-            if(leconIndex >= leconActuelle.coups.length) { E('statut-partie').textContent = "Terminé ! 🎉"; tourBloque = true; drawBoard(); return; }
-            E('assistant-consigne').textContent = leconActuelle.msg[leconIndex];
-            let moveObj = game.move(leconActuelle.coups[leconIndex]); game.undo();
-            if (moveObj.color !== game.turn()) {
-                tourBloque = true; drawBoard();
-                setTimeout(() => { game.move(leconActuelle.coups[leconIndex]); leconIndex++; drawBoard(); tourBloque = false; executerEtapeLecon(); }, 1500);
-            } else { tourBloque = false; drawBoard(); }
+        function lancerDefi(id) {
+            modeActuel = 'defi';
+            let defi = DB_DEFIS.find(d => d.id === id);
+            idEntiteActive = defi;
+            
+            game.load(defi.fen); selectedSquare = null; validMoves = []; tourBloque = false;
+            
+            E('titre-mode-jeu').innerHTML = `🧩 ${defi.nom}`;
+            E('assistant-consigne').innerHTML = `<b>Mission :</b> ${defi.msg}`;
+            E('zone-selection-ia').style.display = "none";
+            E('btn-coach-aide').style.display = "none";
+            E('statut-partie').textContent = "Cherche bien !";
+            E('statut-partie').style.color = "#f39c12";
+            
+            changerOnglet('jeu');
+            drawBoard();
         }
 
-        function annulerCoup() { if (!tourBloque) { game.undo(); game.undo(); selectedSquare = null; validMoves = []; actualiserStatut(); drawBoard(); } }
-
+        // --- GESTION DU PLATEAU GRAPHIQUE ---
         function posToSquare(r, c) { return String.fromCharCode(97 + c) + (8 - r); }
 
-        function drawBoard() {
+        function drawBoard(caseCoachSource = null, caseCoachDest = null) {
             const boardDiv = E('board'); boardDiv.innerHTML = ''; let layout = game.board();
+            
             for (let r = 0; r < 8; r++) {
                 for (let c = 0; c < 8; c++) {
-                    let sqId = posToSquare(r, c); let sqDiv = document.createElement('div');
+                    let sqId = posToSquare(r, c); 
+                    let sqDiv = document.createElement('div');
                     sqDiv.className = `case ${(r + c) % 2 === 1 ? 'noire' : 'blanche'}`;
+                    
                     let p = layout[r][c];
                     if (p) {
                         sqDiv.textContent = PIECES_UNICODE[p.type.toLowerCase()];
                         sqDiv.style.color = p.color === 'w' ? "#ffffff" : "#1e293b";
                         if(p.color === 'w') sqDiv.style.textShadow = "0 2px 4px rgba(0,0,0,0.6), -2px -2px 0 #2c3e50, 2px -2px 0 #2c3e50, -2px 2px 0 #2c3e50, 2px 2px 0 #2c3e50";
                     }
+
                     if (selectedSquare === sqId) sqDiv.classList.add('selectionnee');
                     if (validMoves.find(m => m.to === sqId)) sqDiv.classList.add(p ? 'coup-attaque' : 'coup-valide');
-                    if (modeActuel === 'lecon' && !tourBloque && leconIndex < leconActuelle.coups.length) {
-                        let m = game.move(leconActuelle.coups[leconIndex]); game.undo(); if (m.from === sqId || m.to === sqId) sqDiv.classList.add('guide-ouverture');
+
+                    // GUIDE VISUEL MODE LEÇON (Afficher où l'élève DOIT cliquer)
+                    if (modeActuel === 'lecon' && !tourBloque && etapeLeconIndex < idEntiteActive.coups_w.length) {
+                        let cloneGame = new Chess(game.fen());
+                        let m = cloneGame.move(idEntiteActive.coups_w[etapeLeconIndex]);
+                        if (m && (m.from === sqId || m.to === sqId)) sqDiv.classList.add('guide-coach');
                     }
+
+                    // GUIDE VISUEL MODE COACH AIDE (L'IA a conseillé un coup)
+                    if (caseCoachSource === sqId || caseCoachDest === sqId) {
+                        sqDiv.classList.add('guide-coach');
+                    }
+
                     sqDiv.onclick = () => clicCase(sqId); boardDiv.appendChild(sqDiv);
                 }
             }
+            
+            // Mise à jour de l'historique
             let hist = game.history(); let hList = E('hist-liste'); hList.innerHTML = '';
-            for(let i=0; i<hist.length; i+=2) { hList.innerHTML += `<div>${(i/2)+1}. ${hist[i]} ${hist[i+1]||''}</div>`; }
+            for(let i=0; i<hist.length; i+=2) { 
+                hList.innerHTML += `<div class="hist-row"><div class="hist-num">${(i/2)+1}.</div><div class="hist-w">${hist[i]}</div><div class="hist-b">${hist[i+1]||''}</div></div>`; 
+            }
+            hList.scrollTop = hList.scrollHeight;
         }
 
+        // --- GESTION DU CLIC ET DES COUPS ---
         function clicCase(sq) {
             if (tourBloque) return;
             let mDetails = validMoves.find(m => m.to === sq);
+            
+            // L'élève a cliqué sur une destination valide pour la pièce sélectionnée
             if (mDetails) {
+                
+                // 1. CAS DU COURS : Vérifier si c'est LE BON coup
                 if (modeActuel === 'lecon') {
-                    let mAttendu = game.move(leconActuelle.coups[leconIndex]); game.undo();
-                    if (selectedSquare === mAttendu.from && sq === mAttendu.to) { game.move({from: selectedSquare, to: sq, promotion: 'q'}); leconIndex++; drawBoard(); setTimeout(executerEtapeLecon, 400); }
+                    let cloneGame = new Chess(game.fen());
+                    let moveAttendu = cloneGame.move(idEntiteActive.coups_w[etapeLeconIndex]);
+                    
+                    if (selectedSquare === moveAttendu.from && sq === moveAttendu.to) { 
+                        game.move({from: selectedSquare, to: sq, promotion: 'q'}); 
+                        selectedSquare = null; validMoves = []; 
+                        
+                        etapeLeconIndex++; 
+                        drawBoard(); 
+                        
+                        if (etapeLeconIndex >= idEntiteActive.coups_w.length) {
+                            E('statut-partie').textContent = "Leçon Maîtrisée ! 🏆";
+                            ajouterXP(idEntiteActive.gainXP);
+                            tourBloque = true;
+                        } else {
+                            // C'est au tour de la machine de jouer le coup noir scripté
+                            tourBloque = true;
+                            setTimeout(() => {
+                                game.move(idEntiteActive.coups_b[etapeLeconIndex - 1]);
+                                drawBoard();
+                                tourBloque = false;
+                                executerEtapeLecon(); // Met à jour le texte
+                            }, 1000);
+                        }
+                    } else {
+                        // L'élève se trompe dans le cours
+                        E('assistant-consigne').innerHTML += "<br><span style='color:red;'>Non, regarde les cases bleues !</span>";
+                    }
                     return;
                 }
-                game.move({ from: selectedSquare, to: sq, promotion: 'q' }); selectedSquare = null; validMoves = []; drawBoard();
+
+                // 2. CAS DU DÉFI
                 if (modeActuel === 'defi') {
-                    if (sq === defiActuel.rep) { E('statut-partie').textContent = "🌟 GAGNÉ !"; majXP(defiActuel.gainXP); tourBloque = true; }
-                    else { E('statut-partie').textContent = "❌ Non..."; game.undo(); setTimeout(drawBoard, 1000); }
+                    game.move({ from: selectedSquare, to: sq, promotion: 'q' });
+                    selectedSquare = null; validMoves = []; 
+                    
+                    if (sq === idEntiteActive.rep) { 
+                        E('statut-partie').textContent = "🌟 GAGNÉ !"; 
+                        E('statut-partie').style.color = "#2ecc71";
+                        ajouterXP(idEntiteActive.gainXP); 
+                        tourBloque = true; 
+                    } else { 
+                        E('statut-partie').textContent = "❌ Mauvais coup..."; 
+                        E('statut-partie').style.color = "#e74c3c";
+                        game.undo(); 
+                    }
+                    drawBoard();
                     return;
                 }
-                if (verifierFinPartie()) return;
-                tourBloque = true; E('statut-partie').textContent = "Réflexion... 🤖";
-                setTimeout(jouerCoupIA, niveauIA === 3 ? 1200 : 500); return;
+
+                // 3. CAS DU MATCH IA
+                game.move({ from: selectedSquare, to: sq, promotion: 'q' }); 
+                selectedSquare = null; validMoves = []; drawBoard();
+                E('statut-partie').textContent = "";
+                
+                if (game.in_checkmate()) { E('statut-partie').textContent = "VICTOIRE ! 🏆"; ajouterXP(20); tourBloque = true; return; }
+                
+                tourBloque = true; 
+                E('assistant-consigne').textContent = "L'ordinateur réfléchit...";
+                let nivIA = parseInt(E('niveau-ia').value);
+                
+                // L'IA joue (Niveau 1 ou 2)
+                setTimeout(() => {
+                    let moves = game.moves({ verbose: true }); 
+                    if(moves.length === 0) return;
+                    let meilleur;
+                    
+                    if (nivIA === 1) meilleur = moves[Math.floor(Math.random() * moves.length)];
+                    else {
+                        // IA Niveau 2 (cherche à capturer si possible, sinon aléatoire)
+                        let cap = moves.filter(m => m.flags.includes('c'));
+                        meilleur = cap.length > 0 && Math.random() > 0.4 ? cap[Math.floor(Math.random() * cap.length)] : moves[Math.floor(Math.random() * moves.length)];
+                    }
+                    
+                    game.move(meilleur); 
+                    tourBloque = false; 
+                    
+                    if (game.in_checkmate()) { E('statut-partie').textContent = "L'IA a gagné... 💀"; E('statut-partie').style.color="#e74c3c"; tourBloque = true; }
+                    else if (game.in_check()) { E('statut-partie').textContent = "⚠️ ÉCHEC !"; E('statut-partie').style.color="#f39c12"; }
+                    else { E('assistant-consigne').textContent = "À ton tour !"; E('statut-partie').textContent = ""; }
+                    
+                    drawBoard();
+                }, 800);
+                
+                return;
             }
-            let p = game.get(sq); if (p && p.color === game.turn()) { selectedSquare = sq; validMoves = game.moves({ square: sq, verbose: true }); drawBoard(); }
+
+            // Sélectionner une de ses propres pièces
+            let p = game.get(sq); 
+            if (p && p.color === game.turn()) { 
+                selectedSquare = sq; 
+                validMoves = game.moves({ square: sq, verbose: true }); 
+                drawBoard(); 
+            } else { 
+                selectedSquare = null; validMoves = []; drawBoard(); 
+            }
         }
 
-        function verifierFinPartie() {
-            if (game.in_checkmate()) { E('statut-partie').textContent = game.turn() === 'b' ? "Gagné ! 🏆" : "Perdu... 💀"; if(game.turn() === 'b') majXP(20); tourBloque = true; return true; }
-            if (game.in_draw()) { E('statut-partie').textContent = "Match Nul 🤝"; tourBloque = true; return true; }
-            return false;
+        function executerEtapeLecon() {
+            E('assistant-consigne').innerHTML = idEntiteActive.msgs[etapeLeconIndex];
+            drawBoard();
         }
 
-        function actualiserStatut() { if (!verifierFinPartie()) E('statut-partie').textContent = game.in_check() ? "⚠️ ÉCHEC !" : "À toi de jouer !"; }
+        // ==========================================
+        // 4. LES OUTILS : ANNULER & COACH IA
+        // ==========================================
+        function annulerCoup() { 
+            if (!tourBloque && modeActuel === 'match') { 
+                game.undo(); game.undo(); // Annule le coup IA et le coup Joueur
+                selectedSquare = null; validMoves = []; 
+                E('assistant-consigne').textContent = "Oups ! Rejoue ton coup.";
+                E('statut-partie').textContent = "";
+                drawBoard(); 
+            } 
+        }
 
-        function jouerCoupIA() {
-            let moves = game.moves({ verbose: true }); if (moves.length === 0) return;
-            let meilleur;
-            if (niveauIA === 1) meilleur = moves[Math.floor(Math.random() * moves.length)];
-            else if (niveauIA === 2) {
-                let cap = moves.filter(m => m.flags.includes('c'));
-                meilleur = cap.length > 0 && Math.random() > 0.4 ? cap[Math.floor(Math.random() * cap.length)] : moves[Math.floor(Math.random() * moves.length)];
-            } else {
-                let bestS = -9999; moves.sort(() => Math.random() - 0.5);
-                for (let i = 0; i < moves.length; i++) {
-                    game.move(moves[i]); let s = evaluerPlateauPro(game); game.undo(); if (s > bestS) { bestS = s; meilleur = moves[i]; }
+        function demanderConseilCoach() {
+            if(tourBloque || modeActuel !== 'match') return;
+            
+            E('assistant-consigne').innerHTML = "🧠 <b>Le Coach analyse le plateau...</b>";
+            
+            // Petite intelligence locale pour trouver le "meilleur coup" basique
+            setTimeout(() => {
+                let moves = game.moves({ verbose: true });
+                if(moves.length === 0) return;
+                
+                let meilleurCoup = moves[0];
+                let maxScore = -9999;
+                
+                // Le coach analyse 1 coup en profondeur (il regarde si le coup mange ou protège)
+                for(let m of moves) {
+                    game.move(m);
+                    let s = evaluerPlateauBasique(game);
+                    game.undo();
+                    if(s > maxScore) { maxScore = s; meilleurCoup = m; }
                 }
-            }
-            game.move(meilleur); tourBloque = false; actualiserStatut(); drawBoard();
+
+                E('assistant-consigne').innerHTML = "💡 <b>Conseil du Coach :</b> Regarde les cases en bleu. Déplace cette pièce !";
+                // On redessine le plateau en envoyant la source et la destination pour qu'elles clignotent en bleu
+                drawBoard(meilleurCoup.from, meilleurCoup.to);
+            }, 600);
         }
 
-        function evaluerPlateauPro(g) {
-            let v = { p: 10, n: 30, b: 30, r: 50, q: 90, k: 900 }, score = 0;
-            g.board().forEach(row => { row.forEach(p => { if (p) score += (p.color === 'b' ? v[p.type] : -v[p.type]); }); }); return score;
+        function evaluerPlateauBasique(g) {
+            let valeurs = { p: 10, n: 30, b: 30, r: 50, q: 90, k: 900 };
+            let score = 0;
+            g.board().forEach(row => { 
+                row.forEach(p => { 
+                    if (p) score += (p.color === 'w' ? valeurs[p.type] : -valeurs[p.type]); 
+                }); 
+            }); 
+            return score;
         }
 
-        chargerXP();
+        // Lancement au démarrage
+        chargerDatas();
         lancerModeMatch();
     </script>
 </body>
