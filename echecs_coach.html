@@ -223,7 +223,7 @@
                 id: "berger", nom: "🐑 L'Attaque du Berger", xpRequis: 20, gainXP: 15,
                 desc: "Apprends à faire Échec et Mat en seulement 4 coups !",
                 coups_w: ['e4', 'Bc4', 'Qh5', 'Qxf7'],
-                coups_b: ['e5', 'Nc6', 'Nf6'], // Si l'adversaire joue mal
+                coups_b: ['e5', 'Nc6', 'Nf6'], 
                 msgs: [
                     "<b>Le Berger :</b> Ouvre le centre avec le pion du Roi en e4.",
                     "Vise le pion f7 de l'adversaire (le plus faible) avec ton Fou en c4.",
@@ -275,14 +275,12 @@
         function majUIStats() {
             E('hud-xp').textContent = xpDuJoueur;
             
-            // Calcul du grade
             let gradeActuel = RANGS[0].nom;
             for(let i=0; i<RANGS.length; i++) {
                 if(xpDuJoueur >= RANGS[i].xpMin) gradeActuel = RANGS[i].nom;
             }
             E('hud-grade').textContent = gradeActuel;
 
-            // Actualisation des grilles
             genererGrillesObjets();
         }
 
@@ -291,7 +289,7 @@
         // ==========================================
         const E = (id) => document.getElementById(id);
 
-        function changerOnglet(onglet) {
+        function changerOnglet(onglet, autoSwitch = false) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('actif'));
             document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif'));
             
@@ -301,14 +299,13 @@
 
             E('onglet-'+onglet).classList.add('actif');
             
-            // Revenir au jeu en mode Match libre si on quitte un cours
-            if(onglet === 'jeu' && modeActuel !== 'match') {
+            // Revenir au jeu en mode Match libre SI ET SEULEMENT SI on a cliqué sur le bouton manuellement
+            if(onglet === 'jeu' && modeActuel !== 'match' && !autoSwitch) {
                 lancerModeMatch();
             }
         }
 
         function genererGrillesObjets() {
-            // Remplir Ouvertures
             let htmlO = "";
             DB_OUVERTURES.forEach(o => {
                 let bloque = xpDuJoueur < o.xpRequis;
@@ -321,7 +318,6 @@
             });
             E('grille-ouvertures').innerHTML = htmlO;
 
-            // Remplir Défis
             let htmlD = "";
             DB_DEFIS.forEach(d => {
                 let bloque = xpDuJoueur < d.xpRequis;
@@ -348,7 +344,7 @@
             E('statut-partie').style.color = "#2ecc71";
             
             E('zone-selection-ia').style.display = "block";
-            E('btn-coach-aide').style.display = "flex"; // Le coach est dispo !
+            E('btn-coach-aide').style.display = "flex"; 
             
             drawBoard();
         }
@@ -363,10 +359,11 @@
             
             E('titre-mode-jeu').innerHTML = `🎓 ${ouverture.nom}`;
             E('zone-selection-ia').style.display = "none";
-            E('btn-coach-aide').style.display = "none"; // Pas de coach en cours, c'est DÉJÀ un cours
+            E('btn-coach-aide').style.display = "none"; 
             E('statut-partie').textContent = "";
             
-            changerOnglet('jeu');
+            // Le "true" dit à la fonction : "C'est un switch automatique, ne réinitialise pas la partie !"
+            changerOnglet('jeu', true);
             executerEtapeLecon();
         }
 
@@ -384,7 +381,8 @@
             E('statut-partie').textContent = "Cherche bien !";
             E('statut-partie').style.color = "#f39c12";
             
-            changerOnglet('jeu');
+            // Le "true" dit à la fonction : "C'est un switch automatique, ne réinitialise pas la partie !"
+            changerOnglet('jeu', true);
             drawBoard();
         }
 
@@ -410,14 +408,12 @@
                     if (selectedSquare === sqId) sqDiv.classList.add('selectionnee');
                     if (validMoves.find(m => m.to === sqId)) sqDiv.classList.add(p ? 'coup-attaque' : 'coup-valide');
 
-                    // GUIDE VISUEL MODE LEÇON (Afficher où l'élève DOIT cliquer)
                     if (modeActuel === 'lecon' && !tourBloque && etapeLeconIndex < idEntiteActive.coups_w.length) {
                         let cloneGame = new Chess(game.fen());
                         let m = cloneGame.move(idEntiteActive.coups_w[etapeLeconIndex]);
                         if (m && (m.from === sqId || m.to === sqId)) sqDiv.classList.add('guide-coach');
                     }
 
-                    // GUIDE VISUEL MODE COACH AIDE (L'IA a conseillé un coup)
                     if (caseCoachSource === sqId || caseCoachDest === sqId) {
                         sqDiv.classList.add('guide-coach');
                     }
@@ -426,7 +422,6 @@
                 }
             }
             
-            // Mise à jour de l'historique
             let hist = game.history(); let hList = E('hist-liste'); hList.innerHTML = '';
             for(let i=0; i<hist.length; i+=2) { 
                 hList.innerHTML += `<div class="hist-row"><div class="hist-num">${(i/2)+1}.</div><div class="hist-w">${hist[i]}</div><div class="hist-b">${hist[i+1]||''}</div></div>`; 
@@ -439,10 +434,7 @@
             if (tourBloque) return;
             let mDetails = validMoves.find(m => m.to === sq);
             
-            // L'élève a cliqué sur une destination valide pour la pièce sélectionnée
             if (mDetails) {
-                
-                // 1. CAS DU COURS : Vérifier si c'est LE BON coup
                 if (modeActuel === 'lecon') {
                     let cloneGame = new Chess(game.fen());
                     let moveAttendu = cloneGame.move(idEntiteActive.coups_w[etapeLeconIndex]);
@@ -459,23 +451,20 @@
                             ajouterXP(idEntiteActive.gainXP);
                             tourBloque = true;
                         } else {
-                            // C'est au tour de la machine de jouer le coup noir scripté
                             tourBloque = true;
                             setTimeout(() => {
                                 game.move(idEntiteActive.coups_b[etapeLeconIndex - 1]);
                                 drawBoard();
                                 tourBloque = false;
-                                executerEtapeLecon(); // Met à jour le texte
+                                executerEtapeLecon();
                             }, 1000);
                         }
                     } else {
-                        // L'élève se trompe dans le cours
                         E('assistant-consigne').innerHTML += "<br><span style='color:red;'>Non, regarde les cases bleues !</span>";
                     }
                     return;
                 }
 
-                // 2. CAS DU DÉFI
                 if (modeActuel === 'defi') {
                     game.move({ from: selectedSquare, to: sq, promotion: 'q' });
                     selectedSquare = null; validMoves = []; 
@@ -494,7 +483,6 @@
                     return;
                 }
 
-                // 3. CAS DU MATCH IA
                 game.move({ from: selectedSquare, to: sq, promotion: 'q' }); 
                 selectedSquare = null; validMoves = []; drawBoard();
                 E('statut-partie').textContent = "";
@@ -505,7 +493,6 @@
                 E('assistant-consigne').textContent = "L'ordinateur réfléchit...";
                 let nivIA = parseInt(E('niveau-ia').value);
                 
-                // L'IA joue (Niveau 1 ou 2)
                 setTimeout(() => {
                     let moves = game.moves({ verbose: true }); 
                     if(moves.length === 0) return;
@@ -513,7 +500,6 @@
                     
                     if (nivIA === 1) meilleur = moves[Math.floor(Math.random() * moves.length)];
                     else {
-                        // IA Niveau 2 (cherche à capturer si possible, sinon aléatoire)
                         let cap = moves.filter(m => m.flags.includes('c'));
                         meilleur = cap.length > 0 && Math.random() > 0.4 ? cap[Math.floor(Math.random() * cap.length)] : moves[Math.floor(Math.random() * moves.length)];
                     }
@@ -531,7 +517,6 @@
                 return;
             }
 
-            // Sélectionner une de ses propres pièces
             let p = game.get(sq); 
             if (p && p.color === game.turn()) { 
                 selectedSquare = sq; 
@@ -552,7 +537,7 @@
         // ==========================================
         function annulerCoup() { 
             if (!tourBloque && modeActuel === 'match') { 
-                game.undo(); game.undo(); // Annule le coup IA et le coup Joueur
+                game.undo(); game.undo(); 
                 selectedSquare = null; validMoves = []; 
                 E('assistant-consigne').textContent = "Oups ! Rejoue ton coup.";
                 E('statut-partie').textContent = "";
@@ -565,7 +550,6 @@
             
             E('assistant-consigne').innerHTML = "🧠 <b>Le Coach analyse le plateau...</b>";
             
-            // Petite intelligence locale pour trouver le "meilleur coup" basique
             setTimeout(() => {
                 let moves = game.moves({ verbose: true });
                 if(moves.length === 0) return;
@@ -573,7 +557,6 @@
                 let meilleurCoup = moves[0];
                 let maxScore = -9999;
                 
-                // Le coach analyse 1 coup en profondeur (il regarde si le coup mange ou protège)
                 for(let m of moves) {
                     game.move(m);
                     let s = evaluerPlateauBasique(game);
@@ -582,7 +565,6 @@
                 }
 
                 E('assistant-consigne').innerHTML = "💡 <b>Conseil du Coach :</b> Regarde les cases en bleu. Déplace cette pièce !";
-                // On redessine le plateau en envoyant la source et la destination pour qu'elles clignotent en bleu
                 drawBoard(meilleurCoup.from, meilleurCoup.to);
             }, 600);
         }
@@ -598,7 +580,6 @@
             return score;
         }
 
-        // Lancement au démarrage
         chargerDatas();
         lancerModeMatch();
     </script>
