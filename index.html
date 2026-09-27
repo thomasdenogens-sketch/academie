@@ -43,6 +43,20 @@
         .theo-section .kid-header { color: #3498db; }
         .lola-section .kid-header { color: #e91e63; }
 
+        /* BADGES DE NIVEAU AUTOMATIQUES */
+        .badge-niveau {
+            font-size: 1.1rem;
+            padding: 5px 15px;
+            border-radius: 20px;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 900;
+        }
+        .theo-section .badge-niveau { background-color: #f1c40f; }
+        .lola-section .badge-niveau { background-color: #9b59b6; }
+
         .games-list { display: flex; flex-direction: column; gap: 15px; }
 
         /* BOUTONS DES JEUX */
@@ -73,9 +87,11 @@
         <div class="kids-grid">
             
             <div class="kid-section theo-section">
-                <div class="kid-header">👦 Théo</div>
+                <div class="kid-header">
+                    👦 Théo 
+                    <span class="badge-niveau" id="niveau-theo">Calcul...</span>
+                </div>
                 <div class="games-list">
-                    <!-- LE LIEN UNIQUE VERS LE HUB MATHS -->
                     <a href="hub_maths_theo.html" class="game-btn">
                         <span class="game-icon">🧮</span><span>Mathématiques</span>
                     </a>
@@ -101,13 +117,20 @@
             </div>
 
             <div class="kid-section lola-section">
-                <div class="kid-header">👧 Lola</div>
+                <div class="kid-header">
+                    👧 Lola 
+                    <span class="badge-niveau" id="niveau-lola">Calcul...</span>
+                </div>
                 <div class="games-list">
                     <a href="jeu_maths_lola.html" class="game-btn">
                         <span class="game-icon">🧮</span><span>Mathématiques</span>
                     </a>
                     <a href="jeu_francais_lola.html" class="game-btn">
                         <span class="game-icon">📚</span><span>Français</span>
+                    </a>
+                    <!-- NOUVELLE MATIÈRE POUR LOLA -->
+                    <a href="jeu_decouverte_lola.html" class="game-btn">
+                        <span class="game-icon">🧭</span><span>Découverte du Monde</span>
                     </a>
                     <a href="jeu_anglais_lola.html" class="game-btn">
                         <span class="game-icon">🇬🇧</span><span>Anglais Découverte</span>
@@ -121,5 +144,42 @@
         </div>
     </div>
 
+    <script>
+        // Fonction pour calculer dynamiquement le niveau scolaire
+        function determinerNiveau(anneeEntreeCP) {
+            const dateActuelle = new Date();
+            const mois = dateActuelle.getMonth(); // 0 = Janvier, 8 = Septembre
+            let anneeScolaire = dateActuelle.getFullYear();
+
+            // Si nous sommes avant septembre, l'année scolaire correspond à celle commencée l'année précédente
+            if (mois < 8) {
+                anneeScolaire--;
+            }
+
+            const anneesEcoulees = anneeScolaire - anneeEntreeCP;
+            
+            // Tableau des niveaux
+            const niveaux = ["CP", "CE1", "CE2", "CM1", "CM2", "6ème", "5ème", "4ème", "3ème", "Lycée"];
+            
+            if (anneesEcoulees >= 0 && anneesEcoulees < niveaux.length) {
+                return niveaux[anneesEcoulees];
+            } else if (anneesEcoulees < 0) {
+                return "Maternelle";
+            } else {
+                return "Études Supérieures";
+            }
+        }
+
+        // Au chargement de la page, on met à jour les badges
+        document.addEventListener("DOMContentLoaded", () => {
+            // Lola est entrée au CP en Septembre 2025
+            const niveauLola = determinerNiveau(2025);
+            // Théo est entré au CP en Septembre 2022
+            const niveauTheo = determinerNiveau(2022);
+            
+            document.getElementById("niveau-lola").textContent = niveauLola;
+            document.getElementById("niveau-theo").textContent = niveauTheo;
+        });
+    </script>
 </body>
 </html>
