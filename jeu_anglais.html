@@ -2,62 +2,94 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Anglais - Le Défi Bilingue V2 (Cloud)</title>
+    <title>Anglais - Le Défi Bilingue Pro (CM2)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-        body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%); color: #333; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
-        #app-container { background: white; padding: 25px 35px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-width: 900px; width: 100%; text-align: center; }
-        h1 { color: #d63031; font-weight: 900; font-size: 2.2rem; margin-bottom: 5px; }
-        .sous-titre { color: #888; margin-bottom: 20px; font-weight: 700; }
-        #hud { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; }
-        .xp-text { color: #0984e3; font-weight: 900; }
+        body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #74b9ff 0%, #a29bfe 100%); color: #333; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
+        
+        #app-container { background: white; padding: 25px 35px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-width: 1000px; width: 100%; text-align: center; }
+        h1 { color: #0984e3; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
+        .sous-titre { color: #636e72; margin-bottom: 20px; font-weight: 700; font-size: 1.1rem;}
+        
+        #hud { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; border: 2px solid #ecf0f1;}
+        .xp-text { color: #6c5ce7; font-weight: 900; background: #f3e5f5; padding: 5px 15px; border-radius: 15px;}
         .vies-text { letter-spacing: 5px; }
+        
+        /* Menu des Niveaux */
+        .grid-themes { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        
+        /* Plateau de Jeu */
         #plateau-jeu { display: flex; justify-content: space-around; gap: 20px; background: #f1f2f6; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
-        .colonne { display: flex; flex-direction: column; gap: 10px; width: 45%; }
-        .colonne-titre { font-size: 1.2rem; font-weight: 900; color: #2d3436; margin-bottom: 10px; }
-        .carte-mot { background: white; border: 3px solid #dfe6e9; padding: 15px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; color: #2d3436; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .carte-mot:hover { transform: translateY(-2px); box-shadow: 0 6px 10px rgba(0,0,0,0.1); }
-        .carte-en.selectionnee { border-color: #0984e3; background: #e7f3ff; color: #0984e3; transform: scale(1.05); }
-        .carte-fr.selectionnee { border-color: #d63031; background: #ffeaea; color: #d63031; transform: scale(1.05); }
+        .colonne { display: flex; flex-direction: column; gap: 12px; width: 48%; }
+        .colonne-titre { font-size: 1.3rem; font-weight: 900; color: #2d3436; margin-bottom: 15px; border-bottom: 3px solid #dfe6e9; padding-bottom: 5px;}
+        
+        /* Les Cartes */
+        .carte-container { display: flex; align-items: center; gap: 10px; }
+        
+        .carte-mot { 
+            background: white; border: 3px solid #dfe6e9; padding: 15px; border-radius: 12px; 
+            font-size: 1.1rem; font-weight: bold; color: #2d3436; cursor: pointer; transition: all 0.2s; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); flex: 1; display: flex; align-items: center; justify-content: center;
+            min-height: 70px;
+        }
+        .carte-mot:hover { transform: translateY(-2px); box-shadow: 0 6px 10px rgba(0,0,0,0.1); border-color: #b2bec3;}
+        
+        .carte-en.selectionnee { border-color: #0984e3; background: #e7f3ff; color: #0984e3; transform: scale(1.03); }
+        .carte-fr.selectionnee { border-color: #d63031; background: #ffeaea; color: #d63031; transform: scale(1.03); }
+        
         .trouvee { visibility: hidden; opacity: 0; transition: visibility 0s 0.3s, opacity 0.3s linear; }
         .erreur { animation: secousse 0.4s; background: #ff7675 !important; color: white !important; border-color: #d63031 !important; }
         @keyframes secousse { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        
+        /* Bouton Audio intégré */
+        .btn-audio { 
+            background: #0984e3; color: white; border: none; width: 45px; height: 45px; 
+            border-radius: 50%; font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 0 #076aba; transition: 0.1s;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .btn-audio:active { transform: translateY(4px); box-shadow: none; }
+
+        /* Boutons d'interface */
         .btn { font-family: 'Nunito', sans-serif; font-size: 1.1rem; font-weight: bold; padding: 12px 25px; border: none; border-radius: 10px; cursor: pointer; color: white; margin: 5px; transition: transform 0.1s; display: inline-block;}
         .btn:active { transform: scale(0.95); }
         .btn-primaire { background: #0984e3; box-shadow: 0 4px #076aba; }
         .btn-secondaire { background: #b2bec3; box-shadow: 0 4px #636e72; color: #2d3436; }
         .btn-supprimer { background: #ff7675; padding: 12px 15px; box-shadow: 0 4px #d63031; }
-        #zone-config { background: #fff3cd; padding: 20px; border-radius: 15px; margin-top: 20px; border: 2px dashed #ffeeba; text-align: left; }
-        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; font-family: 'Nunito', sans-serif; font-size: 1rem; }
+        
+        /* Zone Création */
+        #zone-config { background: #fff3cd; padding: 25px; border-radius: 15px; margin-top: 20px; border: 2px dashed #f1c40f; text-align: left; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #dfe6e9; border-radius: 8px; font-family: 'Nunito', sans-serif; font-size: 1.1rem; }
+        
         .ecran { display: none; }
         .ecran.actif { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-        #feedback { font-size: 1.2rem; font-weight: bold; height: 30px; margin: 15px 0; }
+        
+        #feedback { font-size: 1.4rem; font-weight: 900; height: 35px; margin: 15px 0; }
     </style>
 </head>
 <body>
 
     <div id="app-container">
+        <!-- ECRAN D'ACCUEIL -->
         <div id="ecran-accueil" class="ecran actif">
-            <h1>English 🇬🇧</h1>
-            <p class="sous-titre">Le Défi Bilingue V2 (Cloud)</p>
+            <h1>English Master 🇬🇧</h1>
+            <p class="sous-titre">Préparation Entrée en 6ème (Niveau CM2)</p>
             <div id="hud" style="justify-content: center;"><span class="xp-text">XP Anglais : <span id="ui-xp-accueil">...</span> ⭐</span></div>
             
-            <h3>Missions de base :</h3>
-            <div style="margin-bottom: 20px;">
-                <button class="btn btn-primaire" onclick="lancerNiveau('couleurs', false)">🎨 Couleurs</button>
-                <button class="btn btn-primaire" style="background:#00b894; box-shadow:0 4px #009476;" onclick="lancerNiveau('animaux', false)">🐶 Animaux</button>
-                <button class="btn btn-primaire" style="background:#fdcb6e; box-shadow:0 4px #e1b12c; color:#2d3436;" onclick="lancerNiveau('famille', false)">👨‍👩‍👧 Famille</button>
-                <button class="btn btn-primaire" style="background:#e84393; box-shadow:0 4px #b83275;" onclick="lancerNiveau('corps', false)">🖐️ Corps</button>
-                <button class="btn btn-primaire" style="background:#8e44ad; box-shadow:0 4px #732d91;" onclick="lancerNiveau('nombres', false)">🔢 Nombres</button>
-                <button class="btn btn-primaire" style="background:#f39c12; box-shadow:0 4px #d68910;" onclick="lancerNiveau('meteo', false)">☀️ Météo</button>
-                <button class="btn btn-primaire" style="background:#d35400; box-shadow:0 4px #a04000;" onclick="lancerNiveau('aliments', false)">🍎 Nourriture</button>
+            <h3 style="color:#2d3436; text-align:left; margin-bottom:10px;">📚 Programme CM2 :</h3>
+            <div class="grid-themes">
+                <button class="btn btn-primaire" onclick="lancerNiveau('questions', false)">❓ Questions / Réponses</button>
+                <button class="btn btn-primaire" style="background:#00b894; box-shadow:0 4px #009476;" onclick="lancerNiveau('routine', false)">⏰ Daily Routine</button>
+                <button class="btn btn-primaire" style="background:#8e44ad; box-shadow:0 4px #732d91;" onclick="lancerNiveau('descriptions', false)">👤 Descriptions</button>
+                <button class="btn btn-primaire" style="background:#e84393; box-shadow:0 4px #b83275;" onclick="lancerNiveau('lieux', false)">🏙️ Dans la ville</button>
+                <button class="btn btn-primaire" style="background:#d35400; box-shadow:0 4px #a04000;" onclick="lancerNiveau('verbes_irreguliers', false)">⚡ Verbes Irréguliers</button>
             </div>
 
-            <hr style="border: 1px solid #eee; margin: 20px 0;">
-            <h3>Tes propres listes :</h3>
-            <div id="liste-themes-custom"></div>
+            <hr style="border: 1px solid #eee; margin: 25px 0;">
+            
+            <h3 style="color:#2d3436; text-align:left; margin-bottom:10px;">🛠️ Tes propres listes :</h3>
+            <div id="liste-themes-custom" style="text-align:left;"></div>
 
             <div style="margin-top: 30px;">
                 <button class="btn btn-primaire" style="background: #2d3436; box-shadow: 0 4px #000;" onclick="changerEcran('ecran-config')">➕ Créer une nouvelle liste</button>
@@ -65,31 +97,49 @@
             </div>
         </div>
 
+        <!-- ECRAN DE JEU -->
         <div id="ecran-jeu" class="ecran">
-            <div id="hud"><span class="vies-text" id="ui-vies">❤️❤️❤️</span><span id="ui-theme-titre" style="color: #636e72;">Thème : ...</span><span class="xp-text">XP : <span id="ui-xp-jeu">0</span> ⭐</span></div>
-            <div id="plateau-jeu"><div class="colonne" id="col-en"><div class="colonne-titre">🇬🇧 English</div></div><div class="colonne" id="col-fr"><div class="colonne-titre">🇫🇷 Français</div></div></div>
+            <div id="hud">
+                <span class="vies-text" id="ui-vies">❤️❤️❤️</span>
+                <span id="ui-theme-titre" style="color: #636e72;">Thème : ...</span>
+                <span class="xp-text">XP : <span id="ui-xp-jeu">0</span> ⭐</span>
+            </div>
+            
+            <div id="plateau-jeu">
+                <div class="colonne" id="col-en">
+                    <div class="colonne-titre">🇬🇧 English</div>
+                </div>
+                <div class="colonne" id="col-fr">
+                    <div class="colonne-titre">🇫🇷 Français</div>
+                </div>
+            </div>
+            
             <div id="feedback"></div>
             <button class="btn btn-secondaire" onclick="retourAccueil()">Abandonner</button>
         </div>
 
+        <!-- ECRAN DE CONFIGURATION (CUSTOM) -->
         <div id="ecran-config" class="ecran">
-            <h2 style="color: #d63031;">✍️ Espace Création</h2>
-            <p>Ajoute tes propres mots de vocabulaire !</p>
+            <h2 style="color: #0984e3; margin-bottom:10px;">✍️ Espace Création</h2>
+            <p class="sous-titre">Prépare tes contrôles d'anglais en créant tes propres listes !</p>
             <div id="zone-config">
-                <label><strong>Nom de la liste (ex: Leçon 3) :</strong></label>
+                <label><strong>Nom de la liste (ex: Chapitre 4) :</strong></label>
                 <input type="text" id="input-nom-theme" placeholder="Titre de la leçon...">
-                <label><strong>Les mots (1 par ligne, avec le signe = ) :</strong></label>
-                <textarea id="input-mots" rows="6" placeholder="Apple = Pomme&#10;Banana = Banane"></textarea>
-                <button class="btn btn-primaire" style="background: #00b894; box-shadow: 0 4px #009476;" onclick="sauvegarderTheme()">Sauvegarder</button>
-                <p id="msg-config" style="color: green; font-weight: bold; margin-top: 10px;"></p>
+                <label><strong>Les mots/phrases (1 par ligne, avec le signe = ) :</strong></label>
+                <textarea id="input-mots" rows="6" placeholder="Where is the station? = Où est la gare ?&#10;To eat = Manger"></textarea>
+                <button class="btn btn-primaire" style="background: #00b894; box-shadow: 0 4px #009476; width:100%; margin-top:10px;" onclick="sauvegarderTheme()">Sauvegarder ma liste</button>
+                <p id="msg-config" style="color: #27ae60; font-weight: bold; margin-top: 10px; text-align:center;"></p>
             </div>
             <button class="btn btn-secondaire" style="margin-top: 20px;" onclick="retourAccueil()">Retour Menu</button>
         </div>
 
+        <!-- ECRAN DE FIN -->
         <div id="ecran-fin" class="ecran">
-            <h1>Well Done ! 🎉</h1>
-            <p class="sous-titre">Tu as trouvé toutes les paires !</p>
-            <div id="hud" style="justify-content: center;"><span class="xp-text" style="font-size: 1.5rem;">+<span id="gain-xp"></span> XP gagnés !</span></div>
+            <h1 style="color: #00b894;">Well Done ! 🎉</h1>
+            <p class="sous-titre">Tu as fait un sans-faute !</p>
+            <div id="hud" style="justify-content: center; background: none; border:none;">
+                <span class="xp-text" style="font-size: 1.8rem; background: #e7f3ff;">+<span id="gain-xp"></span> XP !</span>
+            </div>
             <button class="btn btn-primaire" onclick="window.location.href='index.html'">Retour à l'Académie</button>
             <button class="btn btn-secondaire" onclick="retourAccueil()">Refaire un thème</button>
         </div>
@@ -99,14 +149,43 @@
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
         const DB_URL = `${FIREBASE_URL}scores/theo/anglaisSaveV1.json`;
 
+        // BASE DE DONNÉES CM2
         const vocabulaireBase = {
-            couleurs: { nom: "Les Couleurs", mots: [{ en: "Red", fr: "Rouge" }, { en: "Blue", fr: "Bleu" }, { en: "Yellow", fr: "Jaune" }, { en: "Green", fr: "Vert" }, { en: "Black", fr: "Noir" }, { en: "White", fr: "Blanc" }] },
-            animaux: { nom: "Les Animaux", mots: [{ en: "Dog", fr: "Chien" }, { en: "Cat", fr: "Chat" }, { en: "Bird", fr: "Oiseau" }, { en: "Horse", fr: "Cheval" }, { en: "Fish", fr: "Poisson" }, { en: "Mouse", fr: "Souris" }, { en: "Lion", fr: "Lion" }, { en: "Monkey", fr: "Singe" }] },
-            famille: { nom: "La Famille", mots: [{ en: "Father", fr: "Père" }, { en: "Mother", fr: "Mère" }, { en: "Brother", fr: "Frère" }, { en: "Sister", fr: "Sœur" }, { en: "Grandfather", fr: "Grand-père" }, { en: "Grandmother", fr: "Grand-mère" }] },
-            corps: { nom: "Le Corps Humain", mots: [{ en: "Head", fr: "Tête" }, { en: "Arm", fr: "Bras" }, { en: "Leg", fr: "Jambe" }, { en: "Hand", fr: "Main" }, { en: "Eye", fr: "Œil" }, { en: "Mouth", fr: "Bouche" }] },
-            nombres: { nom: "Les Nombres (1-10)", mots: [{ en: "One", fr: "Un" }, { en: "Two", fr: "Deux" }, { en: "Three", fr: "Trois" }, { en: "Four", fr: "Quatre" }, { en: "Five", fr: "Cinq" }, { en: "Six", fr: "Six" }, { en: "Seven", fr: "Sept" }, { en: "Eight", fr: "Huit" }, { en: "Nine", fr: "Neuf" }, { en: "Ten", fr: "Dix" }] },
-            meteo: { nom: "La Météo", mots: [{ en: "Sun", fr: "Soleil" }, { en: "Rain", fr: "Pluie" }, { en: "Snow", fr: "Neige" }, { en: "Wind", fr: "Vent" }, { en: "Cloud", fr: "Nuage" }, { en: "Storm", fr: "Orage" }] },
-            aliments: { nom: "La Nourriture", mots: [{ en: "Apple", fr: "Pomme" }, { en: "Bread", fr: "Pain" }, { en: "Cheese", fr: "Fromage" }, { en: "Water", fr: "Eau" }, { en: "Milk", fr: "Lait" }, { en: "Cake", fr: "Gâteau" }] }
+            questions: { nom: "Questions & Réponses", mots: [
+                { en: "What is your name?", fr: "Comment t'appelles-tu ?" }, 
+                { en: "How old are you?", fr: "Quel âge as-tu ?" }, 
+                { en: "Where do you live?", fr: "Où habites-tu ?" }, 
+                { en: "What time is it?", fr: "Quelle heure est-il ?" }, 
+                { en: "How are you today?", fr: "Comment vas-tu aujourd'hui ?" }
+            ]},
+            routine: { nom: "La Routine", mots: [
+                { en: "I wake up at seven", fr: "Je me réveille à 7 heures" }, 
+                { en: "I eat my breakfast", fr: "Je mange mon petit-déjeuner" }, 
+                { en: "I go to school", fr: "Je vais à l'école" }, 
+                { en: "I do my homework", fr: "Je fais mes devoirs" }, 
+                { en: "I go to bed", fr: "Je vais me coucher" }
+            ]},
+            descriptions: { nom: "Les Descriptions", mots: [
+                { en: "He is tall and slim", fr: "Il est grand et mince" }, 
+                { en: "She has blue eyes", fr: "Elle a les yeux bleus" }, 
+                { en: "I wear a red T-shirt", fr: "Je porte un T-shirt rouge" }, 
+                { en: "They are very funny", fr: "Ils sont très drôles" },
+                { en: "He has short brown hair", fr: "Il a les cheveux bruns et courts" }
+            ]},
+            lieux: { nom: "Dans la ville", mots: [
+                { en: "Where is the bakery?", fr: "Où est la boulangerie ?" }, 
+                { en: "Go straight on", fr: "Allez tout droit" }, 
+                { en: "Turn left", fr: "Tournez à gauche" }, 
+                { en: "It is next to the park", fr: "C'est à côté du parc" }, 
+                { en: "The train station", fr: "La gare" }
+            ]},
+            verbes_irreguliers: { nom: "Verbes Irréguliers (Bases)", mots: [
+                { en: "To Be (I was)", fr: "Être (J'étais)" }, 
+                { en: "To Have (I had)", fr: "Avoir (J'avais)" }, 
+                { en: "To Go (I went)", fr: "Aller (Je suis allé)" }, 
+                { en: "To See (I saw)", fr: "Voir (J'ai vu)" }, 
+                { en: "To Eat (I ate)", fr: "Manger (J'ai mangé)" }
+            ]}
         };
 
         let profil = { xp: 0 };
@@ -114,7 +193,7 @@
         let vies = 3; let pairesTrouvees = 0; let totalPaires = 0; let themeActuelId = ""; let isThemeCustom = false; let nomThemeActuel = "";
         let selectionEn = null; let selectionFr = null;
 
-        // --- SAUVEGARDE CLOUD FIREBASE ---
+        // --- SAUVEGARDE CLOUD ---
         async function chargerProfilCloud() {
             try {
                 let res = await fetch(DB_URL);
@@ -131,16 +210,16 @@
                 await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) });
             } catch(e) {}
         }
-        // ---------------------------------
 
         function majAccueil() {
             document.getElementById('ui-xp-accueil').textContent = profil.xp;
             const conteneurCustom = document.getElementById('liste-themes-custom'); conteneurCustom.innerHTML = '';
-            if (Object.keys(customThemes).length === 0) { conteneurCustom.innerHTML = "<p style='color:#bbb; font-style:italic;'>Tu n'as pas encore créé de liste.</p>"; } 
-            else {
+            if (Object.keys(customThemes).length === 0) { 
+                conteneurCustom.innerHTML = "<p style='color:#bbb; font-style:italic;'>Tu n'as pas encore créé de liste personnelle.</p>"; 
+            } else {
                 for (let id in customThemes) {
-                    let div = document.createElement('div'); div.style.display = "inline-block";
-                    let btn = document.createElement('button'); btn.className = 'btn btn-primaire'; btn.style.backgroundColor = '#6c5ce7'; btn.style.boxShadow = '0 4px #4834d4'; btn.textContent = customThemes[id].nom + " ⭐"; btn.onclick = () => lancerNiveau(id, true);
+                    let div = document.createElement('div'); div.style.display = "inline-block"; div.style.margin = "5px";
+                    let btn = document.createElement('button'); btn.className = 'btn btn-primaire'; btn.style.backgroundColor = '#6c5ce7'; btn.style.boxShadow = '0 4px #4834d4'; btn.textContent = customThemes[id].nom; btn.onclick = () => lancerNiveau(id, true);
                     let btnDel = document.createElement('button'); btnDel.className = 'btn btn-supprimer'; btnDel.textContent = "X"; btnDel.onclick = () => { delete customThemes[id]; sauverCustom(); majAccueil(); };
                     div.appendChild(btn); div.appendChild(btnDel); conteneurCustom.appendChild(div);
                 }
@@ -159,35 +238,99 @@
             let nom = document.getElementById('input-nom-theme').value.trim(); let motsBruts = document.getElementById('input-mots').value;
             if(!nom || !motsBruts) return alert("Remplis le titre et les mots !");
             let lignes = motsBruts.split('\n'); let listeMotsPaires = [];
-            for(let ligne of lignes) { if(ligne.includes('=')) { let parties = ligne.split('='); let motEn = parties[0].trim(); let motFr = parties[1].trim(); if(motEn.length > 0 && motFr.length > 0) { listeMotsPaires.push({ en: motEn, fr: motFr }); } } }
-            if(listeMotsPaires.length < 2) return alert("Il faut au moins 2 paires (avec un signe = entre les mots) !");
+            for(let ligne of lignes) { 
+                if(ligne.includes('=')) { 
+                    let parties = ligne.split('='); 
+                    let motEn = parties[0].trim(); let motFr = parties[1].trim(); 
+                    if(motEn.length > 0 && motFr.length > 0) { listeMotsPaires.push({ en: motEn, fr: motFr }); } 
+                } 
+            }
+            if(listeMotsPaires.length < 2) return alert("Il faut au moins 2 paires (avec un signe = entre l'anglais et le français) !");
             let id = 'custom_' + Date.now(); customThemes[id] = { nom: nom, mots: listeMotsPaires }; sauverCustom();
-            document.getElementById('msg-config').textContent = "Liste sauvegardée !"; document.getElementById('input-nom-theme').value = ""; document.getElementById('input-mots').value = "";
+            document.getElementById('msg-config').textContent = "Liste sauvegardée avec succès !"; 
+            document.getElementById('input-nom-theme').value = ""; document.getElementById('input-mots').value = "";
             setTimeout(() => document.getElementById('msg-config').textContent = "", 3000); majAccueil();
         }
 
         function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); document.getElementById(id).classList.add('actif'); }
         function retourAccueil() { changerEcran('ecran-accueil'); majAccueil(); }
 
+        // --- PRONONCIATION AUDIO ---
+        function prononcer(texte) {
+            const utterance = new SpeechSynthesisUtterance(texte);
+            utterance.lang = 'en-GB'; // Accent britannique (mieux pour l'école)
+            utterance.rate = 0.9; // Légèrement plus lent
+            window.speechSynthesis.speak(utterance);
+        }
+
         function lancerNiveau(idTheme, isCustom) {
             vies = 3; pairesTrouvees = 0; selectionEn = null; selectionFr = null; themeActuelId = idTheme; isThemeCustom = isCustom;
-            let themeData = isCustom ? customThemes[idTheme] : vocabulaireBase[idTheme]; totalPaires = themeData.mots.length; nomThemeActuel = themeData.nom;
-            document.getElementById('ui-vies').textContent = "❤️❤️❤️"; document.getElementById('ui-xp-jeu').textContent = profil.xp; document.getElementById('ui-theme-titre').textContent = nomThemeActuel; document.getElementById('feedback').textContent = "";
-            preparerPlateau(themeData.mots); changerEcran('ecran-jeu');
+            let themeData = isCustom ? customThemes[idTheme] : vocabulaireBase[idTheme]; 
+            
+            // On limite à 5 paires maximum par partie pour que ça tienne bien à l'écran
+            let motsMelanges = [...themeData.mots].sort(() => Math.random() - 0.5).slice(0, 5);
+            
+            totalPaires = motsMelanges.length; 
+            nomThemeActuel = themeData.nom;
+            
+            document.getElementById('ui-vies').textContent = "❤️❤️❤️"; 
+            document.getElementById('ui-xp-jeu').textContent = profil.xp; 
+            document.getElementById('ui-theme-titre').textContent = nomThemeActuel; 
+            document.getElementById('feedback').textContent = "";
+            
+            preparerPlateau(motsMelanges); changerEcran('ecran-jeu');
         }
 
         function preparerPlateau(listeMots) {
             const colEn = document.getElementById('col-en'); const colFr = document.getElementById('col-fr');
-            colEn.innerHTML = '<div class="colonne-titre">🇬🇧 English</div>'; colFr.innerHTML = '<div class="colonne-titre">🇫🇷 Français</div>';
-            let motsEn = [...listeMots].sort(() => Math.random() - 0.5); let motsFr = [...listeMots].sort(() => Math.random() - 0.5);
-            motsEn.forEach(paire => { let div = document.createElement('div'); div.className = 'carte-mot carte-en'; div.textContent = paire.en; div.dataset.motId = paire.en; div.onclick = () => clicCarte(div, 'en', paire.en, paire.fr); colEn.appendChild(div); });
-            motsFr.forEach(paire => { let div = document.createElement('div'); div.className = 'carte-mot carte-fr'; div.textContent = paire.fr; div.dataset.motId = paire.fr; div.onclick = () => clicCarte(div, 'fr', paire.fr, paire.en); colFr.appendChild(div); });
+            colEn.innerHTML = '<div class="colonne-titre">🇬🇧 English</div>'; 
+            colFr.innerHTML = '<div class="colonne-titre">🇫🇷 Français</div>';
+            
+            let motsEn = [...listeMots].sort(() => Math.random() - 0.5); 
+            let motsFr = [...listeMots].sort(() => Math.random() - 0.5);
+            
+            motsEn.forEach(paire => { 
+                let container = document.createElement('div');
+                container.className = 'carte-container';
+                
+                let btnAudio = document.createElement('button');
+                btnAudio.className = 'btn-audio';
+                btnAudio.innerHTML = '🔊';
+                btnAudio.onclick = (e) => { e.stopPropagation(); prononcer(paire.en); };
+
+                let div = document.createElement('div'); 
+                div.className = 'carte-mot carte-en'; 
+                div.textContent = paire.en; 
+                div.onclick = () => clicCarte(div, 'en', paire.en, paire.fr); 
+                
+                container.appendChild(btnAudio);
+                container.appendChild(div);
+                colEn.appendChild(container); 
+            });
+
+            motsFr.forEach(paire => { 
+                let div = document.createElement('div'); 
+                div.className = 'carte-mot carte-fr'; 
+                div.textContent = paire.fr; 
+                div.onclick = () => clicCarte(div, 'fr', paire.fr, paire.en); 
+                colFr.appendChild(div); 
+            });
         }
 
         function clicCarte(element, langue, motTexte, motAssocie) {
-            if (element.classList.contains('trouvee')) return;
-            if (langue === 'en') { if (selectionEn) selectionEn.element.classList.remove('selectionnee'); if (selectionEn && selectionEn.element === element) { selectionEn = null; return; } selectionEn = { element: element, texte: motTexte, associe: motAssocie }; element.classList.add('selectionnee'); } 
-            else { if (selectionFr) selectionFr.element.classList.remove('selectionnee'); if (selectionFr && selectionFr.element === element) { selectionFr = null; return; } selectionFr = { element: element, texte: motTexte, associe: motAssocie }; element.classList.add('selectionnee'); }
+            if (element.classList.contains('trouvee') || element.parentElement.classList.contains('trouvee')) return;
+            
+            if (langue === 'en') { 
+                if (selectionEn) selectionEn.element.classList.remove('selectionnee'); 
+                if (selectionEn && selectionEn.element === element) { selectionEn = null; return; } 
+                selectionEn = { element: element, texte: motTexte, associe: motAssocie }; 
+                element.classList.add('selectionnee'); 
+            } else { 
+                if (selectionFr) selectionFr.element.classList.remove('selectionnee'); 
+                if (selectionFr && selectionFr.element === element) { selectionFr = null; return; } 
+                selectionFr = { element: element, texte: motTexte, associe: motAssocie }; 
+                element.classList.add('selectionnee'); 
+            }
             if (selectionEn && selectionFr) verifierPaire();
         }
 
@@ -195,20 +338,37 @@
             const fb = document.getElementById('feedback');
             if (selectionEn.associe === selectionFr.texte) {
                 fb.textContent = "Yes! Correct! 🟢"; fb.style.color = "#00b894";
-                selectionEn.element.style.background = "#55efc4"; selectionEn.element.style.color = "white"; selectionFr.element.style.background = "#55efc4"; selectionFr.element.style.color = "white";
-                let elEn = selectionEn.element; let elFr = selectionFr.element; setTimeout(() => { elEn.classList.add('trouvee'); elFr.classList.add('trouvee'); }, 500);
-                profil.xp += 10; sauverProfil(); pairesTrouvees++; if (pairesTrouvees === totalPaires) setTimeout(gagnerNiveau, 1000);
+                
+                selectionEn.element.style.background = "#55efc4"; selectionEn.element.style.color = "white"; 
+                selectionFr.element.style.background = "#55efc4"; selectionFr.element.style.color = "white";
+                
+                let elEnContainer = selectionEn.element.parentElement; 
+                let elFr = selectionFr.element; 
+                
+                setTimeout(() => { elEnContainer.classList.add('trouvee'); elFr.classList.add('trouvee'); }, 500);
+                
+                profil.xp += 10; sauverProfil(); pairesTrouvees++; 
+                if (pairesTrouvees === totalPaires) setTimeout(gagnerNiveau, 1000);
             } else {
-                fb.textContent = "Oops! Try again... 🔴"; fb.style.color = "#d63031"; vies--; document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3 - vies);
+                fb.textContent = "Oops! Try again... 🔴"; fb.style.color = "#d63031"; 
+                vies--; document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3 - vies);
+                
                 selectionEn.element.classList.add('erreur'); selectionFr.element.classList.add('erreur');
                 let elEn = selectionEn.element; let elFr = selectionFr.element;
+                
                 setTimeout(() => { elEn.classList.remove('erreur', 'selectionnee'); elFr.classList.remove('erreur', 'selectionnee'); fb.textContent = ""; }, 800);
                 if (vies <= 0) { setTimeout(() => { alert("Plus de vies ! Retente ta chance."); lancerNiveau(themeActuelId, isThemeCustom); }, 1000); }
             }
             selectionEn = null; selectionFr = null;
         }
 
-        function gagnerNiveau() { let bonus = vies * 10; profil.xp += 50 + bonus; sauverProfil(); document.getElementById('gain-xp').textContent = 50 + bonus + (totalPaires * 10); changerEcran('ecran-fin'); }
+        function gagnerNiveau() { 
+            let bonus = vies * 10; 
+            profil.xp += 50 + bonus; 
+            sauverProfil(); 
+            document.getElementById('gain-xp').textContent = 50 + bonus + (totalPaires * 10); 
+            changerEcran('ecran-fin'); 
+        }
         
         chargerProfilCloud();
     </script>
