@@ -180,9 +180,9 @@
                     let div = document.createElement('div'); div.style.display = "inline-flex"; div.style.margin = "5px";
                     let btn = document.createElement('button'); btn.className = 'btn btn-secondaire'; btn.style.backgroundColor = '#2b2d42'; btn.textContent = customThemes[id].nom;
                     
-                    // Ajuster dynamiquement la taille de la grille en fonction de la longueur des mots pour les grilles custom
+                    // Ajuster dynamiquement la taille de la grille en fonction de la longueur des mots
                     let maxLen = Math.max(...customThemes[id].mots.map(m => m.length));
-                    let gridTaille = Math.max(12, maxLen + 2);
+                    let gridTaille = Math.max(12, maxLen + 2); // Minimum 12x12
 
                     btn.onclick = () => lancerPartie(customThemes[id].mots, customThemes[id].nom, gridTaille, 'moyen');
                     
@@ -253,7 +253,7 @@
                     }
                 }
                 
-                // Fallback de sécurité (Place le mot horizontalement s'il galère vraiment)
+                // Fallback de sécurité (Place le mot horizontalement s'il y a un souci après 500 essais)
                 if(!place) {
                     for(let i=0; i<t; i++) {
                         if(peutPlacerMot(mot, i, 0, 0, 1, t)) {
@@ -339,7 +339,7 @@
 
         function validerMot(mot, elements) {
             let motUI = document.getElementById('mot-' + mot); motUI.classList.add('barre'); 
-            // Petit lien Wiktionnaire si on clique sur un mot trouvé (super pour enrichir le vocabulaire)
+            // Lien Wiktionnaire si on clique sur un mot trouvé (super pour enrichir le vocabulaire)
             motUI.onclick = () => window.open(`https://fr.wiktionary.org/wiki/${mot.toLowerCase()}`, '_blank');
             
             elements.forEach(el => el.classList.add('trouvee')); 
