@@ -2,92 +2,143 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Géographie - Le Globe-Trotter Cloud</title>
+    <title>Géographie CM2 - Le Globe-Trotter Pro</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-        body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #a8e063 0%, #56ab2f 100%); color: #333; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
-        #app-container { background: white; padding: 25px 35px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-width: 900px; width: 100%; text-align: center; }
-        h1 { color: #27ae60; font-weight: 900; font-size: 2.2rem; margin-bottom: 5px; }
-        .sous-titre { color: #888; margin-bottom: 20px; font-weight: 700; }
-        #hud { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; }
-        .xp-text { color: #2980b9; font-weight: 900; }
+        body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: #333; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
+        
+        #app-container { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); max-width: 900px; width: 100%; text-align: center; position: relative;}
+        h1 { color: #27ae60; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
+        .sous-titre { color: #7f8c8d; margin-bottom: 25px; font-weight: 700; font-size: 1.1rem;}
+        
+        #hud { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; border: 2px solid #ecf0f1;}
+        .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
         .vies-text { letter-spacing: 5px; }
-        #question-box { background: #ecf0f1; padding: 30px; border-radius: 15px; margin-bottom: 20px; font-size: 1.5rem; font-weight: 900; color: #2c3e50; border-bottom: 5px solid #bdc3c7; }
+        
+        /* Grille du Menu */
+        .grid-themes { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .btn-theme {
+            background: #f8f9fa; border: 3px solid #e2e8f0; padding: 15px; border-radius: 15px;
+            font-size: 1.1rem; font-weight: bold; color: #2c3e50; cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; justify-content: flex-start; gap: 15px; text-align: left;
+        }
+        .btn-theme:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+        .theme-icon { font-size: 2.2rem; }
+
+        /* Couleurs des thèmes */
+        .th-ue { border-color: #2980b9; }
+        .th-drom { border-color: #16a085; }
+        .th-monde { border-color: #8e44ad; }
+        .th-eco { border-color: #27ae60; }
+        .th-custom { border-color: #f39c12; background: #fffaf0;}
+
+        /* Zone de jeu */
+        #question-box { background: #f1f8ff; padding: 30px; border-radius: 15px; margin-bottom: 25px; font-size: 1.5rem; font-weight: 900; color: #2c3e50; border: 3px dashed #3498db; line-height: 1.4;}
         #reponses-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .btn-reponse { background: white; border: 3px solid #3498db; padding: 20px; border-radius: 15px; font-size: 1.2rem; font-weight: bold; color: #3498db; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 0 #2980b9; display: flex; align-items: center; justify-content: center; }
-        .btn-reponse:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #2980b9; }
+        .btn-reponse { background: white; border: 3px solid #bdc3c7; padding: 15px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; color: #34495e; cursor: pointer; transition: all 0.1s; box-shadow: 0 4px 0 #bdc3c7; display: flex; align-items: center; justify-content: center; min-height: 80px;}
         .btn-reponse:active { transform: translateY(4px); box-shadow: none; }
         .btn-reponse.correcte { background: #2ecc71; color: white; border-color: #27ae60; box-shadow: 0 4px 0 #2196f3; }
         .btn-reponse.erreur { background: #e74c3c; color: white; border-color: #c0392b; box-shadow: 0 4px 0 #c0392b; animation: secousse 0.4s; }
         @keyframes secousse { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        
+        /* Boutons d'interface */
         .btn { font-family: 'Nunito', sans-serif; font-size: 1.1rem; font-weight: bold; padding: 12px 25px; border: none; border-radius: 10px; cursor: pointer; color: white; margin: 5px; transition: transform 0.1s; display: inline-block;}
         .btn:active { transform: scale(0.95); }
         .btn-primaire { background: #27ae60; box-shadow: 0 4px #219a52; }
-        .btn-secondaire { background: #95a5a6; box-shadow: 0 4px #7f8c8d; }
-        .btn-supprimer { background: #e74c3c; padding: 12px 15px; box-shadow: 0 4px #c0392b; }
-        #zone-config { background: #fff3cd; padding: 20px; border-radius: 15px; margin-top: 20px; border: 2px dashed #ffeeba; text-align: left; }
-        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; font-family: 'Nunito', sans-serif; font-size: 1rem; }
+        .btn-secondaire { background: #95a5a6; box-shadow: 0 4px #7f8c8d; color: #2c3e50;}
+        .btn-supprimer { background: #e74c3c; padding: 12px 15px; box-shadow: 0 4px #c0392b; margin-left: 10px;}
+        
+        /* Espace Création */
+        #zone-config { background: #fff3cd; padding: 25px; border-radius: 15px; margin-top: 20px; border: 2px dashed #f1c40f; text-align: left; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #dfe6e9; border-radius: 8px; font-family: 'Nunito', sans-serif; font-size: 1.1rem; }
+        
         .ecran { display: none; }
         .ecran.actif { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-        #feedback { font-size: 1.2rem; font-weight: bold; height: 30px; margin: 15px 0; }
+        #feedback { font-size: 1.4rem; font-weight: 900; height: 35px; margin: 15px 0; }
     </style>
 </head>
 <body>
 
     <div id="app-container">
+        <div class="xp-badge">XP: <span id="ui-xp-accueil">...</span> ⭐</div>
+
+        <!-- ECRAN D'ACCUEIL -->
         <div id="ecran-accueil" class="ecran actif">
-            <h1>Géographie 🌍</h1>
-            <p class="sous-titre">Le Globe-Trotter (Cloud)</p>
-            <div id="hud" style="justify-content: center;"><span class="xp-text">XP Géo : <span id="ui-xp-accueil">...</span> ⭐</span></div>
+            <h1>Globe-Trotter Pro 🌍</h1>
+            <p class="sous-titre">Programme Géographie CM2</p>
 
-            <h3>Missions de base :</h3>
-            <div style="margin-bottom: 20px;">
-                <button class="btn btn-primaire" onclick="lancerNiveau('capitales_europe', false)">🇪🇺 Capitales d'Europe</button>
-                <button class="btn btn-primaire" style="background:#2980b9; box-shadow:0 4px #2471a3;" onclick="lancerNiveau('fleuves_france', false)">💧 Fleuves de France</button>
-                <button class="btn btn-primaire" style="background:#8e44ad; box-shadow:0 4px #732d91;" onclick="lancerNiveau('montagnes_france', false)">⛰️ Massifs Montagneux</button>
-                <button class="btn btn-primaire" style="background:#e67e22; box-shadow:0 4px #d35400;" onclick="lancerNiveau('capitales_monde', false)">🌎 Capitales du Monde</button>
-                <button class="btn btn-primaire" style="background:#16a085; box-shadow:0 4px #1abc9c;" onclick="lancerNiveau('oceans_continents', false)">🌊 Océans & Continents</button>
+            <h3 style="text-align: left; color: #2c3e50; margin-bottom: 15px;">Missions Officielles :</h3>
+            <div class="grid-themes">
+                <button class="btn-theme th-ue" onclick="lancerNiveau('ue', false)">
+                    <span class="theme-icon">🇪🇺</span>
+                    <div><div style="color:#2980b9;">L'Union Européenne</div><div style="font-size:0.8rem; color:#7f8c8d;">Pays, institutions, monnaie</div></div>
+                </button>
+                <button class="btn-theme th-drom" onclick="lancerNiveau('drom_com', false)">
+                    <span class="theme-icon">🏝️</span>
+                    <div><div style="color:#16a085;">Les DROM-COM</div><div style="font-size:0.8rem; color:#7f8c8d;">La France d'Outre-mer</div></div>
+                </button>
+                <button class="btn-theme th-monde" onclick="lancerNiveau('grands_reperes', false)">
+                    <span class="theme-icon">🗺️</span>
+                    <div><div style="color:#8e44ad;">Grands Repères</div><div style="font-size:0.8rem; color:#7f8c8d;">Océans, fleuves, montagnes</div></div>
+                </button>
+                <button class="btn-theme th-eco" onclick="lancerNiveau('ecologie', false)">
+                    <span class="theme-icon">♻️</span>
+                    <div><div style="color:#27ae60;">Mieux Habiter</div><div style="font-size:0.8rem; color:#7f8c8d;">Écologie, tri et transports</div></div>
+                </button>
             </div>
 
-            <hr style="border: 1px solid #eee; margin: 20px 0;">
-            <h3>Tes propres missions :</h3>
-            <div id="liste-themes-custom"></div>
+            <hr style="border: 1px solid #eee; margin: 25px 0;">
+            
+            <h3 style="text-align: left; color: #2c3e50; margin-bottom: 15px;">Tes propres missions (Créateur) :</h3>
+            <div id="liste-themes-custom" style="text-align: left; margin-bottom: 20px;"></div>
 
-            <div style="margin-top: 30px;">
-                <button class="btn btn-primaire" style="background: #f39c12; box-shadow: 0 4px #d68910;" onclick="changerEcran('ecran-config')">➕ Créer un Quiz</button>
-                <br><button class="btn btn-secondaire" style="margin-top: 15px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
-            </div>
+            <button class="btn btn-primaire" style="background: #f39c12; box-shadow: 0 4px #d68910;" onclick="changerEcran('ecran-config')">➕ Créer un Quiz</button>
+            <br><button class="btn btn-secondaire" style="margin-top: 15px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
+        <!-- ECRAN DE JEU -->
         <div id="ecran-jeu" class="ecran">
-            <div id="hud"><span class="vies-text" id="ui-vies">❤️❤️❤️</span><span id="ui-theme-titre" style="color: #7f8c8d;">Thème : ...</span><span class="xp-text">XP : <span id="ui-xp-jeu">0</span> ⭐</span></div>
-            <div style="margin-bottom: 10px; color: #95a5a6; font-weight: bold;">Question <span id="q-actuelle">1</span>/<span id="q-totale">10</span></div>
+            <div id="hud">
+                <span class="vies-text" id="ui-vies">❤️❤️❤️</span>
+                <span id="ui-theme-titre" style="color: #7f8c8d;">Thème : ...</span>
+                <span style="color:#2980b9; font-weight:900;">XP : <span id="ui-xp-jeu">0</span> ⭐</span>
+            </div>
+            
+            <div style="margin-bottom: 10px; color: #95a5a6; font-weight: bold; font-size:1.1rem;">
+                Question <span id="q-actuelle">1</span> / <span id="q-totale">10</span>
+            </div>
+            
             <div id="question-box">Chargement de la question...</div>
             <div id="reponses-container"></div>
+            
             <div id="feedback"></div>
             <button class="btn btn-secondaire" onclick="retourAccueil()">Abandonner</button>
         </div>
 
+        <!-- ECRAN CONFIGURATION -->
         <div id="ecran-config" class="ecran">
             <h2 style="color: #f39c12;">✍️ Créateur de Quiz</h2>
-            <p>Tape une question, le signe = , et la bonne réponse.</p>
+            <p class="sous-titre">Prépare tes contrôles en créant tes propres missions !</p>
             <div id="zone-config">
                 <label><strong>Titre du Quiz :</strong></label>
-                <input type="text" id="input-nom-theme" placeholder="Ex: Capitales d'Asie">
-                <label><strong>Questions = Réponses :</strong></label>
-                <textarea id="input-mots" rows="6" placeholder="Capitale du Japon = Tokyo&#10;Capitale de la Chine = Pékin"></textarea>
-                <button class="btn btn-primaire" style="background: #27ae60; box-shadow: 0 4px #219a52;" onclick="sauvegarderTheme()">Sauvegarder</button>
-                <p id="msg-config" style="color: green; font-weight: bold; margin-top: 10px;"></p>
+                <input type="text" id="input-nom-theme" placeholder="Ex: Contrôle Géo Chapitre 2">
+                <label><strong>Questions = Réponses (1 par ligne) :</strong></label>
+                <textarea id="input-mots" rows="6" placeholder="Capitale de l'Allemagne ? = Berlin&#10;Où est le Nil ? = En Afrique"></textarea>
+                <button class="btn btn-primaire" style="width:100%; margin-top:10px;" onclick="sauvegarderTheme()">Sauvegarder le Quiz</button>
+                <p id="msg-config" style="color: #27ae60; font-weight: bold; margin-top: 10px; text-align:center;"></p>
             </div>
             <button class="btn btn-secondaire" style="margin-top: 20px;" onclick="retourAccueil()">Retour Menu</button>
         </div>
 
+        <!-- ECRAN FIN -->
         <div id="ecran-fin" class="ecran">
-            <h1>Explorateur de Génie ! 🧭</h1>
-            <p class="sous-titre">Tu as terminé l'expédition !</p>
-            <div id="hud" style="justify-content: center;"><span class="xp-text" style="font-size: 1.5rem;">+<span id="gain-xp"></span> XP gagnés !</span></div>
+            <h1 style="color:#27ae60;">Expédition Réussie ! 🧭</h1>
+            <p class="sous-titre">Tu es un vrai Globe-Trotter !</p>
+            <div id="hud" style="justify-content: center; background:none; border:none;">
+                <span style="font-size: 1.8rem; font-weight:900; color:#f39c12; background:#fff3cd; padding:10px 25px; border-radius:20px;">+<span id="gain-xp"></span> XP !</span>
+            </div>
             <button class="btn btn-primaire" onclick="window.location.href='index.html'">Retour à l'Académie</button>
             <button class="btn btn-secondaire" onclick="retourAccueil()">Faire un autre quiz</button>
         </div>
@@ -95,48 +146,76 @@
 
     <script>
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
-        const DB_URL = `${FIREBASE_URL}scores/theo/geoSaveV1.json`;
+        const DB_URL = `${FIREBASE_URL}scores/theo/geoSaveV1.json`; // On garde la même DB pour ne pas perdre son XP
 
+        // BASE DE DONNÉES CM2 (Avec faux choix intégrés pour plus de pertinence)
         const donneesBase = {
-            capitales_europe: { nom: "Capitales d'Europe", questions: [ { q: "Capitale de la France ?", a: "Paris" }, { q: "Capitale de l'Espagne ?", a: "Madrid" }, { q: "Capitale de l'Italie ?", a: "Rome" }, { q: "Capitale du Royaume-Uni ?", a: "Londres" }, { q: "Capitale de l'Allemagne ?", a: "Berlin" }, { q: "Capitale du Portugal ?", a: "Lisbonne" }, { q: "Capitale de la Belgique ?", a: "Bruxelles" }, { q: "Capitale de la Grèce ?", a: "Athènes" } ]},
-            fleuves_france: { nom: "Fleuves de France", questions: [ { q: "Fleuve qui traverse Paris ?", a: "La Seine" }, { q: "Plus long fleuve de France ?", a: "La Loire" }, { q: "Fleuve qui traverse Lyon ?", a: "Le Rhône" }, { q: "Fleuve qui passe à Bordeaux ?", a: "La Garonne" }, { q: "Fleuve qui forme la frontière avec l'Allemagne ?", a: "Le Rhin" } ]},
-            montagnes_france: { nom: "Massifs Montagneux", questions: [ { q: "Massif où se trouve le Mont Blanc ?", a: "Les Alpes" }, { q: "Frontière naturelle avec l'Espagne ?", a: "Les Pyrénées" }, { q: "Massif volcanique au centre de la France ?", a: "Le Massif Central" }, { q: "Massif proche de la Suisse ?", a: "Le Jura" }, { q: "Massif au nord-est de la France ?", a: "Les Vosges" } ]},
-            capitales_monde: { nom: "Capitales du Monde", questions: [ { q: "Capitale du Japon ?", a: "Tokyo" }, { q: "Capitale des États-Unis ?", a: "Washington" }, { q: "Capitale de la Chine ?", a: "Pékin" }, { q: "Capitale du Canada ?", a: "Ottawa" }, { q: "Capitale de la Russie ?", a: "Moscou" }, { q: "Capitale du Brésil ?", a: "Brasilia" } ]},
-            oceans_continents: { nom: "Océans & Continents", questions: [ { q: "L'océan entre l'Europe et l'Amérique ?", a: "Océan Atlantique" }, { q: "Le plus grand océan du monde ?", a: "Océan Pacifique" }, { q: "Continent où se trouve l'Egypte ?", a: "L'Afrique" }, { q: "Continent où se trouve la France ?", a: "L'Europe" }, { q: "Continent le plus froid ?", a: "L'Antarctique" }, { q: "Continent où se trouve le Japon ?", a: "L'Asie" } ]}
+            ue: { nom: "L'Union Européenne", questions: [ 
+                { q: "Combien de pays composent l'Union Européenne aujourd'hui ?", rep: "27 pays", faux: ["20 pays", "50 pays", "15 pays"] },
+                { q: "Quelle est la monnaie unique de la plupart des pays de l'UE ?", rep: "L'Euro", faux: ["Le Dollar", "Le Franc", "La Livre"] },
+                { q: "Où se réunit le Parlement européen ?", rep: "À Strasbourg", faux: ["À Paris", "À Berlin", "À Madrid"] },
+                { q: "Quel pays a quitté l'Union Européenne en 2020 (le Brexit) ?", rep: "Le Royaume-Uni", faux: ["L'Espagne", "L'Italie", "La Suisse"] },
+                { q: "Où se trouve le siège de la Commission européenne ?", rep: "À Bruxelles", faux: ["À Rome", "À Amsterdam", "À Vienne"] }
+            ]},
+            drom_com: { nom: "Les DROM-COM", questions: [ 
+                { q: "Lequel de ces territoires est une île française dans l'Océan Indien ?", rep: "La Réunion", faux: ["La Martinique", "La Guadeloupe", "Tahiti"] },
+                { q: "Où se trouve la Guyane française ?", rep: "En Amérique du Sud", faux: ["En Afrique", "En Océanie", "En Asie"] },
+                { q: "Lequel de ces territoires se trouve dans les Antilles (Caraïbes) ?", rep: "La Guadeloupe", faux: ["La Nouvelle-Calédonie", "Mayotte", "La Réunion"] },
+                { q: "Quel est le climat de la plupart des territoires d'Outre-mer ?", rep: "Tropical", faux: ["Polaire", "Désertique", "Tempéré"] },
+                { q: "Dans quel océan se trouve la Nouvelle-Calédonie ?", rep: "L'Océan Pacifique", faux: ["L'Océan Atlantique", "L'Océan Indien", "La Mer Méditerranée"] }
+            ]},
+            grands_reperes: { nom: "Grands Repères", questions: [ 
+                { q: "Quel est le plus grand fleuve du monde en volume d'eau ?", rep: "L'Amazone", faux: ["Le Nil", "Le Mississippi", "La Seine"] },
+                { q: "Quel est le plus haut sommet du monde ?", rep: "L'Everest", faux: ["Le Mont Blanc", "Le Kilimandjaro", "Le Mont Fuji"] },
+                { q: "Où se trouve le plus grand désert chaud (le Sahara) ?", rep: "En Afrique", faux: ["En Asie", "En Australie", "En Amérique"] },
+                { q: "Quel est le pays le plus peuplé du monde (en 2023/2024) ?", rep: "L'Inde", faux: ["La Chine", "Les États-Unis", "La Russie"] },
+                { q: "Combien y a-t-il de continents sur Terre (modèle classique français) ?", rep: "6 continents", faux: ["4 continents", "8 continents", "10 continents"] }
+            ]},
+            ecologie: { nom: "Mieux Habiter", questions: [ 
+                { q: "Qu'est-ce que le tri sélectif ?", rep: "Trier ses déchets pour les recycler", faux: ["Tout jeter dans la même poubelle", "Brûler ses déchets", "Cacher ses déchets"] },
+                { q: "Dans une ville, quel moyen de transport est le plus écologique ?", rep: "Le tramway ou le vélo", faux: ["La voiture individuelle", "Le scooter", "L'avion"] },
+                { q: "Pourquoi faut-il protéger la forêt amazonienne ?", rep: "Elle abrite une immense biodiversité", faux: ["Pour y construire des usines", "Pour y trouver du pétrole", "Parce qu'elle appartient à l'Europe"] },
+                { q: "Qu'est-ce que le réchauffement climatique ?", rep: "L'augmentation de la température de la Terre", faux: ["Le refroidissement des océans", "Un nouveau type de météo", "La fonte des volcans"] },
+                { q: "Laquelle de ces énergies est dite 'renouvelable' ?", rep: "L'énergie solaire", faux: ["Le charbon", "Le pétrole", "Le gaz naturel"] }
+            ]}
         };
 
         let customThemes = JSON.parse(localStorage.getItem('geoCustomV1')) || {}; 
         let profil = { xp: 0 };
         let vies = 3; let indexQuestion = 0; let questionsPartie = []; let scorePartie = 0; let themeActuelId = ""; let isThemeCustom = false;
+        let isProcessing = false;
 
         // --- SAUVEGARDE CLOUD FIREBASE ---
         async function chargerProfilCloud() {
             try {
                 let res = await fetch(DB_URL);
                 let data = await res.json();
-                if (data && data.xp !== undefined) {
-                    profil.xp = parseInt(data.xp) || 0;
-                }
+                if (data && data.xp !== undefined) { profil.xp = parseInt(data.xp) || 0; }
             } catch(e) {}
             majAccueil();
         }
 
         async function sauverProfilCloud() {
-            try {
-                await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) });
-            } catch(e) {}
+            try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
         }
         // ---------------------------------
 
         function majAccueil() {
             document.getElementById('ui-xp-accueil').textContent = profil.xp;
             const conteneurCustom = document.getElementById('liste-themes-custom'); conteneurCustom.innerHTML = '';
-            if (Object.keys(customThemes).length === 0) { conteneurCustom.innerHTML = "<p style='color:#bbb; font-style:italic;'>Tu n'as pas encore créé de quiz.</p>"; } 
-            else {
+            
+            if (Object.keys(customThemes).length === 0) { 
+                conteneurCustom.innerHTML = "<p style='color:#7f8c8d; font-style:italic;'>Tu n'as pas encore créé de quiz.</p>"; 
+            } else {
                 for (let id in customThemes) {
-                    let div = document.createElement('div'); div.style.display = "inline-block";
-                    let btn = document.createElement('button'); btn.className = 'btn btn-primaire'; btn.style.backgroundColor = '#f39c12'; btn.style.boxShadow = '0 4px #d68910'; btn.textContent = customThemes[id].nom + " ⭐"; btn.onclick = () => lancerNiveau(id, true);
-                    let btnDel = document.createElement('button'); btnDel.className = 'btn btn-supprimer'; btnDel.textContent = "X"; btnDel.onclick = () => { delete customThemes[id]; sauverCustom(); majAccueil(); };
+                    let div = document.createElement('div'); div.style.display = "inline-flex"; div.style.alignItems = "center"; div.style.margin = "5px";
+                    let btn = document.createElement('button'); btn.className = 'btn-theme th-custom'; 
+                    btn.style.padding = "10px 15px"; btn.innerHTML = `<div><div style="color:#d35400;">${customThemes[id].nom}</div></div>`; 
+                    btn.onclick = () => lancerNiveau(id, true);
+                    
+                    let btnDel = document.createElement('button'); btnDel.className = 'btn btn-supprimer'; btnDel.textContent = "X"; 
+                    btnDel.onclick = () => { delete customThemes[id]; sauverCustom(); majAccueil(); };
+                    
                     div.appendChild(btn); div.appendChild(btnDel); conteneurCustom.appendChild(div);
                 }
             }
@@ -153,11 +232,20 @@
         function sauvegarderTheme() {
             let nom = document.getElementById('input-nom-theme').value.trim(); let motsBruts = document.getElementById('input-mots').value;
             if(!nom || !motsBruts) return alert("Remplis le titre et les questions !");
+            
             let lignes = motsBruts.split('\n'); let questionsPaires = [];
-            for(let ligne of lignes) { if(ligne.includes('=')) { let parties = ligne.split('='); let question = parties[0].trim(); let reponse = parties[1].trim(); if(question.length > 0 && reponse.length > 0) { questionsPaires.push({ q: question, a: reponse }); } } }
+            for(let ligne of lignes) { 
+                if(ligne.includes('=')) { 
+                    let parties = ligne.split('='); let question = parties[0].trim(); let reponse = parties[1].trim(); 
+                    if(question.length > 0 && reponse.length > 0) { questionsPaires.push({ q: question, a: reponse }); } 
+                } 
+            }
             if(questionsPaires.length < 3) return alert("Il faut au moins 3 lignes complètes pour pouvoir créer un QCM !");
+            
             let id = 'custom_' + Date.now(); customThemes[id] = { nom: nom, questions: questionsPaires }; sauverCustom();
-            document.getElementById('msg-config').textContent = "Quiz sauvegardé !"; document.getElementById('input-nom-theme').value = ""; document.getElementById('input-mots').value = "";
+            
+            document.getElementById('msg-config').textContent = "Quiz sauvegardé avec succès !"; 
+            document.getElementById('input-nom-theme').value = ""; document.getElementById('input-mots').value = "";
             setTimeout(() => document.getElementById('msg-config').textContent = "", 3000); majAccueil();
         }
 
@@ -165,43 +253,99 @@
         function retourAccueil() { changerEcran('ecran-accueil'); majAccueil(); }
 
         function lancerNiveau(idTheme, isCustom) {
-            vies = 3; indexQuestion = 0; scorePartie = 0; themeActuelId = idTheme; isThemeCustom = isCustom;
+            vies = 3; indexQuestion = 0; scorePartie = 0; themeActuelId = idTheme; isThemeCustom = isCustom; isProcessing = false;
             let themeData = isCustom ? customThemes[idTheme] : donneesBase[idTheme];
-            questionsPartie = [...themeData.questions].sort(() => Math.random() - 0.5);
-            document.getElementById('ui-vies').textContent = "❤️❤️❤️"; document.getElementById('ui-xp-jeu').textContent = profil.xp; document.getElementById('ui-theme-titre').textContent = themeData.nom; document.getElementById('q-totale').textContent = questionsPartie.length;
+            
+            // Mélanger et limiter à 10 questions max par partie
+            questionsPartie = [...themeData.questions].sort(() => Math.random() - 0.5).slice(0, 10);
+            
+            document.getElementById('ui-vies').textContent = "❤️❤️❤️"; 
+            document.getElementById('ui-xp-jeu').textContent = profil.xp; 
+            document.getElementById('ui-theme-titre').textContent = themeData.nom; 
+            document.getElementById('q-totale').textContent = questionsPartie.length;
+            
             changerEcran('ecran-jeu'); poserQuestion();
         }
 
         function poserQuestion() {
             if (indexQuestion >= questionsPartie.length || vies <= 0) return finirJeu(vies > 0);
-            document.getElementById('q-actuelle').textContent = indexQuestion + 1; document.getElementById('feedback').textContent = "";
-            let dataQ = questionsPartie[indexQuestion]; document.getElementById('question-box').textContent = dataQ.q;
+            isProcessing = false;
             
-            let themeData = isThemeCustom ? customThemes[themeActuelId] : donneesBase[themeActuelId];
-            let toutesLesReponses = themeData.questions.map(item => item.a);
-            let mauvaisesReponsesPossibles = [...new Set(toutesLesReponses.filter(rep => rep !== dataQ.a))].sort(() => Math.random() - 0.5);
-            let faussesReponses = mauvaisesReponsesPossibles.slice(0, Math.min(3, mauvaisesReponsesPossibles.length));
-            let boutonsActuels = [dataQ.a, ...faussesReponses].sort(() => Math.random() - 0.5);
+            document.getElementById('q-actuelle').textContent = indexQuestion + 1; 
+            document.getElementById('feedback').textContent = "";
+            
+            let dataQ = questionsPartie[indexQuestion]; 
+            document.getElementById('question-box').textContent = dataQ.q;
+            
+            let options = [];
+            
+            // Si c'est une mission officielle CM2 avec des 'faux' prédéfinis
+            if (dataQ.faux) {
+                options = [dataQ.rep, ...dataQ.faux].sort(() => Math.random() - 0.5);
+            } 
+            // Si c'est un Quiz Custom (Théo tape juste la bonne réponse, on génère le reste)
+            else {
+                let themeData = customThemes[themeActuelId];
+                let toutesLesReponses = themeData.questions.map(item => item.a);
+                let mauvaisesPossibles = [...new Set(toutesLesReponses.filter(rep => rep !== dataQ.a))].sort(() => Math.random() - 0.5);
+                let fausses = mauvaisesPossibles.slice(0, 3);
+                options = [dataQ.a, ...fausses].sort(() => Math.random() - 0.5);
+            }
 
-            const conteneur = document.getElementById('reponses-container'); conteneur.innerHTML = '';
-            boutonsActuels.forEach(texteReponse => { let btn = document.createElement('div'); btn.className = 'btn-reponse'; btn.textContent = texteReponse; btn.onclick = () => verifierReponse(btn, texteReponse === dataQ.a); conteneur.appendChild(btn); });
+            const conteneur = document.getElementById('reponses-container'); 
+            conteneur.innerHTML = '';
+            
+            options.forEach(texteReponse => { 
+                let btn = document.createElement('div'); 
+                btn.className = 'btn-reponse'; 
+                btn.textContent = texteReponse; 
+                btn.onclick = () => verifierReponse(btn, texteReponse === (dataQ.rep || dataQ.a)); 
+                conteneur.appendChild(btn); 
+            });
         }
 
         function verifierReponse(boutonElement, estCorrect) {
-            document.querySelectorAll('.btn-reponse').forEach(b => b.onclick = null); const fb = document.getElementById('feedback');
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            document.querySelectorAll('.btn-reponse').forEach(b => b.onclick = null); 
+            const fb = document.getElementById('feedback');
+            
             if (estCorrect) {
-                boutonElement.classList.add('correcte'); fb.textContent = "Exact ! 🟢"; fb.style.color = "#27ae60"; profil.xp += 15; scorePartie += 15; sauverProfil();
-                setTimeout(() => { indexQuestion++; poserQuestion(); }, 1000);
+                boutonElement.classList.add('correcte'); 
+                fb.textContent = "Exact ! 🟢"; fb.style.color = "#27ae60"; 
+                profil.xp += 15; scorePartie += 15; sauverProfil();
+                setTimeout(() => { indexQuestion++; poserQuestion(); }, 1200);
             } else {
                 boutonElement.classList.add('erreur');
-                document.querySelectorAll('.btn-reponse').forEach(b => { if (b.textContent === questionsPartie[indexQuestion].a) { b.style.background = "#2ecc71"; b.style.color = "white"; b.style.borderColor = "#27ae60"; } });
-                fb.textContent = "Faux ! C'était " + questionsPartie[indexQuestion].a; fb.style.color = "#e74c3c";
-                vies--; document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3 - vies);
-                if (vies <= 0) { setTimeout(() => { alert("Plus de vies ! Fin de l'expédition."); lancerNiveau(themeActuelId, isThemeCustom); }, 2000); } else { setTimeout(() => { indexQuestion++; poserQuestion(); }, 2500); }
+                
+                // Mettre la bonne réponse en vert
+                let bonneReponse = questionsPartie[indexQuestion].rep || questionsPartie[indexQuestion].a;
+                document.querySelectorAll('.btn-reponse').forEach(b => { 
+                    if (b.textContent === bonneReponse) { 
+                        b.style.background = "#2ecc71"; b.style.color = "white"; b.style.borderColor = "#27ae60"; 
+                    } 
+                });
+                
+                fb.textContent = "Faux ! C'était " + bonneReponse; fb.style.color = "#e74c3c";
+                vies--; 
+                document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3 - vies);
+                
+                if (vies <= 0) { 
+                    setTimeout(() => { alert("Plus de vies ! Fin de l'expédition."); lancerNiveau(themeActuelId, isThemeCustom); }, 2500); 
+                } else { 
+                    setTimeout(() => { indexQuestion++; poserQuestion(); }, 3000); 
+                }
             }
         }
 
-        function finirJeu(victoire) { let bonus = vies * 20; profil.xp += bonus; scorePartie += bonus; sauverProfil(); document.getElementById('gain-xp').textContent = scorePartie; changerEcran('ecran-fin'); }
+        function finirJeu(victoire) { 
+            let bonus = vies * 20; 
+            profil.xp += bonus; scorePartie += bonus; 
+            sauverProfil(); 
+            document.getElementById('gain-xp').textContent = scorePartie; 
+            changerEcran('ecran-fin'); 
+        }
         
         chargerProfilCloud();
     </script>
