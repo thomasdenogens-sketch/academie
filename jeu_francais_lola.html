@@ -17,7 +17,7 @@
         
         #app-container { 
             background: white; padding: 30px; border-radius: 20px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-width: 700px; width: 100%; text-align: center; position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-width: 750px; width: 100%; text-align: center; position: relative;
         }
         
         h1 { color: #d35400; font-weight: 900; font-size: 2.2rem; margin-bottom: 5px; }
@@ -25,25 +25,31 @@
         
         .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
 
-        /* Menu */
-        .grid-menu { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 25px; }
+        /* Niveaux Progressifs */
+        .niveau-section { text-align: left; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 15px; border: 2px solid #ecf0f1; }
+        .niveau-titre { font-size: 1.2rem; font-weight: 900; color: #2c3e50; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .grid-menu { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        
         .btn-menu-theme {
-            background: #f8f9fa; border: 3px solid #e2e8f0; padding: 15px 20px; border-radius: 15px;
-            font-size: 1.2rem; font-weight: bold; color: #2c3e50; cursor: pointer; transition: 0.2s;
+            background: white; border: 3px solid #bdc3c7; padding: 12px 15px; border-radius: 12px;
+            font-size: 1.1rem; font-weight: bold; color: #34495e; cursor: pointer; transition: 0.1s;
             display: flex; align-items: center; justify-content: flex-start; gap: 15px; text-align: left;
+            box-shadow: 0 4px 0 #bdc3c7;
         }
-        .btn-menu-theme:hover { transform: translateX(5px); border-color: #e67e22; background: #fffaf0;}
-        .theme-icon { font-size: 2rem; }
+        .btn-menu-theme:active { transform: translateY(4px); box-shadow: none; }
+        .btn-menu-theme.niv1 { border-color: #4ecdc4; box-shadow: 0 4px 0 #16a085; }
+        .btn-menu-theme.niv2 { border-color: #3498db; box-shadow: 0 4px 0 #2980b9; }
+        .theme-icon { font-size: 1.8rem; }
 
         /* HUD Jeu */
         #hud { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; border: 2px solid #ecf0f1;}
         
         /* Mode Orthographe */
-        #dessin-box { font-size: 4rem; margin: 10px 0; animation: flotte 2s infinite ease-in-out; }
+        #dessin-box { font-size: 4.5rem; margin: 10px 0; animation: flotte 2s infinite ease-in-out; }
         @keyframes flotte { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        #mot-a-construire { display: flex; justify-content: center; gap: 10px; margin: 20px 0; min-height: 60px; flex-wrap: wrap;}
+        #mot-a-construire { display: flex; justify-content: center; gap: 8px; margin: 20px 0; min-height: 60px; flex-wrap: wrap;}
         .case-lettre { width: 45px; height: 60px; border-bottom: 4px solid #bdc3c7; display: flex; justify-content: center; align-items: flex-end; font-size: 2.2rem; font-weight: 900; color: #2c3e50; padding-bottom: 5px; }
-        #lettres-melangees { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+        #lettres-melangees { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
         .tuile-lettre { background: #f39c12; color: white; width: 55px; height: 55px; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 2rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #d35400; transition: transform 0.1s; }
         .tuile-lettre:active { transform: translateY(4px); box-shadow: none; }
         .tuile-lettre.utilisee { opacity: 0; pointer-events: none; }
@@ -59,7 +65,7 @@
         .btn-qcm.erreur { background: #e74c3c; color: white; border-color: #c0392b; box-shadow: 0 4px 0 #c0392b; }
 
         /* Boutons Généraux */
-        .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; text-decoration: none; display: inline-block; transition: 0.2s; }
+        .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; text-decoration: none; display: inline-block; transition: 0.2s; margin-top:10px;}
         .btn-nav:hover { background: #7f8c8d; }
         
         .erreur-anim { animation: secousse 0.4s; }
@@ -82,31 +88,39 @@
             <h1>Français CE1 📖</h1>
             <p class="subtitle">Grammaire, Conjugaison et Orthographe</p>
             
-            <div class="grid-menu">
-                <button class="btn-menu-theme" onclick="lancerNiveau('orthographe')">
-                    <span class="theme-icon">🧩</span>
-                    <div>
-                        <div style="color:#d35400;">Les Mots Pièges</div>
-                        <div style="font-size:0.9rem; color:#7f8c8d;">Sons complexes (CH, OU, OI...)</div>
-                    </div>
-                </button>
-                <button class="btn-menu-theme" onclick="lancerNiveau('grammaire')">
-                    <span class="theme-icon">🔎</span>
-                    <div>
-                        <div style="color:#27ae60;">Le Détective</div>
-                        <div style="font-size:0.9rem; color:#7f8c8d;">Trouver le verbe ou le sujet</div>
-                    </div>
-                </button>
-                <button class="btn-menu-theme" onclick="lancerNiveau('conjugaison')">
-                    <span class="theme-icon">✍️</span>
-                    <div>
-                        <div style="color:#8e44ad;">La Machine à Verbes</div>
-                        <div style="font-size:0.9rem; color:#7f8c8d;">Présent (1er groupe)</div>
-                    </div>
-                </button>
+            <div class="niveau-section">
+                <div class="niveau-titre">🟢 Étape 1 : Révisions de fin de CP</div>
+                <div class="grid-menu">
+                    <button class="btn-menu-theme niv1" onclick="lancerNiveau('ortho_cp', 'orthographe')">
+                        <span class="theme-icon">🧩</span>
+                        <div><div style="color:#16a085;">Sons simples</div><div style="font-size:0.85rem; color:#7f8c8d;">Mots basiques (chat, vélo...)</div></div>
+                    </button>
+                    <button class="btn-menu-theme niv1" onclick="lancerNiveau('gram_cp', 'grammaire')">
+                        <span class="theme-icon">🔎</span>
+                        <div><div style="color:#16a085;">Le Détective</div><div style="font-size:0.85rem; color:#7f8c8d;">Trouver le verbe d'action</div></div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="niveau-section">
+                <div class="niveau-titre">🔵 Étape 2 : L'entrée en CE1</div>
+                <div class="grid-menu">
+                    <button class="btn-menu-theme niv2" onclick="lancerNiveau('ortho_ce1', 'orthographe')">
+                        <span class="theme-icon">🧩</span>
+                        <div><div style="color:#2980b9;">Sons complexes</div><div style="font-size:0.85rem; color:#7f8c8d;">Sons OU, ON, CH, EAU...</div></div>
+                    </button>
+                    <button class="btn-menu-theme niv2" onclick="lancerNiveau('gram_ce1', 'grammaire')">
+                        <span class="theme-icon">🕵️‍♀️</span>
+                        <div><div style="color:#2980b9;">Qui fait l'action ?</div><div style="font-size:0.85rem; color:#7f8c8d;">Trouver le Sujet</div></div>
+                    </button>
+                    <button class="btn-menu-theme niv2" onclick="lancerNiveau('conj_ce1', 'conjugaison')">
+                        <span class="theme-icon">✍️</span>
+                        <div><div style="color:#2980b9;">La Machine à Verbes</div><div style="font-size:0.85rem; color:#7f8c8d;">Être, Avoir et verbes en -ER</div></div>
+                    </button>
+                </div>
             </div>
             
-            <button class="btn-nav" style="margin-top: 10px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+            <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
         <!-- ECRAN DE JEU -->
@@ -139,29 +153,43 @@
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
         const DB_URL = `${FIREBASE_URL}scores/lola/francaisLola.json`;
 
-        // BASE DE DONNÉES CE1
+        // BASE DE DONNÉES ENRICHIE
         const bdd = {
-            orthographe: [
+            ortho_cp: [
+                { mot: "CHAT", emoji: "🐱" }, { mot: "VELO", emoji: "🚲" }, 
+                { mot: "LUNE", emoji: "🌙" }, { mot: "FILLE", emoji: "👧" }, 
+                { mot: "LIVRE", emoji: "📖" }, { mot: "POMME", emoji: "🍎" },
+                { mot: "SOLEIL", emoji: "☀️" }, { mot: "TABLE", emoji: "🪑" }
+            ],
+            ortho_ce1: [
                 { mot: "CHATEAU", emoji: "🏰" }, { mot: "POISSON", emoji: "🐟" }, 
                 { mot: "OISEAU", emoji: "🐦" }, { mot: "BOUCHON", emoji: "🍾" }, 
                 { mot: "CHAMPIGNON", emoji: "🍄" }, { mot: "VOITURE", emoji: "🚗" },
-                { mot: "MAISON", emoji: "🏠" }, { mot: "GARCON", emoji: "👦" }
+                { mot: "GARCON", emoji: "👦" }, { mot: "BATEAU", emoji: "⛵" },
+                { mot: "PHOQUE", emoji: "🦭" }, { mot: "CHAUSSURE", emoji: "👟" }
             ],
-            grammaire: [
-                { phrase: "Le petit chat dort sur le lit.", consigne: "Trouve le VERBE", rep: "dort" },
-                { phrase: "Lola mange une pomme rouge.", consigne: "Trouve le VERBE", rep: "mange" },
-                { phrase: "Le grand chien aboie fort.", consigne: "Trouve le VERBE", rep: "aboie" },
-                { phrase: "Maman prépare un bon gâteau.", consigne: "Trouve le SUJET", rep: "Maman" },
-                { phrase: "Les enfants jouent dans le jardin.", consigne: "Trouve le VERBE", rep: "jouent" },
-                { phrase: "Mon frère regarde la télévision.", consigne: "Trouve le SUJET", rep: "frère" } // Simplifié pour cliquer sur le nom noyau
+            gram_cp: [
+                { phrase: "Le petit chat dort sur le lit.", consigne: "Trouve le VERBE (l'action)", rep: "dort" },
+                { phrase: "Lola mange une pomme rouge.", consigne: "Trouve le VERBE (l'action)", rep: "mange" },
+                { phrase: "Le grand chien aboie fort.", consigne: "Trouve le VERBE (l'action)", rep: "aboie" },
+                { phrase: "Papa lit une belle histoire.", consigne: "Trouve le VERBE (l'action)", rep: "lit" },
+                { phrase: "Les enfants jouent dans le jardin.", consigne: "Trouve le VERBE (l'action)", rep: "jouent" }
             ],
-            conjugaison: [
+            gram_ce1: [
+                { phrase: "Maman prépare un bon gâteau.", consigne: "Trouve le SUJET (Qui est-ce qui prépare ?)", rep: "Maman" },
+                { phrase: "L'oiseau vole dans le ciel.", consigne: "Trouve le SUJET (Qui est-ce qui vole ?)", rep: "L'oiseau" },
+                { phrase: "Les chevaux galopent vite.", consigne: "Trouve le mot au PLURIEL", rep: "chevaux" },
+                { phrase: "Une souris grise se cache.", consigne: "Trouve le SUJET (Qui est-ce qui se cache ?)", rep: "souris" },
+                { phrase: "Mes amis arrivent demain.", consigne: "Trouve le mot au PLURIEL", rep: "amis" }
+            ],
+            conj_ce1: [
                 { phrase: "Je (chanter) _____ une chanson.", consigne: "Choisis la bonne terminaison :", choix: ["chante", "chantes", "chantons"], rep: "chante" },
                 { phrase: "Tu (jouer) _____ avec ton chat.", consigne: "Choisis la bonne terminaison :", choix: ["joue", "joues", "jouez"], rep: "joues" },
                 { phrase: "Nous (manger) _____ des frites.", consigne: "Choisis la bonne terminaison :", choix: ["mangons", "mangeons", "mangez"], rep: "mangeons" },
                 { phrase: "Ils (parler) _____ très fort.", consigne: "Choisis la bonne terminaison :", choix: ["parle", "parlons", "parlent"], rep: "parlent" },
-                { phrase: "Elle (regarder) _____ les étoiles.", consigne: "Choisis la bonne terminaison :", choix: ["regarde", "regardent", "regardes"], rep: "regarde" },
-                { phrase: "Vous (danser) _____ bien.", consigne: "Choisis la bonne terminaison :", choix: ["dansons", "dansez", "dansent"], rep: "dansez" }
+                { phrase: "J' (avoir) _____ un beau vélo.", consigne: "Complète avec le verbe AVOIR :", choix: ["est", "ai", "as"], rep: "ai" },
+                { phrase: "Tu (être) _____ très gentille.", consigne: "Complète avec le verbe ÊTRE :", choix: ["es", "est", "suis"], rep: "es" },
+                { phrase: "Lola et Théo (être) _____ dans le jardin.", consigne: "Complète avec le verbe ÊTRE :", choix: ["sont", "sommes", "êtes"], rep: "sont" }
             ]
         };
 
@@ -169,14 +197,20 @@
         let vies = 3; 
         let indexQuestion = 0; 
         let listeQuestions = []; 
-        let modeActuel = "";
+        let typeAffiche = "";
         let motAttendu = ""; 
         let motSaisi = "";
         let bloque = false;
 
+        // LE SAC DE QUESTIONS (LA PIOCHE)
+        let sacsQuestions = {
+            ortho_cp: [], ortho_ce1: [],
+            gram_cp: [], gram_ce1: [],
+            conj_ce1: []
+        };
+
         const E = (id) => document.getElementById(id);
 
-        // --- GESTION DU CLOUD ---
         async function chargerProfilCloud() {
             try {
                 let res = await fetch(DB_URL);
@@ -193,22 +227,32 @@
         function majXP() { E('ui-xp').textContent = `XP: ${profil.xp} ⭐`; }
         function ajouterXP(points) { profil.xp += points; majXP(); sauverProfilCloud(); }
 
-        // --- NAVIGATION ---
         function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); E(id).classList.add('actif'); }
         function retourAccueil() { changerEcran('ecran-accueil'); }
 
-        // --- MOTEUR DE JEU ---
-        function lancerNiveau(mode) {
-            modeActuel = mode;
+        // Moteur de la Pioche
+        function piocherQuestions(categorie, nombre) {
+            // Si le sac est vide ou n'a pas assez de questions, on le remplit avec la BDD et on mélange
+            if (sacsQuestions[categorie].length < nombre) {
+                sacsQuestions[categorie] = [...bdd[categorie]].sort(() => Math.random() - 0.5);
+            }
+            // On retire et on renvoie 'nombre' questions du sac
+            return sacsQuestions[categorie].splice(0, nombre);
+        }
+
+        function lancerNiveau(categorie, typeUi) {
+            typeAffiche = typeUi;
             vies = 3; 
             indexQuestion = 0; 
-            listeQuestions = [...bdd[mode]].sort(() => Math.random() - 0.5).slice(0, 5); // 5 questions par série
+            
+            // On utilise notre nouvelle fonction de pioche (5 questions)
+            listeQuestions = piocherQuestions(categorie, 5);
             
             E('ui-vies').textContent = "❤️❤️❤️"; 
             E('feedback').textContent = ""; 
             
-            E('module-orthographe').style.display = (mode === 'orthographe') ? 'block' : 'none';
-            E('module-qcm').style.display = (mode !== 'orthographe') ? 'block' : 'none';
+            E('module-orthographe').style.display = (typeUi === 'orthographe') ? 'block' : 'none';
+            E('module-qcm').style.display = (typeUi !== 'orthographe') ? 'block' : 'none';
             
             changerEcran('ecran-jeu'); 
             poserQuestion();
@@ -229,7 +273,7 @@
             E('feedback').textContent = "";
             let data = listeQuestions[indexQuestion];
 
-            if (modeActuel === 'orthographe') {
+            if (typeAffiche === 'orthographe') {
                 motAttendu = data.mot; motSaisi = "";
                 E('dessin-box').textContent = data.emoji;
                 
@@ -243,25 +287,24 @@
                     tuile.onclick = () => cliquerLettre(tuile, lettre); boxLettres.appendChild(tuile);
                 });
             } 
-            else if (modeActuel === 'grammaire') {
+            else if (typeAffiche === 'grammaire') {
                 E('consigne-qcm').textContent = data.consigne;
-                E('phrase-qcm').style.display = "none"; // On va utiliser la zone bouton pour afficher la phrase cliquable
+                E('phrase-qcm').style.display = "none"; 
                 
                 const boxBoutons = E('boutons-qcm'); boxBoutons.innerHTML = '';
-                
-                // Découper la phrase en mots cliquables
                 let mots = data.phrase.split(" ");
                 mots.forEach(mot => {
-                    let motPropre = mot.replace(/[.,!?]/g, ""); // Enlever la ponctuation pour la vérification
+                    let motPropre = mot.replace(/[.,!?']/g, ""); 
                     let btn = document.createElement('button');
                     btn.className = "btn-qcm";
                     btn.style.margin = "5px";
                     btn.textContent = mot;
-                    btn.onclick = () => validerQCM(btn, motPropre === data.rep);
+                    // On gère les mots avec apostrophe (ex: L'oiseau -> L'oiseau est la bonne rep)
+                    btn.onclick = () => validerQCM(btn, mot === data.rep || motPropre === data.rep);
                     boxBoutons.appendChild(btn);
                 });
             }
-            else if (modeActuel === 'conjugaison') {
+            else if (typeAffiche === 'conjugaison') {
                 E('consigne-qcm').textContent = data.consigne;
                 E('phrase-qcm').style.display = "block";
                 E('phrase-qcm').textContent = data.phrase;
@@ -282,7 +325,6 @@
             }
         }
 
-        // Action Orthographe
         function cliquerLettre(tuileElement, lettre) {
             if(bloque) return;
             motSaisi += lettre; tuileElement.classList.add('utilisee');
@@ -292,7 +334,7 @@
                 bloque = true;
                 const fb = E('feedback');
                 if (motSaisi === motAttendu) {
-                    fb.textContent = "Bravo ! 🌟"; fb.style.color = "#27ae60"; ajouterXP(10);
+                    fb.textContent = "Bravo ! 🌟"; fb.style.color = "#27ae60"; ajouterXP(5);
                     setTimeout(() => { indexQuestion++; poserQuestion(); }, 1000);
                 } else {
                     fb.textContent = "Oups ! 🔴"; fb.style.color = "#c0392b";
@@ -303,27 +345,24 @@
             }
         }
 
-        // Action Grammaire / Conjugaison
         function validerQCM(btn, isCorrect) {
             if (bloque) return;
             bloque = true;
-            
             const fb = E('feedback');
             document.querySelectorAll('.btn-qcm').forEach(b => b.onclick = null);
 
             if (isCorrect) {
                 btn.classList.add('correct');
-                fb.textContent = "Excellent ! ✨"; fb.style.color = "#27ae60"; ajouterXP(10);
+                fb.textContent = "Excellent ! ✨"; fb.style.color = "#27ae60"; ajouterXP(5);
                 setTimeout(() => { indexQuestion++; poserQuestion(); }, 1500);
             } else {
                 btn.classList.add('erreur');
                 fb.textContent = "Aïe... Regarde la correction."; fb.style.color = "#c0392b";
                 
-                // Montrer la bonne réponse en vert
                 let data = listeQuestions[indexQuestion];
                 document.querySelectorAll('.btn-qcm').forEach(b => {
-                    let text = b.textContent.replace(/[.,!?]/g, "");
-                    if (text === data.rep) b.classList.add('correct');
+                    let textPropre = b.textContent.replace(/[.,!?']/g, "");
+                    if (b.textContent === data.rep || textPropre === data.rep) b.classList.add('correct');
                 });
 
                 vies--; E('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3 - vies);
