@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Sciences & Labo CM2</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            /* Un joli dégradé bleu/violet pour un style "Laboratoire Scientifique" */
+            background: linear-gradient(135deg, #141E30 0%, #243B55 100%); 
+            color: #333; display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; padding: 20px; 
+        }
+        
+        #app-container { 
+            background: white; padding: 30px; border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3); max-width: 900px; width: 100%; text-align: center; position: relative;
+        }
+        
+        h1 { color: #2980b9; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
+        .sous-titre { color: #7f8c8d; margin-bottom: 25px; font-weight: 700; font-size: 1.1rem;}
+        
+        #hud { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; border: 2px solid #ecf0f1;}
+        .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
+        
+        /* Menu des missions */
+        .grid-themes { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .btn-theme {
+            background: #f8f9fa; border: 3px solid #e2e8f0; padding: 15px; border-radius: 15px;
+            font-size: 1.1rem; font-weight: bold; color: #2c3e50; cursor: pointer; transition: 0.2s;
+            display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;
+        }
+        .btn-theme:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+        .theme-icon { font-size: 2.5rem; }
+
+        /* Styles spécifiques au Drag & Drop */
+        #zone-jeu { background: #f1f8ff; padding: 20px; border-radius: 15px; border: 3px dashed #3498db; margin-bottom: 25px; }
+        #consigne { font-size: 1.3rem; font-weight: 900; color: #2980b9; margin-bottom: 20px; }
+        
+        /* La banque d'objets à glisser */
+        #banque-items { 
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; 
+            min-height: 80px; padding: 15px; background: #e0f2fe; border-radius: 10px; margin-bottom: 30px;
+        }
+        
+        /* Les éléments glissants (Draggable) */
+        .item-drag { 
+            background: #fff; border: 3px solid #3498db; padding: 10px 20px; border-radius: 10px; 
+            font-weight: bold; font-size: 1.2rem; color: #2c3e50; cursor: grab; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.1s;
+        }
+        .item-drag:active { cursor: grabbing; transform: scale(0.95); }
+
+        /* Les zones de réception (Drop Zones) */
+        #zones-reception { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+        
+        .drop-zone-container { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .drop-zone-label { font-weight: 900; color: #7f8c8d; font-size: 1rem; }
+        .drop-zone { 
+            width: 150px; min-height: 70px; background: #fff; border: 3px dashed #bdc3c7; 
+            border-radius: 10px; display: flex; justify-content: center; align-items: center;
+            transition: background 0.2s; padding: 5px;
+        }
+        .drop-zone.hovered { background: #dff9fb; border-color: #00cec9; } /* Effet quand on survole la zone */
+
+        /* Boutons */
+        .btn { font-family: 'Nunito', sans-serif; font-size: 1.1rem; font-weight: bold; padding: 12px 25px; border: none; border-radius: 10px; cursor: pointer; color: white; margin: 5px; transition: transform 0.1s; display: inline-block;}
+        .btn:active { transform: scale(0.95); }
+        .btn-primaire { background: #27ae60; box-shadow: 0 4px #219a52; }
+        .btn-secondaire { background: #95a5a6; box-shadow: 0 4px #7f8c8d; color:#2c3e50;}
+
+        .ecran { display: none; }
+        .ecran.actif { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+        #feedback { font-size: 1.4rem; font-weight: 900; height: 35px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <div class="xp-badge">XP: <span id="ui-xp-accueil">...</span> ⭐</div>
+
+        <!-- ECRAN D'ACCUEIL -->
+        <div id="ecran-accueil" class="ecran actif">
+            <h1>Sciences & Labo 🔬</h1>
+            <p class="sous-titre">Laboratoire Expérimental CM2</p>
+
+            <div class="grid-themes">
+                <button class="btn-theme" style="border-color:#3498db;" onclick="lancerMission('espace')">
+                    <span class="theme-icon">🪐</span>
+                    <div style="color:#2980b9;">Système Solaire</div>
+                </button>
+                <button class="btn-theme" style="border-color:#e74c3c;" onclick="lancerMission('corps')">
+                    <span class="theme-icon">🫀</span>
+                    <div style="color:#c0392b;">Corps Humain</div>
+                </button>
+                <button class="btn-theme" style="border-color:#27ae60;" onclick="lancerMission('energie')">
+                    <span class="theme-icon">♻️</span>
+                    <div style="color:#27ae60;">Les Énergies</div>
+                </button>
+            </div>
+
+            <button class="btn btn-secondaire" style="margin-top: 20px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+        </div>
+
+        <!-- ECRAN DE JEU (LE LABORATOIRE) -->
+        <div id="ecran-jeu" class="ecran">
+            <div id="hud">
+                <span id="ui-theme-titre" style="color: #2980b9;">Mission : ...</span>
+                <span style="color:#f39c12; font-weight:900;">XP : <span id="ui-xp-jeu">0</span> ⭐</span>
+            </div>
+            
+            <div id="zone-jeu">
+                <div id="consigne">Glisse les éléments au bon endroit !</div>
+                
+                <!-- Ici apparaîtront les objets à glisser -->
+                <div id="banque-items"></div>
+                
+                <!-- Ici apparaîtront les boîtes de réception -->
+                <div id="zones-reception"></div>
+            </div>
+            
+            <div id="feedback"></div>
+            
+            <button id="btn-verifier" class="btn btn-primaire" style="display: none; font-size:1.3rem; padding:15px 30px;" onclick="verifierMission()">🔬 Analyser les résultats</button>
+            <br><button class="btn btn-secondaire" style="margin-top:10px;" onclick="retourAccueil()">Abandonner</button>
+        </div>
+
+        <!-- ECRAN FIN -->
+        <div id="ecran-fin" class="ecran">
+            <h1 style="color:#27ae60;">Expérience Réussie ! 🧪</h1>
+            <p class="sous-titre">Tu es un vrai petit scientifique !</p>
+            <div style="margin: 20px 0;">
+                <span style="font-size: 1.8rem; font-weight:900; color:#f39c12; background:#fff3cd; padding:10px 25px; border-radius:20px;">+<span id="gain-xp"></span> XP !</span>
+            </div>
+            <button class="btn btn-primaire" onclick="window.location.href='index.html'">Retour à l'Académie</button>
+            <button class="btn btn-secondaire" onclick="retourAccueil()">Faire une autre expérience</button>
+        </div>
+    </div>
+
+    <script>
+        // 1. CONFIGURATION DU CLOUD (Base de données)
+        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+        const DB_URL = `${FIREBASE_URL}scores/theo/sciencesSaveV1.json`; // Nouvelle base pour les sciences !
+
+        let profil = { xp: 0 };
+        let missionActuelleId = "";
+        let elementsPlaces = 0; // Compteur pour savoir si toutes les boîtes sont remplies
+
+        // 2. BASE DE DONNÉES DES MISSIONS
+        // C'est ici que tu pourras créer de nouvelles missions plus tard !
+        const missionsDB = {
+            espace: { 
+                nom: "Le Système Solaire", 
+                consigne: "Classe ces planètes de la plus proche à la plus éloignée du Soleil.",
+                // Les éléments que Théo va manipuler
+                items: [
+                    { id: "terre", texte: "🌍 La Terre" },
+                    { id: "mercure", texte: "🌑 Mercure" },
+                    { id: "mars", texte: "🔴 Mars" },
+                    { id: "venus", texte: "⭐ Vénus" }
+                ],
+                // Les boîtes de destination (le "target_id" doit correspondre au "id" de la bonne réponse)
+                zones: [
+                    { label: "1ère planète", target_id: "mercure" },
+                    { label: "2ème planète", target_id: "venus" },
+                    { label: "3ème planète", target_id: "terre" },
+                    { label: "4ème planète", target_id: "mars" }
+                ]
+            },
+            corps: { 
+                nom: "Le Corps Humain", 
+                consigne: "Associe l'organe à sa fonction vitale.",
+                items: [
+                    { id: "coeur", texte: "🫀 Le Cœur" },
+                    { id: "poumons", texte: "🫁 Les Poumons" },
+                    { id: "cerveau", texte: "🧠 Le Cerveau" },
+                    { id: "estomac", texte: "🍲 L'Estomac" }
+                ],
+                zones: [
+                    { label: "Respirer l'oxygène", target_id: "poumons" },
+                    { label: "Pomper le sang", target_id: "coeur" },
+                    { label: "Digérer les aliments", target_id: "estomac" },
+                    { label: "Réfléchir et commander", target_id: "cerveau" }
+                ]
+            },
+            energie: { 
+                nom: "Les Énergies", 
+                consigne: "Trie ces sources d'énergie (Renouvelable ou Non-renouvelable ?).",
+                items: [
+                    { id: "soleil", texte: "☀️ Solaire" },
+                    { id: "vent", texte: "💨 Éolien" },
+                    { id: "charbon", texte: "🪨 Charbon" },
+                    { id: "petrole", texte: "🛢️ Pétrole" }
+                ],
+                // Ici, deux éléments peuvent aller dans une même catégorie logique, 
+                // mais pour simplifier le Drag&Drop, on fait des zones exactes.
+                zones: [
+                    { label: "Renouvelable (Panneaux)", target_id: "soleil" },
+                    { label: "Renouvelable (Éoliennes)", target_id: "vent" },
+                    { label: "Énergie fossile (Liquide)", target_id: "petrole" },
+                    { label: "Énergie fossile (Solide)", target_id: "charbon" }
+                ]
+            }
+        };
+
+        // --- GESTION DU CLOUD ---
+        async function chargerProfilCloud() {
+            try {
+                let res = await fetch(DB_URL);
+                let data = await res.json();
+                if (data && data.xp !== undefined) profil.xp = parseInt(data.xp) || 0;
+            } catch(e) {}
+            document.getElementById('ui-xp-accueil').textContent = profil.xp;
+        }
+
+        async function sauverProfilCloud() {
+            try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
+        }
+
+        // --- NAVIGATION ---
+        function changerEcran(id) { 
+            document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); 
+            document.getElementById(id).classList.add('actif'); 
+        }
+        
+        function retourAccueil() { changerEcran('ecran-accueil'); }
+
+        // --- MOTEUR DE JEU (LE CODE SCIENTIFIQUE) ---
+        function lancerMission(idTheme) {
+            missionActuelleId = idTheme;
+            let missionData = missionsDB[idTheme];
+            elementsPlaces = 0;
+            
+            // Mise à jour de l'interface
+            document.getElementById('ui-theme-titre').textContent = missionData.nom;
+            document.getElementById('ui-xp-jeu').textContent = profil.xp;
+            document.getElementById('consigne').textContent = missionData.consigne;
+            document.getElementById('feedback').textContent = "";
+            document.getElementById('btn-verifier').style.display = "none";
+            
+            preparerLaboratoire(missionData);
+            changerEcran('ecran-jeu');
+        }
+
+        function preparerLaboratoire(data) {
+            const banque = document.getElementById('banque-items');
+            const zones = document.getElementById('zones-reception');
+            banque.innerHTML = ''; 
+            zones.innerHTML = '';
+
+            // 1. Créer les éléments à glisser (Mélangés au hasard)
+            let itemsMelanges = [...data.items].sort(() => Math.random() - 0.5);
+            
+            itemsMelanges.forEach(item => {
+                let div = document.createElement('div');
+                div.className = 'item-drag';
+                div.textContent = item.texte;
+                div.id = 'item_' + item.id; // Un ID unique pour le retrouver
+                div.dataset.id_logique = item.id; // La vraie réponse cachée
+                
+                // C'EST ICI QUE LA MAGIE OPÈRE : on rend la DIV glissable !
+                div.draggable = true;
+                div.addEventListener('dragstart', gererDebutGlissement);
+                
+                banque.appendChild(div);
+            });
+
+            // 2. Créer les zones de réception (Dans l'ordre défini par le jeu)
+            data.zones.forEach((zone, index) => {
+                let container = document.createElement('div');
+                container.className = 'drop-zone-container';
+
+                let label = document.createElement('div');
+                label.className = 'drop-zone-label';
+                label.textContent = zone.label;
+
+                let dropDiv = document.createElement('div');
+                dropDiv.className = 'drop-zone';
+                dropDiv.dataset.cible_attendue = zone.target_id; // Ce que la boîte attend
+                
+                // LES ÉCOUTEURS D'ÉVÉNEMENTS POUR ACCEPTER LE DÉPÔT
+                dropDiv.addEventListener('dragover', gererSurvol);
+                dropDiv.addEventListener('dragleave', gererFinSurvol);
+                dropDiv.addEventListener('drop', gererDepot);
+
+                container.appendChild(label);
+                container.appendChild(dropDiv);
+                zones.appendChild(container);
+            });
+            
+            // Permettre aussi de remettre un élément dans la banque !
+            banque.addEventListener('dragover', gererSurvol);
+            banque.addEventListener('drop', gererDepotBanque);
+        }
+
+        // --- LES FONCTIONS DU DRAG & DROP ---
+
+        // Quand Théo commence à cliquer et tirer un élément
+        function gererDebutGlissement(event) {
+            // On sauvegarde l'ID de l'élément HTML qu'on est en train de bouger
+            event.dataTransfer.setData("text/plain", event.target.id);
+        }
+
+        // Quand un élément survole une zone (Obligatoire pour autoriser le dépôt)
+        function gererSurvol(event) {
+            event.preventDefault(); // Annule le comportement par défaut du navigateur (qui interdit le dépôt)
+            if (event.target.classList.contains('drop-zone')) {
+                event.target.classList.add('hovered'); // Ajoute un petit effet visuel bleu
+            }
+        }
+
+        function gererFinSurvol(event) {
+            if (event.target.classList.contains('drop-zone')) {
+                event.target.classList.remove('hovered');
+            }
+        }
+
+        // Quand Théo relâche la souris sur une boîte
+        function gererDepot(event) {
+            event.preventDefault();
+            event.target.classList.remove('hovered');
+            
+            // On récupère l'ID qu'on avait sauvegardé au début
+            const idElement = event.dataTransfer.getData("text/plain");
+            const elementGlisse = document.getElementById(idElement);
+            
+            // Sécurité : On s'assure qu'on lâche bien l'élément dans la boîte, et pas sur un autre élément déjà présent
+            let zoneCible = event.target;
+            if (!zoneCible.classList.contains('drop-zone')) return;
+
+            // S'il y a déjà un élément dans la boîte, on le renvoie dans la banque
+            if (zoneCible.children.length > 0) {
+                document.getElementById('banque-items').appendChild(zoneCible.children[0]);
+            }
+
+            // On déplace l'élément HTML dans la boîte
+            zoneCible.appendChild(elementGlisse);
+            
+            verifierSiToutEstPlace();
+        }
+
+        // Si Théo veut remettre un élément dans la zone de départ
+        function gererDepotBanque(event) {
+            event.preventDefault();
+            const idElement = event.dataTransfer.getData("text/plain");
+            const elementGlisse = document.getElementById(idElement);
+            
+            // On le replace dans la banque
+            if(elementGlisse) {
+                document.getElementById('banque-items').appendChild(elementGlisse);
+                verifierSiToutEstPlace();
+            }
+        }
+
+        // --- VALIDATION DU JEU ---
+        function verifierSiToutEstPlace() {
+            // On compte combien de boîtes sont remplies
+            let boitesRemplies = 0;
+            const dropZones = document.querySelectorAll('.drop-zone');
+            
+            dropZones.forEach(zone => {
+                if (zone.children.length > 0) boitesRemplies++;
+            });
+
+            // Si toutes les boîtes sont pleines, on affiche le bouton de validation
+            if (boitesRemplies === missionsDB[missionActuelleId].items.length) {
+                document.getElementById('btn-verifier').style.display = "inline-block";
+            } else {
+                document.getElementById('btn-verifier').style.display = "none";
+            }
+        }
+
+        function verifierMission() {
+            let toutesBonnes = true;
+            const dropZones = document.querySelectorAll('.drop-zone');
+            
+            // Pour chaque boîte, on vérifie si l'ID logique de l'élément correspond à ce qui est attendu
+            dropZones.forEach(zone => {
+                let elementDedans = zone.children[0];
+                let reponseAttendue = zone.dataset.cible_attendue;
+                
+                if (elementDedans.dataset.id_logique !== reponseAttendue) {
+                    toutesBonnes = false;
+                    // On fait trembler la boîte pour montrer l'erreur (on ajoute l'animation via le JS temporairement)
+                    zone.style.border = "3px solid #e74c3c";
+                    zone.style.backgroundColor = "#fadbd8";
+                    setTimeout(() => {
+                        zone.style.border = "3px dashed #bdc3c7";
+                        zone.style.backgroundColor = "#fff";
+                    }, 1500);
+                } else {
+                    zone.style.border = "3px solid #2ecc71";
+                }
+            });
+
+            const feedback = document.getElementById('feedback');
+            
+            if (toutesBonnes) {
+                feedback.textContent = "Expérience validée ! C'est parfait ! ✨"; 
+                feedback.style.color = "#27ae60";
+                
+                // Gain d'XP
+                let gainXP = missionsDB[missionActuelleId].items.length * 10;
+                profil.xp += gainXP;
+                
+                document.getElementById('ui-xp-jeu').textContent = profil.xp;
+                document.getElementById('gain-xp').textContent = gainXP;
+                sauverProfilCloud();
+                
+                setTimeout(() => changerEcran('ecran-fin'), 2000);
+            } else {
+                feedback.textContent = "Aïe, certaines données sont incorrectes !"; 
+                feedback.style.color = "#c0392b";
+                setTimeout(() => feedback.textContent = "", 2500);
+            }
+        }
+
+        chargerProfilCloud();
+    </script>
+</body>
+</html>
