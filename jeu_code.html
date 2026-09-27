@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Code & Logique CM2 - L'Académie</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); 
+            color: #333; display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; padding: 20px; 
+        }
+        
+        #app-container { 
+            background: white; padding: 30px; border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3); max-width: 800px; width: 100%; text-align: center; position: relative;
+        }
+        
+        h1 { color: #2980b9; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
+        .sous-titre { color: #7f8c8d; margin-bottom: 25px; font-weight: 700; font-size: 1.1rem;}
+        
+        .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
+
+        /* La grille du labyrinthe */
+        #grille-labyrinthe {
+            display: grid; gap: 2px; background: #bdc3c7; padding: 5px; border-radius: 10px;
+            margin: 0 auto 20px auto; width: fit-content; border: 4px solid #34495e;
+        }
+        .cellule {
+            width: 50px; height: 50px; background: #ecf0f1; border-radius: 5px;
+            display: flex; justify-content: center; align-items: center; font-size: 1.8rem;
+            transition: background 0.2s;
+        }
+        .mur { background: #34495e; }
+        .robot { background: #f1c40f; box-shadow: inset 0 0 10px rgba(230, 126, 34, 0.5); }
+        .sortie { background: #2ecc71; box-shadow: inset 0 0 10px rgba(39, 174, 96, 0.5); }
+        .erreur { background: #e74c3c !important; }
+
+        /* Séquence d'instructions */
+        #sequence-container {
+            background: #f8f9fa; min-height: 70px; padding: 10px; border-radius: 10px;
+            border: 2px dashed #95a5a6; margin-bottom: 20px;
+            display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start; align-items: center;
+        }
+        .cmd-bulle {
+            background: #3498db; color: white; width: 40px; height: 40px; border-radius: 8px;
+            display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 1.2rem;
+            cursor: pointer; box-shadow: 0 4px 0 #2980b9; transition: 0.1s;
+        }
+        .cmd-bulle:active { transform: translateY(4px); box-shadow: none; }
+        .cmd-bulle.active { background: #e67e22; box-shadow: 0 4px 0 #d35400; transform: scale(1.1); }
+
+        /* Clavier de commandes */
+        #clavier-commandes { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .btn-cmd {
+            background: #ecf0f1; border: 3px solid #bdc3c7; padding: 15px 20px; border-radius: 12px;
+            font-size: 1.5rem; cursor: pointer; transition: 0.1s; box-shadow: 0 4px 0 #bdc3c7;
+        }
+        .btn-cmd:active { transform: translateY(4px); box-shadow: none; }
+        .btn-cmd:hover { background: #e2e8f0; }
+
+        /* Boutons d'action */
+        .btn { font-family: 'Nunito', sans-serif; font-size: 1.1rem; font-weight: bold; padding: 12px 25px; border: none; border-radius: 10px; cursor: pointer; color: white; margin: 5px; transition: transform 0.1s; display: inline-block;}
+        .btn:active { transform: scale(0.95); }
+        .btn-primaire { background: #27ae60; box-shadow: 0 4px #219a52; }
+        .btn-secondaire { background: #95a5a6; box-shadow: 0 4px #7f8c8d; color:#2c3e50;}
+        .btn-danger { background: #e74c3c; box-shadow: 0 4px #c0392b; }
+
+        #feedback { font-size: 1.4rem; font-weight: 900; height: 35px; margin: 15px 0; }
+        .ecran { display: none; }
+        .ecran.actif { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <div class="xp-badge">XP: <span id="ui-xp-jeu">...</span> ⭐</div>
+
+        <!-- ECRAN D'ACCUEIL -->
+        <div id="ecran-accueil" class="ecran actif">
+            <h1>Code & Logique 🤖</h1>
+            <p class="sous-titre">Initiation à l'algorithmique et aux séquences</p>
+            
+            <p style="font-size: 1.1rem; color: #2c3e50; font-weight: bold; margin-bottom: 25px;">
+                Le but du jeu : Écris la séquence exacte de commandes pour guider le robot 🤖 vers la sortie 🏁 sans toucher les murs !
+            </p>
+
+            <button class="btn btn-primaire" style="font-size: 1.3rem; padding: 15px 40px;" onclick="lancerNiveau(0)">Lancer le Système</button>
+            <br>
+            <button class="btn btn-secondaire" style="margin-top: 20px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+        </div>
+
+        <!-- ECRAN DE JEU -->
+        <div id="ecran-jeu" class="ecran">
+            <h2 style="color: #2980b9; margin-bottom: 10px;" id="titre-niveau">Niveau 1</h2>
+            
+            <!-- Affichage du Labyrinthe généré en JS -->
+            <div id="grille-labyrinthe"></div>
+
+            <!-- Affichage de la séquence -->
+            <div style="text-align: left; font-weight: bold; color: #7f8c8d; margin-bottom: 5px;">Ton Algorithme (Séquence) :</div>
+            <div id="sequence-container"></div>
+
+            <!-- Clavier directionnel -->
+            <div id="clavier-commandes">
+                <button class="btn-cmd" onclick="ajouterCommande('Haut')">⬆️</button>
+                <button class="btn-cmd" onclick="ajouterCommande('Gauche')">⬅️</button>
+                <button class="btn-cmd" onclick="ajouterCommande('Bas')">⬇️</button>
+                <button class="btn-cmd" onclick="ajouterCommande('Droite')">➡️</button>
+            </div>
+
+            <div id="feedback"></div>
+
+            <div>
+                <button class="btn btn-danger" onclick="effacerSequence()">🔄 Effacer</button>
+                <button class="btn btn-primaire" id="btn-executer" onclick="executerSequence()">▶️ Exécuter le code</button>
+            </div>
+            
+            <button class="btn btn-secondaire" style="margin-top:20px;" onclick="retourAccueil()">Abandonner</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- BASE DE DONNÉES CLOUD ---
+        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+        const DB_URL = `${FIREBASE_URL}scores/theo/codeSaveV1.json`;
+
+        let profil = { xp: 0 };
+        
+        // 0 = Vide, 1 = Mur, 2 = Départ (Robot), 3 = Sortie
+        const niveaux = [
+            { 
+                titre: "Niveau 1 : La Ligne Droite",
+                xp: 20,
+                grille: [
+                    [2, 0, 0, 3]
+                ]
+            },
+            { 
+                titre: "Niveau 2 : Le Contournement",
+                xp: 30,
+                grille: [
+                    [2, 1, 0, 0],
+                    [0, 0, 0, 1],
+                    [1, 1, 0, 3]
+                ]
+            },
+            { 
+                titre: "Niveau 3 : Le Labyrinthe",
+                xp: 50,
+                grille: [
+                    [2, 1, 0, 0, 0],
+                    [0, 1, 0, 1, 0],
+                    [0, 0, 0, 1, 0],
+                    [1, 1, 1, 1, 0],
+                    [0, 0, 0, 0, 3]
+                ]
+            },
+            { 
+                titre: "Niveau 4 : L'Escalier",
+                xp: 75,
+                grille: [
+                    [2, 0, 1, 1, 1],
+                    [1, 0, 0, 1, 1],
+                    [1, 1, 0, 0, 1],
+                    [1, 1, 1, 0, 3]
+                ]
+            }
+        ];
+
+        let indexNiveauActuel = 0;
+        let grilleOriginale = [];
+        let grilleDynamique = []; // Grille modifiée pendant l'exécution
+        let posRobot = { x: 0, y: 0 };
+        let sequenceCommandes = [];
+        let estEnExecution = false;
+
+        // --- GESTION DU CLOUD ---
+        async function chargerProfilCloud() {
+            try {
+                let res = await fetch(DB_URL);
+                let data = await res.json();
+                if (data && data.xp !== undefined) profil.xp = parseInt(data.xp) || 0;
+            } catch(e) {}
+            document.getElementById('ui-xp-jeu').textContent = profil.xp;
+        }
+
+        async function sauverProfilCloud() {
+            try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
+        }
+
+        // --- NAVIGATION ---
+        function changerEcran(id) { 
+            document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); 
+            document.getElementById(id).classList.add('actif'); 
+        }
+        function retourAccueil() { changerEcran('ecran-accueil'); }
+
+        // --- MOTEUR DE JEU ---
+        function lancerNiveau(idx) {
+            if (idx >= niveaux.length) {
+                alert("Félicitations ! Tu as terminé tous les niveaux d'algorithmique !");
+                return retourAccueil();
+            }
+            indexNiveauActuel = idx;
+            let dataNiveau = niveaux[indexNiveauActuel];
+            
+            document.getElementById('titre-niveau').textContent = dataNiveau.titre;
+            document.getElementById('feedback').textContent = "";
+            effacerSequence();
+            
+            // Copie profonde de la grille pour pouvoir la réinitialiser
+            grilleOriginale = JSON.parse(JSON.stringify(dataNiveau.grille));
+            reinitialiserGrille();
+            
+            changerEcran('ecran-jeu');
+        }
+
+        function reinitialiserGrille() {
+            grilleDynamique = JSON.parse(JSON.stringify(grilleOriginale));
+            estEnExecution = false;
+            document.getElementById('btn-executer').disabled = false;
+            trouverRobot();
+            dessinerGrilleHTML();
+        }
+
+        function trouverRobot() {
+            for (let y = 0; y < grilleDynamique.length; y++) {
+                for (let x = 0; x < grilleDynamique[y].length; x++) {
+                    if (grilleDynamique[y][x] === 2) {
+                        posRobot = { x: x, y: y };
+                        return;
+                    }
+                }
+            }
+        }
+
+        function dessinerGrilleHTML() {
+            const container = document.getElementById('grille-labyrinthe');
+            container.innerHTML = '';
+            
+            let nbLignes = grilleDynamique.length;
+            let nbColonnes = grilleDynamique[0].length;
+            
+            container.style.gridTemplateColumns = `repeat(${nbColonnes}, 50px)`;
+            container.style.gridTemplateRows = `repeat(${nbLignes}, 50px)`;
+
+            for (let y = 0; y < nbLignes; y++) {
+                for (let x = 0; x < nbColonnes; x++) {
+                    let div = document.createElement('div');
+                    div.className = 'cellule';
+                    div.id = `cell_${x}_${y}`;
+                    
+                    if (grilleDynamique[y][x] === 1) div.classList.add('mur');
+                    else if (grilleDynamique[y][x] === 2) { div.classList.add('robot'); div.textContent = "🤖"; }
+                    else if (grilleDynamique[y][x] === 3) { div.classList.add('sortie'); div.textContent = "🏁"; }
+                    
+                    container.appendChild(div);
+                }
+            }
+        }
+
+        // --- GESTION DES COMMANDES (FILE D'ATTENTE) ---
+        function ajouterCommande(direction) {
+            if (estEnExecution) return;
+            let symbole = direction === 'Haut' ? '⬆️' : direction === 'Bas' ? '⬇️' : direction === 'Gauche' ? '⬅️' : '➡️';
+            sequenceCommandes.push(direction);
+            
+            let div = document.createElement('div');
+            div.className = 'cmd-bulle';
+            div.textContent = symbole;
+            // Retirer une commande en cliquant dessus
+            div.onclick = function() {
+                if(estEnExecution) return;
+                let index = Array.from(this.parentNode.children).indexOf(this);
+                sequenceCommandes.splice(index, 1);
+                this.remove();
+            };
+            
+            document.getElementById('sequence-container').appendChild(div);
+        }
+
+        function effacerSequence() {
+            if (estEnExecution) return;
+            sequenceCommandes = [];
+            document.getElementById('sequence-container').innerHTML = '';
+            reinitialiserGrille();
+            document.getElementById('feedback').textContent = "";
+        }
+
+        // --- L'EXÉCUTION DE L'ALGORITHME ---
+        function executerSequence() {
+            if (sequenceCommandes.length === 0 || estEnExecution) return;
+            estEnExecution = true;
+            document.getElementById('btn-executer').disabled = true;
+            document.getElementById('feedback').textContent = "Exécution du code...";
+            document.getElementById('feedback').style.color = "#2980b9";
+            
+            reinitialiserGrille(); // On remet le robot à sa place avant de lancer
+            lireInstruction(0);
+        }
+
+        function lireInstruction(index) {
+            const domCommandes = document.getElementById('sequence-container').children;
+            
+            // Retirer la surbrillance de la commande précédente
+            if (index > 0 && domCommandes[index-1]) domCommandes[index-1].classList.remove('active');
+            
+            // Si on a lu toutes les instructions
+            if (index >= sequenceCommandes.length) {
+                verifierVictoire();
+                return;
+            }
+
+            // Mettre en surbrillance l'instruction en cours
+            if (domCommandes[index]) domCommandes[index].classList.add('active');
+
+            let cmd = sequenceCommandes[index];
+            let newX = posRobot.x;
+            let newY = posRobot.y;
+
+            if (cmd === 'Haut') newY--;
+            if (cmd === 'Bas') newY++;
+            if (cmd === 'Gauche') newX--;
+            if (cmd === 'Droite') newX++;
+
+            // Validation de sécurité : est-on sorti de la grille ou dans un mur ?
+            let collision = false;
+            if (newY < 0 || newY >= grilleDynamique.length || newX < 0 || newX >= grilleDynamique[0].length) {
+                collision = true; // Sortie de l'écran
+            } else if (grilleDynamique[newY][newX] === 1) {
+                collision = true; // Mur
+            }
+
+            if (collision) {
+                document.getElementById(`cell_${posRobot.x}_${posRobot.y}`).classList.add('erreur');
+                document.getElementById('feedback').textContent = "Erreur : Collision (Bug détecté) 🔴";
+                document.getElementById('feedback').style.color = "#c0392b";
+                estEnExecution = false;
+                document.getElementById('btn-executer').disabled = false;
+                return;
+            }
+
+            // Déplacement logique
+            let valeurCible = grilleDynamique[newY][newX];
+            grilleDynamique[posRobot.y][posRobot.x] = 0; // Ancienne case vide
+            
+            // Si on marche sur la sortie, on retient qu'on l'a atteinte, mais on se dessine dessus
+            if(valeurCible === 3) {
+                grilleDynamique[newY][newX] = 4; // Code interne pour Robot SUR la sortie
+            } else {
+                grilleDynamique[newY][newX] = 2; // Robot sur case vide
+            }
+            
+            posRobot = { x: newX, y: newY };
+            dessinerGrilleHTML();
+
+            // S'appeler soi-même après un délai (Récursivité / Asynchrone)
+            setTimeout(() => { lireInstruction(index + 1); }, 600);
+        }
+
+        function verifierVictoire() {
+            estEnExecution = false;
+            document.getElementById('btn-executer').disabled = false;
+
+            if (grilleDynamique[posRobot.y][posRobot.x] === 4) {
+                document.getElementById('feedback').textContent = "Programme validé ! ✨";
+                document.getElementById('feedback').style.color = "#27ae60";
+                
+                let gainXP = niveaux[indexNiveauActuel].xp;
+                profil.xp += gainXP;
+                document.getElementById('ui-xp-jeu').textContent = profil.xp;
+                sauverProfilCloud();
+
+                setTimeout(() => { lancerNiveau(indexNiveauActuel + 1); }, 2000);
+            } else {
+                document.getElementById('feedback').textContent = "Séquence incomplète ! 🔴";
+                document.getElementById('feedback').style.color = "#e67e22";
+            }
+        }
+
+        chargerProfilCloud();
+    </script>
+</body>
+</html>
