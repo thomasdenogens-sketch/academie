@@ -2,39 +2,51 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Chasseur de Mots V3 - L'Aventure Cloud</title>
+    <title>Chasseur de Mots Pro - Objectif 6ème</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
         body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); color: #333; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
         #app-container { background: white; padding: 25px 35px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-width: 900px; width: 100%; text-align: center; }
-        h1 { color: #2b2d42; font-weight: 900; font-size: 2.2rem; margin-bottom: 5px; }
-        .sous-titre { color: #8d99ae; margin-bottom: 20px; font-weight: 700; }
-        #hud { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; }
+        h1 { color: #2b2d42; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
+        .sous-titre { color: #8d99ae; margin-bottom: 20px; font-weight: 700; font-size: 1.1rem;}
+        #hud { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; border: 2px solid #ecf0f1;}
         .xp-text { color: #00b4d8; font-weight: 900; }
         #zone-jeu { display: flex; gap: 20px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
+        
+        /* Grille de jeu */
         #grille-container { background: #fff; padding: 10px; border-radius: 15px; border: 4px solid #eee; width: 100%; max-width: 600px; margin: 0 auto; }
         .grille { display: grid; gap: 2px; }
-        .lettre { width: 100%; aspect-ratio: 1; background: #f4f6f8; border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: clamp(10px, 3vw, 20px); font-weight: 900; color: #444; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+        .lettre { width: 100%; aspect-ratio: 1; background: #f4f6f8; border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: clamp(12px, 3vw, 22px); font-weight: 900; color: #444; cursor: pointer; transition: background 0.2s, transform 0.1s; }
         .lettre:hover { background: #e2e8f0; }
         .lettre.selectionnee { background: #ffd166; color: #fff; transform: scale(1.1); box-shadow: 0 2px 5px rgba(255, 209, 102, 0.5); }
         .lettre.trouvee { background: #00b4d8; color: #fff; }
         .lettre.erreur { background: #ef233c; color: #fff; }
-        #liste-mots-container { background: #f8f9fa; padding: 20px; border-radius: 15px; min-width: 250px; text-align: left; }
+        
+        /* Liste des mots */
+        #liste-mots-container { background: #f8f9fa; padding: 20px; border-radius: 15px; min-width: 250px; text-align: left; border: 2px solid #ecf0f1;}
         .mot-a-trouver { font-size: 1.1rem; font-weight: 700; color: #666; margin-bottom: 8px; padding: 8px; border-radius: 8px; }
         .mot-a-trouver.barre { text-decoration: line-through; color: #bbb; background: #e9ecef; cursor: pointer; }
         .mot-a-trouver.barre:hover { background: #d1d8e0; color: #2b2d42; }
         .mot-a-trouver.barre::after { content: " 📖"; font-size: 0.9rem; }
+        
+        /* Boutons */
         .btn { font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: bold; padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; color: white; margin: 5px; transition: transform 0.1s; }
         .btn:active { transform: scale(0.95); }
         .btn-primaire { background: #00b4d8; box-shadow: 0 4px #0096c7; }
         .btn-secondaire { background: #8d99ae; box-shadow: 0 4px #6c757d; }
-        .grille-niveaux { display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto; }
+        .btn-supprimer { background: #ef233c; padding: 12px 15px; box-shadow: 0 4px #d90429; margin-left:10px;}
+        
+        /* Niveaux */
+        .grille-niveaux { display: flex; flex-direction: column; gap: 10px; max-width: 500px; margin: 0 auto; }
         .btn-niveau { display: flex; justify-content: space-between; align-items: center; background: #00b4d8; padding: 15px 20px; border-radius: 12px; color: white; font-weight: bold; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px #0096c7; transition: transform 0.1s; border: none; }
         .btn-niveau:active { transform: scale(0.98); }
         .btn-niveau.verrouille { background: #e9ecef; color: #adb5bd; box-shadow: 0 4px #ced4da; cursor: not-allowed; }
-        #zone-config { background: #fff3cd; padding: 20px; border-radius: 15px; margin-top: 20px; text-align: left; }
-        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; font-family: 'Nunito', sans-serif; }
+        
+        /* Menu Créateur */
+        #zone-config { background: #fff3cd; padding: 25px; border-radius: 15px; margin-top: 20px; text-align: left; border: 2px dashed #f1c40f;}
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #dfe6e9; border-radius: 8px; font-family: 'Nunito', sans-serif; font-size:1.1rem;}
+        
         .ecran { display: none; }
         .ecran.actif { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
@@ -42,52 +54,67 @@
 </head>
 <body>
     <div id="app-container">
+        <!-- ECRAN D'ACCUEIL -->
         <div id="ecran-accueil" class="ecran actif">
-            <h1>Chasseur de Mots V3</h1>
-            <p class="sous-titre">Édition Connectée (Théo)</p>
+            <h1>Chasseur de Mots Pro 🕵️</h1>
+            <p class="sous-titre">Programme CM2 : Vocabulaire & Mots Invariables</p>
             <div id="hud" style="justify-content: center;"><span class="xp-text">Mon XP : <span id="ui-xp-accueil">...</span> ⭐</span></div>
-            <h2>Le Chemin de l'Aventure :</h2>
+            
+            <h2 style="color:#2b2d42; margin-bottom:15px; text-align:left;">Le Chemin de l'Aventure :</h2>
             <div class="grille-niveaux" id="liste-niveaux-aventure"></div>
+            
             <hr style="margin: 30px 0; border: 1px solid #eee;">
-            <h2>Les Révisions de Théo :</h2>
-            <p style="font-size: 0.9rem; color: #888; margin-bottom: 10px;">Les listes créées par les parents</p>
-            <div id="liste-themes-custom"></div>
+            
+            <h2 style="color:#2b2d42; margin-bottom:5px; text-align:left;">Les Révisions de Théo :</h2>
+            <p style="font-size: 0.95rem; color: #888; margin-bottom: 15px; text-align:left;">Listes de dictées ou mots à revoir</p>
+            <div id="liste-themes-custom" style="text-align:left;"></div>
+            
             <button class="btn btn-secondaire" style="margin-top: 20px;" onclick="changerEcran('ecran-config')">⚙️ Espace Parents (Ajouter une liste)</button>
             <br>
             <button class="btn btn-secondaire" style="margin-top: 15px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
+        <!-- ECRAN DE JEU -->
         <div id="ecran-jeu" class="ecran">
-            <div id="hud"><span id="ui-niveau-titre">Niveau ...</span><span class="xp-text">XP : <span id="ui-xp-jeu">0</span> ⭐</span></div>
+            <div id="hud">
+                <span id="ui-niveau-titre" style="color:#2b2d42;">Niveau ...</span>
+                <span class="xp-text">XP : <span id="ui-xp-jeu">0</span> ⭐</span>
+            </div>
+            
             <div id="zone-jeu">
                 <div id="grille-container"><div id="grille" class="grille"></div></div>
                 <div id="liste-mots-container">
-                    <h3>Mots à trouver :</h3>
-                    <p style="font-size: 0.8rem; color: #888; margin-bottom:10px;">(Clic sur 1ère puis dernière lettre)</p>
+                    <h3 style="color:#2b2d42; margin-bottom:5px;">Mots à trouver :</h3>
+                    <p style="font-size: 0.85rem; color: #888; margin-bottom:15px;">(Clic sur 1ère puis dernière lettre)</p>
                     <div id="liste-mots"></div>
                 </div>
             </div>
-            <button class="btn btn-secondaire" style="margin-top: 20px;" onclick="retourAccueil()">Abandonner la mission</button>
+            
+            <button class="btn btn-secondaire" style="margin-top: 25px;" onclick="retourAccueil()">Abandonner la mission</button>
         </div>
 
+        <!-- ECRAN DE CONFIGURATION -->
         <div id="ecran-config" class="ecran">
-            <h2 style="color: #2b2d42;">⚙️ Espace Parents</h2>
-            <p>Créez une grille de révision (Orthographe, Dictée...).</p>
+            <h2 style="color: #00b4d8;">⚙️ Espace Parents</h2>
+            <p class="sous-titre">Créez une grille de révision pour ses dictées.</p>
             <div id="zone-config">
                 <label><strong>Nom de la liste :</strong></label>
-                <input type="text" id="input-nom-theme" placeholder="Ex: Mots invariables">
+                <input type="text" id="input-nom-theme" placeholder="Ex: Dictée Semaine 4">
                 <label><strong>Les mots (séparés par une virgule) :</strong></label>
-                <textarea id="input-mots" rows="3" placeholder="JAMAIS, TOUJOURS, POURQUOI..."></textarea>
-                <button class="btn btn-primaire" onclick="sauvegarderTheme()">Sauvegarder</button>
-                <p id="msg-config" style="color: green; font-weight: bold; margin-top: 10px;"></p>
+                <textarea id="input-mots" rows="4" placeholder="JAMAIS, POURTANT, AINSI, ALORS..."></textarea>
+                <button class="btn btn-primaire" style="width:100%; margin-top:10px;" onclick="sauvegarderTheme()">Sauvegarder la grille</button>
+                <p id="msg-config" style="color: #27ae60; font-weight: bold; margin-top: 10px; text-align:center;"></p>
             </div>
-            <button class="btn btn-secondaire" style="margin-top: 20px;" onclick="retourAccueil()">Retour</button>
+            <button class="btn btn-secondaire" style="margin-top: 20px;" onclick="retourAccueil()">Retour Menu</button>
         </div>
 
+        <!-- ECRAN DE FIN -->
         <div id="ecran-fin" class="ecran">
-            <h1>Mission Accomplie ! 🎉</h1>
-            <p class="sous-titre">Tu as nettoyé la grille !</p>
-            <div id="hud" style="justify-content: center;"><span class="xp-text" style="font-size: 1.5rem;">+<span id="gain-xp"></span> XP gagnés !</span></div>
+            <h1 style="color:#00b4d8;">Mission Accomplie ! 🎉</h1>
+            <p class="sous-titre">La grille est entièrement nettoyée !</p>
+            <div id="hud" style="justify-content: center; background:none; border:none;">
+                <span class="xp-text" style="font-size: 1.8rem; background:#e0fbfc; padding:10px 20px; border-radius:15px;">+<span id="gain-xp"></span> XP gagnés !</span>
+            </div>
             <button class="btn btn-primaire" onclick="retourAccueil()">Continuer l'Aventure</button>
         </div>
     </div>
@@ -96,13 +123,14 @@
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
         const DB_URL = `${FIREBASE_URL}scores/theo/motsSaveV3.json`;
 
+        // PROGRAMME CM2 : Mots complexes, invariables, préfixes, suffixes
         const parcoursAventure = [
-            { id: 1, nom: "Niveau 1 : La Forêt", xpRequis: 0, taille: 10, mode: 'facile', mots: ["RENARD", "LOUP", "ARBRE", "FEUILLE", "CHOUETTE"] },
-            { id: 2, nom: "Niveau 2 : L'Océan", xpRequis: 50, taille: 12, mode: 'facile', mots: ["BALEINE", "REQUIN", "ALGUE", "POISSON", "CORAIL", "VAGUE"] },
-            { id: 3, nom: "Niveau 3 : Le Désert", xpRequis: 120, taille: 12, mode: 'moyen', mots: ["SABLE", "CHAMEAU", "CHALEUR", "OASIS", "CACTUS", "SCORPION"] }, 
-            { id: 4, nom: "Niveau 4 : L'Espace", xpRequis: 250, taille: 15, mode: 'moyen', mots: ["PLANETE", "ETOILE", "COMETE", "GALAXIE", "METEORE", "FUSEE", "LUNE"] },
-            { id: 5, nom: "Niveau 5 : Le Volcan", xpRequis: 400, taille: 15, mode: 'difficile', mots: ["MAGMA", "LAVE", "CENDRES", "CRATERE", "ERUPTION", "ROCHE", "FEU"] }, 
-            { id: 6, nom: "Niveau 6 : Le Maître", xpRequis: 600, taille: 18, mode: 'difficile', mots: ["MYSTERE", "CHAMPION", "VICTOIRE", "COURAGE", "SAGESSE", "LEGENDE", "TRIOMPHE", "HEROS"] }
+            { id: 1, nom: "Niveau 1 : Les Invariables", xpRequis: 0, taille: 12, mode: 'moyen', mots: ["TOUJOURS", "JAMAIS", "POURQUOI", "SOUDAIN", "CEPENDANT", "BIENTOT"] },
+            { id: 2, nom: "Niveau 2 : Les Préfixes", xpRequis: 60, taille: 12, mode: 'moyen', mots: ["IMPOSSIBLE", "MALADROIT", "ILLEGAL", "PARAPLUIE", "DESORDRE", "INCONNU"] },
+            { id: 3, nom: "Niveau 3 : Les Suffixes", xpRequis: 150, taille: 13, mode: 'moyen', mots: ["FEUILLAGE", "CHAUFFAGE", "LOURDEUR", "BLANCHEUR", "FILLETTE", "LAVAGE"] }, 
+            { id: 4, nom: "Niveau 4 : Mots Composés", xpRequis: 300, taille: 14, mode: 'difficile', mots: ["PORTEMANTEAU", "CHOUFLEUR", "ARCENCIEL", "WAGONLIT", "TIREBOUCHON"] },
+            { id: 5, nom: "Niveau 5 : Éducation Civique", xpRequis: 500, taille: 15, mode: 'difficile', mots: ["CONSTITUTION", "REPUBLIQUE", "DEMOCRATIE", "PARLEMENT", "CITOYEN", "MAIRIE"] }, 
+            { id: 6, nom: "Niveau 6 : Le Maître", xpRequis: 750, taille: 16, mode: 'difficile', mots: ["HIPPOPOTAME", "RHINOCEROS", "CHRYSANTHEME", "ORTHOGRAPHE", "SYMETRIE", "XYLOPHONE"] }
         ];
 
         let customThemes = JSON.parse(localStorage.getItem('motsCustomV3')) || {};
@@ -117,40 +145,55 @@
                 if (data && data.xp !== undefined) {
                     profil.xp = parseInt(data.xp) || 0;
                 }
-            } catch(e) { console.error("Erreur de connexion Firebase", e); }
+            } catch(e) { console.error("Erreur Firebase", e); }
             majAccueil();
         }
 
         async function sauverProfilCloud() {
-            try {
-                await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) });
-            } catch(e) { console.error("Erreur de sauvegarde Firebase", e); }
+            try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
         }
         // ---------------------------------
 
         function majAccueil() {
             document.getElementById('ui-xp-accueil').textContent = profil.xp;
-            const conteneurAventure = document.getElementById('liste-niveaux-aventure'); conteneurAventure.innerHTML = '';
+            
+            // Génération des boutons Niveaux
+            const conteneurAventure = document.getElementById('liste-niveaux-aventure'); 
+            conteneurAventure.innerHTML = '';
             parcoursAventure.forEach(niv => {
-                let btn = document.createElement('button'); let debloque = (profil.xp >= niv.xpRequis); btn.className = 'btn-niveau ' + (debloque ? '' : 'verrouille');
-                btn.innerHTML = `<span>🏁 ${niv.nom}</span> <span style="font-size:0.9rem;">${debloque ? "Jouer ➔" : `🔒 Requis: ${niv.xpRequis} XP`}</span>`;
+                let btn = document.createElement('button'); 
+                let debloque = (profil.xp >= niv.xpRequis); 
+                btn.className = 'btn-niveau ' + (debloque ? '' : 'verrouille');
+                btn.innerHTML = `<span>🏁 ${niv.nom}</span> <span style="font-size:0.85rem;">${debloque ? "Jouer ➔" : `🔒 Requis: ${niv.xpRequis} XP`}</span>`;
                 if (debloque) btn.onclick = () => lancerPartie(niv.mots, niv.nom, niv.taille, niv.mode);
                 conteneurAventure.appendChild(btn);
             });
-            const conteneurCustom = document.getElementById('liste-themes-custom'); conteneurCustom.innerHTML = '';
-            if (Object.keys(customThemes).length === 0) { conteneurCustom.innerHTML = "<p style='color:#bbb; font-style:italic;'>Aucune liste de révision pour l'instant.</p>"; } 
-            else {
+
+            // Génération des listes personnalisées Parents
+            const conteneurCustom = document.getElementById('liste-themes-custom'); 
+            conteneurCustom.innerHTML = '';
+            
+            if (Object.keys(customThemes).length === 0) { 
+                conteneurCustom.innerHTML = "<p style='color:#bbb; font-style:italic;'>Aucune liste de révision pour l'instant.</p>"; 
+            } else {
                 for (let id in customThemes) {
-                    let div = document.createElement('div'); let btn = document.createElement('button'); btn.className = 'btn btn-secondaire'; btn.style.backgroundColor = '#2b2d42'; btn.textContent = customThemes[id].nom;
-                    btn.onclick = () => lancerPartie(customThemes[id].mots, customThemes[id].nom, 12, 'moyen');
-                    let btnDel = document.createElement('button'); btnDel.className = 'btn btn-secondaire'; btnDel.textContent = "X";
+                    let div = document.createElement('div'); div.style.display = "inline-flex"; div.style.margin = "5px";
+                    let btn = document.createElement('button'); btn.className = 'btn btn-secondaire'; btn.style.backgroundColor = '#2b2d42'; btn.textContent = customThemes[id].nom;
+                    
+                    // Ajuster dynamiquement la taille de la grille en fonction de la longueur des mots pour les grilles custom
+                    let maxLen = Math.max(...customThemes[id].mots.map(m => m.length));
+                    let gridTaille = Math.max(12, maxLen + 2);
+
+                    btn.onclick = () => lancerPartie(customThemes[id].mots, customThemes[id].nom, gridTaille, 'moyen');
+                    
+                    let btnDel = document.createElement('button'); btnDel.className = 'btn btn-supprimer'; btnDel.textContent = "X";
                     btnDel.onclick = () => { delete customThemes[id]; sauverCustom(); majAccueil(); };
+                    
                     div.appendChild(btn); div.appendChild(btnDel); conteneurCustom.appendChild(div);
                 }
             }
         }
 
-        // Met à jour l'UI locale puis pousse vers le Cloud
         function sauverProfil() { 
             document.getElementById('ui-xp-accueil').textContent = profil.xp; 
             document.getElementById('ui-xp-jeu').textContent = profil.xp; 
@@ -162,10 +205,15 @@
         function sauvegarderTheme() {
             let nom = document.getElementById('input-nom-theme').value.trim(); let motsBruts = document.getElementById('input-mots').value;
             if(!nom || !motsBruts) return alert("Remplissez les champs !");
-            let motsPropres = motsBruts.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(',').map(m => m.replace(/[^A-Z]/g, '')).filter(m => m.length > 2 && m.length <= 12);
-            if(motsPropres.length === 0) return alert("Aucun mot valide trouvé.");
+            
+            // Nettoyage complet (majuscules, pas d'accents, suppression des espaces, mots trop courts/longs)
+            let motsPropres = motsBruts.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(',').map(m => m.replace(/[^A-Z]/g, '')).filter(m => m.length > 2 && m.length <= 15);
+            if(motsPropres.length === 0) return alert("Aucun mot valide trouvé (ils doivent faire entre 3 et 15 lettres).");
+            
             customThemes['custom_' + Date.now()] = { nom: nom, mots: motsPropres }; sauverCustom();
-            document.getElementById('msg-config').textContent = "Liste sauvegardée !"; document.getElementById('input-nom-theme').value = ""; document.getElementById('input-mots').value = "";
+            
+            document.getElementById('msg-config').textContent = "Liste sauvegardée avec succès !"; 
+            document.getElementById('input-nom-theme').value = ""; document.getElementById('input-mots').value = "";
             setTimeout(() => document.getElementById('msg-config').textContent = "", 3000); majAccueil();
         }
 
@@ -178,64 +226,142 @@
             genererGrille(motsAFinir); afficherListeMots(); changerEcran('ecran-jeu');
         }
 
+        // --- MOTEUR DE GÉNÉRATION DE LA GRILLE ---
         function genererGrille(liste) {
             let t = difficultePartie.taille; lettresGrille = Array(t).fill(null).map(() => Array(t).fill(''));
-            let directions = [[0, 1], [1, 0], [1, 1]]; 
-            if (difficultePartie.mode === 'moyen' || difficultePartie.mode === 'difficile') { directions.push([0, -1], [-1, 0]); }
-            if (difficultePartie.mode === 'difficile') { directions.push([-1, -1], [-1, 1], [1, -1]); }
+            
+            // Directions : [dRow, dCol]
+            let directions = [[0, 1], [1, 0], [1, 1]]; // Droit, Bas, Diag-Bas-Droite
+            
+            if (difficultePartie.mode === 'moyen' || difficultePartie.mode === 'difficile') { 
+                directions.push([0, -1], [-1, 0]); // Ajout Gauche, Haut
+            }
+            if (difficultePartie.mode === 'difficile') { 
+                directions.push([-1, -1], [-1, 1], [1, -1]); // Ajout de toutes les autres diagonales
+            }
 
             liste.forEach(mot => {
                 let place = false; let tentatives = 0;
-                while (!place && tentatives < 400) {
-                    tentatives++; let dir = directions[Math.floor(Math.random() * directions.length)]; let r = Math.floor(Math.random() * t); let c = Math.floor(Math.random() * t);
-                    if (peutPlacerMot(mot, r, c, dir[0], dir[1], t)) { for (let i = 0; i < mot.length; i++) lettresGrille[r + i * dir[0]][c + i * dir[1]] = mot[i]; place = true; }
+                while (!place && tentatives < 500) {
+                    tentatives++; 
+                    let dir = directions[Math.floor(Math.random() * directions.length)]; 
+                    let r = Math.floor(Math.random() * t); let c = Math.floor(Math.random() * t);
+                    
+                    if (peutPlacerMot(mot, r, c, dir[0], dir[1], t)) { 
+                        for (let i = 0; i < mot.length; i++) lettresGrille[r + i * dir[0]][c + i * dir[1]] = mot[i]; 
+                        place = true; 
+                    }
+                }
+                
+                // Fallback de sécurité (Place le mot horizontalement s'il galère vraiment)
+                if(!place) {
+                    for(let i=0; i<t; i++) {
+                        if(peutPlacerMot(mot, i, 0, 0, 1, t)) {
+                            for (let k = 0; k < mot.length; k++) lettresGrille[i][k] = mot[k];
+                            break;
+                        }
+                    }
                 }
             });
-            const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            for (let r = 0; r < t; r++) { for (let c = 0; c < t; c++) { if (lettresGrille[r][c] === '') lettresGrille[r][c] = alpha[Math.floor(Math.random() * alpha.length)]; } }
 
+            // Remplir les trous avec des lettres aléatoires
+            const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            for (let r = 0; r < t; r++) { 
+                for (let c = 0; c < t; c++) { 
+                    if (lettresGrille[r][c] === '') lettresGrille[r][c] = alpha[Math.floor(Math.random() * alpha.length)]; 
+                } 
+            }
+
+            // Génération de l'affichage HTML
             const grilleDiv = document.getElementById('grille'); grilleDiv.style.gridTemplateColumns = `repeat(${t}, 1fr)`; grilleDiv.innerHTML = '';
-            for (let r = 0; r < t; r++) { for (let c = 0; c < t; c++) { let div = document.createElement('div'); div.className = 'lettre'; div.textContent = lettresGrille[r][c]; div.dataset.r = r; div.dataset.c = c; div.onclick = () => gererClic(div, r, c); grilleDiv.appendChild(div); } }
+            for (let r = 0; r < t; r++) { 
+                for (let c = 0; c < t; c++) { 
+                    let div = document.createElement('div'); div.className = 'lettre'; div.textContent = lettresGrille[r][c]; 
+                    div.dataset.r = r; div.dataset.c = c; div.onclick = () => gererClic(div, r, c); 
+                    grilleDiv.appendChild(div); 
+                } 
+            }
         }
 
         function peutPlacerMot(mot, r, c, dr, dc, t) {
-            if (r + mot.length * dr > t || r + mot.length * dr < 0) return false; if (c + mot.length * dc > t || c + mot.length * dc < 0) return false;
-            for (let i = 0; i < mot.length; i++) { let curr = lettresGrille[r + i * dr][c + i * dc]; if (curr !== '' && curr !== mot[i]) return false; } return true;
+            // Vérification des limites de la grille
+            if (r + (mot.length - 1) * dr >= t || r + (mot.length - 1) * dr < 0) return false; 
+            if (c + (mot.length - 1) * dc >= t || c + (mot.length - 1) * dc < 0) return false;
+            
+            // Vérification des collisions avec d'autres mots déjà placés
+            for (let i = 0; i < mot.length; i++) { 
+                let curr = lettresGrille[r + i * dr][c + i * dc]; 
+                if (curr !== '' && curr !== mot[i]) return false; 
+            } 
+            return true;
         }
 
         function afficherListeMots() {
             const conteneur = document.getElementById('liste-mots'); conteneur.innerHTML = '';
-            motsAFinir.forEach(mot => { let div = document.createElement('div'); div.className = 'mot-a-trouver'; div.id = 'mot-' + mot; div.textContent = mot; conteneur.appendChild(div); });
+            motsAFinir.forEach(mot => { 
+                let div = document.createElement('div'); div.className = 'mot-a-trouver'; div.id = 'mot-' + mot; div.textContent = mot; 
+                conteneur.appendChild(div); 
+            });
         }
 
+        // --- GESTION DES CLICS SUR LA GRILLE ---
         function gererClic(el, r, c) {
             if (el.classList.contains('trouvee')) return;
-            if (!selection) { selection = { el: el, r: r, c: c }; el.classList.add('selectionnee'); } 
-            else { let r1 = selection.r, c1 = selection.c; selection.el.classList.remove('selectionnee'); selection = null; if (r1 === r && c1 === c) return; verifierLigne(r1, c1, r, c); }
+            
+            if (!selection) { 
+                selection = { el: el, r: r, c: c }; el.classList.add('selectionnee'); 
+            } else { 
+                let r1 = selection.r, c1 = selection.c; selection.el.classList.remove('selectionnee'); selection = null; 
+                if (r1 === r && c1 === c) return; // Annule si on clique deux fois au même endroit
+                verifierLigne(r1, c1, r, c); 
+            }
         }
 
         function verifierLigne(r1, c1, r2, c2) {
-            let dr = Math.sign(r2 - r1); let dc = Math.sign(c2 - c1); let distR = Math.abs(r2 - r1); let distC = Math.abs(c2 - c1);
+            let dr = Math.sign(r2 - r1); let dc = Math.sign(c2 - c1); 
+            let distR = Math.abs(r2 - r1); let distC = Math.abs(c2 - c1);
+            
+            // Empêcher la sélection en mode "cavalier" (doit être droit ou en vraie diagonale)
             if (dr !== 0 && dc !== 0 && distR !== distC) return erreur(r1, c1, r2, c2); 
+            
             let motForme = ""; let elements = []; let longueur = Math.max(distR, distC) + 1;
-            for (let i = 0; i < longueur; i++) { let row = r1 + i * dr; let col = c1 + i * dc; motForme += lettresGrille[row][col]; elements.push(document.querySelector(`.lettre[data-r="${row}"][data-c="${col}"]`)); }
+            for (let i = 0; i < longueur; i++) { 
+                let row = r1 + i * dr; let col = c1 + i * dc; 
+                motForme += lettresGrille[row][col]; 
+                elements.push(document.querySelector(`.lettre[data-r="${row}"][data-c="${col}"]`)); 
+            }
+            
             let inverse = motForme.split('').reverse().join('');
-            if (motsAFinir.includes(motForme)) validerMot(motForme, elements); else if (motsAFinir.includes(inverse)) validerMot(inverse, elements); else erreur(r1, c1, r2, c2);
+            if (motsAFinir.includes(motForme)) validerMot(motForme, elements); 
+            else if (motsAFinir.includes(inverse)) validerMot(inverse, elements); 
+            else erreur(r1, c1, r2, c2);
         }
 
         function validerMot(mot, elements) {
-            let motUI = document.getElementById('mot-' + mot); motUI.classList.add('barre'); motUI.onclick = () => window.open(`https://fr.wiktionary.org/wiki/${mot.toLowerCase()}`, '_blank');
-            elements.forEach(el => el.classList.add('trouvee')); motsAFinir = motsAFinir.filter(m => m !== mot);
-            let xpGagne = mot.length * 2; profil.xp += xpGagne; pointsGagnesCettePartie += xpGagne; sauverProfil();
-            if (motsAFinir.length === 0) { setTimeout(() => { let bonusFin = difficultePartie.taille * 5; profil.xp += bonusFin; pointsGagnesCettePartie += bonusFin; sauverProfil(); document.getElementById('gain-xp').textContent = pointsGagnesCettePartie; changerEcran('ecran-fin'); }, 1000); }
+            let motUI = document.getElementById('mot-' + mot); motUI.classList.add('barre'); 
+            // Petit lien Wiktionnaire si on clique sur un mot trouvé (super pour enrichir le vocabulaire)
+            motUI.onclick = () => window.open(`https://fr.wiktionary.org/wiki/${mot.toLowerCase()}`, '_blank');
+            
+            elements.forEach(el => el.classList.add('trouvee')); 
+            motsAFinir = motsAFinir.filter(m => m !== mot);
+            
+            let xpGagne = mot.length * 3; // +3 XP par lettre en CM2
+            profil.xp += xpGagne; pointsGagnesCettePartie += xpGagne; sauverProfil();
+            
+            if (motsAFinir.length === 0) { 
+                setTimeout(() => { 
+                    let bonusFin = difficultePartie.taille * 5; profil.xp += bonusFin; pointsGagnesCettePartie += bonusFin; 
+                    sauverProfil(); document.getElementById('gain-xp').textContent = pointsGagnesCettePartie; changerEcran('ecran-fin'); 
+                }, 1000); 
+            }
         }
 
         function erreur(r1, c1, r2, c2) {
              let e1 = document.querySelector(`.lettre[data-r="${r1}"][data-c="${c1}"]`); let e2 = document.querySelector(`.lettre[data-r="${r2}"][data-c="${c2}"]`);
-             if(e1) { e1.classList.add('erreur'); setTimeout(() => e1.classList.remove('erreur'), 400); } if(e2) { e2.classList.add('erreur'); setTimeout(() => e2.classList.remove('erreur'), 400); }
+             if(e1) { e1.classList.add('erreur'); setTimeout(() => e1.classList.remove('erreur'), 400); } 
+             if(e2) { e2.classList.add('erreur'); setTimeout(() => e2.classList.remove('erreur'), 400); }
         }
 
-        // Lancement initial
         chargerProfilCloud();
     </script>
 </body>
