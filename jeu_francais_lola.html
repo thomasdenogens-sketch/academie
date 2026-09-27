@@ -2,168 +2,335 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Français CP/CE1 - Les Mots Magiques (Cloud)</title>
+    <title>Français CE1 - L'Académie de Lola</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-        body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #fdc830 0%, #f37335 100%); color: #333; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
-        #app-container { background: white; padding: 25px 35px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-width: 800px; width: 100%; text-align: center; }
-        h1 { color: #d35400; font-weight: 900; font-size: 2.2rem; margin-bottom: 20px; }
-        #hud { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; }
-        .xp-text { color: #e67e22; font-weight: 900; }
-        #dessin-box { font-size: 5rem; margin: 10px 0; animation: flotte 2s infinite ease-in-out; }
+        
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            background: linear-gradient(135deg, #fdc830 0%, #f37335 100%); 
+            color: #333; display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; padding: 20px; 
+        }
+        
+        #app-container { 
+            background: white; padding: 30px; border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-width: 700px; width: 100%; text-align: center; position: relative;
+        }
+        
+        h1 { color: #d35400; font-weight: 900; font-size: 2.2rem; margin-bottom: 5px; }
+        .subtitle { color: #e67e22; font-weight: bold; font-size: 1.1rem; margin-bottom: 25px; }
+        
+        .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
+
+        /* Menu */
+        .grid-menu { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 25px; }
+        .btn-menu-theme {
+            background: #f8f9fa; border: 3px solid #e2e8f0; padding: 15px 20px; border-radius: 15px;
+            font-size: 1.2rem; font-weight: bold; color: #2c3e50; cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; justify-content: flex-start; gap: 15px; text-align: left;
+        }
+        .btn-menu-theme:hover { transform: translateX(5px); border-color: #e67e22; background: #fffaf0;}
+        .theme-icon { font-size: 2rem; }
+
+        /* HUD Jeu */
+        #hud { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; border: 2px solid #ecf0f1;}
+        
+        /* Mode Orthographe */
+        #dessin-box { font-size: 4rem; margin: 10px 0; animation: flotte 2s infinite ease-in-out; }
         @keyframes flotte { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         #mot-a-construire { display: flex; justify-content: center; gap: 10px; margin: 20px 0; min-height: 60px; flex-wrap: wrap;}
         .case-lettre { width: 45px; height: 60px; border-bottom: 4px solid #bdc3c7; display: flex; justify-content: center; align-items: flex-end; font-size: 2.2rem; font-weight: 900; color: #2c3e50; padding-bottom: 5px; }
-        #lettres-melangees { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 30px; }
+        #lettres-melangees { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
         .tuile-lettre { background: #f39c12; color: white; width: 55px; height: 55px; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 2rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #d35400; transition: transform 0.1s; }
         .tuile-lettre:active { transform: translateY(4px); box-shadow: none; }
         .tuile-lettre.utilisee { opacity: 0; pointer-events: none; }
-        .btn { font-family: 'Nunito', sans-serif; font-size: 1.2rem; font-weight: bold; padding: 15px 25px; border: none; border-radius: 10px; cursor: pointer; color: white; margin: 8px 5px; transition: transform 0.1s; width: 80%; max-width: 320px; display: inline-block;}
-        .btn:active { transform: scale(0.95); }
-        .btn-cp { background: #e67e22; box-shadow: 0 4px #d35400; }
-        .btn-ce1 { background: #8e44ad; box-shadow: 0 4px #6c3483; }
-        .btn-secondaire { background: #bdc3c7; box-shadow: 0 4px #95a5a6; color: #2c3e50; }
-        .erreur { animation: secousse 0.4s; color: #e74c3c !important; border-color: #e74c3c !important; }
+
+        /* Mode QCM (Grammaire / Conjugaison) */
+        #consigne-qcm { font-size: 1.3rem; font-weight: 900; color: #8e44ad; margin-bottom: 20px; }
+        #phrase-qcm { font-size: 1.5rem; font-weight: bold; color: #34495e; margin-bottom: 30px; line-height: 1.5; background: #f8f9fa; padding: 20px; border-radius: 15px; border: 2px dashed #bdc3c7;}
+        
+        .zone-boutons-qcm { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;}
+        .btn-qcm { background: white; border: 3px solid #3498db; padding: 12px 25px; border-radius: 12px; font-size: 1.3rem; font-weight: bold; color: #2980b9; cursor: pointer; transition: 0.1s; box-shadow: 0 4px 0 #2980b9;}
+        .btn-qcm:active { transform: translateY(4px); box-shadow: none; }
+        .btn-qcm.correct { background: #2ecc71; color: white; border-color: #27ae60; box-shadow: 0 4px 0 #2196f3; }
+        .btn-qcm.erreur { background: #e74c3c; color: white; border-color: #c0392b; box-shadow: 0 4px 0 #c0392b; }
+
+        /* Boutons Généraux */
+        .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; text-decoration: none; display: inline-block; transition: 0.2s; }
+        .btn-nav:hover { background: #7f8c8d; }
+        
+        .erreur-anim { animation: secousse 0.4s; }
         @keyframes secousse { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        
         .ecran { display: none; }
         .ecran.actif { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-        #feedback { font-size: 1.5rem; font-weight: bold; height: 40px; margin: 15px 0; }
+        
+        #feedback { font-size: 1.5rem; font-weight: 900; height: 40px; margin: 15px 0; }
     </style>
 </head>
 <body>
 
     <div id="app-container">
+        <div class="xp-badge" id="ui-xp">XP: ... ⭐</div>
+
+        <!-- ECRAN D'ACCUEIL -->
         <div id="ecran-accueil" class="ecran actif">
-            <h1>Français CP / CE1 📖</h1>
-            <p style="font-size: 1.1rem; color: #666; margin-bottom: 20px;">Reconstruis les mots magiques !</p>
+            <h1>Français CE1 📖</h1>
+            <p class="subtitle">Grammaire, Conjugaison et Orthographe</p>
             
-            <p>⭐️ Niveau CP :</p>
-            <button class="btn btn-cp" onclick="lancerNiveau('animaux')">🐶 Les Animaux</button>
-            <button class="btn btn-cp" onclick="lancerNiveau('ecole')">✏️ L'École</button>
-            
-            <p style="margin-top: 15px;">🚀 Évolution CE1 (Sons complexes) :</p>
-            <button class="btn btn-ce1" onclick="lancerNiveau('ce1_sons')">🗣️ Sons CH, OU, GN, OI</button>
-            
-            <div style="margin-top: 20px; font-size: 1.2rem; font-weight: bold;">
-                XP Français : <span id="ui-xp-accueil" style="color:#d35400;">...</span> ⭐
+            <div class="grid-menu">
+                <button class="btn-menu-theme" onclick="lancerNiveau('orthographe')">
+                    <span class="theme-icon">🧩</span>
+                    <div>
+                        <div style="color:#d35400;">Les Mots Pièges</div>
+                        <div style="font-size:0.9rem; color:#7f8c8d;">Sons complexes (CH, OU, OI...)</div>
+                    </div>
+                </button>
+                <button class="btn-menu-theme" onclick="lancerNiveau('grammaire')">
+                    <span class="theme-icon">🔎</span>
+                    <div>
+                        <div style="color:#27ae60;">Le Détective</div>
+                        <div style="font-size:0.9rem; color:#7f8c8d;">Trouver le verbe ou le sujet</div>
+                    </div>
+                </button>
+                <button class="btn-menu-theme" onclick="lancerNiveau('conjugaison')">
+                    <span class="theme-icon">✍️</span>
+                    <div>
+                        <div style="color:#8e44ad;">La Machine à Verbes</div>
+                        <div style="font-size:0.9rem; color:#7f8c8d;">Présent (1er groupe)</div>
+                    </div>
+                </button>
             </div>
-            <button class="btn btn-secondaire" style="margin-top: 25px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+            
+            <button class="btn-nav" style="margin-top: 10px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
+        <!-- ECRAN DE JEU -->
         <div id="ecran-jeu" class="ecran">
-            <div id="hud"><span id="ui-vies" style="letter-spacing: 5px;">❤️❤️❤️</span><span id="ui-progression" style="color: #7f8c8d;">1 / 5</span></div>
-            <div id="dessin-box">🐱</div>
-            <div id="mot-a-construire"></div>
-            <div id="lettres-melangees"></div>
-            <div id="feedback"></div>
-            <button class="btn btn-secondaire" onclick="retourAccueil()">Abandonner</button>
-        </div>
+            <div id="hud">
+                <span id="ui-vies" style="letter-spacing: 5px;">❤️❤️❤️</span>
+                <span id="ui-progression" style="color: #7f8c8d;">1 / 5</span>
+            </div>
+            
+            <!-- Module Orthographe -->
+            <div id="module-orthographe" style="display: none;">
+                <div id="dessin-box">🐱</div>
+                <div id="mot-a-construire"></div>
+                <div id="lettres-melangees"></div>
+            </div>
 
-        <div id="ecran-fin" class="ecran">
-            <h1 style="color:#27ae60;">Magnifique, Lola ! 🎉</h1>
-            <p style="font-size: 1.5rem; font-weight: bold; margin: 20px 0; color: #e67e22;">+<span id="gain-xp"></span> XP !</p>
-            <button class="btn btn-cp" onclick="window.location.href='index.html'">Retour à l'Académie</button>
+            <!-- Module QCM (Grammaire / Conjugaison) -->
+            <div id="module-qcm" style="display: none;">
+                <div id="consigne-qcm">Consigne</div>
+                <div id="phrase-qcm">La petite fille mange une pomme.</div>
+                <div class="zone-boutons-qcm" id="boutons-qcm"></div>
+            </div>
+
+            <div id="feedback"></div>
+            <button class="btn-nav" onclick="retourAccueil()">⬅️ Changer d'exercice</button>
         </div>
     </div>
 
     <script>
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
-        // L'adresse de sauvegarde spécifique pour le Français de Lola
         const DB_URL = `${FIREBASE_URL}scores/lola/francaisLola.json`;
 
-        const dictionnaire = {
-            animaux: [{ mot: "CHAT", emoji: "🐱" }, { mot: "CHIEN", emoji: "🐶" }, { mot: "LOUP", emoji: "🐺" }, { mot: "LION", emoji: "🦁" }, { mot: "OURS", emoji: "🐻" }],
-            ecole: [{ mot: "LIVRE", emoji: "📚" }, { mot: "STYLO", emoji: "🖊️" }, { mot: "CRAIE", emoji: "🖍️" }, { mot: "TABLE", emoji: "🪑" }, { mot: "ECOLE", emoji: "🏫" }],
-            ce1_sons: [
-                { mot: "CHAUVE", emoji: "🦇" }, { mot: "BOUCHON", emoji: "🍾" }, 
-                { mot: "SINGE", emoji: "🐒" }, { mot: "OISEAU", emoji: "🐦" }, { mot: "CHAMPIGNON", emoji: "🍄" }
+        // BASE DE DONNÉES CE1
+        const bdd = {
+            orthographe: [
+                { mot: "CHATEAU", emoji: "🏰" }, { mot: "POISSON", emoji: "🐟" }, 
+                { mot: "OISEAU", emoji: "🐦" }, { mot: "BOUCHON", emoji: "🍾" }, 
+                { mot: "CHAMPIGNON", emoji: "🍄" }, { mot: "VOITURE", emoji: "🚗" },
+                { mot: "MAISON", emoji: "🏠" }, { mot: "GARCON", emoji: "👦" }
+            ],
+            grammaire: [
+                { phrase: "Le petit chat dort sur le lit.", consigne: "Trouve le VERBE", rep: "dort" },
+                { phrase: "Lola mange une pomme rouge.", consigne: "Trouve le VERBE", rep: "mange" },
+                { phrase: "Le grand chien aboie fort.", consigne: "Trouve le VERBE", rep: "aboie" },
+                { phrase: "Maman prépare un bon gâteau.", consigne: "Trouve le SUJET", rep: "Maman" },
+                { phrase: "Les enfants jouent dans le jardin.", consigne: "Trouve le VERBE", rep: "jouent" },
+                { phrase: "Mon frère regarde la télévision.", consigne: "Trouve le SUJET", rep: "frère" } // Simplifié pour cliquer sur le nom noyau
+            ],
+            conjugaison: [
+                { phrase: "Je (chanter) _____ une chanson.", consigne: "Choisis la bonne terminaison :", choix: ["chante", "chantes", "chantons"], rep: "chante" },
+                { phrase: "Tu (jouer) _____ avec ton chat.", consigne: "Choisis la bonne terminaison :", choix: ["joue", "joues", "jouez"], rep: "joues" },
+                { phrase: "Nous (manger) _____ des frites.", consigne: "Choisis la bonne terminaison :", choix: ["mangons", "mangeons", "mangez"], rep: "mangeons" },
+                { phrase: "Ils (parler) _____ très fort.", consigne: "Choisis la bonne terminaison :", choix: ["parle", "parlons", "parlent"], rep: "parlent" },
+                { phrase: "Elle (regarder) _____ les étoiles.", consigne: "Choisis la bonne terminaison :", choix: ["regarde", "regardent", "regardes"], rep: "regarde" },
+                { phrase: "Vous (danser) _____ bien.", consigne: "Choisis la bonne terminaison :", choix: ["dansons", "dansez", "dansent"], rep: "dansez" }
             ]
         };
 
         let profil = { xp: 0 };
-        let vies = 3; let indexMot = 0; let motsNiveau = []; let motAttendu = ""; let motSaisi = "";
+        let vies = 3; 
+        let indexQuestion = 0; 
+        let listeQuestions = []; 
+        let modeActuel = "";
+        let motAttendu = ""; 
+        let motSaisi = "";
+        let bloque = false;
+
         const E = (id) => document.getElementById(id);
 
-        // --- SAUVEGARDE CLOUD FIREBASE ---
+        // --- GESTION DU CLOUD ---
         async function chargerProfilCloud() {
             try {
                 let res = await fetch(DB_URL);
                 let data = await res.json();
-                if (data && data.xp !== undefined) {
-                    profil.xp = parseInt(data.xp) || 0;
-                }
+                if (data && data.xp !== undefined) profil.xp = parseInt(data.xp) || 0;
             } catch(e) {}
-            majAccueil();
+            majXP();
         }
 
         async function sauverProfilCloud() {
-            try {
-                await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) });
-            } catch(e) {}
+            try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
         }
-        // ---------------------------------
 
-        function majAccueil() { E('ui-xp-accueil').textContent = profil.xp; }
-        
-        function sauverProfil() { 
-            majAccueil(); 
-            sauverProfilCloud(); 
-        }
-        
+        function majXP() { E('ui-xp').textContent = `XP: ${profil.xp} ⭐`; }
+        function ajouterXP(points) { profil.xp += points; majXP(); sauverProfilCloud(); }
+
+        // --- NAVIGATION ---
         function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); E(id).classList.add('actif'); }
-        function retourAccueil() { changerEcran('ecran-accueil'); majAccueil(); }
+        function retourAccueil() { changerEcran('ecran-accueil'); }
 
-        function lancerNiveau(themeId) {
-            vies = 3; indexMot = 0; motsNiveau = [...dictionnaire[themeId]].sort(() => Math.random() - 0.5);
-            E('ui-vies').textContent = "❤️❤️❤️"; E('feedback').textContent = ""; changerEcran('ecran-jeu'); poserQuestion();
+        // --- MOTEUR DE JEU ---
+        function lancerNiveau(mode) {
+            modeActuel = mode;
+            vies = 3; 
+            indexQuestion = 0; 
+            listeQuestions = [...bdd[mode]].sort(() => Math.random() - 0.5).slice(0, 5); // 5 questions par série
+            
+            E('ui-vies').textContent = "❤️❤️❤️"; 
+            E('feedback').textContent = ""; 
+            
+            E('module-orthographe').style.display = (mode === 'orthographe') ? 'block' : 'none';
+            E('module-qcm').style.display = (mode !== 'orthographe') ? 'block' : 'none';
+            
+            changerEcran('ecran-jeu'); 
+            poserQuestion();
         }
 
         function poserQuestion() {
-            if (vies <= 0 || indexMot >= motsNiveau.length) return finirJeu();
-            E('ui-progression').textContent = `${indexMot + 1} / ${motsNiveau.length}`; E('feedback').textContent = "";
-            let dataMot = motsNiveau[indexMot]; motAttendu = dataMot.mot; motSaisi = "";
-            E('dessin-box').textContent = dataMot.emoji;
-            
-            const boxMot = E('mot-a-construire'); boxMot.innerHTML = '';
-            for(let i=0; i<motAttendu.length; i++) { let div = document.createElement('div'); div.className = 'case-lettre'; boxMot.appendChild(div); }
-            
-            let lettres = motAttendu.split('').sort(() => Math.random() - 0.5);
-            const boxLettres = E('lettres-melangees'); boxLettres.innerHTML = '';
-            lettres.forEach((lettre) => {
-                let tuile = document.createElement('div'); tuile.className = 'tuile-lettre'; tuile.textContent = lettre;
-                tuile.onclick = () => cliquerLettre(tuile, lettre); boxLettres.appendChild(tuile);
-            });
+            if (vies <= 0) {
+                alert("Plus de vies ! Entraîne-toi encore.");
+                return retourAccueil();
+            }
+            if (indexQuestion >= listeQuestions.length) {
+                alert("Série terminée ! Bien joué Lola !");
+                return retourAccueil();
+            }
+
+            bloque = false;
+            E('ui-progression').textContent = `${indexQuestion + 1} / ${listeQuestions.length}`; 
+            E('feedback').textContent = "";
+            let data = listeQuestions[indexQuestion];
+
+            if (modeActuel === 'orthographe') {
+                motAttendu = data.mot; motSaisi = "";
+                E('dessin-box').textContent = data.emoji;
+                
+                const boxMot = E('mot-a-construire'); boxMot.innerHTML = '';
+                for(let i=0; i<motAttendu.length; i++) { let div = document.createElement('div'); div.className = 'case-lettre'; boxMot.appendChild(div); }
+                
+                let lettres = motAttendu.split('').sort(() => Math.random() - 0.5);
+                const boxLettres = E('lettres-melangees'); boxLettres.innerHTML = '';
+                lettres.forEach((lettre) => {
+                    let tuile = document.createElement('div'); tuile.className = 'tuile-lettre'; tuile.textContent = lettre;
+                    tuile.onclick = () => cliquerLettre(tuile, lettre); boxLettres.appendChild(tuile);
+                });
+            } 
+            else if (modeActuel === 'grammaire') {
+                E('consigne-qcm').textContent = data.consigne;
+                E('phrase-qcm').style.display = "none"; // On va utiliser la zone bouton pour afficher la phrase cliquable
+                
+                const boxBoutons = E('boutons-qcm'); boxBoutons.innerHTML = '';
+                
+                // Découper la phrase en mots cliquables
+                let mots = data.phrase.split(" ");
+                mots.forEach(mot => {
+                    let motPropre = mot.replace(/[.,!?]/g, ""); // Enlever la ponctuation pour la vérification
+                    let btn = document.createElement('button');
+                    btn.className = "btn-qcm";
+                    btn.style.margin = "5px";
+                    btn.textContent = mot;
+                    btn.onclick = () => validerQCM(btn, motPropre === data.rep);
+                    boxBoutons.appendChild(btn);
+                });
+            }
+            else if (modeActuel === 'conjugaison') {
+                E('consigne-qcm').textContent = data.consigne;
+                E('phrase-qcm').style.display = "block";
+                E('phrase-qcm').textContent = data.phrase;
+                
+                const boxBoutons = E('boutons-qcm'); boxBoutons.innerHTML = '';
+                let choixMelanges = [...data.choix].sort(() => Math.random() - 0.5);
+                
+                choixMelanges.forEach(choix => {
+                    let btn = document.createElement('button');
+                    btn.className = "btn-qcm";
+                    btn.textContent = choix;
+                    btn.onclick = () => {
+                        E('phrase-qcm').innerHTML = data.phrase.replace("_____", `<span style='color:#2980b9;'>${choix}</span>`);
+                        validerQCM(btn, choix === data.rep);
+                    };
+                    boxBoutons.appendChild(btn);
+                });
+            }
         }
 
+        // Action Orthographe
         function cliquerLettre(tuileElement, lettre) {
+            if(bloque) return;
             motSaisi += lettre; tuileElement.classList.add('utilisee');
             let cases = document.querySelectorAll('.case-lettre'); cases[motSaisi.length - 1].textContent = lettre;
-            if (motSaisi.length === motAttendu.length) verifierMot();
+            
+            if (motSaisi.length === motAttendu.length) {
+                bloque = true;
+                const fb = E('feedback');
+                if (motSaisi === motAttendu) {
+                    fb.textContent = "Bravo ! 🌟"; fb.style.color = "#27ae60"; ajouterXP(10);
+                    setTimeout(() => { indexQuestion++; poserQuestion(); }, 1000);
+                } else {
+                    fb.textContent = "Oups ! 🔴"; fb.style.color = "#c0392b";
+                    vies--; E('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3 - vies);
+                    document.querySelectorAll('.case-lettre').forEach(c => c.classList.add('erreur-anim'));
+                    setTimeout(() => { poserQuestion(); }, 1500);
+                }
+            }
         }
 
-        function verifierMot() {
+        // Action Grammaire / Conjugaison
+        function validerQCM(btn, isCorrect) {
+            if (bloque) return;
+            bloque = true;
+            
             const fb = E('feedback');
-            if (motSaisi === motAttendu) {
-                fb.textContent = "Bravo Lola ! 🌟"; fb.style.color = "#27ae60"; profil.xp += 10; sauverProfil();
-                setTimeout(() => { indexMot++; poserQuestion(); }, 1000);
+            document.querySelectorAll('.btn-qcm').forEach(b => b.onclick = null);
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                fb.textContent = "Excellent ! ✨"; fb.style.color = "#27ae60"; ajouterXP(10);
+                setTimeout(() => { indexQuestion++; poserQuestion(); }, 1500);
             } else {
-                fb.textContent = "Oups ! Regarde bien 🔴"; fb.style.color = "#c0392b";
+                btn.classList.add('erreur');
+                fb.textContent = "Aïe... Regarde la correction."; fb.style.color = "#c0392b";
+                
+                // Montrer la bonne réponse en vert
+                let data = listeQuestions[indexQuestion];
+                document.querySelectorAll('.btn-qcm').forEach(b => {
+                    let text = b.textContent.replace(/[.,!?]/g, "");
+                    if (text === data.rep) b.classList.add('correct');
+                });
+
                 vies--; E('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3 - vies);
-                document.querySelectorAll('.case-lettre').forEach(c => c.classList.add('erreur'));
-                if (vies <= 0) { setTimeout(() => { alert("Plus de vies ! Entraîne-toi encore."); retourAccueil(); }, 1500); } 
-                else { setTimeout(() => { poserQuestion(); }, 1500); }
+                setTimeout(() => { poserQuestion(); }, 2500);
             }
         }
 
-        function finirJeu() {
-            if (vies > 0) {
-                let bonus = vies * 10; let gainTotal = (motsNiveau.length * 10) + bonus;
-                profil.xp += bonus; sauverProfil(); E('gain-xp').textContent = gainTotal; changerEcran('ecran-fin');
-            }
-        }
-        
         chargerProfilCloud();
     </script>
 </body>
