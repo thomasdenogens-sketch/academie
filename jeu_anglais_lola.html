@@ -26,47 +26,55 @@
         
         .xp { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
 
+        /* Niveaux Progressifs */
+        .niveau-section { text-align: left; margin-bottom: 20px; padding: 15px; background: #fdf2f8; border-radius: 15px; border: 2px solid #fce4ec; }
+        .niveau-titre { font-size: 1.2rem; font-weight: 900; color: #d81b60; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        
         /* Menu des thèmes */
-        #menu-themes { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .grid-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .btn-theme {
-            background: #f8f9fa; border: 3px solid #fecfef; padding: 15px; border-radius: 15px;
-            font-size: 1.2rem; font-weight: bold; color: #e91e63; cursor: pointer; transition: 0.2s;
-            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            background: #fff; border: 3px solid #f8bbd0; padding: 12px; border-radius: 15px;
+            font-size: 1.1rem; font-weight: bold; color: #d81b60; cursor: pointer; transition: 0.2s;
+            display: flex; flex-direction: column; align-items: center; gap: 5px; box-shadow: 0 4px 0 #f8bbd0;
         }
-        .btn-theme:hover { transform: translateY(-3px); border-color: #ff9a9e; box-shadow: 0 5px 15px rgba(255, 154, 158, 0.3); }
+        .btn-theme:active { transform: translateY(4px); box-shadow: none; }
         .theme-icon { font-size: 2rem; }
 
-        /* Zone de jeu */
-        #zone-jeu { display: none; }
-        
-        .header-jeu { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;}
+        /* HUD Jeu */
+        #hud-jeu { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; border: 2px solid #ecf0f1;}
         .theme-actuel { font-size: 1.2rem; font-weight: 800; color: #9b59b6; }
         
+        /* Zone de jeu */
         #mot-anglais-container { 
             background: #f8f9fa; padding: 25px; border-radius: 20px; 
             border: 3px dashed #e91e63; margin-bottom: 30px; display: flex; flex-direction: column; align-items: center; gap: 15px;
         }
-        #mot-anglais { font-size: 2.5rem; font-weight: 900; color: #34495e; }
+        #mot-anglais { font-size: 3rem; font-weight: 900; color: #34495e; }
         
         .btn-audio { 
-            background: #3498db; color: white; border: none; width: 50px; height: 50px; 
-            border-radius: 50%; font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 0 #2980b9; transition: 0.1s;
+            background: #3498db; color: white; border: none; width: 60px; height: 60px; 
+            border-radius: 50%; font-size: 1.8rem; cursor: pointer; box-shadow: 0 4px 0 #2980b9; transition: 0.1s;
+            display: flex; justify-content: center; align-items: center;
         }
         .btn-audio:active { transform: translateY(4px); box-shadow: none; }
 
         .options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
         .btn-opt { 
             background: #ffffff; border: 3px solid #cbd5e1; padding: 15px; border-radius: 15px; 
-            font-size: 1.2rem; font-weight: bold; color: #2c3e50; cursor: pointer; transition: 0.2s; 
+            font-size: 1.2rem; font-weight: bold; color: #2c3e50; cursor: pointer; transition: 0.1s; box-shadow: 0 4px 0 #cbd5e1;
         }
-        .btn-opt:hover { border-color: #3498db; background: #f1f8ff; }
-        .btn-opt.correct { background: #2ecc71; color: white; border-color: #27ae60; }
-        .btn-opt.erreur { background: #e74c3c; color: white; border-color: #c0392b; }
+        .btn-opt:active { transform: translateY(4px); box-shadow: none; }
+        .btn-opt.correct { background: #2ecc71; color: white; border-color: #27ae60; box-shadow: 0 4px 0 #2196f3;}
+        .btn-opt.erreur { background: #e74c3c; color: white; border-color: #c0392b; box-shadow: 0 4px 0 #c0392b;}
 
-        .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; text-decoration: none; display: inline-block; transition: 0.2s; }
+        .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; text-decoration: none; display: inline-block; transition: 0.2s; margin-top: 15px;}
         .btn-nav:hover { background: #7f8c8d; }
         
-        #feedback { font-size: 1.4rem; font-weight: 900; height: 35px; margin-bottom: 15px; }
+        .ecran { display: none; }
+        .ecran.actif { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+        
+        #feedback { font-size: 1.5rem; font-weight: 900; height: 35px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
@@ -74,34 +82,56 @@
     <div id="app">
         <div class="xp" id="hud-xp">XP: ... ⭐</div>
         
-        <!-- MENU DES THÈMES -->
-        <div id="zone-menu">
+        <!-- ECRAN D'ACCUEIL : PROGRESSION -->
+        <div id="ecran-menu" class="ecran actif">
             <h1>Hello Lola ! 🇬🇧</h1>
-            <p class="subtitle">Programme CE1 : Choisis ton entraînement</p>
+            <p class="subtitle">Progression Douce : du CP au CE1</p>
             
-            <div id="menu-themes">
-                <button class="btn-theme" onclick="lancerTheme('famille')">
-                    <span class="theme-icon">👨‍👩‍👧‍👦</span><span>La Famille</span>
-                </button>
-                <button class="btn-theme" onclick="lancerTheme('corps')">
-                    <span class="theme-icon">👂</span><span>Le Corps</span>
-                </button>
-                <button class="btn-theme" onclick="lancerTheme('nombres')">
-                    <span class="theme-icon">🔢</span><span>Les Nombres (1-20)</span>
-                </button>
-                <button class="btn-theme" onclick="lancerTheme('phrases')">
-                    <span class="theme-icon">💬</span><span>Petites Phrases</span>
-                </button>
+            <div class="niveau-section">
+                <div class="niveau-titre">🟢 Étape 1 : Révisions CP</div>
+                <div class="grid-menu">
+                    <button class="btn-theme" onclick="lancerTheme('nombres_cp', '🔢 Les Nombres (1-10)')">
+                        <span class="theme-icon">🔢</span><span>Nombres 1 à 10</span>
+                    </button>
+                    <button class="btn-theme" onclick="lancerTheme('couleurs', '🎨 Les Couleurs')">
+                        <span class="theme-icon">🎨</span><span>Les Couleurs</span>
+                    </button>
+                    <button class="btn-theme" onclick="lancerTheme('famille_cp', '👨‍👩‍👧‍👦 La Famille (Base)')">
+                        <span class="theme-icon">👨‍👩‍👧‍👦</span><span>La Famille</span>
+                    </button>
+                    <button class="btn-theme" onclick="lancerTheme('corps_cp', '👂 Le Visage')">
+                        <span class="theme-icon">👂</span><span>Le Visage</span>
+                    </button>
+                </div>
             </div>
-            <br>
+
+            <div class="niveau-section">
+                <div class="niveau-titre">🔵 Étape 2 : Nouveautés CE1</div>
+                <div class="grid-menu">
+                    <button class="btn-theme" style="border-color: #81d4fa; color: #0277bd; box-shadow: 0 4px 0 #81d4fa;" onclick="lancerTheme('nombres_ce1', '🔢 Nombres (11-20)')">
+                        <span class="theme-icon">🔟</span><span>Nombres 11 à 20</span>
+                    </button>
+                    <button class="btn-theme" style="border-color: #81d4fa; color: #0277bd; box-shadow: 0 4px 0 #81d4fa;" onclick="lancerTheme('animaux', '🐶 Les Animaux')">
+                        <span class="theme-icon">🐶</span><span>Les Animaux</span>
+                    </button>
+                    <button class="btn-theme" style="border-color: #81d4fa; color: #0277bd; box-shadow: 0 4px 0 #81d4fa;" onclick="lancerTheme('corps_ce1', '💪 Le Corps')">
+                        <span class="theme-icon">💪</span><span>Le Corps</span>
+                    </button>
+                    <button class="btn-theme" style="border-color: #81d4fa; color: #0277bd; box-shadow: 0 4px 0 #81d4fa;" onclick="lancerTheme('phrases', '💬 Petites Phrases')">
+                        <span class="theme-icon">💬</span><span>Petites Phrases</span>
+                    </button>
+                </div>
+            </div>
+
             <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
-        <!-- ZONE DE JEU -->
-        <div id="zone-jeu">
-            <div class="header-jeu">
+        <!-- ECRAN DE JEU -->
+        <div id="ecran-jeu" class="ecran">
+            <div id="hud-jeu">
+                <span id="ui-vies" style="letter-spacing: 5px;">❤️❤️❤️</span>
                 <span class="theme-actuel" id="titre-theme">Thème</span>
-                <span style="color:#7f8c8d; font-weight:bold;">Série en cours</span>
+                <span id="ui-progression" style="color: #7f8c8d;">1 / 5</span>
             </div>
 
             <div id="mot-anglais-container">
@@ -123,28 +153,50 @@
         let xpGlobale = 0;
         let themeActuel = null;
         let questionActuelle = null;
-        let optionsMelangees = [];
         let bloque = false;
+        let vies = 3;
+        let numQuestion = 0;
+        const totalQuestions = 5;
 
-        // Base de données vocabulaire CE1
+        // --- LA PIOCHE (Le sac de mots anti-répétition) ---
+        let sacsVocabulaire = {};
+
+        // Base de données vocabulaire évolutive
         const vocabulaire = {
-            famille: [
-                { en: "Mother", fr: "Mère" }, { en: "Father", fr: "Père" }, 
-                { en: "Brother", fr: "Frère" }, { en: "Sister", fr: "Sœur" },
-                { en: "Grandfather", fr: "Grand-père" }, { en: "Grandmother", fr: "Grand-mère" },
-                { en: "Baby", fr: "Bébé" }, { en: "Family", fr: "Famille" }
+            // NIVEAU 1 : CP
+            nombres_cp: [
+                { en: "One", fr: "1" }, { en: "Two", fr: "2" }, { en: "Three", fr: "3" }, { en: "Four", fr: "4" },
+                { en: "Five", fr: "5" }, { en: "Six", fr: "6" }, { en: "Seven", fr: "7" }, { en: "Eight", fr: "8" },
+                { en: "Nine", fr: "9" }, { en: "Ten", fr: "10" }
             ],
-            corps: [
-                { en: "Head", fr: "Tête" }, { en: "Shoulders", fr: "Épaules" },
-                { en: "Knees", fr: "Genoux" }, { en: "Toes", fr: "Orteils" },
-                { en: "Eyes", fr: "Yeux" }, { en: "Ears", fr: "Oreilles" },
-                { en: "Mouth", fr: "Bouche" }, { en: "Nose", fr: "Nez" }
+            couleurs: [
+                { en: "Red", fr: "Rouge" }, { en: "Blue", fr: "Bleu" }, { en: "Yellow", fr: "Jaune" }, 
+                { en: "Green", fr: "Vert" }, { en: "Black", fr: "Noir" }, { en: "White", fr: "Blanc" },
+                { en: "Pink", fr: "Rose" }, { en: "Orange", fr: "Orange" }
             ],
-            nombres: [
-                { en: "Eleven", fr: "11" }, { en: "Twelve", fr: "12" },
-                { en: "Thirteen", fr: "13" }, { en: "Fourteen", fr: "14" },
-                { en: "Fifteen", fr: "15" }, { en: "Sixteen", fr: "16" },
-                { en: "Twenty", fr: "20" }, { en: "Ten", fr: "10" }
+            famille_cp: [
+                { en: "Mother", fr: "Maman (Mère)" }, { en: "Father", fr: "Papa (Père)" }, 
+                { en: "Brother", fr: "Frère" }, { en: "Sister", fr: "Sœur" }, { en: "Baby", fr: "Bébé" }
+            ],
+            corps_cp: [
+                { en: "Head", fr: "Tête" }, { en: "Eyes", fr: "Yeux" }, 
+                { en: "Mouth", fr: "Bouche" }, { en: "Nose", fr: "Nez" }, { en: "Ears", fr: "Oreilles" }
+            ],
+
+            // NIVEAU 2 : CE1
+            nombres_ce1: [
+                { en: "Eleven", fr: "11" }, { en: "Twelve", fr: "12" }, { en: "Thirteen", fr: "13" }, 
+                { en: "Fourteen", fr: "14" }, { en: "Fifteen", fr: "15" }, { en: "Sixteen", fr: "16" }, 
+                { en: "Seventeen", fr: "17" }, { en: "Eighteen", fr: "18" }, { en: "Nineteen", fr: "19" }, { en: "Twenty", fr: "20" }
+            ],
+            animaux: [
+                { en: "Dog", fr: "Chien" }, { en: "Cat", fr: "Chat" }, { en: "Bird", fr: "Oiseau" }, 
+                { en: "Fish", fr: "Poisson" }, { en: "Mouse", fr: "Souris" }, { en: "Horse", fr: "Cheval" },
+                { en: "Rabbit", fr: "Lapin" }, { en: "Cow", fr: "Vache" }
+            ],
+            corps_ce1: [
+                { en: "Shoulders", fr: "Épaules" }, { en: "Knees", fr: "Genoux" }, { en: "Toes", fr: "Orteils" },
+                { en: "Hand", fr: "Main" }, { en: "Hair", fr: "Cheveux" }, { en: "Arm", fr: "Bras" }, { en: "Leg", fr: "Jambe" }
             ],
             phrases: [
                 { en: "Hello!", fr: "Bonjour !" }, { en: "Goodbye!", fr: "Au revoir !" },
@@ -154,73 +206,82 @@
             ]
         };
 
-        const titresThemes = {
-            famille: "👨‍👩‍👧‍👦 La Famille", corps: "👂 Le Corps Humain", 
-            nombres: "🔢 Les Nombres", phrases: "💬 Petites Phrases"
-        };
+        const E = (id) => document.getElementById(id);
 
         // --- GESTION DU CLOUD ---
         async function chargerXP() {
             try {
                 let res = await fetch(DB_URL);
                 let data = await res.json();
-                if (data && data.xp !== undefined) {
-                    xpGlobale = parseInt(data.xp) || 0;
-                }
-                document.getElementById('hud-xp').textContent = `XP: ${xpGlobale} ⭐`;
-            } catch(e) { console.error("Erreur Firebase:", e); }
+                if (data && data.xp !== undefined) xpGlobale = parseInt(data.xp) || 0;
+                E('hud-xp').textContent = `XP: ${xpGlobale} ⭐`;
+            } catch(e) {}
         }
 
         async function ajouterXP(p) {
             xpGlobale += p;
-            document.getElementById('hud-xp').textContent = `XP: ${xpGlobale} ⭐`;
-            try {
-                await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: xpGlobale }) });
-            } catch(e) {}
+            E('hud-xp').textContent = `XP: ${xpGlobale} ⭐`;
+            try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: xpGlobale }) }); } catch(e) {}
         }
 
         // --- MOTEUR DE JEU ---
-        function lancerTheme(theme) {
-            themeActuel = theme;
-            document.getElementById('zone-menu').style.display = 'none';
-            document.getElementById('zone-jeu').style.display = 'block';
-            document.getElementById('titre-theme').textContent = titresThemes[theme];
+        function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); E(id).classList.add('actif'); }
+
+        function retourMenu() { changerEcran('ecran-menu'); themeActuel = null; }
+
+        function lancerTheme(themeKey, titre) {
+            themeActuel = themeKey;
+            vies = 3;
+            numQuestion = 1;
+            
+            E('titre-theme').textContent = titre;
+            E('ui-vies').textContent = "❤️❤️❤️";
+            
+            changerEcran('ecran-jeu');
             NouvelleQuestion();
         }
 
-        function retourMenu() {
-            document.getElementById('zone-jeu').style.display = 'none';
-            document.getElementById('zone-menu').style.display = 'block';
-            themeActuel = null;
-        }
-
         function NouvelleQuestion() {
-            bloque = false;
-            document.getElementById('feedback').textContent = "";
-            const listeMots = vocabulaire[themeActuel];
-            
-            // Tirer un mot au hasard
-            questionActuelle = listeMots[Math.floor(Math.random() * listeMots.length)];
-            document.getElementById('mot-anglais').textContent = questionActuelle.en;
-            
-            // Prononcer automatiquement le mot (optionnel, on peut le laisser manuel au clic)
-            // ecouterMot(); 
+            if (vies <= 0) {
+                alert("Plus de vies ! Entraîne-toi encore un peu.");
+                return retourMenu();
+            }
+            if (numQuestion > totalQuestions) {
+                alert("Série parfaite ! Good job Lola ! 🎉");
+                return retourMenu();
+            }
 
-            // Créer les mauvaises réponses
+            bloque = false;
+            E('ui-progression').textContent = `${numQuestion} / ${totalQuestions}`;
+            E('feedback').textContent = "";
+            
+            const dictionnaire = vocabulaire[themeActuel];
+            
+            // L'ALGORITHME DE PIOCHE ANTI-RÉPÉTITION
+            // Si le sac n'existe pas ou est vide, on le remplit et on le mélange !
+            if (!sacsVocabulaire[themeActuel] || sacsVocabulaire[themeActuel].length === 0) {
+                sacsVocabulaire[themeActuel] = [...dictionnaire].sort(() => Math.random() - 0.5);
+            }
+            
+            // On tire le dernier mot du sac
+            questionActuelle = sacsVocabulaire[themeActuel].pop();
+            E('mot-anglais').textContent = questionActuelle.en;
+
+            // Créer les mauvaises réponses en piochant dans le dictionnaire général (pas dans le sac)
             let mauvaisesReponses = [];
             while(mauvaisesReponses.length < 3) {
-                let fauxMot = listeMots[Math.floor(Math.random() * listeMots.length)].fr;
+                let fauxMot = dictionnaire[Math.floor(Math.random() * dictionnaire.length)].fr;
                 if(fauxMot !== questionActuelle.fr && !mauvaisesReponses.includes(fauxMot)) {
                     mauvaisesReponses.push(fauxMot);
                 }
             }
 
             // Mélanger la bonne réponse avec les mauvaises
-            optionsMelangees = [questionActuelle.fr, ...mauvaisesReponses];
+            let optionsMelangees = [questionActuelle.fr, ...mauvaisesReponses];
             optionsMelangees.sort(() => Math.random() - 0.5);
 
             // Afficher les boutons
-            const zone = document.getElementById('zone-options');
+            const zone = E('zone-options');
             zone.innerHTML = "";
 
             optionsMelangees.forEach((opt) => {
@@ -230,22 +291,27 @@
                 b.onclick = () => verifierReponse(b, opt === questionActuelle.fr);
                 zone.appendChild(b);
             });
+            
+            // Lecture automatique de l'audio au début de la question (optionnel mais sympa en anglais)
+            ecouterMot();
         }
 
         function verifierReponse(bouton, estCorrect) {
             if(bloque) return;
-            bloque = true; // Empêche de cliquer plusieurs fois
+            bloque = true; 
 
-            const fb = document.getElementById('feedback');
+            const fb = E('feedback');
             
             if (estCorrect) {
                 bouton.classList.add('correct');
-                fb.textContent = "🌟 YES! Good job Lola !";
+                fb.textContent = "🌟 YES! Good job !";
                 fb.style.color = "#2ecc71";
                 ajouterXP(5);
-                setTimeout(NouvelleQuestion, 1500);
+                setTimeout(() => { numQuestion++; NouvelleQuestion(); }, 1500);
             } else {
                 bouton.classList.add('erreur');
+                vies--;
+                E('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3-vies);
                 
                 // Montrer la bonne réponse en vert
                 document.querySelectorAll('.btn-opt').forEach(b => {
@@ -254,18 +320,16 @@
 
                 fb.textContent = "❌ Oh no... Regarde la correction !";
                 fb.style.color = "#e74c3c";
-                setTimeout(NouvelleQuestion, 2500);
+                setTimeout(() => { numQuestion++; NouvelleQuestion(); }, 2500);
             }
         }
 
         // --- SYNTHÈSE VOCALE ---
         function ecouterMot() {
             if (!questionActuelle) return;
-            
-            // On utilise l'API native du navigateur pour prononcer le texte
             const utterance = new SpeechSynthesisUtterance(questionActuelle.en);
-            utterance.lang = 'en-GB'; // Accent britannique (ou 'en-US' pour américain)
-            utterance.rate = 0.85; // Légèrement ralenti pour que ce soit clair
+            utterance.lang = 'en-GB'; 
+            utterance.rate = 0.85; 
             window.speechSynthesis.speak(utterance);
         }
 
