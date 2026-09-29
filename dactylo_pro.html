@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Dactylo Pro - L'Académie</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Nunito:wght@400;700;900&display=swap');
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); 
+            color: #333; display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; padding: 20px; 
+        }
+        
+        #app-container { 
+            background: white; padding: 30px; border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3); max-width: 800px; width: 100%; text-align: center; position: relative;
+        }
+        
+        h1 { color: #2980b9; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
+        .sous-titre { color: #7f8c8d; margin-bottom: 25px; font-weight: 700; font-size: 1.1rem;}
+        
+        .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
+
+        /* Menu Principal */
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .btn-mode {
+            background: #f8f9fa; border: 3px solid #bdc3c7; padding: 25px 20px; border-radius: 15px;
+            font-size: 1.3rem; font-weight: bold; color: #2c3e50; cursor: pointer; transition: 0.2s;
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+        }
+        .btn-mode:hover { transform: translateY(-4px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); border-color: #3498db; }
+        .btn-mode.verrouille { background: #ecf0f1; border-color: #95a5a6; color: #7f8c8d; cursor: not-allowed; opacity: 0.8; }
+        .btn-mode.verrouille:hover { transform: none; box-shadow: none; border-color: #95a5a6; }
+        
+        /* Mode Entraînement (Classique) */
+        #texte-entrainement {
+            font-family: 'Fira Code', monospace; /* Police façon codeur */
+            font-size: 2.5rem; letter-spacing: 5px; margin: 30px 0;
+            background: #f1f8ff; padding: 30px; border-radius: 15px; border: 2px dashed #3498db;
+            word-wrap: break-word; line-height: 1.5;
+        }
+        .lettre { color: #7f8c8d; transition: 0.1s; border-bottom: 3px solid transparent; }
+        .lettre.active { border-bottom: 4px solid #3498db; color: #2c3e50; transform: scale(1.1); display: inline-block;}
+        .lettre.correct { color: #27ae60; }
+        .lettre.erreur { color: #e74c3c; background: #fadbd8; border-radius: 5px;}
+
+        .clavier-astuce { font-size: 1.1rem; color: #e67e22; font-weight: bold; margin-bottom: 20px; }
+
+        /* Mode Arcade (Pluie de mots) */
+        #arcade-screen { position: relative; width: 100%; height: 400px; background: #ecf0f1; border: 4px solid #34495e; border-radius: 15px; overflow: hidden; margin-bottom: 20px; }
+        .mot-tombant {
+            position: absolute; font-family: 'Fira Code', monospace; font-size: 1.5rem; font-weight: bold;
+            background: #34495e; color: white; padding: 5px 15px; border-radius: 8px;
+        }
+        #arcade-input {
+            width: 100%; max-width: 300px; font-size: 2rem; padding: 10px; text-align: center;
+            border: 4px solid #3498db; border-radius: 15px; font-family: 'Fira Code', monospace; font-weight: bold;
+        }
+
+        /* HUDs */
+        .hud { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2rem; margin-bottom: 15px; }
+
+        /* Boutons globaux */
+        .btn { font-family: 'Nunito', sans-serif; font-size: 1.1rem; font-weight: bold; padding: 12px 25px; border: none; border-radius: 10px; cursor: pointer; color: white; margin: 5px; transition: transform 0.1s; display: inline-block;}
+        .btn:active { transform: scale(0.95); }
+        .btn-primaire { background: #27ae60; box-shadow: 0 4px #219a52; }
+        .btn-secondaire { background: #95a5a6; box-shadow: 0 4px #7f8c8d; color:#2c3e50;}
+
+        .ecran { display: none; }
+        .ecran.actif { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+        
+        #feedback { font-size: 1.4rem; font-weight: 900; height: 35px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <div class="xp-badge">XP: <span id="ui-xp">...</span> ⭐</div>
+
+        <!-- ECRAN D'ACCUEIL -->
+        <div id="ecran-menu" class="ecran actif">
+            <h1>Dactylo Pro ⌨️</h1>
+            <p class="sous-titre">Apprends à taper au clavier sans le regarder !</p>
+            
+            <div class="menu-grid">
+                <button class="btn-mode" onclick="lancerEntrainement()">
+                    <span style="font-size: 2.5rem;">🎓</span>
+                    <span>1. L'Entraînement</span>
+                    <span style="font-size: 0.9rem; color: #7f8c8d; font-weight: normal;">La ligne de base (Q S D F...)</span>
+                </button>
+                
+                <!-- Ce bouton sera déverrouillé en JS -->
+                <button class="btn-mode verrouille" id="btn-arcade" onclick="lancerArcade()">
+                    <span style="font-size: 2.5rem;">🚀</span>
+                    <span>2. Mode Arcade</span>
+                    <span id="txt-verrou" style="font-size: 0.9rem; color: #e74c3c; font-weight: normal;">🔒 Fais un sans-faute en Entraînement !</span>
+                </button>
+            </div>
+
+            <button class="btn btn-secondaire" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+        </div>
+
+        <!-- ECRAN ENTRAINEMENT (CLASSIQUE) -->
+        <div id="ecran-entrainement" class="ecran">
+            <div class="hud">
+                <span style="color:#2980b9;">Session d'apprentissage</span>
+                <span style="color:#e74c3c;">Fautes : <span id="compteur-fautes">0</span></span>
+            </div>
+            
+            <div class="clavier-astuce">💡 Place tes index sur le F et le J (cherche le petit trait en relief sur ton clavier). Ne regarde plus tes mains !</div>
+            
+            <!-- Les lettres vont être injectées ici par le Javascript -->
+            <div id="texte-entrainement"></div>
+            
+            <div id="feedback-entrainement" style="height: 30px; font-weight: bold; font-size: 1.2rem;"></div>
+
+            <button class="btn btn-secondaire" onclick="quitterJeu()">Abandonner</button>
+        </div>
+
+        <!-- ECRAN ARCADE (PLUIE DE MOTS) -->
+        <div id="ecran-arcade" class="ecran">
+            <div class="hud">
+                <span style="color:#e67e22;">Score : <span id="score-arcade">0</span></span>
+                <span style="color:#e74c3c;">Vies : <span id="vies-arcade">❤️❤️❤️</span></span>
+            </div>
+            
+            <div id="arcade-screen">
+                <!-- Les mots tomberont ici -->
+            </div>
+            
+            <input type="text" id="arcade-input" autocomplete="off" placeholder="Tape ici...">
+            
+            <br>
+            <button class="btn btn-secondaire" style="margin-top: 15px;" onclick="quitterJeu()">Quitter l'Arcade</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- BASE DE DONNÉES CLOUD ---
+        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+        const DB_URL = `${FIREBASE_URL}scores/theo/dactyloPro.json`;
+
+        let profil = { xp: 0 };
+        let arcadeDeverrouille = false; // Le système de gamification
+        
+        // --- GESTION DU CLOUD ---
+        async function chargerProfilCloud() {
+            try {
+                let res = await fetch(DB_URL);
+                let data = await res.json();
+                if (data && data.xp !== undefined) profil.xp = parseInt(data.xp) || 0;
+            } catch(e) {}
+            document.getElementById('ui-xp').textContent = profil.xp;
+        }
+
+        async function sauverProfilCloud() {
+            try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
+            document.getElementById('ui-xp').textContent = profil.xp;
+        }
+
+        // --- NAVIGATION ---
+        function changerEcran(id) { 
+            document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); 
+            document.getElementById(id).classList.add('actif'); 
+        }
+        
+        function quitterJeu() {
+            document.removeEventListener('keydown', gestionFrappeEntrainement);
+            clearInterval(boucleArcade);
+            changerEcran('ecran-menu');
+        }
+
+        // ==========================================
+        // MOTEUR 1 : MODE ENTRAÎNEMENT (CLASSIQUE)
+        // ==========================================
+        
+        // La leçon 1 de dactylographie : La ligne de base AZERTY
+        const leconDeBase = "qsdf jklm qsdf jklm fds jlk qsm dfk";
+        let indexLettreActuelle = 0;
+        let nbFautes = 0;
+
+        function lancerEntrainement() {
+            indexLettreActuelle = 0;
+            nbFautes = 0;
+            document.getElementById('compteur-fautes').textContent = nbFautes;
+            document.getElementById('feedback-entrainement').textContent = "";
+            
+            // On prépare le HTML pour chaque lettre (pour pouvoir les colorier une par une)
+            const conteneurTexte = document.getElementById('texte-entrainement');
+            conteneurTexte.innerHTML = "";
+            
+            for (let i = 0; i < leconDeBase.length; i++) {
+                let span = document.createElement('span');
+                span.className = 'lettre';
+                span.textContent = leconDeBase[i];
+                span.id = "lettre-" + i;
+                conteneurTexte.appendChild(span);
+            }
+            
+            // On met en surbrillance la toute première lettre
+            document.getElementById('lettre-0').classList.add('active');
+            
+            changerEcran('ecran-entrainement');
+            
+            // ON ACTIVE L'ÉCOUTE DU CLAVIER
+            document.addEventListener('keydown', gestionFrappeEntrainement);
+        }
+
+        function gestionFrappeEntrainement(event) {
+            // On ignore les touches de contrôle (Shift, Ctrl, etc.)
+            if(event.key === "Shift" || event.key === "Control" || event.key === "Alt" || event.key === "Backspace") return;
+            
+            // Empêche la barre d'espace de faire défiler la page
+            if(event.key === " ") event.preventDefault();
+
+            let toucheFrappee = event.key.toLowerCase();
+            let caractereAttendu = leconDeBase[indexLettreActuelle].toLowerCase();
+            
+            let spanActuel = document.getElementById("lettre-" + indexLettreActuelle);
+
+            if (toucheFrappee === caractereAttendu) {
+                // BONNE TOUCHE
+                spanActuel.classList.remove('active', 'erreur');
+                spanActuel.classList.add('correct');
+                
+                indexLettreActuelle++;
+                
+                // Si la leçon est finie
+                if (indexLettreActuelle >= leconDeBase.length) {
+                    document.removeEventListener('keydown', gestionFrappeEntrainement);
+                    terminerEntrainement();
+                } else {
+                    // On active la lettre suivante
+                    document.getElementById("lettre-" + indexLettreActuelle).classList.add('active');
+                }
+            } else {
+                // MAUVAISE TOUCHE
+                nbFautes++;
+                document.getElementById('compteur-fautes').textContent = nbFautes;
+                spanActuel.classList.add('erreur');
+            }
+        }
+
+        function terminerEntrainement() {
+            let feedback = document.getElementById('feedback-entrainement');
+            profil.xp += 20;
+            sauverProfilCloud();
+            
+            if (nbFautes === 0) {
+                feedback.textContent = "SANS FAUTE ! 🌟 Mode Arcade déverrouillé !";
+                feedback.style.color = "#27ae60";
+                deverrouillerArcade();
+            } else {
+                feedback.textContent = `Terminé avec ${nbFautes} faute(s). Essaie de faire 0 faute pour débloquer l'Arcade !`;
+                feedback.style.color = "#e67e22";
+            }
+            
+            setTimeout(quitterJeu, 4000);
+        }
+
+        function deverrouillerArcade() {
+            arcadeDeverrouille = true;
+            let btnArcade = document.getElementById('btn-arcade');
+            btnArcade.classList.remove('verrouille');
+            document.getElementById('txt-verrou').textContent = "🟢 Prêt à jouer !";
+            document.getElementById('txt-verrou').style.color = "#27ae60";
+        }
+
+        // ==========================================
+        // MOTEUR 2 : MODE ARCADE (PLUIE DE MOTS)
+        // ==========================================
+        
+        const listeMotsArcade = ["code", "html", "boucle", "clavier", "ecran", "souris", "jeu", "javascript", "logique", "robot", "variable", "fonction"];
+        let motsEnJeu = [];
+        let boucleArcade;
+        let scoreArcade = 0;
+        let viesArcade = 3;
+
+        function lancerArcade() {
+            if (!arcadeDeverrouille) return; // Sécurité si on clique sur le bouton bloqué
+            
+            scoreArcade = 0;
+            viesArcade = 3;
+            motsEnJeu = [];
+            document.getElementById('score-arcade').textContent = scoreArcade;
+            document.getElementById('vies-arcade').textContent = "❤️❤️❤️";
+            document.getElementById('arcade-screen').innerHTML = "";
+            
+            let input = document.getElementById('arcade-input');
+            input.value = "";
+            
+            changerEcran('ecran-arcade');
+            input.focus();
+
+            // Création d'un nouveau mot toutes les 2 secondes
+            boucleArcade = setInterval(moteurArcade, 1000);
+            
+            // Écoute de la touche "Espace" ou "Entrée" pour valider un mot
+            input.onkeyup = function(e) {
+                if(e.key === " " || e.key === "Enter") {
+                    let texteTape = input.value.trim().toLowerCase();
+                    verifierMotArcade(texteTape);
+                    input.value = ""; // On vide la barre
+                }
+            };
+        }
+
+        function moteurArcade() {
+            const ecran = document.getElementById('arcade-screen');
+            
+            // 1. Ajouter un nouveau mot aléatoirement
+            if (Math.random() > 0.4) {
+                let texteMot = listeMotsArcade[Math.floor(Math.random() * listeMotsArcade.length)];
+                
+                let div = document.createElement('div');
+                div.className = "mot-tombant";
+                div.textContent = texteMot;
+                
+                // Position horizontale aléatoire (entre 0% et 80% pour ne pas sortir de l'écran)
+                let posX = Math.floor(Math.random() * 80);
+                div.style.left = posX + "%";
+                div.style.top = "0px";
+                
+                ecran.appendChild(div);
+                
+                motsEnJeu.push({ domElement: div, text: texteMot, y: 0 });
+            }
+
+            // 2. Faire descendre tous les mots existants
+            for (let i = 0; i < motsEnJeu.length; i++) {
+                let mot = motsEnJeu[i];
+                mot.y += 15; // Vitesse de chute
+                mot.domElement.style.top = mot.y + "px";
+
+                // Si le mot touche le bas de l'écran (400px)
+                if (mot.y > 380) {
+                    // Supprimer le mot de l'écran et du tableau
+                    mot.domElement.remove();
+                    motsEnJeu.splice(i, 1);
+                    i--; // Ajuster l'index du tableau
+                    
+                    // Perte de vie !
+                    viesArcade--;
+                    document.getElementById('vies-arcade').textContent = "❤️".repeat(viesArcade) + "🖤".repeat(3-viesArcade);
+                    
+                    if (viesArcade <= 0) {
+                        terminerArcade();
+                    }
+                }
+            }
+        }
+
+        function verifierMotArcade(texteSaisi) {
+            // Cherche si le texte saisi correspond à un des mots à l'écran
+            for (let i = 0; i < motsEnJeu.length; i++) {
+                if (motsEnJeu[i].text === texteSaisi) {
+                    // C'est un succès ! On détruit le mot.
+                    motsEnJeu[i].domElement.remove();
+                    motsEnJeu.splice(i, 1);
+                    
+                    // On augmente le score
+                    scoreArcade += 10;
+                    document.getElementById('score-arcade').textContent = scoreArcade;
+                    
+                    // Petite récompense sonore/visuelle pourrait être ajoutée ici
+                    return; // On s'arrête dès qu'on a détruit un mot
+                }
+            }
+        }
+
+        function terminerArcade() {
+            clearInterval(boucleArcade);
+            profil.xp += Math.floor(scoreArcade / 2); // Il gagne de l'XP selon son score
+            sauverProfilCloud();
+            alert(`Jeu terminé ! Ton score est de ${scoreArcade}.`);
+            quitterJeu();
+        }
+
+        // Lancement Initial
+        chargerProfilCloud();
+    </script>
+</body>
+</html>
