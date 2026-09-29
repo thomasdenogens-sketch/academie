@@ -174,7 +174,7 @@
 
         let indexNiveauActuel = 0;
         let grilleOriginale = [];
-        let grilleDynamique = []; // Grille modifiée pendant l'exécution
+        let grilleDynamique = []; 
         let posRobot = { x: 0, y: 0 };
         let sequenceCommandes = [];
         let estEnExecution = false;
@@ -211,11 +211,12 @@
             
             document.getElementById('titre-niveau').textContent = dataNiveau.titre;
             document.getElementById('feedback').textContent = "";
-            effacerSequence();
             
-            // Copie profonde de la grille pour pouvoir la réinitialiser
+            // CORRECTION DU BUG ICI : On enregistre la grille d'abord !
             grilleOriginale = JSON.parse(JSON.stringify(dataNiveau.grille));
-            reinitialiserGrille();
+            
+            // Ensuite on peut effacer la séquence et redessiner
+            effacerSequence();
             
             changerEcran('ecran-jeu');
         }
@@ -273,7 +274,6 @@
             let div = document.createElement('div');
             div.className = 'cmd-bulle';
             div.textContent = symbole;
-            // Retirer une commande en cliquant dessus
             div.onclick = function() {
                 if(estEnExecution) return;
                 let index = Array.from(this.parentNode.children).indexOf(this);
@@ -300,23 +300,20 @@
             document.getElementById('feedback').textContent = "Exécution du code...";
             document.getElementById('feedback').style.color = "#2980b9";
             
-            reinitialiserGrille(); // On remet le robot à sa place avant de lancer
+            reinitialiserGrille(); 
             lireInstruction(0);
         }
 
         function lireInstruction(index) {
             const domCommandes = document.getElementById('sequence-container').children;
             
-            // Retirer la surbrillance de la commande précédente
             if (index > 0 && domCommandes[index-1]) domCommandes[index-1].classList.remove('active');
             
-            // Si on a lu toutes les instructions
             if (index >= sequenceCommandes.length) {
                 verifierVictoire();
                 return;
             }
 
-            // Mettre en surbrillance l'instruction en cours
             if (domCommandes[index]) domCommandes[index].classList.add('active');
 
             let cmd = sequenceCommandes[index];
@@ -328,12 +325,11 @@
             if (cmd === 'Gauche') newX--;
             if (cmd === 'Droite') newX++;
 
-            // Validation de sécurité : est-on sorti de la grille ou dans un mur ?
             let collision = false;
             if (newY < 0 || newY >= grilleDynamique.length || newX < 0 || newX >= grilleDynamique[0].length) {
-                collision = true; // Sortie de l'écran
+                collision = true; 
             } else if (grilleDynamique[newY][newX] === 1) {
-                collision = true; // Mur
+                collision = true; 
             }
 
             if (collision) {
@@ -345,21 +341,18 @@
                 return;
             }
 
-            // Déplacement logique
             let valeurCible = grilleDynamique[newY][newX];
-            grilleDynamique[posRobot.y][posRobot.x] = 0; // Ancienne case vide
+            grilleDynamique[posRobot.y][posRobot.x] = 0; 
             
-            // Si on marche sur la sortie, on retient qu'on l'a atteinte, mais on se dessine dessus
             if(valeurCible === 3) {
-                grilleDynamique[newY][newX] = 4; // Code interne pour Robot SUR la sortie
+                grilleDynamique[newY][newX] = 4; 
             } else {
-                grilleDynamique[newY][newX] = 2; // Robot sur case vide
+                grilleDynamique[newY][newX] = 2; 
             }
             
             posRobot = { x: newX, y: newY };
             dessinerGrilleHTML();
 
-            // S'appeler soi-même après un délai (Récursivité / Asynchrone)
             setTimeout(() => { lireInstruction(index + 1); }, 600);
         }
 
