@@ -21,8 +21,7 @@
         h1 { font-size: 3rem; font-weight: 900; color: #2c3e50; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
         .subtitle { font-size: 1.2rem; font-weight: 700; color: #34495e; margin-bottom: 30px; }
 
-        /* BOUTON CARNET DE BORD */
-        .btn-stats-container { margin-bottom: 40px; }
+        .btn-stats-container { margin-bottom: 30px; }
         .btn-stats { 
             background: #f39c12; color: white; padding: 15px 35px; 
             border-radius: 50px; text-decoration: none; font-size: 1.5rem; font-weight: 900; 
@@ -31,46 +30,71 @@
         }
         .btn-stats:hover { transform: scale(1.05) translateY(-3px); box-shadow: 0 12px 25px rgba(243, 156, 18, 0.6); }
 
+        /* --- NOUVEAU : SYSTÈME D'ALERTES ET RAPPELS --- */
+        #zone-alertes {
+            width: 100%; margin-bottom: 20px; display: none;
+        }
+        .alerte-message {
+            background: #ffeaa7; color: #d35400; padding: 15px 20px; border-radius: 15px;
+            font-weight: 900; font-size: 1.2rem; border: 3px dashed #f39c12;
+            animation: fadeInDown 0.5s ease-out;
+        }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
         .kids-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
 
-        /* SECTIONS DES ENFANTS */
-        .kid-section { background: white; border-radius: 30px; padding: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
-        
+        .kid-section { background: white; border-radius: 30px; padding: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: left; }
         .theo-section { border-top: 15px solid #3498db; }
         .lola-section { border-top: 15px solid #e91e63; }
 
-        .kid-header { font-size: 2.5rem; font-weight: 900; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; gap: 15px; }
+        .kid-header { font-size: 2.2rem; font-weight: 900; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
         .theo-section .kid-header { color: #3498db; }
         .lola-section .kid-header { color: #e91e63; }
 
-        /* BADGES DE NIVEAU AUTOMATIQUES */
         .badge-niveau {
-            font-size: 1.1rem;
-            padding: 5px 15px;
-            border-radius: 20px;
-            color: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 900;
+            font-size: 1rem; padding: 5px 15px; border-radius: 20px; color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-transform: uppercase; font-weight: 900;
         }
         .theo-section .badge-niveau { background-color: #f1c40f; }
         .lola-section .badge-niveau { background-color: #9b59b6; }
 
-        .games-list { display: flex; flex-direction: column; gap: 15px; }
+        /* --- NOUVEAU : PARCOURS DU JOUR --- */
+        .parcours-jour {
+            background: #f1f8ff; border: 2px solid #3498db; border-radius: 15px; padding: 15px;
+            margin-bottom: 25px;
+        }
+        .parcours-titre { font-size: 1.1rem; font-weight: 900; color: #2980b9; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;}
+        .parcours-liste { list-style-type: none; font-size: 1rem; color: #34495e; font-weight: bold; padding-left: 5px;}
+        .parcours-liste li { margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
 
-        /* BOUTONS DES JEUX */
+        .games-list { display: flex; flex-direction: column; gap: 12px; }
+
         .game-btn {
             display: flex; align-items: center; gap: 15px; padding: 15px 20px;
             border-radius: 15px; text-decoration: none; font-size: 1.2rem; font-weight: 800;
-            color: #2c3e50; background: #f8f9fa; border: 2px solid #e2e8f0;
-            transition: 0.2s;
+            color: #2c3e50; background: #f8f9fa; border: 2px solid #e2e8f0; transition: 0.2s;
+            cursor: pointer;
         }
-        
         .theo-section .game-btn:hover { background: #ebf5fb; border-color: #3498db; transform: translateX(5px); }
         .lola-section .game-btn:hover { background: #fce4ec; border-color: #e91e63; transform: translateX(5px); }
-        
         .game-icon { font-size: 1.8rem; }
+
+        /* La zone de Code bloquée */
+        .zone-recreation {
+            margin-top: 25px; padding: 20px; background: #fdfdfd; 
+            border: 3px dashed #bdc3c7; border-radius: 20px; position: relative;
+            transition: all 0.3s ease;
+        }
+        .recreation-titre { font-size: 1.3rem; font-weight: 900; color: #7f8c8d; margin-bottom: 15px; display: flex; align-items: center; gap:10px; }
+        .unlock-progress-container { background: #ecf0f1; height: 15px; border-radius: 10px; overflow: hidden; margin-bottom: 10px; border: 1px solid #bdc3c7;}
+        .unlock-progress-bar { background: #f39c12; height: 100%; width: 0%; transition: width 1s ease-in-out; }
+        .unlock-message { font-size: 0.9rem; color: #e67e22; font-weight: bold; text-align: center; margin-bottom: 15px;}
+
+        .verrouille .game-btn { opacity: 0.5; filter: grayscale(100%); pointer-events: none; background: #ecf0f1; border-color: #bdc3c7; }
+        .deverrouille { border-color: #2ecc71; background: #f0fdf4; }
+        .deverrouille .recreation-titre { color: #27ae60; }
+        .deverrouille .unlock-progress-container { display: none; }
+        .deverrouille .unlock-message { color: #27ae60; }
 
     </style>
 </head>
@@ -80,6 +104,9 @@
         <h1>🎓 L'Académie de la Famille</h1>
         <p class="subtitle">Apprendre, jouer et progresser ensemble !</p>
 
+        <!-- ZONE D'ALERTES (Rappels de temps) -->
+        <div id="zone-alertes"></div>
+
         <div class="btn-stats-container">
             <a href="stats_enfants.html" class="btn-stats">🏆 Voir notre Carnet de Bord !</a>
         </div>
@@ -88,48 +115,72 @@
             
             <div class="kid-section theo-section">
                 <div class="kid-header">
-                    👦 Théo 
-                    <span class="badge-niveau" id="niveau-theo">Calcul...</span>
+                    👦 Théo <span class="badge-niveau" id="niveau-theo">CM2</span>
                 </div>
+                
+                <!-- PARCOURS DU JOUR THEO -->
+                <div class="parcours-jour">
+                    <div class="parcours-titre">📍 Ton Parcours d'Aujourd'hui :</div>
+                    <ul class="parcours-liste" id="parcours-theo">
+                        <!-- Généré en JS -->
+                    </ul>
+                </div>
+                
+                <h3 style="font-size: 1rem; color: #7f8c8d; margin-bottom: 10px; text-transform: uppercase;">Tes Missions</h3>
+                
                 <div class="games-list">
-                    <a href="hub_maths_theo.html" class="game-btn">
+                    <!-- Ajout de l'événement onclick pour surveiller le temps -->
+                    <a href="hub_maths_theo.html" class="game-btn" onclick="enregistrerDepart('Maths')">
                         <span class="game-icon">🧮</span><span>Mathématiques</span>
                     </a>
-                    <a href="echecs_coach.html" class="game-btn">
-                        <span class="game-icon">♞</span><span>Échecs Pro</span>
-                    </a>
-                    <a href="jeu_conjugaison_v6.html" class="game-btn">
+                    <a href="jeu_conjugaison_v6.html" class="game-btn" onclick="enregistrerDepart('Français')">
                         <span class="game-icon">✍️</span><span>Conjugaison</span>
                     </a>
-                    <a href="mots_meles_v3.html" class="game-btn">
+                    <a href="mots_meles_v3.html" class="game-btn" onclick="enregistrerDepart('Français')">
                         <span class="game-icon">📖</span><span>Orthographe</span>
                     </a>
-                    <a href="jeu_histoire.html" class="game-btn">
+                    <a href="jeu_histoire.html" class="game-btn" onclick="enregistrerDepart('Histoire')">
                         <span class="game-icon">⏳</span><span>Histoire</span>
                     </a>
-                    <a href="jeu_anglais.html" class="game-btn">
-                        <span class="game-icon">🇬🇧</span><span>Anglais</span>
-                    </a>
-                    <a href="jeu_geo.html" class="game-btn">
+                    <a href="jeu_geo.html" class="game-btn" onclick="enregistrerDepart('Géo')">
                         <span class="game-icon">🌍</span><span>Géographie</span>
                     </a>
-                    <!-- NOUVELLES MISSIONS CM2 POUR THEO -->
-                    <a href="jeu_sciences.html" class="game-btn">
+                    <a href="jeu_sciences.html" class="game-btn" onclick="enregistrerDepart('Sciences')">
                         <span class="game-icon">🔬</span><span>Sciences & Labo</span>
                     </a>
-                    <a href="jeu_code.html" class="game-btn">
-                        <span class="game-icon">🤖</span><span>Code & Logique</span>
+                    
+                    <hr style="border: 1px solid #eee; margin: 5px 0;">
+                    <h3 style="font-size: 1rem; color: #7f8c8d; text-transform: uppercase;">Pour le fun & l'agilité</h3>
+                    
+                    <!-- Échecs et Dactylo sont en accès libre -->
+                    <a href="echecs_coach.html" class="game-btn" onclick="enregistrerDepart('Échecs')">
+                        <span class="game-icon">♞</span><span>Échecs Pro</span>
                     </a>
-                    <a href="jeu_geometrie.html" class="game-btn">
-                        <span class="game-icon">📐</span><span>Géométrie</span>
+                    <a href="dactylo_pro.html" class="game-btn" onclick="enregistrerDepart('Dactylo')">
+                        <span class="game-icon">⌨️</span><span>Dactylographie</span>
                     </a>
+                </div>
+
+                <!-- LA RÉCOMPENSE ULTIME (Verrouillée) -->
+                <div id="zone-recreation-theo" class="zone-recreation verrouille">
+                    <div class="recreation-titre">🔓 Le Bonus du Codeur</div>
+                    <div class="unlock-progress-container">
+                        <div id="theo-unlock-bar" class="unlock-progress-bar"></div>
+                    </div>
+                    <div id="theo-unlock-msg" class="unlock-message">Gagne encore 50 XP aujourd'hui pour débloquer !</div>
+                    
+                    <div class="games-list">
+                        <a href="jeu_code.html" class="game-btn" onclick="enregistrerDepart('Code')">
+                            <span class="game-icon">🤖</span><span>Code & Logique</span>
+                        </a>
+                    </div>
                 </div>
             </div>
 
+            <!-- SECTION LOLA (Gardée intacte) -->
             <div class="kid-section lola-section">
                 <div class="kid-header">
-                    👧 Lola 
-                    <span class="badge-niveau" id="niveau-lola">Calcul...</span>
+                    👧 Lola <span class="badge-niveau" id="niveau-lola">CE1</span>
                 </div>
                 <div class="games-list">
                     <a href="jeu_maths_lola.html" class="game-btn">
@@ -151,40 +202,147 @@
     </div>
 
     <script>
-        // Fonction pour calculer dynamiquement le niveau scolaire
+        // 1. Calcul du niveau scolaire
         function determinerNiveau(anneeEntreeCP) {
             const dateActuelle = new Date();
-            const mois = dateActuelle.getMonth(); // 0 = Janvier, 8 = Septembre
+            const mois = dateActuelle.getMonth(); 
             let anneeScolaire = dateActuelle.getFullYear();
-
-            // Si nous sommes avant septembre, l'année scolaire correspond à celle commencée l'année précédente
-            if (mois < 8) {
-                anneeScolaire--;
-            }
-
+            if (mois < 8) anneeScolaire--;
             const anneesEcoulees = anneeScolaire - anneeEntreeCP;
-            
-            // Tableau des niveaux
             const niveaux = ["CP", "CE1", "CE2", "CM1", "CM2", "6ème", "5ème", "4ème", "3ème", "Lycée"];
+            return (anneesEcoulees >= 0 && anneesEcoulees < niveaux.length) ? niveaux[anneesEcoulees] : "Scolarisé";
+        }
+
+        // ==========================================
+        // LE GARDIEN DU TEMPS ET DES HABITUDES
+        // ==========================================
+
+        // Quand Théo clique sur un jeu, on enregistre l'heure dans la mémoire du navigateur
+        function enregistrerDepart(nomDuJeu) {
+            localStorage.setItem('jeuEnCours', nomDuJeu);
+            localStorage.setItem('heureDepartJeu', Date.now());
+        }
+
+        // Quand il revient sur ce menu, on vérifie combien de temps il est parti
+        function verifierTempsDeJeu() {
+            let jeu = localStorage.getItem('jeuEnCours');
+            let depart = localStorage.getItem('heureDepartJeu');
             
-            if (anneesEcoulees >= 0 && anneesEcoulees < niveaux.length) {
-                return niveaux[anneesEcoulees];
-            } else if (anneesEcoulees < 0) {
-                return "Maternelle";
-            } else {
-                return "Études Supérieures";
+            if (jeu && depart) {
+                // Calcul du temps passé en minutes
+                let tempsPasse = (Date.now() - parseInt(depart)) / 60000; 
+                
+                const zoneAlertes = document.getElementById('zone-alertes');
+                
+                // Si Théo a joué plus de 20 minutes aux échecs (ou Dactylo) sans faire de matières scolaires
+                if ((jeu === 'Échecs' || jeu === 'Dactylo') && tempsPasse > 20) {
+                    zoneAlertes.style.display = 'block';
+                    zoneAlertes.innerHTML = `
+                        <div class="alerte-message">
+                            Coucou Théo ! ⏱️ Tu as passé un long moment sur "${jeu}". C'est super, mais n'oublie pas de faire un peu de Maths ou de Français aujourd'hui ! 😉
+                        </div>
+                    `;
+                }
+
+                // On nettoie la mémoire après avoir vérifié
+                localStorage.removeItem('jeuEnCours');
+                localStorage.removeItem('heureDepartJeu');
             }
         }
 
-        // Au chargement de la page, on met à jour les badges
+        // ==========================================
+        // LE PARCOURS DU JOUR (Générateur)
+        // ==========================================
+        const toutesLesMatieres = [
+            { nom: "Mathématiques", icon: "🧮" },
+            { nom: "Orthographe", icon: "📖" },
+            { nom: "Conjugaison", icon: "✍️" },
+            { nom: "Histoire ou Géo", icon: "🌍" },
+            { nom: "Sciences", icon: "🔬" }
+        ];
+
+        function genererParcoursDuJour() {
+            const dateDuJour = new Date().toLocaleDateString('fr-FR');
+            let parcoursSauvegarde = localStorage.getItem('theoParcoursDate');
+            let listeParcoursHTML = "";
+
+            // Si c'est un nouveau jour, on génère un nouveau parcours
+            if (parcoursSauvegarde !== dateDuJour) {
+                // On mélange les matières et on en prend 2 au hasard
+                let matieresMelangees = [...toutesLesMatieres].sort(() => Math.random() - 0.5);
+                let choix1 = matieresMelangees[0];
+                let choix2 = matieresMelangees[1];
+                
+                // Le 3ème choix est toujours un jeu fun (Echecs ou Dactylo)
+                let jeuFun = Math.random() > 0.5 ? { nom: "Échecs Pro", icon: "♞" } : { nom: "Dactylographie", icon: "⌨️" };
+
+                // On crée la liste HTML
+                listeParcoursHTML = `
+                    <li>👉 Commencer par : ${choix1.icon} ${choix1.nom}</li>
+                    <li>👉 Continuer avec : ${choix2.icon} ${choix2.nom}</li>
+                    <li>👉 Pour se détendre : ${jeuFun.icon} ${jeuFun.nom}</li>
+                `;
+                
+                // On sauvegarde pour que ça ne change pas s'il rafraîchit la page
+                localStorage.setItem('theoParcoursDate', dateDuJour);
+                localStorage.setItem('theoParcoursContenu', listeParcoursHTML);
+            } else {
+                // On récupère le parcours déjà généré aujourd'hui
+                listeParcoursHTML = localStorage.getItem('theoParcoursContenu');
+            }
+
+            document.getElementById('parcours-theo').innerHTML = listeParcoursHTML;
+        }
+
+        // ==========================================
+        // LE VERROU DU CODE (Récréation)
+        // ==========================================
+        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+        const THEO_DB_URL = `${FIREBASE_URL}scores/theo.json`;
+        const OBJECTIF_XP_QUOTIDIEN = 50;
+
+        async function verifierRecreationTheo() {
+            try {
+                let res = await fetch(THEO_DB_URL);
+                let data = await res.json() || {};
+                let xpTotalActuel = 0;
+                for (const matiere in data) { if(data[matiere].xp) xpTotalActuel += parseInt(data[matiere].xp); }
+
+                const aujourdhui = new Date().toLocaleDateString('fr-FR');
+                let dateEnregistree = localStorage.getItem('theoRecreDate');
+                let xpDebutJournee = parseInt(localStorage.getItem('theoRecreStartXP'));
+
+                if (dateEnregistree !== aujourdhui || isNaN(xpDebutJournee)) {
+                    localStorage.setItem('theoRecreDate', aujourdhui);
+                    localStorage.setItem('theoRecreStartXP', xpTotalActuel);
+                    xpDebutJournee = xpTotalActuel;
+                }
+
+                let xpGagneAujourdhui = Math.max(0, xpTotalActuel - xpDebutJournee);
+                const zoneRecre = document.getElementById('zone-recreation-theo');
+                const barre = document.getElementById('theo-unlock-bar');
+                const msg = document.getElementById('theo-unlock-msg');
+
+                if (xpGagneAujourdhui >= OBJECTIF_XP_QUOTIDIEN) {
+                    zoneRecre.classList.remove('verrouille');
+                    zoneRecre.classList.add('deverrouille');
+                    msg.textContent = "✨ Objectif atteint ! Le jeu de Code est déverrouillé !";
+                } else {
+                    let pourcentage = (xpGagneAujourdhui / OBJECTIF_XP_QUOTIDIEN) * 100;
+                    barre.style.width = `${pourcentage}%`;
+                    msg.textContent = `Gagne encore ${OBJECTIF_XP_QUOTIDIEN - xpGagneAujourdhui} XP aujourd'hui pour débloquer !`;
+                }
+            } catch(e) {}
+        }
+
+        // --- INITIALISATION AU CHARGEMENT DE LA PAGE ---
         document.addEventListener("DOMContentLoaded", () => {
-            // Lola est entrée au CP en Septembre 2025
-            const niveauLola = determinerNiveau(2025);
-            // Théo est entré au CP en Septembre 2022
-            const niveauTheo = determinerNiveau(2022);
+            document.getElementById("niveau-lola").textContent = determinerNiveau(2025);
+            document.getElementById("niveau-theo").textContent = determinerNiveau(2022);
             
-            document.getElementById("niveau-lola").textContent = niveauLola;
-            document.getElementById("niveau-theo").textContent = niveauTheo;
+            genererParcoursDuJour();
+            verifierTempsDeJeu();
+            verifierRecreationTheo();
         });
     </script>
 </body>
