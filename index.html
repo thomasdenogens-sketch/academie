@@ -21,7 +21,7 @@
         h1 { font-size: 2.5rem; font-weight: 900; color: #2c3e50; margin-bottom: 5px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
         .subtitle { font-size: 1.1rem; font-weight: 700; color: #34495e; margin-bottom: 20px; }
 
-        /* --- NOUVEAU : JAUGE DE COOPÉRATION FAMILIALE --- */
+        /* JAUGE DE FAMILLE */
         .jauge-famille-container {
             background: white; padding: 20px; border-radius: 20px; margin-bottom: 30px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 4px solid #f1c40f;
@@ -38,6 +38,15 @@
             box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
         }
 
+        /* ALERTES */
+        #zone-alertes { width: 100%; margin-bottom: 20px; display: none; }
+        .alerte-message {
+            background: #ffeaa7; color: #d35400; padding: 15px 20px; border-radius: 15px;
+            font-weight: 900; font-size: 1.2rem; border: 3px dashed #f39c12;
+            animation: fadeInDown 0.5s ease-out; margin-bottom: 10px;
+        }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
         .kids-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
 
         .kid-section { background: white; border-radius: 25px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: left; position: relative;}
@@ -46,48 +55,59 @@
 
         .kid-header { font-size: 1.8rem; font-weight: 900; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
         
-        /* --- NOUVEAU : AFFICHAGE DU TEMPS D'ÉCRAN --- */
-        .temps-ecran-box {
-            background: #f8f9fa; padding: 10px; border-radius: 10px; text-align: center;
-            font-size: 0.9rem; font-weight: bold; color: #7f8c8d; margin-bottom: 15px; border: 1px solid #dfe6e9;
-        }
-        .temps-ecran-box span { color: #e74c3c; font-size: 1.1rem; }
+        .badge-niveau { font-size: 1rem; padding: 5px 15px; border-radius: 20px; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-transform: uppercase; font-weight: 900; }
+        .theo-section .badge-niveau { background-color: #f1c40f; }
+        .lola-section .badge-niveau { background-color: #9b59b6; }
+
+        /* PARCOURS INTELLIGENT */
+        .parcours-jour { border-radius: 15px; padding: 15px; margin-bottom: 25px; }
+        .theo-section .parcours-jour { background: #f1f8ff; border: 2px solid #3498db; }
+        .lola-section .parcours-jour { background: #fdf2f8; border: 2px solid #e91e63; }
+        .parcours-titre { font-size: 1.1rem; font-weight: 900; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;}
+        .theo-section .parcours-titre { color: #2980b9; }
+        .lola-section .parcours-titre { color: #c2185b; }
+        .parcours-liste { list-style-type: none; font-size: 1rem; color: #34495e; font-weight: bold; padding-left: 5px;}
+        .parcours-liste li { margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
 
         .games-list { display: flex; flex-direction: column; gap: 10px; }
         .game-btn {
             display: flex; align-items: center; gap: 10px; padding: 12px 15px; border-radius: 12px; 
             text-decoration: none; font-size: 1.1rem; font-weight: 800; color: #2c3e50; 
-            background: #f8f9fa; border: 2px solid #e2e8f0; cursor: pointer;
+            background: #f8f9fa; border: 2px solid #e2e8f0; cursor: pointer; transition: 0.2s;
         }
+        .theo-section .game-btn:hover { background: #ebf5fb; border-color: #3498db; transform: translateX(5px); }
+        .lola-section .game-btn:hover { background: #fce4ec; border-color: #e91e63; transform: translateX(5px); }
+        .game-icon { font-size: 1.8rem; }
         
-        /* Modals & Menus superposés */
-        .overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000;
-        }
-        .modal {
-            background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 500px; width: 90%;
-        }
-        
-        /* Quêtes du Monde Réel */
-        .quete-box {
-            background: #fff3cd; border: 3px dashed #f39c12; padding: 15px; border-radius: 15px; margin: 15px 0;
-            font-size: 1.2rem; font-weight: bold; color: #d35400; cursor: pointer; transition: 0.2s;
-        }
+        /* ZONES SPECIALES */
+        .zone-speciale { margin-top: 25px; padding: 20px; background: #fdfdfd; border: 3px dashed #bdc3c7; border-radius: 20px; transition: all 0.3s ease; }
+        .zone-titre { font-size: 1.3rem; font-weight: 900; color: #7f8c8d; margin-bottom: 15px; display: flex; align-items: center; gap:10px; }
+        .unlock-progress-container { background: #ecf0f1; height: 15px; border-radius: 10px; overflow: hidden; margin-bottom: 10px; border: 1px solid #bdc3c7;}
+        .unlock-progress-bar { background: #f39c12; height: 100%; width: 0%; transition: width 1s ease-in-out; }
+        .unlock-message { font-size: 0.9rem; color: #e67e22; font-weight: bold; text-align: center; margin-bottom: 15px;}
+        .verrouille .game-btn { opacity: 0.5; filter: grayscale(100%); pointer-events: none; background: #ecf0f1; border-color: #bdc3c7; }
+        .deverrouille { border-color: #2ecc71; background: #f0fdf4; }
+        .deverrouille .zone-titre { color: #27ae60; }
+        .deverrouille .unlock-progress-container { display: none; }
+        .deverrouille .unlock-message { color: #27ae60; }
+        .boutique-lola { border-color: #f368e0; background: #fff0f5; }
+        .boutique-lola .zone-titre { color: #f368e0; }
+
+        /* MODALS MONDE REEL & PARENTS */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 500px; width: 90%; }
+        .quete-box { background: #fff3cd; border: 3px dashed #f39c12; padding: 15px; border-radius: 15px; margin: 15px 0; font-size: 1.2rem; font-weight: bold; color: #d35400; cursor: pointer; transition: 0.2s; }
         .quete-box:hover { transform: scale(1.02); background: #ffeaa7; }
-        
-        /* Options Parents */
         .btn-parents { position: fixed; bottom: 20px; right: 20px; background: #95a5a6; color: white; border: none; padding: 10px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; opacity: 0.5; }
         .btn-parents:hover { opacity: 1; }
         .input-parent { font-size: 1.2rem; padding: 10px; width: 100%; margin-bottom: 15px; border: 2px solid #bdc3c7; border-radius: 10px; text-align: center;}
-        
         .btn-valider { background: #27ae60; color: white; font-size: 1.2rem; font-weight: bold; padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; margin-top: 10px;}
         
-        /* Blocage des jeux */
+        /* Blocage des jeux par le temps */
         .section-bloquee .games-list { opacity: 0.3; pointer-events: none; filter: grayscale(100%); }
-        .btn-monde-reel { display: none; background: #e67e22; color: white; padding: 15px; border-radius: 15px; font-size: 1.2rem; font-weight: 900; text-align: center; cursor: pointer; border: none; width: 100%; margin-top: 10px; box-shadow: 0 4px 0 #d35400; animation: pulse 2s infinite; }
+        .section-bloquee .parcours-jour { opacity: 0.3; filter: grayscale(100%); }
+        .btn-monde-reel { display: none; background: #e67e22; color: white; padding: 15px; border-radius: 15px; font-size: 1.2rem; font-weight: 900; text-align: center; cursor: pointer; border: none; width: 100%; margin-bottom: 20px; box-shadow: 0 4px 0 #d35400; animation: pulse 2s infinite; }
         .section-bloquee .btn-monde-reel { display: block; }
-
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
     </style>
@@ -97,6 +117,9 @@
     <div class="container">
         <h1>🎓 L'Académie</h1>
         <p class="subtitle">Apprendre, jouer et vivre de vraies aventures !</p>
+
+        <!-- ZONE D'ALERTES -->
+        <div id="zone-alertes"></div>
 
         <!-- JAUGE DE FAMILLE -->
         <div class="jauge-famille-container">
@@ -112,16 +135,21 @@
 
         <div class="kids-grid">
             
-            <!-- THEO -->
+            <!-- ================= THEO ================= -->
             <div class="kid-section theo-section" id="section-theo">
-                <div class="kid-header"><span style="color:#3498db;">👦 Théo</span></div>
-                
-                <div class="temps-ecran-box">
-                    Temps passé aujourd'hui : <span id="temps-theo">0</span> / <span id="limite-theo">30</span> min
-                </div>
+                <div class="kid-header"><span style="color:#3498db;">👦 Théo</span> <span class="badge-niveau" id="niveau-theo">CM2</span></div>
 
                 <button class="btn-monde-reel" onclick="ouvrirMondeReel('Théo')">🗺️ Passer au Monde Réel</button>
 
+                <!-- PARCOURS DU JOUR INTELLIGENT -->
+                <div class="parcours-jour">
+                    <div class="parcours-titre">📍 Ton Parcours Ciblé :</div>
+                    <ul class="parcours-liste" id="parcours-theo">
+                        <li>Chargement de ton programme...</li>
+                    </ul>
+                </div>
+
+                <h3 style="font-size: 1rem; color: #7f8c8d; margin-bottom: 10px; text-transform: uppercase;">Tes Missions</h3>
                 <div class="games-list">
                     <a href="hub_maths_theo.html" class="game-btn" onclick="return enregistrerDepart('Maths', 'Théo')">
                         <span class="game-icon">🧮</span><span>Mathématiques</span>
@@ -129,25 +157,61 @@
                     <a href="jeu_conjugaison_v6.html" class="game-btn" onclick="return enregistrerDepart('Français', 'Théo')">
                         <span class="game-icon">✍️</span><span>Conjugaison</span>
                     </a>
+                    <a href="mots_meles_v3.html" class="game-btn" onclick="return enregistrerDepart('Orthographe', 'Théo')">
+                        <span class="game-icon">📖</span><span>Orthographe</span>
+                    </a>
+                    <a href="jeu_histoire.html" class="game-btn" onclick="return enregistrerDepart('Histoire', 'Théo')">
+                        <span class="game-icon">⏳</span><span>Histoire</span>
+                    </a>
+                    <a href="jeu_geo.html" class="game-btn" onclick="return enregistrerDepart('Géo', 'Théo')">
+                        <span class="game-icon">🌍</span><span>Géographie</span>
+                    </a>
                     <a href="jeu_sciences.html" class="game-btn" onclick="return enregistrerDepart('Sciences', 'Théo')">
                         <span class="game-icon">🔬</span><span>Sciences & Labo</span>
                     </a>
+                    <a href="jeu_geometrie.html" class="game-btn" onclick="return enregistrerDepart('Géométrie', 'Théo')">
+                        <span class="game-icon">📐</span><span>Géométrie</span>
+                    </a>
+                    
+                    <hr style="border: 1px solid #eee; margin: 5px 0;">
+                    <h3 style="font-size: 1rem; color: #7f8c8d; text-transform: uppercase;">Pour l'agilité</h3>
+                    
                     <a href="echecs_coach.html" class="game-btn" onclick="return enregistrerDepart('Échecs', 'Théo')">
                         <span class="game-icon">♞</span><span>Échecs Pro</span>
                     </a>
+                    <a href="dactylo_pro.html" class="game-btn" onclick="return enregistrerDepart('Dactylo', 'Théo')">
+                        <span class="game-icon">⌨️</span><span>Dactylographie</span>
+                    </a>
+                </div>
+
+                <!-- RECREATION THEO (CODE) -->
+                <div id="zone-recreation-theo" class="zone-speciale verrouille">
+                    <div class="zone-titre">🔓 Le Bonus du Codeur</div>
+                    <div class="unlock-progress-container"><div id="theo-unlock-bar" class="unlock-progress-bar"></div></div>
+                    <div id="theo-unlock-msg" class="unlock-message">Gagne encore 50 XP aujourd'hui !</div>
+                    <div class="games-list">
+                        <a href="jeu_code.html" class="game-btn" onclick="return enregistrerDepart('Code', 'Théo')">
+                            <span class="game-icon">🤖</span><span>Code & Logique</span>
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <!-- LOLA -->
+            <!-- ================= LOLA ================= -->
             <div class="kid-section lola-section" id="section-lola">
-                <div class="kid-header"><span style="color:#e91e63;">👧 Lola</span></div>
-                
-                <div class="temps-ecran-box">
-                    Temps passé aujourd'hui : <span id="temps-lola">0</span> / <span id="limite-lola">30</span> min
-                </div>
+                <div class="kid-header"><span style="color:#e91e63;">👧 Lola</span> <span class="badge-niveau" id="niveau-lola">CE1</span></div>
 
                 <button class="btn-monde-reel" onclick="ouvrirMondeReel('Lola')">🗺️ Passer au Monde Réel</button>
 
+                <!-- PARCOURS DU JOUR INTELLIGENT LOLA -->
+                <div class="parcours-jour">
+                    <div class="parcours-titre">📍 Ton Parcours Ciblé :</div>
+                    <ul class="parcours-liste" id="parcours-lola">
+                        <li>Chargement de ton programme...</li>
+                    </ul>
+                </div>
+
+                <h3 style="font-size: 1rem; color: #7f8c8d; margin-bottom: 10px; text-transform: uppercase;">Tes Missions</h3>
                 <div class="games-list">
                     <a href="jeu_maths_lola.html" class="game-btn" onclick="return enregistrerDepart('Maths', 'Lola')">
                         <span class="game-icon">🧮</span><span>Mathématiques</span>
@@ -158,9 +222,25 @@
                     <a href="jeu_decouverte_lola.html" class="game-btn" onclick="return enregistrerDepart('Découverte', 'Lola')">
                         <span class="game-icon">🌍</span><span>Découverte du Monde</span>
                     </a>
+                    <a href="jeu_anglais_lola.html" class="game-btn" onclick="return enregistrerDepart('Anglais', 'Lola')">
+                        <span class="game-icon">🇬🇧</span><span>Anglais</span>
+                    </a>
                     <a href="jeu_dactylo_lola.html" class="game-btn" onclick="return enregistrerDepart('Dactylo', 'Lola')">
                         <span class="game-icon">⌨️</span><span>Dactylo Junior</span>
                     </a>
+                </div>
+
+                <!-- GAMIFICATION LOLA : BOUTIQUE -->
+                <div class="zone-speciale boutique-lola">
+                    <div class="zone-titre">🦄 L'Album d'Autocollants</div>
+                    <p style="font-size: 0.9rem; color: #7f8c8d; margin-bottom: 10px; font-weight: bold;">
+                        Dépense tes XP pour remplir ton album !
+                    </p>
+                    <div class="games-list">
+                        <a href="boutique_lola.html" class="game-btn" onclick="return enregistrerDepart('Boutique', 'Lola')">
+                            <span class="game-icon">✨</span><span>Voir mon Album</span>
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -220,17 +300,26 @@
     </div>
 
     <script>
+        // CONFIGURATION
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
-        
-        // --- PARAMÈTRES GLOBAUX ---
         const OBJECTIF_FAMILLE = 5000;
-        const CODE_PIN_PARENT = "1234"; // 🔒 Change ce code PIN !
+        const CODE_PIN_PARENT = "1234"; 
         
         let xpGagnable = 0;
         let enfantEnQuete = "";
 
+        // 1. Calcul du niveau scolaire
+        function determinerNiveau(anneeEntreeCP) {
+            const dateActuelle = new Date();
+            let anneeScolaire = dateActuelle.getFullYear();
+            if (dateActuelle.getMonth() < 8) anneeScolaire--;
+            const anneesEcoulees = anneeScolaire - anneeEntreeCP;
+            const niveaux = ["CP", "CE1", "CE2", "CM1", "CM2", "6ème", "5ème", "4ème", "3ème", "Lycée"];
+            return (anneesEcoulees >= 0 && anneesEcoulees < niveaux.length) ? niveaux[anneesEcoulees] : "Scolarisé";
+        }
+
         // ==========================================
-        // 1. LA JAUGE FAMILIALE
+        // LA JAUGE FAMILIALE
         // ==========================================
         async function chargerJaugeFamiliale() {
             try {
@@ -242,7 +331,7 @@
                 let resLola = await fetch(`${FIREBASE_URL}scores/lola.json`);
                 let dataLola = await resLola.json() || {};
                 let xpLola = 0;
-                for (let mat in dataLola) { if(dataLola[mat].xp) xpLola += parseInt(dataLola[mat].xp); }
+                for (let mat in dataLola) { if(dataLola[mat].xp && mat !== "boutiqueLola") xpLola += parseInt(dataLola[mat].xp); }
 
                 let xpTotalFamille = xpTheo + xpLola;
                 
@@ -251,31 +340,21 @@
 
                 let pourcentage = Math.min((xpTotalFamille / OBJECTIF_FAMILLE) * 100, 100);
                 document.getElementById('jauge-remplissage').style.width = pourcentage + "%";
-
-                if (pourcentage >= 100) {
-                    document.getElementById('jauge-remplissage').style.background = "#2ecc71";
-                }
-            } catch(e) { console.log("Erreur chargement jauge :", e); }
+                if (pourcentage >= 100) document.getElementById('jauge-remplissage').style.background = "#2ecc71";
+            } catch(e) {}
         }
 
         // ==========================================
-        // 2. GESTION DU TEMPS D'ÉCRAN
+        // GESTION DU TEMPS D'ÉCRAN (En arrière-plan)
         // ==========================================
         function initTempsEcran() {
             const aujourdhui = new Date().toLocaleDateString('fr-FR');
-            
-            // Si c'est un nouveau jour, on remet les temps de jeu à zéro
             if (localStorage.getItem('dateTempsEcran') !== aujourdhui) {
                 localStorage.setItem('dateTempsEcran', aujourdhui);
                 localStorage.setItem('tempsJoue_Théo', 0);
                 localStorage.setItem('tempsJoue_Lola', 0);
             }
 
-            // Récupérer les limites parentales (ou 30min par défaut)
-            let limiteTheo = parseInt(localStorage.getItem('limiteTemps_Théo')) || 30;
-            let limiteLola = parseInt(localStorage.getItem('limiteTemps_Lola')) || 30;
-
-            // Calcul du temps passé à la fin du dernier jeu
             let depart = localStorage.getItem('heureDepartJeu');
             let enfant = localStorage.getItem('enfantEnCours');
             
@@ -285,48 +364,147 @@
                     let tempsDejaJoue = parseInt(localStorage.getItem(`tempsJoue_${enfant}`)) || 0;
                     localStorage.setItem(`tempsJoue_${enfant}`, tempsDejaJoue + minutesPassees);
                 }
+                
+                let jeu = localStorage.getItem('jeuEnCours');
+                if ((jeu === 'Échecs' || jeu === 'Dactylo' || jeu === 'Code') && minutesPassees > 20) {
+                    document.getElementById('zone-alertes').style.display = 'block';
+                    document.getElementById('zone-alertes').innerHTML += `
+                        <div class="alerte-message">Coucou ${enfant} ! ⏱️ Tu as passé un long moment sur "${jeu}". N'oublie pas de faire aussi tes autres missions ! 😉</div>`;
+                }
+
                 localStorage.removeItem('heureDepartJeu');
                 localStorage.removeItem('enfantEnCours');
+                localStorage.removeItem('jeuEnCours');
             }
 
-            // Affichage UI et Blocage
+            let limiteTheo = parseInt(localStorage.getItem('limiteTemps_Théo')) || 30;
+            let limiteLola = parseInt(localStorage.getItem('limiteTemps_Lola')) || 30;
             actualiserAffichageEnfant('Théo', limiteTheo);
             actualiserAffichageEnfant('Lola', limiteLola);
         }
 
         function actualiserAffichageEnfant(nom, limite) {
             let tempsJoue = parseInt(localStorage.getItem(`tempsJoue_${nom}`)) || 0;
-            let nomHtml = nom.toLowerCase().replace('é', 'e'); // "theo" ou "lola"
-
-            document.getElementById(`limite-${nomHtml}`).textContent = limite;
-            document.getElementById(`temps-${nomHtml}`).textContent = tempsJoue;
+            let nomHtml = nom.toLowerCase().replace('é', 'e');
 
             const section = document.getElementById(`section-${nomHtml}`);
-            if (tempsJoue >= limite) {
-                section.classList.add('section-bloquee'); // Bloque les clics sur les jeux !
-            } else {
-                section.classList.remove('section-bloquee');
-            }
+            if (tempsJoue >= limite) section.classList.add('section-bloquee');
+            else section.classList.remove('section-bloquee');
         }
 
         function enregistrerDepart(nomDuJeu, nomEnfant) {
             let tempsJoue = parseInt(localStorage.getItem(`tempsJoue_${nomEnfant}`)) || 0;
             let limite = parseInt(localStorage.getItem(`limiteTemps_${nomEnfant}`)) || 30;
 
-            // L'algorithme vérifie s'il reste du temps avant d'autoriser le départ vers le jeu
             if (tempsJoue >= limite) {
                 alert(`Ton temps d'écran est écoulé pour aujourd'hui ! Il est temps de passer au monde réel.`);
-                return false; // Annule le clic sur le lien
+                return false; 
             }
 
-            // Si tout va bien, on lance le chrono
+            localStorage.setItem('jeuEnCours', nomDuJeu);
             localStorage.setItem('enfantEnCours', nomEnfant);
             localStorage.setItem('heureDepartJeu', Date.now());
-            return true; // Autorise le clic
+            return true; 
         }
 
         // ==========================================
-        // 3. LE MONDE RÉEL (Quêtes physiques)
+        // L'ALGORITHME DU PARCOURS INTELLIGENT
+        // ==========================================
+        const matieresTheo = [
+            { id: "mathsV8", nom: "Mathématiques", icon: "🧮" },
+            { id: "motsSaveV3", nom: "Orthographe", icon: "📖" },
+            { id: "conjHero9", nom: "Conjugaison", icon: "✍️" },
+            { id: "histoireSaveV1", nom: "Histoire", icon: "⏳" },
+            { id: "geoSaveV1", nom: "Géographie", icon: "🌍" },
+            { id: "sciencesSaveV1", nom: "Sciences", icon: "🔬" }
+        ];
+
+        const matieresLola = [
+            { id: "mathsLola", nom: "Mathématiques", icon: "🧮" },
+            { id: "francaisLola", nom: "Français", icon: "📚" },
+            { id: "geoLola", nom: "Découverte du Monde", icon: "🌍" },
+            { id: "anglaisLola", nom: "Anglais", icon: "🇬🇧" }
+        ];
+
+        async function genererParcoursIntelligent(nomEnfant, matieresConfig, htmlElementId) {
+            const dateDuJour = new Date().toLocaleDateString('fr-FR');
+            let keyStorageDate = `parcoursDate_${nomEnfant}`;
+            let keyStorageContenu = `parcoursContenu_${nomEnfant}`;
+            
+            if (localStorage.getItem(keyStorageDate) === dateDuJour) {
+                document.getElementById(htmlElementId).innerHTML = localStorage.getItem(keyStorageContenu);
+                return;
+            }
+
+            try {
+                let res = await fetch(`${FIREBASE_URL}scores/${nomEnfant.toLowerCase().replace('é', 'e')}.json`);
+                let data = await res.json() || {};
+
+                let matieresXP = matieresConfig.map(matiere => {
+                    let xpActuel = (data[matiere.id] && data[matiere.id].xp) ? parseInt(data[matiere.id].xp) : 0;
+                    return { ...matiere, xp: xpActuel };
+                });
+
+                matieresXP.sort((a, b) => a.xp - b.xp);
+                let choix1 = matieresXP[0];
+                let choix2 = matieresXP[1] || matieresXP[0];
+                
+                let jeuFun = Math.random() > 0.5 ? { nom: "Dactylographie", icon: "⌨️" } : { nom: "Échecs Pro", icon: "♞" };
+                if (nomEnfant === "Lola") jeuFun = { nom: "Dactylo Junior", icon: "⌨️" };
+
+                let listeParcoursHTML = `
+                    <li>👉 Ta priorité : ${choix1.icon} ${choix1.nom}</li>
+                    <li>👉 Puis consolider : ${choix2.icon} ${choix2.nom}</li>
+                    <li>👉 Et pour finir : ${jeuFun.icon} ${jeuFun.nom}</li>
+                `;
+                
+                localStorage.setItem(keyStorageDate, dateDuJour);
+                localStorage.setItem(keyStorageContenu, listeParcoursHTML);
+                document.getElementById(htmlElementId).innerHTML = listeParcoursHTML;
+
+            } catch (error) {
+                document.getElementById(htmlElementId).innerHTML = "<li>👉 Choisis librement tes matières aujourd'hui !</li>";
+            }
+        }
+
+        // ==========================================
+        // LE VERROU DU CODE (Théo)
+        // ==========================================
+        const OBJECTIF_XP_QUOTIDIEN = 50;
+        async function verifierRecreationTheo() {
+            try {
+                let res = await fetch(`${FIREBASE_URL}scores/theo.json`);
+                let data = await res.json() || {};
+                let xpTotalActuel = 0;
+                for (const matiere in data) { if(data[matiere].xp) xpTotalActuel += parseInt(data[matiere].xp); }
+
+                const aujourdhui = new Date().toLocaleDateString('fr-FR');
+                let xpDebutJournee = parseInt(localStorage.getItem('theoRecreStartXP'));
+
+                if (localStorage.getItem('theoRecreDate') !== aujourdhui || isNaN(xpDebutJournee)) {
+                    localStorage.setItem('theoRecreDate', aujourdhui);
+                    localStorage.setItem('theoRecreStartXP', xpTotalActuel);
+                    xpDebutJournee = xpTotalActuel;
+                }
+
+                let xpGagneAujourdhui = Math.max(0, xpTotalActuel - xpDebutJournee);
+                const zoneRecre = document.getElementById('zone-recreation-theo');
+                const msg = document.getElementById('theo-unlock-msg');
+
+                if (xpGagneAujourdhui >= OBJECTIF_XP_QUOTIDIEN) {
+                    zoneRecre.classList.remove('verrouille');
+                    zoneRecre.classList.add('deverrouille');
+                    msg.textContent = "✨ Objectif atteint ! Le jeu de Code est déverrouillé !";
+                } else {
+                    let pourcentage = (xpGagneAujourdhui / OBJECTIF_XP_QUOTIDIEN) * 100;
+                    document.getElementById('theo-unlock-bar').style.width = `${pourcentage}%`;
+                    msg.textContent = `Gagne encore ${OBJECTIF_XP_QUOTIDIEN - xpGagneAujourdhui} XP aujourd'hui pour débloquer !`;
+                }
+            } catch(e) {}
+        }
+
+        // ==========================================
+        // LE MONDE RÉEL & MENU PARENTS
         // ==========================================
         function ouvrirMondeReel(nomEnfant) {
             enfantEnQuete = nomEnfant;
@@ -346,43 +524,25 @@
             const msg = document.getElementById('msg-quete');
 
             if (pinSaisi === CODE_PIN_PARENT) {
-                msg.textContent = "Code correct ! Attribution des XP en cours... ✨";
+                msg.textContent = "Code correct ! Attribution des XP... ✨";
                 msg.style.color = "#27ae60";
 
-                // Logique pour ajouter l'XP dans le profil Firebase de l'enfant
                 let nomFichier = enfantEnQuete === 'Théo' ? 'theo' : 'lola';
-                let urlBase = `${FIREBASE_URL}scores/${nomFichier}/mondeReel.json`; // On crée une catégorie Monde Réel
+                let urlBase = `${FIREBASE_URL}scores/${nomFichier}/mondeReel.json`;
 
                 try {
                     let res = await fetch(urlBase);
                     let data = await res.json() || {};
-                    let xpActuel = parseInt(data.xp) || 0;
-                    let nouvelXP = xpActuel + xpGagnable;
+                    let nouvelXP = (parseInt(data.xp) || 0) + xpGagnable;
 
-                    await fetch(urlBase, {
-                        method: 'PUT',
-                        body: JSON.stringify({ xp: nouvelXP })
-                    });
+                    await fetch(urlBase, { method: 'PUT', body: JSON.stringify({ xp: nouvelXP }) });
 
                     msg.textContent = `Magnifique ! ${enfantEnQuete} a gagné +${xpGagnable} XP ! 🎉`;
-                    setTimeout(() => {
-                        fermerModals();
-                        chargerJaugeFamiliale(); // Met à jour la grande jauge
-                    }, 2500);
-
-                } catch(e) {
-                    msg.textContent = "Erreur de connexion. Réessaie.";
-                    msg.style.color = "red";
-                }
-            } else {
-                msg.textContent = "Code PIN incorrect 🔴";
-                msg.style.color = "red";
-            }
+                    setTimeout(() => { fermerModals(); chargerJaugeFamiliale(); }, 2500);
+                } catch(e) { msg.textContent = "Erreur de connexion."; msg.style.color = "red"; }
+            } else { msg.textContent = "Code PIN incorrect 🔴"; msg.style.color = "red"; }
         }
 
-        // ==========================================
-        // 4. LE MENU PARENTS (Options)
-        // ==========================================
         function ouvrirMenuParents() {
             document.getElementById('overlay-parents').style.display = 'flex';
             document.getElementById('pin-parents').value = "";
@@ -391,38 +551,34 @@
         }
 
         function authentifierParent() {
-            let pinSaisi = document.getElementById('pin-parents').value;
-            if (pinSaisi === CODE_PIN_PARENT) {
+            if (document.getElementById('pin-parents').value === CODE_PIN_PARENT) {
                 document.getElementById('parametres-parents').style.display = 'block';
                 document.getElementById('msg-parent-erreur').textContent = "";
-                
-                // On affiche les limites actuelles dans les champs
                 document.getElementById('input-limite-theo').value = parseInt(localStorage.getItem('limiteTemps_Théo')) || 30;
                 document.getElementById('input-limite-lola').value = parseInt(localStorage.getItem('limiteTemps_Lola')) || 30;
-            } else {
-                document.getElementById('msg-parent-erreur').textContent = "Code PIN incorrect.";
-            }
+            } else { document.getElementById('msg-parent-erreur').textContent = "Code PIN incorrect."; }
         }
 
         function sauvegarderParametres() {
-            let limiteTheo = document.getElementById('input-limite-theo').value;
-            let limiteLola = document.getElementById('input-limite-lola').value;
-            
-            localStorage.setItem('limiteTemps_Théo', limiteTheo);
-            localStorage.setItem('limiteTemps_Lola', limiteLola);
-            
-            initTempsEcran(); // Recalculer l'affichage pour voir s'il faut bloquer ou débloquer
+            localStorage.setItem('limiteTemps_Théo', document.getElementById('input-limite-theo').value);
+            localStorage.setItem('limiteTemps_Lola', document.getElementById('input-limite-lola').value);
+            initTempsEcran(); 
             fermerModals();
         }
 
-        function fermerModals() {
-            document.querySelectorAll('.overlay').forEach(el => el.style.display = 'none');
-        }
+        function fermerModals() { document.querySelectorAll('.overlay').forEach(el => el.style.display = 'none'); }
 
-        // Initialisation au lancement
+        // --- INITIALISATION ---
         document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("niveau-lola").textContent = determinerNiveau(2025);
+            document.getElementById("niveau-theo").textContent = determinerNiveau(2022);
+            
             chargerJaugeFamiliale();
             initTempsEcran();
+            verifierRecreationTheo();
+            
+            genererParcoursIntelligent("Théo", matieresTheo, "parcours-theo");
+            genererParcoursIntelligent("Lola", matieresLola, "parcours-lola");
         });
     </script>
 </body>
