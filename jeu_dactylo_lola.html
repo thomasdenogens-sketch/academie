@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Dactylo Junior - L'Académie de Lola</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); 
+            color: #2c3e50; display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; padding: 20px; 
+        }
+        
+        #app-container { 
+            background: white; padding: 30px; border-radius: 25px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); max-width: 700px; width: 100%; text-align: center; position: relative;
+        }
+        
+        h1 { color: #9b59b6; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
+        .sous-titre { color: #7f8c8d; margin-bottom: 25px; font-weight: 700; font-size: 1.2rem;}
+        
+        .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
+
+        /* Menu des Niveaux */
+        .grid-menu { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; }
+        .btn-niveau {
+            background: #fff; border: 3px solid #f8bbd0; padding: 15px; border-radius: 15px;
+            font-size: 1.2rem; font-weight: bold; color: #d81b60; cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 0 #f8bbd0;
+        }
+        .btn-niveau:active { transform: translateY(4px); box-shadow: none; }
+        .btn-niveau:hover { background: #fdf2f8; border-color: #f48fb1; }
+        
+        /* HUD Jeu */
+        #hud-jeu { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.2rem; border: 2px solid #ecf0f1; color: #8e44ad;}
+        
+        /* La Bulle de Dactylo */
+        #zone-dactylo {
+            display: flex; justify-content: center; align-items: center; min-height: 250px;
+            background: #fdfdfd; border: 3px dashed #e0bbe4; border-radius: 20px; margin-bottom: 20px;
+            position: relative; overflow: hidden;
+        }
+
+        .bulle-lettre {
+            background: radial-gradient(circle at 30% 30%, #ff9a9e, #fecfef);
+            width: 150px; height: 150px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 5rem; font-weight: 900; color: white;
+            box-shadow: 0 10px 20px rgba(255, 154, 158, 0.4), inset -10px -10px 20px rgba(0,0,0,0.1);
+            text-transform: uppercase;
+            animation: flotte 3s infinite ease-in-out;
+            transition: all 0.2s;
+        }
+
+        @keyframes flotte {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-15px) scale(1.05); }
+        }
+
+        /* Animations de validation */
+        .bulle-lettre.succes { background: #2ecc71; transform: scale(1.2); opacity: 0; box-shadow: 0 0 30px #2ecc71; }
+        .bulle-lettre.erreur { animation: secousse 0.4s; background: #e74c3c; }
+
+        @keyframes secousse {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* Boutons */
+        .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; text-decoration: none; display: inline-block; transition: 0.2s; margin-top: 10px;}
+        .btn-nav:hover { background: #7f8c8d; }
+        
+        .ecran { display: none; }
+        .ecran.actif { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+        
+        #feedback { font-size: 1.4rem; font-weight: 900; height: 35px; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <div class="xp-badge">XP: <span id="ui-xp">...</span> ⭐</div>
+
+        <!-- ECRAN D'ACCUEIL -->
+        <div id="ecran-menu" class="ecran actif">
+            <h1>Dactylo Junior ⌨️</h1>
+            <p class="sous-titre">Apprends à trouver les lettres sur le clavier !</p>
+            
+            <div class="grid-menu">
+                <button class="btn-niveau" onclick="lancerNiveau('voyelles')">
+                    <span style="font-size: 2.5rem;">🎈</span>
+                    <div style="text-align: left;">
+                        <div>Étape 1 : Les Voyelles</div>
+                        <div style="font-size: 0.9rem; color: #7f8c8d; font-weight: normal;">A, E, I, O, U, Y</div>
+                    </div>
+                </button>
+                <button class="btn-niveau" onclick="lancerNiveau('consonnes_simples')">
+                    <span style="font-size: 2.5rem;">⭐</span>
+                    <div style="text-align: left;">
+                        <div>Étape 2 : Consonnes fréquentes</div>
+                        <div style="font-size: 0.9rem; color: #7f8c8d; font-weight: normal;">M, S, L, R, T, P...</div>
+                    </div>
+                </button>
+                <button class="btn-niveau" onclick="lancerNiveau('alphabet')">
+                    <span style="font-size: 2.5rem;">🚀</span>
+                    <div style="text-align: left;">
+                        <div>Étape 3 : Tout l'alphabet</div>
+                        <div style="font-size: 0.9rem; color: #7f8c8d; font-weight: normal;">De A jusqu'à Z !</div>
+                    </div>
+                </button>
+            </div>
+
+            <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+        </div>
+
+        <!-- ECRAN DE JEU -->
+        <div id="ecran-jeu" class="ecran">
+            <div id="hud-jeu">
+                <span id="titre-niveau">Étape ...</span>
+                <span id="ui-progression">1 / 10</span>
+            </div>
+            
+            <div style="font-size: 1.1rem; color: #e67e22; font-weight: bold; margin-bottom: 15px;">
+                Trouve cette lettre sur ton clavier et appuie dessus !
+            </div>
+
+            <div id="zone-dactylo">
+                <!-- La bulle sera créée en JavaScript -->
+                <div id="bulle" class="bulle-lettre">A</div>
+            </div>
+            
+            <div id="feedback"></div>
+
+            <button class="btn-nav" onclick="quitterJeu()">⬅️ Changer de niveau</button>
+        </div>
+    </div>
+
+    <script>
+        // --- BASE DE DONNÉES CLOUD ---
+        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+        const DB_URL = `${FIREBASE_URL}scores/lola/dactyloLola.json`; // Nouvelle clé pour ce jeu !
+
+        let profil = { xp: 0 };
+        let bloque = false;
+        let indexQuestion = 0;
+        const totalQuestions = 10; // 10 lettres à taper par série
+        let lettreAttendue = "";
+        let listeLettres = [];
+
+        // Base de données des lettres par niveau
+        const niveauxDactylo = {
+            voyelles: ['a', 'e', 'i', 'o', 'u', 'y'],
+            consonnes_simples: ['m', 's', 'l', 'r', 't', 'p', 'c', 'n', 'd', 'b'],
+            alphabet: ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+        };
+
+        const nomsNiveaux = {
+            voyelles: "🎈 Les Voyelles",
+            consonnes_simples: "⭐ Consonnes fréquentes",
+            alphabet: "🚀 Tout l'alphabet"
+        };
+
+        const E = (id) => document.getElementById(id);
+
+        // --- GESTION DU CLOUD ---
+        async function chargerProfilCloud() {
+            try {
+                let res = await fetch(DB_URL);
+                let data = await res.json();
+                if (data && data.xp !== undefined) profil.xp = parseInt(data.xp) || 0;
+            } catch(e) { console.error("Erreur Firebase:", e); }
+            E('ui-xp').textContent = profil.xp;
+        }
+
+        async function ajouterXP(points) {
+            profil.xp += points;
+            E('ui-xp').textContent = profil.xp;
+            try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
+        }
+
+        // --- NAVIGATION ---
+        function changerEcran(id) { 
+            document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); 
+            E(id).classList.add('actif'); 
+        }
+
+        function quitterJeu() {
+            document.removeEventListener('keydown', ecouterClavier);
+            changerEcran('ecran-menu');
+        }
+
+        // --- MOTEUR DE JEU ---
+        function lancerNiveau(idNiveau) {
+            indexQuestion = 0;
+            listeLettres = niveauxDactylo[idNiveau];
+            
+            E('titre-niveau').textContent = nomsNiveaux[idNiveau];
+            E('feedback').textContent = "";
+            
+            changerEcran('ecran-jeu');
+            
+            // On active l'écouteur du clavier !
+            document.addEventListener('keydown', ecouterClavier);
+            
+            nouvelleLettre();
+        }
+
+        function nouvelleLettre() {
+            if (indexQuestion >= totalQuestions) {
+                // Fin de la partie
+                E('feedback').textContent = "Série terminée ! Bravo Lola ! 🎉";
+                E('feedback').style.color = "#8e44ad";
+                document.removeEventListener('keydown', ecouterClavier);
+                
+                // Petit bonus de fin
+                ajouterXP(10);
+                setTimeout(quitterJeu, 2500);
+                return;
+            }
+
+            bloque = false;
+            indexQuestion++;
+            E('ui-progression').textContent = `${indexQuestion} / ${totalQuestions}`;
+            E('feedback').textContent = "";
+
+            // Tirage aléatoire de la lettre
+            lettreAttendue = listeLettres[Math.floor(Math.random() * listeLettres.length)];
+            
+            const bulle = E('bulle');
+            bulle.className = "bulle-lettre"; // Réinitialise les classes d'animation
+            bulle.textContent = lettreAttendue;
+        }
+
+        // C'est ici que le code intercepte la frappe du clavier !
+        function ecouterClavier(event) {
+            // Ignorer les touches spéciales (Majuscule, Espace, etc.)
+            if (event.key.length > 1 || event.key === " ") return;
+            if (bloque) return;
+
+            // On convertit la frappe en minuscule pour la comparer sans erreur
+            let toucheFrappee = event.key.toLowerCase();
+            const bulle = E('bulle');
+            const fb = E('feedback');
+
+            if (toucheFrappee === lettreAttendue) {
+                // SUCCÈS
+                bloque = true;
+                bulle.classList.add('succes'); // Lance l'animation d'explosion verte
+                fb.textContent = "Super ! 🌟";
+                fb.style.color = "#2ecc71";
+                
+                ajouterXP(2); // 2 XP par lettre trouvée
+                
+                // On attend que l'animation se termine (800 millisecondes) avant de lancer la suivante
+                setTimeout(nouvelleLettre, 800);
+            } else {
+                // ERREUR
+                bulle.classList.remove('erreur'); // On retire la classe s'il y a eu plusieurs erreurs de suite
+                void bulle.offsetWidth; // Astuce de codeur : force le navigateur à recharger l'animation CSS
+                bulle.classList.add('erreur'); // Lance l'animation de secousse rouge
+                
+                fb.textContent = `Cherche bien, c'est la lettre ${lettreAttendue.toUpperCase()}`;
+                fb.style.color = "#e74c3c";
+            }
+        }
+
+        chargerProfilCloud();
+    </script>
+</body>
+</html>
