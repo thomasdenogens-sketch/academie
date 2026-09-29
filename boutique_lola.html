@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>L'Album Magique de Lola</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%); 
+            color: #2c3e50; display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; padding: 20px; 
+        }
+        
+        #app-container { 
+            background: white; padding: 30px; border-radius: 25px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-width: 800px; width: 100%; text-align: center; position: relative;
+        }
+        
+        h1 { color: #d81b60; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
+        .sous-titre { color: #8e44ad; margin-bottom: 25px; font-weight: 700; font-size: 1.1rem;}
+        
+        /* Affichage du Portefeuille d'XP */
+        #hud-boutique { 
+            display: inline-block; background: #fff0f5; border: 3px dashed #f48fb1; 
+            padding: 15px 30px; border-radius: 20px; font-size: 1.5rem; font-weight: 900; 
+            color: #d81b60; margin-bottom: 30px; box-shadow: 0 5px 15px rgba(244, 143, 177, 0.2);
+        }
+
+        /* Grille des Autocollants */
+        #catalogue-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        /* Style d'un Autocollant */
+        .carte-autocollant {
+            background: #f8f9fa; border: 3px solid #ecf0f1; border-radius: 20px; padding: 20px 10px;
+            display: flex; flex-direction: column; align-items: center; transition: all 0.3s ease;
+            position: relative; overflow: hidden;
+        }
+        
+        .emoji-box { font-size: 4rem; margin-bottom: 10px; transition: transform 0.3s; }
+        .titre-item { font-size: 1rem; font-weight: bold; color: #34495e; margin-bottom: 15px; }
+        
+        /* Bouton d'achat */
+        .btn-achat {
+            background: #f39c12; border: none; padding: 10px 20px; border-radius: 12px;
+            font-size: 1.1rem; font-weight: bold; color: white; cursor: pointer;
+            box-shadow: 0 4px 0 #d35400; transition: transform 0.1s; width: 80%;
+        }
+        .btn-achat:active { transform: translateY(4px); box-shadow: none; }
+        .btn-achat.trop-cher { background: #bdc3c7; box-shadow: 0 4px 0 #95a5a6; cursor: not-allowed; }
+        
+        /* État : Verrouillé */
+        .verrouille .emoji-box { filter: grayscale(100%) opacity(0.3); }
+        
+        /* État : Débloqué (Acheté) */
+        .debloque { border-color: #2ecc71; background: #f0fdf4; box-shadow: 0 5px 15px rgba(46, 204, 113, 0.2); }
+        .debloque .emoji-box { filter: none; transform: scale(1.2); }
+        .etiquette-acquis {
+            background: #27ae60; color: white; padding: 8px 15px; border-radius: 10px;
+            font-weight: bold; font-size: 1rem; width: 80%;
+        }
+
+        /* Animation de déblocage */
+        .animation-pop { animation: pop 0.5s ease-out forwards; }
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; text-decoration: none; display: inline-block; transition: 0.2s;}
+        .btn-nav:hover { background: #7f8c8d; }
+        
+        #message-action { height: 30px; font-size: 1.2rem; font-weight: bold; color: #8e44ad; margin-bottom: 20px; }
+
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <h1>🦄 L'Album Magique de Lola</h1>
+        <p class="sous-titre">Dépense tes XP pour collectionner les autocollants !</p>
+
+        <div id="hud-boutique">
+            Mon Portemonnaie : <span id="ui-xp-dispo">...</span> ⭐
+        </div>
+
+        <div id="message-action">Choisis un autocollant à débloquer !</div>
+
+        <!-- Le catalogue sera généré ici par JavaScript -->
+        <div id="catalogue-grid"></div>
+
+        <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+    </div>
+
+    <script>
+        // --- BASE DE DONNÉES CLOUD ---
+        const URL_LOLA_GLOBALE = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/scores/lola.json";
+        const URL_BOUTIQUE = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/scores/lola/boutiqueLola.json";
+
+        // --- DONNÉES DU CATALOGUE (Tu peux ajouter des autocollants ici !) ---
+        const catalogue = [
+            { id: "item_etoile", nom: "Étoile Filante", emoji: "🌠", prix: 20 },
+            { id: "item_fee", nom: "Petite Fée", emoji: "🧚‍♀️", prix: 50 },
+            { id: "item_chat", nom: "Chaton Mignon", emoji: "🐱", prix: 100 },
+            { id: "item_arcenciel", nom: "Arc-en-Ciel", emoji: "🌈", prix: 150 },
+            { id: "item_licorne", nom: "Licorne Magique", emoji: "🦄", prix: 250 },
+            { id: "item_couronne", nom: "Couronne Royale", emoji: "👑", prix: 500 }
+        ];
+
+        // --- VARIABLES DE CALCUL ---
+        let totalXPGagne = 0; // Somme de tous les jeux
+        let boutiqueData = { depenses: 0, inventaire: [] }; // Les données spécifiques à la boutique
+        let xpDisponible = 0; // Le vrai solde de Lola
+        let requeteEnCours = false; // Sécurité anti double-clic
+
+        // 1. CHARGEMENT DES DONNÉES
+        async function initialiserBoutique() {
+            try {
+                // On télécharge toutes les données de Lola
+                let res = await fetch(URL_LOLA_GLOBALE);
+                let data = await res.json() || {};
+                
+                totalXPGagne = 0;
+                
+                // On boucle sur toutes ses matières pour faire la somme
+                for (let clef in data) {
+                    // On additionne l'XP de tous les jeux SAUF le dossier de la boutique
+                    if (clef !== "boutiqueLola" && data[clef].xp) {
+                        totalXPGagne += parseInt(data[clef].xp);
+                    }
+                }
+
+                // On récupère les données de sa boutique (si elle a déjà acheté des choses)
+                if (data.boutiqueLola) {
+                    boutiqueData.depenses = parseInt(data.boutiqueLola.depenses) || 0;
+                    boutiqueData.inventaire = data.boutiqueLola.inventaire || [];
+                }
+
+                // Calcul du solde
+                calculerSolde();
+                
+                // Affichage
+                genererCatalogue();
+
+            } catch(e) {
+                console.error("Erreur de connexion Firebase", e);
+                document.getElementById('message-action').textContent = "Erreur de connexion internet.";
+                document.getElementById('message-action').style.color = "red";
+            }
+        }
+
+        // 2. LOGIQUE MÉTIER (CALCULS)
+        function calculerSolde() {
+            xpDisponible = totalXPGagne - boutiqueData.depenses;
+            document.getElementById('ui-xp-dispo').textContent = xpDisponible;
+        }
+
+        // 3. AFFICHAGE DE L'INTERFACE (Génération du HTML dynamique)
+        function genererCatalogue() {
+            const conteneur = document.getElementById('catalogue-grid');
+            conteneur.innerHTML = "";
+
+            catalogue.forEach(item => {
+                // Est-ce que Lola possède déjà cet objet ? (La fonction includes() cherche dans le tableau)
+                const possede = boutiqueData.inventaire.includes(item.id);
+                
+                // Est-ce qu'elle a assez d'argent pour l'acheter ?
+                const assezArgent = (xpDisponible >= item.prix);
+
+                // Création de la carte HTML
+                let divCarte = document.createElement('div');
+                divCarte.className = "carte-autocollant";
+                divCarte.id = "carte-" + item.id;
+                
+                // Ajout des classes CSS selon l'état
+                if (possede) {
+                    divCarte.classList.add('debloque');
+                } else {
+                    divCarte.classList.add('verrouille');
+                }
+
+                let htmlInterne = `
+                    <div class="emoji-box">${item.emoji}</div>
+                    <div class="titre-item">${item.nom}</div>
+                `;
+
+                if (possede) {
+                    // Si acheté, on affiche une étiquette
+                    htmlInterne += `<div class="etiquette-acquis">Dans l'album !</div>`;
+                } else {
+                    // Si non acheté, on affiche le bouton d'achat
+                    let classBtn = assezArgent ? "btn-achat" : "btn-achat trop-cher";
+                    let disabled = !assezArgent ? "disabled" : "";
+                    
+                    htmlInterne += `<button class="${classBtn}" ${disabled} onclick="acheterObjet('${item.id}', ${item.prix})">
+                        ${item.prix} ⭐
+                    </button>`;
+                }
+
+                divCarte.innerHTML = htmlInterne;
+                conteneur.appendChild(divCarte);
+            });
+        }
+
+        // 4. ACTION D'ACHAT
+        async function acheterObjet(idItem, prix) {
+            // Sécurités : On vérifie si elle a l'argent et si une sauvegarde n'est pas déjà en cours
+            if (xpDisponible < prix || requeteEnCours) return;
+            
+            requeteEnCours = true;
+            document.getElementById('message-action').textContent = "Déblocage en cours... ✨";
+
+            // Mise à jour de nos variables locales
+            boutiqueData.depenses += prix;
+            boutiqueData.inventaire.push(idItem);
+            
+            // On sauvegarde la transaction dans Firebase avec la méthode PUT
+            try {
+                await fetch(URL_BOUTIQUE, {
+                    method: 'PUT',
+                    body: JSON.stringify(boutiqueData)
+                });
+                
+                // Si la sauvegarde réussit, on met à jour l'écran
+                calculerSolde();
+                genererCatalogue();
+                
+                // Animation de célébration
+                let carteMiseAJour = document.getElementById("carte-" + idItem);
+                carteMiseAJour.classList.add('animation-pop');
+                
+                document.getElementById('message-action').textContent = "Superbe acquisition ! 🎉";
+                document.getElementById('message-action').style.color = "#27ae60";
+
+            } catch (error) {
+                // Si la connexion coupe, on annule l'achat localement
+                boutiqueData.depenses -= prix;
+                boutiqueData.inventaire.pop();
+                document.getElementById('message-action').textContent = "Erreur de connexion. L'achat a échoué.";
+            }
+
+            requeteEnCours = false;
+        }
+
+        // Lancement au démarrage
+        initialiserBoutique();
+
+    </script>
+</body>
+</html>
