@@ -18,10 +18,10 @@
         
         .container { max-width: 900px; width: 100%; text-align: center; }
 
+        /* Le titre devient cliquable pour la porte dérobée (mais le curseur ne change pas pour garder le secret) */
         h1 { font-size: 2.5rem; font-weight: 900; color: #2c3e50; margin-bottom: 5px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
         .subtitle { font-size: 1.1rem; font-weight: 700; color: #34495e; margin-bottom: 20px; }
 
-        /* JAUGE DE FAMILLE */
         .jauge-famille-container {
             background: white; padding: 20px; border-radius: 20px; margin-bottom: 30px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 4px solid #f1c40f;
@@ -38,7 +38,6 @@
             box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
         }
 
-        /* ALERTES */
         #zone-alertes { width: 100%; margin-bottom: 20px; display: none; }
         .alerte-message {
             background: #ffeaa7; color: #d35400; padding: 15px 20px; border-radius: 15px;
@@ -59,7 +58,13 @@
         .theo-section .badge-niveau { background-color: #f1c40f; }
         .lola-section .badge-niveau { background-color: #9b59b6; }
 
-        /* PARCOURS INTELLIGENT */
+        .temps-ecran-box {
+            background: #f8f9fa; padding: 10px; border-radius: 10px; text-align: center;
+            font-size: 0.9rem; font-weight: bold; color: #7f8c8d; margin-bottom: 15px; border: 1px solid #dfe6e9;
+            /* Masqué comme demandé dans la version précédente */
+            display: none; 
+        }
+
         .parcours-jour { border-radius: 15px; padding: 15px; margin-bottom: 25px; }
         .theo-section .parcours-jour { background: #f1f8ff; border: 2px solid #3498db; }
         .lola-section .parcours-jour { background: #fdf2f8; border: 2px solid #e91e63; }
@@ -79,12 +84,12 @@
         .lola-section .game-btn:hover { background: #fce4ec; border-color: #e91e63; transform: translateX(5px); }
         .game-icon { font-size: 1.8rem; }
         
-        /* ZONES SPECIALES */
         .zone-speciale { margin-top: 25px; padding: 20px; background: #fdfdfd; border: 3px dashed #bdc3c7; border-radius: 20px; transition: all 0.3s ease; }
         .zone-titre { font-size: 1.3rem; font-weight: 900; color: #7f8c8d; margin-bottom: 15px; display: flex; align-items: center; gap:10px; }
         .unlock-progress-container { background: #ecf0f1; height: 15px; border-radius: 10px; overflow: hidden; margin-bottom: 10px; border: 1px solid #bdc3c7;}
         .unlock-progress-bar { background: #f39c12; height: 100%; width: 0%; transition: width 1s ease-in-out; }
         .unlock-message { font-size: 0.9rem; color: #e67e22; font-weight: bold; text-align: center; margin-bottom: 15px;}
+        
         .verrouille .game-btn { opacity: 0.5; filter: grayscale(100%); pointer-events: none; background: #ecf0f1; border-color: #bdc3c7; }
         .deverrouille { border-color: #2ecc71; background: #f0fdf4; }
         .deverrouille .zone-titre { color: #27ae60; }
@@ -93,7 +98,6 @@
         .boutique-lola { border-color: #f368e0; background: #fff0f5; }
         .boutique-lola .zone-titre { color: #f368e0; }
 
-        /* MODALS MONDE REEL & PARENTS */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 500px; width: 90%; }
         .quete-box { background: #fff3cd; border: 3px dashed #f39c12; padding: 15px; border-radius: 15px; margin: 15px 0; font-size: 1.2rem; font-weight: bold; color: #d35400; cursor: pointer; transition: 0.2s; }
@@ -115,18 +119,17 @@
 <body>
 
     <div class="container">
-        <h1>🎓 L'Académie</h1>
+        <!-- Ajout de l'écouteur de clics secrets sur le titre -->
+        <h1 onclick="activerPorteDerobee()">🎓 L'Académie</h1>
         <p class="subtitle">Apprendre, jouer et vivre de vraies aventures !</p>
 
-        <!-- ZONE D'ALERTES -->
         <div id="zone-alertes"></div>
 
-        <!-- JAUGE DE FAMILLE -->
         <div class="jauge-famille-container">
             <div class="jauge-titre">🤝 Objectif de la Famille</div>
             <div class="jauge-bg">
                 <div class="jauge-fill" id="jauge-remplissage"></div>
-                <div class="jauge-text"><span id="xp-famille-actuel">0</span> / <span id="xp-famille-objectif">50000</span> XP</div>
+                <div class="jauge-text"><span id="xp-famille-actuel">0</span> / <span id="xp-famille-objectif">5000</span> XP</div>
             </div>
             <div class="recompense-texte">🎁 Super Récompense : Sortie au Parc tous ensemble !</div>
         </div>
@@ -135,18 +138,15 @@
 
         <div class="kids-grid">
             
-            <!-- ================= THEO ================= -->
+            <!-- THEO -->
             <div class="kid-section theo-section" id="section-theo">
                 <div class="kid-header"><span style="color:#3498db;">👦 Théo</span> <span class="badge-niveau" id="niveau-theo">CM2</span></div>
 
                 <button class="btn-monde-reel" onclick="ouvrirMondeReel('Théo')">🗺️ Passer au Monde Réel</button>
 
-                <!-- PARCOURS DU JOUR INTELLIGENT -->
                 <div class="parcours-jour">
                     <div class="parcours-titre">📍 Ton Parcours Ciblé :</div>
-                    <ul class="parcours-liste" id="parcours-theo">
-                        <li>Chargement de ton programme...</li>
-                    </ul>
+                    <ul class="parcours-liste" id="parcours-theo"><li>Chargement...</li></ul>
                 </div>
 
                 <h3 style="font-size: 1rem; color: #7f8c8d; margin-bottom: 10px; text-transform: uppercase;">Tes Missions</h3>
@@ -184,7 +184,6 @@
                     </a>
                 </div>
 
-                <!-- RECREATION THEO (CODE) -->
                 <div id="zone-recreation-theo" class="zone-speciale verrouille">
                     <div class="zone-titre">🔓 Le Bonus du Codeur</div>
                     <div class="unlock-progress-container"><div id="theo-unlock-bar" class="unlock-progress-bar"></div></div>
@@ -197,18 +196,15 @@
                 </div>
             </div>
 
-            <!-- ================= LOLA ================= -->
+            <!-- LOLA -->
             <div class="kid-section lola-section" id="section-lola">
                 <div class="kid-header"><span style="color:#e91e63;">👧 Lola</span> <span class="badge-niveau" id="niveau-lola">CE1</span></div>
 
                 <button class="btn-monde-reel" onclick="ouvrirMondeReel('Lola')">🗺️ Passer au Monde Réel</button>
 
-                <!-- PARCOURS DU JOUR INTELLIGENT LOLA -->
                 <div class="parcours-jour">
                     <div class="parcours-titre">📍 Ton Parcours Ciblé :</div>
-                    <ul class="parcours-liste" id="parcours-lola">
-                        <li>Chargement de ton programme...</li>
-                    </ul>
+                    <ul class="parcours-liste" id="parcours-lola"><li>Chargement...</li></ul>
                 </div>
 
                 <h3 style="font-size: 1rem; color: #7f8c8d; margin-bottom: 10px; text-transform: uppercase;">Tes Missions</h3>
@@ -230,7 +226,6 @@
                     </a>
                 </div>
 
-                <!-- GAMIFICATION LOLA : BOUTIQUE -->
                 <div class="zone-speciale boutique-lola">
                     <div class="zone-titre">🦄 L'Album d'Autocollants</div>
                     <p style="font-size: 0.9rem; color: #7f8c8d; margin-bottom: 10px; font-weight: bold;">
@@ -250,51 +245,37 @@
     <!-- BOUTON PARENTS -->
     <button class="btn-parents" onclick="ouvrirMenuParents()">⚙️ Parents</button>
 
-    <!-- OVERLAY MONDE REEL -->
+    <!-- OVERLAYS (Modals) conservés à l'identique ... -->
     <div id="overlay-monde-reel" class="overlay">
         <div class="modal">
             <h2 style="color: #e67e22; font-size: 2rem; margin-bottom: 10px;">🗺️ Quêtes du Monde Réel</h2>
-            <p style="color: #7f8c8d; font-weight: bold; margin-bottom: 20px;">L'aventure t'attend loin de l'écran ! Choisis une mission, réalise-la, et demande à un parent de valider pour gagner plein d'XP !</p>
-            
             <div id="liste-quetes">
                 <div class="quete-box" onclick="preparerValidation(150)">📚 Lire 10 pages d'un vrai livre (+150 XP)</div>
                 <div class="quete-box" onclick="preparerValidation(100)">🧹 Aider à ranger une pièce (+100 XP)</div>
                 <div class="quete-box" onclick="preparerValidation(200)">🎨 Dessiner ou construire quelque chose (+200 XP)</div>
-                <div class="quete-box" onclick="preparerValidation(150)">🏃‍♂️ Faire une activité sportive dehors (+150 XP)</div>
+                <div class="quete-box" onclick="preparerValidation(150)">🏃‍♂️ Faire du sport dehors (+150 XP)</div>
             </div>
-
             <div id="zone-validation" style="display:none; margin-top: 20px; border-top: 2px solid #eee; padding-top: 20px;">
-                <p style="color: #2c3e50; font-weight: bold; margin-bottom: 10px;">Demande le Code PIN Secret à un parent :</p>
                 <input type="password" id="pin-quete" class="input-parent" placeholder="Code PIN à 4 chiffres">
                 <button class="btn-valider" onclick="validerQueteRealisee()">Valider la Quête !</button>
                 <p id="msg-quete" style="font-weight: bold; margin-top: 10px;"></p>
             </div>
-            
             <button class="btn-valider" style="background: #95a5a6; margin-top: 20px;" onclick="fermerModals()">Fermer</button>
         </div>
     </div>
 
-    <!-- OVERLAY PARENTS -->
     <div id="overlay-parents" class="overlay">
         <div class="modal">
             <h2 style="color: #2c3e50; margin-bottom: 20px;">⚙️ Espace Parents</h2>
-            
             <input type="password" id="pin-parents" class="input-parent" placeholder="Code PIN">
             <button class="btn-valider" style="margin-bottom: 20px;" onclick="authentifierParent()">Déverrouiller</button>
             <p id="msg-parent-erreur" style="color: red; font-weight: bold;"></p>
-
             <div id="parametres-parents" style="display: none; text-align: left;">
-                <h3 style="margin-bottom: 10px; color: #3498db;">Temps d'écran autorisé (Minutes/Jour)</h3>
-                
-                <label style="font-weight: bold;">👦 Théo :</label>
-                <input type="number" id="input-limite-theo" class="input-parent" style="width: 80px;"> min<br>
-                
-                <label style="font-weight: bold;">👧 Lola :</label>
-                <input type="number" id="input-limite-lola" class="input-parent" style="width: 80px;"> min<br>
-                
+                <h3 style="margin-bottom: 10px; color: #3498db;">Temps d'écran (Minutes/Jour)</h3>
+                <label style="font-weight: bold;">👦 Théo :</label> <input type="number" id="input-limite-theo" class="input-parent" style="width: 80px;"> min<br>
+                <label style="font-weight: bold;">👧 Lola :</label> <input type="number" id="input-limite-lola" class="input-parent" style="width: 80px;"> min<br>
                 <button class="btn-valider" style="width: 100%; background: #3498db;" onclick="sauvegarderParametres()">Sauvegarder les limites</button>
             </div>
-            
             <button class="btn-valider" style="background: #95a5a6; margin-top: 20px; width:100%;" onclick="fermerModals()">Fermer</button>
         </div>
     </div>
@@ -302,13 +283,31 @@
     <script>
         // CONFIGURATION
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
-        const OBJECTIF_FAMILLE = 50000;
+        const OBJECTIF_FAMILLE = 5000;
         const CODE_PIN_PARENT = "1234"; 
         
         let xpGagnable = 0;
         let enfantEnQuete = "";
+        let compteurClicsSecrets = 0; // Variable pour la porte dérobée
 
-        // 1. Calcul du niveau scolaire
+        // --- LA PORTE DÉROBÉE (MODE DÉVELOPPEUR) ---
+        function activerPorteDerobee() {
+            compteurClicsSecrets++;
+            if (compteurClicsSecrets >= 5) {
+                // 1. Activer le mode Dev pour ignorer les blocages
+                localStorage.setItem('modeDev', 'actif');
+                
+                // 2. Remettre le temps de jeu à zéro
+                localStorage.setItem('tempsJoue_Théo', 0);
+                localStorage.setItem('tempsJoue_Lola', 0);
+
+                alert("🛠️ MODE DÉVELOPPEUR ACTIVÉ !\n\n- Les temps de jeu ont été réinitialisés à 0.\n- Le jeu de Code est déverrouillé.\n- Fini de tester ? Recharge la page.");
+                
+                // On recharge la page pour appliquer la triche immédiatement
+                window.location.reload();
+            }
+        }
+
         function determinerNiveau(anneeEntreeCP) {
             const dateActuelle = new Date();
             let anneeScolaire = dateActuelle.getFullYear();
@@ -318,9 +317,6 @@
             return (anneesEcoulees >= 0 && anneesEcoulees < niveaux.length) ? niveaux[anneesEcoulees] : "Scolarisé";
         }
 
-        // ==========================================
-        // LA JAUGE FAMILIALE
-        // ==========================================
         async function chargerJaugeFamiliale() {
             try {
                 let resTheo = await fetch(`${FIREBASE_URL}scores/theo.json`);
@@ -344,9 +340,6 @@
             } catch(e) {}
         }
 
-        // ==========================================
-        // GESTION DU TEMPS D'ÉCRAN (En arrière-plan)
-        // ==========================================
         function initTempsEcran() {
             const aujourdhui = new Date().toLocaleDateString('fr-FR');
             if (localStorage.getItem('dateTempsEcran') !== aujourdhui) {
@@ -388,15 +381,21 @@
             let nomHtml = nom.toLowerCase().replace('é', 'e');
 
             const section = document.getElementById(`section-${nomHtml}`);
-            if (tempsJoue >= limite) section.classList.add('section-bloquee');
-            else section.classList.remove('section-bloquee');
+            
+            // Si le Mode Dev est activé, on empêche le blocage
+            if (tempsJoue >= limite && localStorage.getItem('modeDev') !== 'actif') {
+                section.classList.add('section-bloquee');
+            } else {
+                section.classList.remove('section-bloquee');
+            }
         }
 
         function enregistrerDepart(nomDuJeu, nomEnfant) {
             let tempsJoue = parseInt(localStorage.getItem(`tempsJoue_${nomEnfant}`)) || 0;
             let limite = parseInt(localStorage.getItem(`limiteTemps_${nomEnfant}`)) || 30;
 
-            if (tempsJoue >= limite) {
+            // Le mode dev annule la vérification du temps
+            if (tempsJoue >= limite && localStorage.getItem('modeDev') !== 'actif') {
                 alert(`Ton temps d'écran est écoulé pour aujourd'hui ! Il est temps de passer au monde réel.`);
                 return false; 
             }
@@ -407,9 +406,6 @@
             return true; 
         }
 
-        // ==========================================
-        // L'ALGORITHME DU PARCOURS INTELLIGENT
-        // ==========================================
         const matieresTheo = [
             { id: "mathsV8", nom: "Mathématiques", icon: "🧮" },
             { id: "motsSaveV3", nom: "Orthographe", icon: "📖" },
@@ -467,9 +463,6 @@
             }
         }
 
-        // ==========================================
-        // LE VERROU DU CODE (Théo)
-        // ==========================================
         const OBJECTIF_XP_QUOTIDIEN = 50;
         async function verifierRecreationTheo() {
             try {
@@ -491,10 +484,11 @@
                 const zoneRecre = document.getElementById('zone-recreation-theo');
                 const msg = document.getElementById('theo-unlock-msg');
 
-                if (xpGagneAujourdhui >= OBJECTIF_XP_QUOTIDIEN) {
+                // On ouvre la récréation si l'objectif est atteint OU si le mode dev est activé
+                if (xpGagneAujourdhui >= OBJECTIF_XP_QUOTIDIEN || localStorage.getItem('modeDev') === 'actif') {
                     zoneRecre.classList.remove('verrouille');
                     zoneRecre.classList.add('deverrouille');
-                    msg.textContent = "✨ Objectif atteint ! Le jeu de Code est déverrouillé !";
+                    msg.textContent = localStorage.getItem('modeDev') === 'actif' ? "🛠️ Débloqué par le Mode Dev !" : "✨ Objectif atteint ! Le jeu de Code est déverrouillé !";
                 } else {
                     let pourcentage = (xpGagneAujourdhui / OBJECTIF_XP_QUOTIDIEN) * 100;
                     document.getElementById('theo-unlock-bar').style.width = `${pourcentage}%`;
@@ -503,9 +497,6 @@
             } catch(e) {}
         }
 
-        // ==========================================
-        // LE MONDE RÉEL & MENU PARENTS
-        // ==========================================
         function ouvrirMondeReel(nomEnfant) {
             enfantEnQuete = nomEnfant;
             document.getElementById('overlay-monde-reel').style.display = 'flex';
@@ -568,7 +559,6 @@
 
         function fermerModals() { document.querySelectorAll('.overlay').forEach(el => el.style.display = 'none'); }
 
-        // --- INITIALISATION ---
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("niveau-lola").textContent = determinerNiveau(2025);
             document.getElementById("niveau-theo").textContent = determinerNiveau(2022);
