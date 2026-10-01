@@ -191,6 +191,32 @@
             document.getElementById('compteur-fautes').textContent = nbFautes;
             document.getElementById('feedback-entrainement').textContent = "";
             
+            const conteneurTexte = document.getElementById('texte-entrainement');
+            conteneurTexte.innerHTML = "";
+            
+            for (let i = 0; i < leconDeBase.length; i++) {
+                let span = document.createElement('span');
+                span.className = 'lettre';
+                
+                // CORRECTION : Rendre l'espace visible à l'écran
+                if (leconDeBase[i] === " ") {
+                    span.textContent = "␣"; // Symbole d'espace officiel
+                    span.style.color = "#bdc3c7"; // Couleur grisée
+                    span.style.padding = "0 5px";
+                } else {
+                    span.textContent = leconDeBase[i];
+                }
+                
+                span.id = "lettre-" + i;
+                conteneurTexte.appendChild(span);
+            }
+            
+            document.getElementById('lettre-0').classList.add('active');
+            
+            changerEcran('ecran-entrainement');
+            document.addEventListener('keydown', gestionFrappeEntrainement);
+        }
+            
             // On prépare le HTML pour chaque lettre (pour pouvoir les colorier une par une)
             const conteneurTexte = document.getElementById('texte-entrainement');
             conteneurTexte.innerHTML = "";
