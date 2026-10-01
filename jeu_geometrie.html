@@ -2,66 +2,76 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Studio de Géométrie CM2</title>
+    <title>Géométrie CM2 - L'Académie</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
-        
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-        
         body { 
             font-family: 'Nunito', sans-serif; 
-            background: linear-gradient(135deg, #16a085 0%, #2ecc71 100%); 
-            color: #333; display: flex; flex-direction: column; align-items: center; 
+            background: linear-gradient(135deg, #16a085 0%, #f4d03f 100%); 
+            color: #2c3e50; display: flex; flex-direction: column; align-items: center; 
             min-height: 100vh; padding: 20px; 
         }
         
         #app-container { 
-            background: white; padding: 30px; border-radius: 20px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3); max-width: 800px; width: 100%; text-align: center; position: relative;
+            background: white; padding: 30px; border-radius: 25px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); max-width: 750px; width: 100%; text-align: center; position: relative;
         }
         
-        h1 { color: #27ae60; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
-        .sous-titre { color: #7f8c8d; margin-bottom: 20px; font-weight: 700; font-size: 1.1rem;}
+        h1 { color: #16a085; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
+        .sous-titre { color: #7f8c8d; margin-bottom: 25px; font-weight: 700; font-size: 1.1rem;}
         
         .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
 
-        /* La zone de dessin */
-        #canvas-container {
-            display: flex; justify-content: center; margin-bottom: 20px;
-            border: 4px solid #bdc3c7; border-radius: 10px; background: #fdfdfd;
-            overflow: hidden;
+        /* Menu Hub & Niveaux */
+        .grid-niveaux { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; text-align: left;}
+        .btn-niveau {
+            background: #fff; border: 3px solid #bdc3c7; padding: 15px; border-radius: 15px;
+            font-size: 1.2rem; font-weight: bold; color: #2c3e50; cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; justify-content: space-between;
         }
-        canvas { background-color: transparent; }
+        .btn-niveau:hover { background: #f8f9fa; border-color: #16a085; transform: translateX(5px); }
+        .btn-niveau:active { transform: translateY(2px); }
 
-        /* Le panneau de contrôle */
-        #controles {
-            background: #f8f9fa; padding: 20px; border-radius: 15px;
-            border: 2px dashed #bdc3c7; margin-bottom: 20px;
-            display: flex; flex-direction: column; gap: 15px;
-        }
+        .titre-section { background: #16a085; color: white; padding: 10px; border-radius: 10px; margin: 20px 0 10px 0; font-weight: 900;}
+        .titre-section.angles { background: #e67e22; }
 
-        .slider-group { display: flex; align-items: center; justify-content: space-between; gap: 15px; font-weight: bold; font-size: 1.2rem; color: #2c3e50;}
-        input[type="range"] { flex: 1; cursor: pointer; height: 8px; border-radius: 5px; outline: none; }
-        .valeur-input { background: #3498db; color: white; padding: 5px 15px; border-radius: 10px; min-width: 60px; }
-
-        /* Affichage des calculs en temps réel */
-        #calculs-live {
-            display: flex; justify-content: space-around; background: #e0f7fa;
-            padding: 15px; border-radius: 15px; border: 2px solid #00bcd4; margin-bottom: 20px;
-        }
-        .calc-box { font-size: 1.3rem; font-weight: 900; color: #0097a7; }
-
-        /* Zone de Mission */
-        #mission-box { background: #fff3cd; padding: 15px; border-radius: 15px; border: 2px solid #f39c12; margin-bottom: 20px;}
-        #mission-texte { font-size: 1.4rem; font-weight: 900; color: #d35400; }
-
-        /* Boutons */
-        .btn { font-family: 'Nunito', sans-serif; font-size: 1.2rem; font-weight: bold; padding: 15px 30px; border: none; border-radius: 12px; cursor: pointer; color: white; transition: transform 0.1s; }
-        .btn:active { transform: scale(0.95); }
-        .btn-primaire { background: #27ae60; box-shadow: 0 4px #219a52; }
-        .btn-secondaire { background: #95a5a6; box-shadow: 0 4px #7f8c8d; color: white; margin-top: 10px; font-size: 1rem; padding: 10px 20px;}
+        /* HUD Jeu */
+        .hud-jeu { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.2rem; border: 2px solid #ecf0f1; }
         
-        #feedback { font-size: 1.4rem; font-weight: 900; height: 35px; margin-top: 10px; }
+        /* Zone de dessin (Canvas) */
+        #canvas-container {
+            background: #fdfdfd; border: 3px dashed #bdc3c7; border-radius: 15px; 
+            margin: 0 auto 20px auto; display: flex; justify-content: center; align-items: center;
+            width: 100%; max-width: 400px; height: 300px; position: relative;
+        }
+        canvas { max-width: 100%; max-height: 100%; }
+
+        #question-texte { font-size: 1.4rem; color: #34495e; font-weight: 900; margin-bottom: 20px; }
+
+        /* Options de réponse */
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .btn-opt {
+            background: white; border: 3px solid #3498db; padding: 15px; border-radius: 15px;
+            font-size: 1.3rem; font-weight: bold; color: #2980b9; cursor: pointer; transition: 0.1s;
+        }
+        .btn-opt:active { transform: translateY(4px); }
+        .btn-opt.correct { background: #2ecc71; color: white; border-color: #27ae60; }
+        .btn-opt.erreur { background: #e74c3c; color: white; border-color: #c0392b; }
+
+        /* Saisie manuelle */
+        #zone-saisie { display: none; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        #input-mesure { font-size: 1.5rem; width: 120px; padding: 10px; text-align: center; border: 3px solid #3498db; border-radius: 10px; font-weight: bold; }
+        .btn-valider { background: #3498db; color: white; font-weight: bold; font-size: 1.2rem; padding: 10px 25px; border: none; border-radius: 10px; cursor: pointer; }
+
+        .btn-nav { background: #7f8c8d; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s;}
+        .btn-nav:hover { background: #95a5a6; }
+        
+        #feedback { font-size: 1.3rem; font-weight: 900; height: 35px; margin-bottom: 15px; }
+
+        .ecran { display: none; }
+        .ecran.actif { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     </style>
 </head>
 <body>
@@ -69,66 +79,82 @@
     <div id="app-container">
         <div class="xp-badge">XP: <span id="ui-xp-jeu">...</span> ⭐</div>
 
-        <h1>Studio de Géométrie 📐</h1>
-        <p class="sous-titre">Périmètres, Aires et Formes</p>
-
-        <div id="mission-box">
-            <div style="font-size: 1rem; color:#d35400; font-weight:bold;">🎯 Mission actuelle :</div>
-            <div id="mission-texte">Chargement du défi...</div>
-        </div>
-
-        <!-- NOTRE TOILE DE DESSIN -->
-        <div id="canvas-container">
-            <canvas id="geoCanvas" width="400" height="300"></canvas>
-        </div>
-
-        <div id="calculs-live">
-            <div class="calc-box">Périmètre = <span id="val-perimetre">0</span></div>
-            <div class="calc-box">Aire = <span id="val-aire">0</span></div>
-        </div>
-
-        <div id="controles">
-            <div class="slider-group">
-                <span>Largeur (L)</span>
-                <input type="range" id="slider-largeur" min="1" max="15" value="5">
-                <span class="valeur-input" id="lbl-largeur">5</span>
+        <!-- ECRAN D'ACCUEIL -->
+        <div id="ecran-hub" class="ecran actif">
+            <h1>Studio de Géométrie 📐</h1>
+            <p class="sous-titre">Entraînement progressif pour le CM2</p>
+            
+            <div class="titre-section">Périmètres et Aires</div>
+            <div class="grid-niveaux">
+                <button class="btn-niveau" onclick="lancerJeu('mesures', 1)">
+                    <div><strong>Niveau 1 : Le Périmètre</strong><br><span style="font-size:0.9rem; color:#7f8c8d;">Calculer le contour (Révisions)</span></div>
+                    <span>▶️</span>
+                </button>
+                <button class="btn-niveau" onclick="lancerJeu('mesures', 2)">
+                    <div><strong>Niveau 2 : L'Aire</strong><br><span style="font-size:0.9rem; color:#7f8c8d;">Calculer la surface intérieure</span></div>
+                    <span>▶️</span>
+                </button>
             </div>
-            <div class="slider-group">
-                <span>Hauteur (l)</span>
-                <input type="range" id="slider-hauteur" min="1" max="10" value="3">
-                <span class="valeur-input" id="lbl-hauteur">3</span>
+
+            <div class="titre-section angles">Les Angles</div>
+            <div class="grid-niveaux">
+                <button class="btn-niveau" onclick="lancerJeu('angles', 1)">
+                    <div><strong>Niveau 1 : Les bases</strong><br><span style="font-size:0.9rem; color:#7f8c8d;">Aigu, Obtus ou Droit ?</span></div>
+                    <span>▶️</span>
+                </button>
+                <button class="btn-niveau" onclick="lancerJeu('angles', 2)">
+                    <div><strong>Niveau 2 : L'œil de lynx</strong><br><span style="font-size:0.9rem; color:#7f8c8d;">Angles tournés dans tous les sens</span></div>
+                    <span>▶️</span>
+                </button>
             </div>
+
+            <button class="btn-nav" style="margin-top: 15px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
-        <div id="feedback"></div>
-        <button class="btn btn-primaire" id="btn-valider" onclick="verifierMission()">Vérifier ma forme !</button>
-        <br>
-        <button class="btn btn-secondaire" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+        <!-- ECRAN DE JEU -->
+        <div id="ecran-jeu" class="ecran">
+            <div class="hud-jeu">
+                <span id="ui-vies" style="letter-spacing: 3px; color:#e74c3c;">❤️❤️❤️</span>
+                <span id="ui-titre-niveau" style="color: #2980b9;">Niveau...</span>
+                <span id="ui-progression">1 / 5</span>
+            </div>
+            
+            <div id="question-texte">Question...</div>
+
+            <div id="canvas-container">
+                <canvas id="canvas-geo" width="400" height="300"></canvas>
+            </div>
+
+            <div id="zone-boutons" class="options-grid"></div>
+            
+            <div id="zone-saisie">
+                <input type="number" id="input-mesure" autocomplete="off" placeholder="Ex: 12">
+                <button class="btn-valider" onclick="verifierSaisie()">Valider</button>
+            </div>
+
+            <div id="feedback"></div>
+
+            <button class="btn-nav" onclick="retourAccueil()">⬅️ Quitter l'atelier</button>
+        </div>
+
     </div>
 
     <script>
-        // 1. CONFIGURATION DU CLOUD (Base de données)
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
-        const DB_URL = `${FIREBASE_URL}scores/theo/geometrieV1.json`;
+        const DB_URL = `${FIREBASE_URL}scores/theo/mathsV8.json`; // On lie cet XP à ses maths
 
         let profil = { xp: 0 };
-        let missionActuelle = null;
-        let tailleCarreau = 20; // 1 unité = 20 pixels sur l'écran
+        let modeActuel = "";
+        let niveauActuel = 1;
+        let indexQuestion = 0;
+        let vies = 3;
+        const totalQuestions = 5;
+        let reponseAttendue = null;
+        let isProcessing = false;
 
-        // Base de données des missions générées aléatoirement
-        const typesMissions = [
-            { type: "aire", generateur: () => { let l=Math.floor(Math.random()*8)+2, h=Math.floor(Math.random()*5)+2; return {cible: l*h, texte: `Crée un rectangle avec une AIRE de ${l*h}`}; } },
-            { type: "perimetre", generateur: () => { let l=Math.floor(Math.random()*8)+2, h=Math.floor(Math.random()*5)+2; return {cible: (l+h)*2, texte: `Crée un rectangle avec un PÉRIMÈTRE de ${(l+h)*2}`}; } },
-            { type: "carre", generateur: () => { let c=Math.floor(Math.random()*5)+3; return {cible: c, texte: `Crée un CARRÉ de côté ${c}`}; } }
-        ];
+        const canvas = document.getElementById('canvas-geo');
+        const ctx = canvas.getContext('2d');
 
-        // --- ÉLÉMENTS DU DOM (HTML) ---
-        const canvas = document.getElementById('geoCanvas');
-        const ctx = canvas.getContext('2d'); // Le "pinceau" pour dessiner en JavaScript
-        const sliderLargeur = document.getElementById('slider-largeur');
-        const sliderHauteur = document.getElementById('slider-hauteur');
-
-        // --- SAUVEGARDE CLOUD ---
         async function chargerProfilCloud() {
             try {
                 let res = await fetch(DB_URL);
@@ -138,116 +164,220 @@
             document.getElementById('ui-xp-jeu').textContent = profil.xp;
         }
 
-        async function sauverProfilCloud() {
+        async function sauverProfilCloud(xpGagne) {
+            profil.xp += xpGagne;
+            document.getElementById('ui-xp-jeu').textContent = profil.xp;
             try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
         }
 
-        // --- MOTEUR DE DESSIN ---
-        // Cette fonction dessine le quadrillage du fond
-        function dessinerGrille() {
-            ctx.strokeStyle = "#ecf0f1"; // Couleur gris clair
-            ctx.lineWidth = 1;
-            for (let x = 0; x <= canvas.width; x += tailleCarreau) {
-                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-            }
-            for (let y = 0; y <= canvas.height; y += tailleCarreau) {
-                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-            }
+        function changerEcran(id) { 
+            document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); 
+            document.getElementById(id).classList.add('actif'); 
+        }
+        function retourAccueil() { changerEcran('ecran-hub'); }
+
+        function lancerJeu(mode, niveau) {
+            modeActuel = mode;
+            niveauActuel = niveau;
+            indexQuestion = 0;
+            vies = 3;
+            isProcessing = false;
+
+            document.getElementById('ui-titre-niveau').textContent = mode === 'mesures' ? `Mesures - Niv ${niveau}` : `Angles - Niv ${niveau}`;
+            document.getElementById('ui-vies').textContent = "❤️❤️❤️";
+            
+            changerEcran('ecran-jeu');
+            poserQuestion();
         }
 
-        // Cette fonction s'exécute à chaque fois qu'on bouge un curseur
-        function actualiserDessin() {
-            // 1. On efface toute la toile
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // 2. On redessine le fond
-            dessinerGrille();
+        function poserQuestion() {
+            if (vies <= 0) {
+                alert("Plus de vies ! Révise encore un peu et réessaie.");
+                return retourAccueil();
+            }
+            if (indexQuestion >= totalQuestions) {
+                alert("Série parfaite ! Tu gagnes un super bonus d'XP ! 🎉");
+                sauverProfilCloud(niveauActuel * 20);
+                return retourAccueil();
+            }
 
-            // 3. On lit la valeur des curseurs
-            let largeurUnite = parseInt(sliderLargeur.value);
-            let hauteurUnite = parseInt(sliderHauteur.value);
-
-            // 4. On calcule la taille en pixels
-            let largeurPixel = largeurUnite * tailleCarreau;
-            let hauteurPixel = hauteurUnite * tailleCarreau;
-
-            // 5. On dessine le rectangle au centre de la toile
-            let xPosition = (canvas.width - largeurPixel) / 2;
-            let yPosition = (canvas.height - hauteurPixel) / 2;
-
-            ctx.fillStyle = "rgba(52, 152, 219, 0.5)"; // Bleu transparent
-            ctx.strokeStyle = "#2980b9"; // Bordure bleue foncée
-            ctx.lineWidth = 4;
-            
-            ctx.fillRect(xPosition, yPosition, largeurPixel, hauteurPixel);
-            ctx.strokeRect(xPosition, yPosition, largeurPixel, hauteurPixel);
-
-            // 6. On met à jour l'interface avec les maths
-            document.getElementById('lbl-largeur').textContent = largeurUnite;
-            document.getElementById('lbl-hauteur').textContent = hauteurUnite;
-            
-            let perimetre = (largeurUnite + hauteurUnite) * 2;
-            let aire = largeurUnite * hauteurUnite;
-            
-            document.getElementById('val-perimetre').textContent = perimetre;
-            document.getElementById('val-aire').textContent = aire;
-        }
-
-        // --- LOGIQUE DE JEU ---
-        function genererMission() {
-            // On tire une mission au hasard
-            let typeRandom = typesMissions[Math.floor(Math.random() * typesMissions.length)];
-            missionActuelle = typeRandom.generateur();
-            missionActuelle.type = typeRandom.type;
-            
-            document.getElementById('mission-texte').textContent = missionActuelle.texte;
+            isProcessing = false;
+            indexQuestion++;
+            document.getElementById('ui-progression').textContent = `${indexQuestion} / ${totalQuestions}`;
             document.getElementById('feedback').textContent = "";
-            document.getElementById('btn-valider').style.display = "inline-block";
-        }
-
-        function verifierMission() {
-            let L = parseInt(sliderLargeur.value);
-            let l = parseInt(sliderHauteur.value);
-            let estCorrect = false;
-
-            if (missionActuelle.type === "aire") {
-                if ((L * l) === missionActuelle.cible) estCorrect = true;
-            } 
-            else if (missionActuelle.type === "perimetre") {
-                if (((L + l) * 2) === missionActuelle.cible) estCorrect = true;
-            }
-            else if (missionActuelle.type === "carre") {
-                // Pour un carré, L et l doivent être égaux ET correspondre à la cible
-                if (L === l && L === missionActuelle.cible) estCorrect = true;
-            }
-
-            const feedback = document.getElementById('feedback');
+            document.getElementById('input-mesure').value = "";
             
-            if (estCorrect) {
-                feedback.textContent = "C'est exact ! Superbe construction ! ✨";
-                feedback.style.color = "#27ae60";
-                
-                profil.xp += 15;
-                document.getElementById('ui-xp-jeu').textContent = profil.xp;
-                sauverProfilCloud();
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Efface le dessin précédent
 
-                document.getElementById('btn-valider').style.display = "none";
-                setTimeout(genererMission, 2000);
+            if (modeActuel === 'mesures') genererQuestionMesure();
+            else genererQuestionAngle();
+        }
+
+        // --- MOTEUR DE DESSIN : MESURES (Périmètre / Aire) ---
+        function genererQuestionMesure() {
+            document.getElementById('zone-boutons').style.display = 'none';
+            document.getElementById('zone-saisie').style.display = 'flex';
+            
+            let typeForme = Math.random() > 0.5 ? 'carre' : 'rectangle';
+            let largeur, hauteur, texteL, texteH;
+
+            // Difficulté selon le niveau
+            if (niveauActuel === 1) {
+                // Niveau 1 : Petits nombres, on demande toujours le périmètre
+                largeur = Math.floor(Math.random() * 8) + 3; // 3 à 10
+                hauteur = typeForme === 'carre' ? largeur : Math.floor(Math.random() * 5) + 2;
+                if (largeur === hauteur) typeForme = 'carre';
+                
+                document.getElementById('question-texte').innerHTML = `Calcule le <strong>Périmètre</strong> de ce ${typeForme}.`;
+                reponseAttendue = typeForme === 'carre' ? largeur * 4 : (largeur + hauteur) * 2;
             } else {
-                feedback.textContent = "Ce n'est pas tout à fait ça. Regarde tes calculs !";
-                feedback.style.color = "#e74c3c";
+                // Niveau 2 : Nombres plus grands, on demande toujours l'aire
+                largeur = Math.floor(Math.random() * 10) + 5; 
+                hauteur = typeForme === 'carre' ? largeur : Math.floor(Math.random() * 8) + 3;
+                if (largeur === hauteur) typeForme = 'carre';
+                
+                document.getElementById('question-texte').innerHTML = `Calcule l'<strong>Aire</strong> de ce ${typeForme} (L x l).`;
+                reponseAttendue = largeur * hauteur;
+            }
+
+            // Dessin sur le Canvas
+            ctx.beginPath();
+            let drawW = typeForme === 'carre' ? 150 : 220;
+            let drawH = typeForme === 'carre' ? 150 : 100;
+            let startX = (canvas.width - drawW) / 2;
+            let startY = (canvas.height - drawH) / 2;
+
+            ctx.rect(startX, startY, drawW, drawH);
+            ctx.fillStyle = "rgba(52, 152, 219, 0.2)";
+            ctx.fill();
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = "#2980b9";
+            ctx.stroke();
+
+            // Affichage des mesures
+            ctx.fillStyle = "#2c3e50";
+            ctx.font = "bold 20px Nunito";
+            ctx.textAlign = "center";
+            ctx.fillText(`${largeur} cm`, canvas.width / 2, startY - 15); // Mesure haut
+            
+            if (typeForme === 'rectangle') {
+                ctx.textAlign = "left";
+                ctx.fillText(`${hauteur} cm`, startX + drawW + 15, canvas.height / 2 + 5); // Mesure droite
             }
         }
 
-        // --- INITIALISATION ---
-        // On connecte les sliders à notre fonction de dessin
-        sliderLargeur.addEventListener('input', actualiserDessin);
-        sliderHauteur.addEventListener('input', actualiserDessin);
+        function verifierSaisie() {
+            if (isProcessing) return;
+            let saisie = parseInt(document.getElementById('input-mesure').value);
+            if (isNaN(saisie)) return;
+            isProcessing = true;
 
-        // On lance le jeu
+            const fb = document.getElementById('feedback');
+            if (saisie === reponseAttendue) {
+                fb.textContent = "Excellent ! ✅"; fb.style.color = "#27ae60";
+                sauverProfilCloud(5);
+                setTimeout(poserQuestion, 1000);
+            } else {
+                vies--;
+                document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3-vies);
+                fb.textContent = `Faux. La bonne réponse était ${reponseAttendue}.`; fb.style.color = "#e74c3c";
+                setTimeout(poserQuestion, 2500);
+            }
+        }
+
+        // --- MOTEUR DE DESSIN : ANGLES ---
+        function genererQuestionAngle() {
+            document.getElementById('zone-saisie').style.display = 'none';
+            document.getElementById('zone-boutons').style.display = 'grid';
+            document.getElementById('question-texte').textContent = "Quel est le type de cet angle ?";
+
+            let types = ['Aigu', 'Droit', 'Obtus'];
+            let typeChoisi = types[Math.floor(Math.random() * types.length)];
+            reponseAttendue = typeChoisi;
+
+            let angleDeg;
+            if (typeChoisi === 'Droit') angleDeg = 90;
+            else if (typeChoisi === 'Aigu') angleDeg = Math.floor(Math.random() * 45) + 30; // 30 à 75
+            else angleDeg = Math.floor(Math.random() * 45) + 110; // 110 à 155
+
+            // Difficulté : Rotation globale du dessin
+            let rotationBase = niveauActuel === 1 ? 0 : Math.floor(Math.random() * 360);
+
+            // Dessin de l'angle
+            let cx = canvas.width / 2;
+            let cy = canvas.height / 2;
+            let longueur = 100;
+
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate((rotationBase * Math.PI) / 180);
+
+            // Ligne 1 (Base)
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(longueur, 0);
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = "#34495e";
+            ctx.stroke();
+
+            // Ligne 2 (Angle)
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(longueur * Math.cos((-angleDeg * Math.PI) / 180), longueur * Math.sin((-angleDeg * Math.PI) / 180));
+            ctx.stroke();
+
+            // Arc décoratif
+            ctx.beginPath();
+            if (typeChoisi === 'Droit') {
+                ctx.rect(0, -20, 20, 20); // Symbole carré pour angle droit
+            } else {
+                ctx.arc(0, 0, 30, (-angleDeg * Math.PI) / 180, 0);
+            }
+            ctx.strokeStyle = "#e74c3c";
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            ctx.restore();
+
+            // Création des boutons de réponse
+            const zoneBtns = document.getElementById('zone-boutons');
+            zoneBtns.innerHTML = "";
+            types.forEach(t => {
+                let b = document.createElement('button');
+                b.className = 'btn-opt';
+                b.textContent = t;
+                b.onclick = () => verifierAngle(b, t);
+                zoneBtns.appendChild(b);
+            });
+        }
+
+        function verifierAngle(bouton, choix) {
+            if (isProcessing) return;
+            isProcessing = true;
+            document.querySelectorAll('.btn-opt').forEach(b => b.onclick = null);
+
+            const fb = document.getElementById('feedback');
+            if (choix === reponseAttendue) {
+                bouton.classList.add('correct');
+                fb.textContent = "Super coup d'œil ! 👁️✅"; fb.style.color = "#27ae60";
+                sauverProfilCloud(5);
+                setTimeout(poserQuestion, 1000);
+            } else {
+                bouton.classList.add('erreur');
+                vies--;
+                document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3-vies);
+                fb.textContent = `Raté ! C'était un angle ${reponseAttendue}.`; fb.style.color = "#e74c3c";
+                
+                // Montre la bonne réponse
+                document.querySelectorAll('.btn-opt').forEach(b => {
+                    if (b.textContent === reponseAttendue) b.classList.add('correct');
+                });
+                
+                setTimeout(poserQuestion, 2500);
+            }
+        }
+
         chargerProfilCloud();
-        genererMission();
-        actualiserDessin(); // On dessine une première fois au chargement
     </script>
 </body>
 </html>
