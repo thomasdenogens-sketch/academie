@@ -2,10 +2,12 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Géométrie CM2 - L'Académie</title>
+    <title>Studio de Géométrie CM2 - L'Académie</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        
         body { 
             font-family: 'Nunito', sans-serif; 
             background: linear-gradient(135deg, #16a085 0%, #f4d03f 100%); 
@@ -15,7 +17,7 @@
         
         #app-container { 
             background: white; padding: 30px; border-radius: 25px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2); max-width: 750px; width: 100%; text-align: center; position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); max-width: 800px; width: 100%; text-align: center; position: relative;
         }
         
         h1 { color: #16a085; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
@@ -35,6 +37,7 @@
 
         .titre-section { background: #16a085; color: white; padding: 10px; border-radius: 10px; margin: 20px 0 10px 0; font-weight: 900;}
         .titre-section.angles { background: #e67e22; }
+        .titre-section.geogebra { background: #8e44ad; }
 
         /* HUD Jeu */
         .hud-jeu { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.2rem; border: 2px solid #ecf0f1; }
@@ -43,13 +46,14 @@
         #canvas-container {
             background: #fdfdfd; border: 3px dashed #bdc3c7; border-radius: 15px; 
             margin: 0 auto 20px auto; display: flex; justify-content: center; align-items: center;
-            width: 100%; max-width: 400px; height: 300px; position: relative;
+            width: 100%; max-width: 400px; height: 400px; position: relative;
         }
-        canvas { max-width: 100%; max-height: 100%; }
+        canvas { max-width: 100%; max-height: 100%; cursor: crosshair;}
 
-        #question-texte { font-size: 1.4rem; color: #34495e; font-weight: 900; margin-bottom: 20px; }
+        #question-texte { font-size: 1.4rem; color: #34495e; font-weight: 900; margin-bottom: 10px; }
+        #consigne-supp { font-size: 1rem; color: #7f8c8d; font-weight: bold; margin-bottom: 20px; }
 
-        /* Options de réponse */
+        /* Options de réponse (Exercices classiques) */
         .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .btn-opt {
             background: white; border: 3px solid #3498db; padding: 15px; border-radius: 15px;
@@ -63,6 +67,10 @@
         #zone-saisie { display: none; justify-content: center; gap: 10px; margin-bottom: 20px; }
         #input-mesure { font-size: 1.5rem; width: 120px; padding: 10px; text-align: center; border: 3px solid #3498db; border-radius: 10px; font-weight: bold; }
         .btn-valider { background: #3498db; color: white; font-weight: bold; font-size: 1.2rem; padding: 10px 25px; border: none; border-radius: 10px; cursor: pointer; }
+
+        /* Boutons d'action Géoplan */
+        #zone-geoplan-actions { display: none; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .btn-action { background: #e67e22; color: white; font-weight: bold; font-size: 1.1rem; padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; }
 
         .btn-nav { background: #7f8c8d; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s;}
         .btn-nav:hover { background: #95a5a6; }
@@ -84,7 +92,15 @@
             <h1>Studio de Géométrie 📐</h1>
             <p class="sous-titre">Entraînement progressif pour le CM2</p>
             
-            <div class="titre-section">Périmètres et Aires</div>
+            <div class="titre-section geogebra">L'Atelier Interactif (GeoGebra)</div>
+            <div class="grid-niveaux">
+                <button class="btn-niveau" onclick="lancerJeu('geoplan', 1)" style="border-color: #8e44ad;">
+                    <div><strong>Le Géoplan</strong><br><span style="font-size:0.9rem; color:#7f8c8d;">Construis tes propres polygones !</span></div>
+                    <span>▶️</span>
+                </button>
+            </div>
+
+            <div class="titre-section">Périmètres et Aires (Classique)</div>
             <div class="grid-niveaux">
                 <button class="btn-niveau" onclick="lancerJeu('mesures', 1)">
                     <div><strong>Niveau 1 : Le Périmètre</strong><br><span style="font-size:0.9rem; color:#7f8c8d;">Calculer le contour (Révisions)</span></div>
@@ -120,9 +136,10 @@
             </div>
             
             <div id="question-texte">Question...</div>
+            <div id="consigne-supp"></div>
 
             <div id="canvas-container">
-                <canvas id="canvas-geo" width="400" height="300"></canvas>
+                <canvas id="canvas-geo" width="400" height="400"></canvas>
             </div>
 
             <div id="zone-boutons" class="options-grid"></div>
@@ -130,6 +147,11 @@
             <div id="zone-saisie">
                 <input type="number" id="input-mesure" autocomplete="off" placeholder="Ex: 12">
                 <button class="btn-valider" onclick="verifierSaisie()">Valider</button>
+            </div>
+
+            <div id="zone-geoplan-actions">
+                <button class="btn-action" style="background:#e74c3c;" onclick="effacerGeoplan()">Effacer</button>
+                <button class="btn-action" style="background:#2ecc71;" onclick="validerGeoplan()">Vérifier ma forme</button>
             </div>
 
             <div id="feedback"></div>
@@ -141,7 +163,7 @@
 
     <script>
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
-        const DB_URL = `${FIREBASE_URL}scores/theo/mathsV8.json`; // On lie cet XP à ses maths
+        const DB_URL = `${FIREBASE_URL}scores/theo/mathsV8.json`;
 
         let profil = { xp: 0 };
         let modeActuel = "";
@@ -154,6 +176,10 @@
 
         const canvas = document.getElementById('canvas-geo');
         const ctx = canvas.getContext('2d');
+
+        // Variables spécifiques au Géoplan
+        let pointsGeoplan = [];
+        const TAILLE_GRILLE = 40; // Espacement entre les points en pixels
 
         async function chargerProfilCloud() {
             try {
@@ -183,7 +209,11 @@
             vies = 3;
             isProcessing = false;
 
-            document.getElementById('ui-titre-niveau').textContent = mode === 'mesures' ? `Mesures - Niv ${niveau}` : `Angles - Niv ${niveau}`;
+            let titre = "Angles";
+            if (mode === 'mesures') titre = "Mesures";
+            if (mode === 'geoplan') titre = "Géoplan Actif";
+
+            document.getElementById('ui-titre-niveau').textContent = `${titre} - Niv ${niveau}`;
             document.getElementById('ui-vies').textContent = "❤️❤️❤️";
             
             changerEcran('ecran-jeu');
@@ -206,32 +236,199 @@
             document.getElementById('ui-progression').textContent = `${indexQuestion} / ${totalQuestions}`;
             document.getElementById('feedback').textContent = "";
             document.getElementById('input-mesure').value = "";
+            document.getElementById('consigne-supp').textContent = "";
             
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Efface le dessin précédent
+            ctx.clearRect(0, 0, canvas.width, canvas.height); 
 
+            // Cacher toutes les interfaces spécifiques
+            document.getElementById('zone-boutons').style.display = 'none';
+            document.getElementById('zone-saisie').style.display = 'none';
+            document.getElementById('zone-geoplan-actions').style.display = 'none';
+
+            // Routage vers le bon mode
             if (modeActuel === 'mesures') genererQuestionMesure();
-            else genererQuestionAngle();
+            else if (modeActuel === 'angles') genererQuestionAngle();
+            else if (modeActuel === 'geoplan') genererQuestionGeoplan();
         }
 
-        // --- MOTEUR DE DESSIN : MESURES (Périmètre / Aire) ---
+        // ==========================================
+        // LE GÉOPLAN INTERACTIF (Style GeoGebra)
+        // ==========================================
+        function genererQuestionGeoplan() {
+            document.getElementById('zone-geoplan-actions').style.display = 'flex';
+            
+            // Génération d'une mission d'aire aléatoire entre 4 et 12 unités
+            reponseAttendue = Math.floor(Math.random() * 9) + 4; 
+            
+            document.getElementById('question-texte').innerHTML = `Construis un polygone avec une <strong>Aire de ${reponseAttendue} carreaux</strong>.`;
+            document.getElementById('consigne-supp').textContent = "Clique sur la grille pour placer tes points. Relie le dernier point au premier pour fermer ta forme !";
+
+            pointsGeoplan = [];
+            dessinerGeoplan();
+
+            // Activer l'écouteur de clic pour ce mode
+            canvas.onclick = handleClickGeoplan;
+        }
+
+        function dessinerGeoplan() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 1. Dessiner la grille de points
+            ctx.fillStyle = "#bdc3c7";
+            for (let x = TAILLE_GRILLE; x < canvas.width; x += TAILLE_GRILLE) {
+                for (let y = TAILLE_GRILLE; y < canvas.height; y += TAILLE_GRILLE) {
+                    ctx.beginPath();
+                    ctx.arc(x, y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            // 2. Dessiner les lignes du polygone
+            if (pointsGeoplan.length > 0) {
+                ctx.beginPath();
+                ctx.moveTo(pointsGeoplan[0].x * TAILLE_GRILLE, pointsGeoplan[0].y * TAILLE_GRILLE);
+                for (let i = 1; i < pointsGeoplan.length; i++) {
+                    ctx.lineTo(pointsGeoplan[i].x * TAILLE_GRILLE, pointsGeoplan[i].y * TAILLE_GRILLE);
+                }
+                
+                // Si la forme est fermée, on la remplit
+                if (estFormeFermee()) {
+                    ctx.closePath();
+                    ctx.fillStyle = "rgba(142, 68, 173, 0.3)";
+                    ctx.fill();
+                }
+                
+                ctx.strokeStyle = "#8e44ad";
+                ctx.lineWidth = 4;
+                ctx.stroke();
+
+                // 3. Dessiner les sommets (Points placés)
+                ctx.fillStyle = "#e74c3c";
+                pointsGeoplan.forEach(pt => {
+                    ctx.beginPath();
+                    ctx.arc(pt.x * TAILLE_GRILLE, pt.y * TAILLE_GRILLE, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            }
+        }
+
+        function handleClickGeoplan(event) {
+            if (isProcessing) return;
+
+            // Calculer les coordonnées du clic relatives au canvas
+            const rect = canvas.getBoundingClientRect();
+            const xClick = event.clientX - rect.left;
+            const yClick = event.clientY - rect.top;
+
+            // Arrondir au point de grille le plus proche
+            const gridX = Math.round(xClick / TAILLE_GRILLE);
+            const gridY = Math.round(yClick / TAILLE_GRILLE);
+
+            // Empêcher de cliquer hors de la grille utile
+            if (gridX <= 0 || gridX >= canvas.width/TAILLE_GRILLE || gridY <= 0 || gridY >= canvas.height/TAILLE_GRILLE) return;
+
+            // Vérifier si on clique sur le point de départ pour fermer la forme
+            if (pointsGeoplan.length > 2 && gridX === pointsGeoplan[0].x && gridY === pointsGeoplan[0].y) {
+                // On clone le premier point à la fin pour indiquer que c'est fermé
+                pointsGeoplan.push({x: gridX, y: gridY});
+            } 
+            else if (!estFormeFermee()) {
+                // Éviter les points en double à la suite
+                let lastPt = pointsGeoplan[pointsGeoplan.length - 1];
+                if (!lastPt || lastPt.x !== gridX || lastPt.y !== gridY) {
+                    pointsGeoplan.push({x: gridX, y: gridY});
+                }
+            }
+
+            dessinerGeoplan();
+            
+            // Calcul et affichage en temps réel de l'aire (feedback visuel immédiat)
+            if (estFormeFermee()) {
+                let aireActuelle = calculerAire(pointsGeoplan);
+                document.getElementById('feedback').textContent = `Aire actuelle : ${aireActuelle} carreaux`;
+                document.getElementById('feedback').style.color = "#8e44ad";
+            } else {
+                document.getElementById('feedback').textContent = "";
+            }
+        }
+
+        function estFormeFermee() {
+            if (pointsGeoplan.length < 4) return false;
+            let premier = pointsGeoplan[0];
+            let dernier = pointsGeoplan[pointsGeoplan.length - 1];
+            return (premier.x === dernier.x && premier.y === dernier.y);
+        }
+
+        function effacerGeoplan() {
+            pointsGeoplan = [];
+            document.getElementById('feedback').textContent = "";
+            dessinerGeoplan();
+        }
+
+        // L'algorithme mathématique du Lacet (Shoelace Formula) pour calculer l'aire de n'importe quel polygone !
+        function calculerAire(points) {
+            let aire = 0;
+            // On ignore le dernier point car il est identique au premier (forme fermée)
+            let n = points.length - 1; 
+            for (let i = 0; i < n; i++) {
+                let j = (i + 1) % n;
+                aire += (points[i].x * points[j].y) - (points[j].x * points[i].y);
+            }
+            return Math.abs(aire / 2);
+        }
+
+        function validerGeoplan() {
+            if (isProcessing) return;
+            if (!estFormeFermee()) {
+                document.getElementById('feedback').textContent = "Tu dois d'abord fermer ta forme (relie le dernier point au premier) !";
+                document.getElementById('feedback').style.color = "#e67e22";
+                return;
+            }
+
+            isProcessing = true;
+            canvas.onclick = null; // Désactive les clics
+
+            let aireTrouvee = calculerAire(pointsGeoplan);
+            const fb = document.getElementById('feedback');
+
+            if (aireTrouvee === reponseAttendue) {
+                fb.textContent = "Architecte de génie ! L'aire est parfaite ! ✨"; 
+                fb.style.color = "#27ae60";
+                sauverProfilCloud(15);
+                setTimeout(poserQuestion, 2000);
+            } else {
+                vies--;
+                document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3-vies);
+                fb.textContent = `Ta forme a une aire de ${aireTrouvee}. Il fallait ${reponseAttendue}. Efface et réessaie !`; 
+                fb.style.color = "#e74c3c";
+                
+                setTimeout(() => {
+                    isProcessing = false;
+                    effacerGeoplan();
+                    canvas.onclick = handleClickGeoplan; // Réactive les clics
+                }, 3000);
+            }
+        }
+
+        // ==========================================
+        // LES AUTRES MODES (Conservés à l'identique)
+        // ==========================================
+
         function genererQuestionMesure() {
-            document.getElementById('zone-boutons').style.display = 'none';
+            canvas.onclick = null;
             document.getElementById('zone-saisie').style.display = 'flex';
             
             let typeForme = Math.random() > 0.5 ? 'carre' : 'rectangle';
-            let largeur, hauteur, texteL, texteH;
+            let largeur, hauteur;
 
-            // Difficulté selon le niveau
             if (niveauActuel === 1) {
-                // Niveau 1 : Petits nombres, on demande toujours le périmètre
-                largeur = Math.floor(Math.random() * 8) + 3; // 3 à 10
+                largeur = Math.floor(Math.random() * 8) + 3; 
                 hauteur = typeForme === 'carre' ? largeur : Math.floor(Math.random() * 5) + 2;
                 if (largeur === hauteur) typeForme = 'carre';
                 
                 document.getElementById('question-texte').innerHTML = `Calcule le <strong>Périmètre</strong> de ce ${typeForme}.`;
                 reponseAttendue = typeForme === 'carre' ? largeur * 4 : (largeur + hauteur) * 2;
             } else {
-                // Niveau 2 : Nombres plus grands, on demande toujours l'aire
                 largeur = Math.floor(Math.random() * 10) + 5; 
                 hauteur = typeForme === 'carre' ? largeur : Math.floor(Math.random() * 8) + 3;
                 if (largeur === hauteur) typeForme = 'carre';
@@ -240,7 +437,6 @@
                 reponseAttendue = largeur * hauteur;
             }
 
-            // Dessin sur le Canvas
             ctx.beginPath();
             let drawW = typeForme === 'carre' ? 150 : 220;
             let drawH = typeForme === 'carre' ? 150 : 100;
@@ -254,15 +450,14 @@
             ctx.strokeStyle = "#2980b9";
             ctx.stroke();
 
-            // Affichage des mesures
             ctx.fillStyle = "#2c3e50";
             ctx.font = "bold 20px Nunito";
             ctx.textAlign = "center";
-            ctx.fillText(`${largeur} cm`, canvas.width / 2, startY - 15); // Mesure haut
+            ctx.fillText(`${largeur} cm`, canvas.width / 2, startY - 15); 
             
             if (typeForme === 'rectangle') {
                 ctx.textAlign = "left";
-                ctx.fillText(`${hauteur} cm`, startX + drawW + 15, canvas.height / 2 + 5); // Mesure droite
+                ctx.fillText(`${hauteur} cm`, startX + drawW + 15, canvas.height / 2 + 5); 
             }
         }
 
@@ -285,9 +480,8 @@
             }
         }
 
-        // --- MOTEUR DE DESSIN : ANGLES ---
         function genererQuestionAngle() {
-            document.getElementById('zone-saisie').style.display = 'none';
+            canvas.onclick = null;
             document.getElementById('zone-boutons').style.display = 'grid';
             document.getElementById('question-texte').textContent = "Quel est le type de cet angle ?";
 
@@ -297,13 +491,11 @@
 
             let angleDeg;
             if (typeChoisi === 'Droit') angleDeg = 90;
-            else if (typeChoisi === 'Aigu') angleDeg = Math.floor(Math.random() * 45) + 30; // 30 à 75
-            else angleDeg = Math.floor(Math.random() * 45) + 110; // 110 à 155
+            else if (typeChoisi === 'Aigu') angleDeg = Math.floor(Math.random() * 45) + 30;
+            else angleDeg = Math.floor(Math.random() * 45) + 110; 
 
-            // Difficulté : Rotation globale du dessin
             let rotationBase = niveauActuel === 1 ? 0 : Math.floor(Math.random() * 360);
 
-            // Dessin de l'angle
             let cx = canvas.width / 2;
             let cy = canvas.height / 2;
             let longueur = 100;
@@ -312,7 +504,6 @@
             ctx.translate(cx, cy);
             ctx.rotate((rotationBase * Math.PI) / 180);
 
-            // Ligne 1 (Base)
             ctx.beginPath();
             ctx.moveTo(0, 0);
             ctx.lineTo(longueur, 0);
@@ -320,16 +511,14 @@
             ctx.strokeStyle = "#34495e";
             ctx.stroke();
 
-            // Ligne 2 (Angle)
             ctx.beginPath();
             ctx.moveTo(0, 0);
             ctx.lineTo(longueur * Math.cos((-angleDeg * Math.PI) / 180), longueur * Math.sin((-angleDeg * Math.PI) / 180));
             ctx.stroke();
 
-            // Arc décoratif
             ctx.beginPath();
             if (typeChoisi === 'Droit') {
-                ctx.rect(0, -20, 20, 20); // Symbole carré pour angle droit
+                ctx.rect(0, -20, 20, 20); 
             } else {
                 ctx.arc(0, 0, 30, (-angleDeg * Math.PI) / 180, 0);
             }
@@ -339,7 +528,6 @@
 
             ctx.restore();
 
-            // Création des boutons de réponse
             const zoneBtns = document.getElementById('zone-boutons');
             zoneBtns.innerHTML = "";
             types.forEach(t => {
@@ -368,7 +556,6 @@
                 document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3-vies);
                 fb.textContent = `Raté ! C'était un angle ${reponseAttendue}.`; fb.style.color = "#e74c3c";
                 
-                // Montre la bonne réponse
                 document.querySelectorAll('.btn-opt').forEach(b => {
                     if (b.textContent === reponseAttendue) b.classList.add('correct');
                 });
