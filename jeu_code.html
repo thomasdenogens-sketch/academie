@@ -23,7 +23,6 @@
         
         .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
 
-        /* L'écran principal divisé en deux (Labyrinthe / Code) */
         .workspace {
             display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; align-items: flex-start;
         }
@@ -39,6 +38,7 @@
         .cellule {
             width: 45px; height: 45px; background: #ecf0f1; border-radius: 5px;
             display: flex; justify-content: center; align-items: center; font-size: 1.8rem;
+            transition: background 0.2s; /* Ajout d'une transition pour le laser */
         }
         .mur { background: #34495e; }
         .sortie { background: #2ecc71; box-shadow: inset 0 0 10px rgba(39, 174, 96, 0.5); }
@@ -56,16 +56,16 @@
         }
         .scratch-block:active { transform: translateY(4px); box-shadow: none; }
         
+        /* Couleurs des différentes catégories de blocs */
         .bleu { background: #4C97FF; border: 1px solid #3373CC; }
         .violet { background: #9966FF; border: 1px solid #774DCB; }
+        .rouge { background: #FF6680; border: 1px solid #FF4D6A; } /* Nouvelle catégorie Action */
         
-        /* Zone où le script est empilé */
         #script-zone {
             min-height: 150px; background: #ffffff; border: 2px dashed #bdc3c7; border-radius: 10px;
             padding: 10px; display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px;
         }
         
-        /* Les blocs dans le script ne sont pas cliquables comme des boutons, on ajuste le style */
         #script-zone .scratch-block { cursor: default; box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
         #script-zone .scratch-block:active { transform: none; }
         
@@ -78,7 +78,6 @@
         .btn-delete { background: rgba(0,0,0,0.2); border-radius: 50%; width: 25px; height: 25px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; }
         .btn-delete:hover { background: #e74c3c; }
 
-        /* Boutons globaux */
         .btn { font-family: 'Nunito', sans-serif; font-size: 1.1rem; font-weight: bold; padding: 12px 25px; border: none; border-radius: 10px; cursor: pointer; color: white; margin: 5px; transition: transform 0.1s; display: inline-block;}
         .btn:active { transform: scale(0.95); }
         .btn-primaire { background: #27ae60; box-shadow: 0 4px #219a52; width: 100%; font-size: 1.3rem;}
@@ -97,7 +96,6 @@
     <div id="app-container">
         <div class="xp-badge">XP: <span id="ui-xp-jeu">...</span> ⭐</div>
 
-        <!-- ECRAN D'ACCUEIL -->
         <div id="ecran-accueil" class="ecran actif">
             <h1>Code & Logique 🤖</h1>
             <p class="sous-titre">Initiation à l'algorithmique (Style Scratch)</p>
@@ -111,11 +109,9 @@
             <button class="btn btn-secondaire" style="margin-top: 20px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
-        <!-- ECRAN DE JEU -->
         <div id="ecran-jeu" class="ecran">
             
             <div class="workspace">
-                <!-- PANNEAU GAUCHE : LE LABYRINTHE -->
                 <div class="left-panel">
                     <div style="display:flex; justify-content: space-between; align-items:center; width: 100%; margin-bottom: 10px;">
                         <h2 style="color: #2980b9; margin: 0;" id="titre-niveau">Niveau 1</h2>
@@ -126,13 +122,15 @@
                     <div id="feedback"></div>
                 </div>
 
-                <!-- PANNEAU DROIT : L'EDITEUR DE CODE -->
                 <div class="right-panel">
                     <div class="palette-titre">📚 Bibliothèque de Blocs</div>
                     <div class="palette-blocs">
-                        <!-- Blocs que Théo peut cliquer pour ajouter à son script -->
+                        <!-- LES NOUVEAUX BLOCS SONT ICI -->
                         <div class="scratch-block bleu" onclick="ajouterBloc('avancer')">
-                            <span>Avancer de ( x ) cases</span> <span>➕</span>
+                            <span>Avancer de <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"> cases</span> <span>➕</span>
+                        </div>
+                        <div class="scratch-block bleu" onclick="ajouterBloc('reculer')">
+                            <span>Reculer de <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"> cases</span> <span>➕</span>
                         </div>
                         <div class="scratch-block violet" onclick="ajouterBloc('droite')">
                             <span>Tourner à droite ↻</span> <span>➕</span>
@@ -140,12 +138,13 @@
                         <div class="scratch-block violet" onclick="ajouterBloc('gauche')">
                             <span>Tourner à gauche ↺</span> <span>➕</span>
                         </div>
+                        <div class="scratch-block rouge" onclick="ajouterBloc('laser')">
+                            <span>Tirer au Laser 💥</span> <span>➕</span>
+                        </div>
                     </div>
 
                     <div class="palette-titre">📝 Ton Script</div>
-                    <div id="script-zone">
-                        <!-- Les blocs empilés apparaîtront ici -->
-                    </div>
+                    <div id="script-zone"></div>
 
                     <button class="btn btn-primaire" id="btn-executer" onclick="compilerEtExecuter()">▶️ Exécuter le Script</button>
                     <button class="btn btn-danger" onclick="effacerScript()">🗑️ Tout effacer</button>
@@ -167,11 +166,10 @@
         let grilleOriginale = [];
         let grilleDynamique = []; 
         let posRobot = { x: 0, y: 0 };
-        let directionRobot = 1; // 0=Haut, 1=Droite, 2=Bas, 3=Gauche (Il commence en regardant à droite)
+        let directionRobot = 1; // 0=Haut, 1=Droite, 2=Bas, 3=Gauche
         
         let estEnExecution = false;
 
-        // --- GESTION DU CLOUD ---
         async function chargerProfilCloud() {
             try {
                 let res = await fetch(DB_URL);
@@ -187,14 +185,12 @@
             try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
         }
 
-        // --- NAVIGATION ---
         function changerEcran(id) { 
             document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); 
             document.getElementById(id).classList.add('actif'); 
         }
         function retourAccueil() { changerEcran('ecran-accueil'); }
 
-        // --- GÉNÉRATION DU NIVEAU ---
         function lancerJeuInfi() {
             compteurNiveau = 1;
             changerEcran('ecran-jeu');
@@ -205,11 +201,11 @@
             document.getElementById('titre-niveau').textContent = `Labyrinthe N°${compteurNiveau}`;
             document.getElementById('feedback').textContent = "";
             
-            let taille = Math.floor(Math.random() * 4) + 5; // Entre 5 et 8
+            let taille = Math.floor(Math.random() * 4) + 6; // Grille légèrement plus grande
             let grille = Array(taille).fill(0).map(() => Array(taille).fill(1));
             
             let x = 0, y = 0;
-            grille[y][x] = 2; // Départ
+            grille[y][x] = 2; 
 
             // Chemin garanti
             while(x < taille - 1 || y < taille - 1) {
@@ -221,9 +217,9 @@
                 }
                 grille[y][x] = 0;
             }
-            grille[taille - 1][taille - 1] = 3; // Sortie
+            grille[taille - 1][taille - 1] = 3; 
 
-            // Trous (Fausses pistes)
+            // Bruit (Création des murs destructibles)
             let nombreTrous = taille * 2;
             for(let i = 0; i < nombreTrous; i++) {
                 let rx = Math.floor(Math.random() * taille);
@@ -232,7 +228,7 @@
             }
 
             grilleOriginale = JSON.parse(JSON.stringify(grille));
-            effacerScript(); // Vide le script à chaque nouveau niveau
+            effacerScript(); 
         }
 
         function reinitialiserJeu() {
@@ -240,7 +236,6 @@
             estEnExecution = false;
             document.getElementById('btn-executer').disabled = false;
             
-            // On remet le robot à sa position initiale et orienté vers la droite
             directionRobot = 1;
             for (let y = 0; y < grilleDynamique.length; y++) {
                 for (let x = 0; x < grilleDynamique[y].length; x++) {
@@ -250,8 +245,7 @@
             dessinerGrilleHTML();
         }
 
-        // --- AFFICHAGE DE LA GRILLE ---
-        function dessinerGrilleHTML() {
+        function dessinerGrilleHTML(laserTarget = null) {
             const container = document.getElementById('grille-labyrinthe');
             container.innerHTML = '';
             
@@ -267,58 +261,61 @@
                     div.className = 'cellule';
                     div.id = `cell_${x}_${y}`;
                     
-                    if (grilleDynamique[y][x] === 1) div.classList.add('mur');
-                    else if (grilleDynamique[y][x] === 2) { 
-                        // L'orientation visuelle du robot !
-                        let rotation = directionRobot * 90 - 90; // -90 car l'emoji de base regarde souvent à droite ou face. Ajustons selon l'emoji.
-                        // Emoji 🤖 regarde en face. S'il va à droite (1), on le tourne de 90°.
+                    if (grilleDynamique[y][x] === 1) {
+                        div.classList.add('mur');
+                    } else if (grilleDynamique[y][x] === 2) { 
                         let deg = 0;
-                        if(directionRobot === 0) deg = 0;   // Haut
-                        if(directionRobot === 1) deg = 90;  // Droite
-                        if(directionRobot === 2) deg = 180; // Bas
-                        if(directionRobot === 3) deg = -90; // Gauche
+                        if(directionRobot === 0) deg = 0;   
+                        if(directionRobot === 1) deg = 90;  
+                        if(directionRobot === 2) deg = 180; 
+                        if(directionRobot === 3) deg = -90; 
                         
                         div.innerHTML = `<span style="transform: rotate(${deg}deg); display:inline-block; transition: 0.3s;">🤖</span>`;
                         div.style.background = "#f1c40f";
                         div.style.boxShadow = "inset 0 0 10px rgba(230, 126, 34, 0.5)";
                     }
                     else if (grilleDynamique[y][x] === 3) { div.classList.add('sortie'); div.textContent = "🏁"; }
-                    else if (grilleDynamique[y][x] === 4) { div.style.background = "#2ecc71"; div.textContent = "🤖"; } // Gagne
+                    else if (grilleDynamique[y][x] === 4) { div.style.background = "#2ecc71"; div.textContent = "🤖"; }
                     
+                    // Si le laser vient de détruire ce mur, on ajoute un effet d'explosion !
+                    if (laserTarget && laserTarget.x === x && laserTarget.y === y) {
+                        div.style.background = "#FF6680";
+                        div.innerHTML = "💥";
+                        setTimeout(() => { div.style.background = "#ecf0f1"; div.innerHTML = ""; }, 300);
+                    }
+
                     container.appendChild(div);
                 }
             }
         }
 
-        // --- GESTION DES BLOCS (L'Éditeur visuel) ---
+        // --- GÉNÉRATION DES BLOCS (HTML Dynamique) ---
         function ajouterBloc(type) {
             if (estEnExecution) return;
             
             const zone = document.getElementById('script-zone');
             let div = document.createElement('div');
             
-            // Construction du bloc selon le type
             if (type === 'avancer') {
                 div.className = "scratch-block bleu";
                 div.dataset.action = "avancer";
-                div.innerHTML = `
-                    <span>Avancer de <input type="number" class="scratch-input" value="1" min="1" max="10"> cases</span>
-                    <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>
-                `;
+                div.innerHTML = `<span>Avancer de <input type="number" class="scratch-input" value="1" min="1" max="10"> cases</span> <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>`;
+            } else if (type === 'reculer') {
+                div.className = "scratch-block bleu";
+                div.dataset.action = "reculer";
+                div.innerHTML = `<span>Reculer de <input type="number" class="scratch-input" value="1" min="1" max="10"> cases</span> <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>`;
             } else if (type === 'droite') {
                 div.className = "scratch-block violet";
                 div.dataset.action = "droite";
-                div.innerHTML = `
-                    <span>Tourner à droite ↻</span>
-                    <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>
-                `;
+                div.innerHTML = `<span>Tourner à droite ↻</span> <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>`;
             } else if (type === 'gauche') {
                 div.className = "scratch-block violet";
                 div.dataset.action = "gauche";
-                div.innerHTML = `
-                    <span>Tourner à gauche ↺</span>
-                    <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>
-                `;
+                div.innerHTML = `<span>Tourner à gauche ↺</span> <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>`;
+            } else if (type === 'laser') {
+                div.className = "scratch-block rouge";
+                div.dataset.action = "laser";
+                div.innerHTML = `<span>Tirer au Laser 💥</span> <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>`;
             }
             
             zone.appendChild(div);
@@ -335,7 +332,6 @@
         function compilerEtExecuter() {
             if (estEnExecution) return;
             
-            // 1. Lire tous les blocs du DOM et les traduire en liste d'instructions simples
             let listeInstructions = [];
             const blocs = document.getElementById('script-zone').children;
             
@@ -348,18 +344,17 @@
             for (let i = 0; i < blocs.length; i++) {
                 let action = blocs[i].dataset.action;
                 
-                if (action === 'avancer') {
-                    // S'il y a marqué "Avancer de 3", on ajoute 3 fois "avancer" à la liste
+                // On gère les paramètres dynamiques (Le nombre de cases entré par Théo)
+                if (action === 'avancer' || action === 'reculer') {
                     let nbCases = parseInt(blocs[i].querySelector('input').value) || 1;
                     for(let k=0; k < nbCases; k++) {
-                        listeInstructions.push({ commande: 'avancer', blocOrigine: blocs[i] });
+                        listeInstructions.push({ commande: action, blocOrigine: blocs[i] });
                     }
                 } else {
                     listeInstructions.push({ commande: action, blocOrigine: blocs[i] });
                 }
             }
 
-            // 2. Lancer la machine
             estEnExecution = true;
             document.getElementById('btn-executer').disabled = true;
             document.getElementById('feedback').textContent = "Exécution du programme...";
@@ -370,38 +365,37 @@
         }
 
         function jouerInstruction(instructions, index) {
-            // Retirer le style "actif" de tous les blocs
             document.querySelectorAll('#script-zone .scratch-block').forEach(b => b.style.boxShadow = "0 2px 0 rgba(0,0,0,0.2)");
             
-            // Fin du programme
             if (index >= instructions.length) {
                 verifierVictoire();
                 return;
             }
 
             let instr = instructions[index];
-            
-            // Mettre en surbrillance le bloc qui est en train de s'exécuter
             instr.blocOrigine.style.boxShadow = "0 0 0 4px #f1c40f";
 
             let cmd = instr.commande;
             let newX = posRobot.x;
             let newY = posRobot.y;
+            let targetLaser = null;
 
             if (cmd === 'droite') {
-                directionRobot = (directionRobot + 1) % 4; // Tourne à 90° à droite
+                directionRobot = (directionRobot + 1) % 4; 
             } 
             else if (cmd === 'gauche') {
-                directionRobot = (directionRobot + 3) % 4; // Tourne à 90° à gauche (équivalent à +270°)
+                directionRobot = (directionRobot + 3) % 4; 
             } 
-            else if (cmd === 'avancer') {
-                // Calcule la nouvelle position selon l'orientation
-                if (directionRobot === 0) newY--; // Haut
-                else if (directionRobot === 1) newX++; // Droite
-                else if (directionRobot === 2) newY++; // Bas
-                else if (directionRobot === 3) newX--; // Gauche
+            else if (cmd === 'avancer' || cmd === 'reculer') {
+                // Déterminer le modificateur de direction (Avancer = 1, Reculer = -1)
+                let mod = (cmd === 'avancer') ? 1 : -1;
 
-                // Détection de collision
+                if (directionRobot === 0) newY -= mod; 
+                else if (directionRobot === 1) newX += mod; 
+                else if (directionRobot === 2) newY += mod; 
+                else if (directionRobot === 3) newX -= mod; 
+
+                // Collision
                 let collision = false;
                 if (newY < 0 || newY >= grilleDynamique.length || newX < 0 || newX >= grilleDynamique[0].length) {
                     collision = true; 
@@ -421,15 +415,29 @@
                 let valeurCible = grilleDynamique[newY][newX];
                 grilleDynamique[posRobot.y][posRobot.x] = 0; 
                 
-                if(valeurCible === 3) grilleDynamique[newY][newX] = 4; // Atteint la sortie
-                else grilleDynamique[newY][newX] = 2; // Avance normalement
+                if(valeurCible === 3) grilleDynamique[newY][newX] = 4;
+                else grilleDynamique[newY][newX] = 2; 
                 
                 posRobot = { x: newX, y: newY };
             }
+            else if (cmd === 'laser') {
+                // Déterminer la case juste en face du robot
+                let cibleX = posRobot.x; let cibleY = posRobot.y;
+                if (directionRobot === 0) cibleY--; 
+                else if (directionRobot === 1) cibleX++; 
+                else if (directionRobot === 2) cibleY++; 
+                else if (directionRobot === 3) cibleX--; 
 
-            dessinerGrilleHTML();
+                // Si c'est un mur, on le détruit !
+                if (cibleY >= 0 && cibleY < grilleDynamique.length && cibleX >= 0 && cibleX < grilleDynamique[0].length) {
+                    if (grilleDynamique[cibleY][cibleX] === 1) {
+                        grilleDynamique[cibleY][cibleX] = 0;
+                        targetLaser = { x: cibleX, y: cibleY }; // Pour l'animation visuelle
+                    }
+                }
+            }
 
-            // Vitesse d'exécution : 400ms entre chaque pas
+            dessinerGrilleHTML(targetLaser);
             setTimeout(() => { jouerInstruction(instructions, index + 1); }, 400);
         }
 
@@ -454,6 +462,13 @@
         }
 
         chargerProfilCloud();
+        
+        // Astuce de développement : Empêcher le champ texte du nombre de déclencher un clic accidentel sur la croix
+        document.querySelectorAll('.scratch-input').forEach(input => {
+            input.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
     </script>
 </body>
 </html>
