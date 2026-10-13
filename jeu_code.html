@@ -20,7 +20,6 @@
         
         h1 { color: #2980b9; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
         .sous-titre { color: #7f8c8d; margin-bottom: 25px; font-weight: 700; font-size: 1.1rem;}
-        
         .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
 
         .workspace { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; align-items: flex-start; }
@@ -44,18 +43,19 @@
         .bleu { background: #4C97FF; border: 1px solid #3373CC; } /* Mouvement */
         .violet { background: #9966FF; border: 1px solid #774DCB; } /* Rotation */
         .rouge { background: #FF6680; border: 1px solid #FF4D6A; } /* Action spéciale */
-        .orange { background: #FF9900; border: 1px solid #CC7A00; } /* Contrôle / Boucles */
+        .orange { background: #FF9900; border: 1px solid #CC7A00; } /* Boucles */
+        .jaune { background: #f1c40f; border: 1px solid #f39c12; color: #2c3e50; } /* NOUVEAU : Conditions (If) */
         
         #script-zone { min-height: 200px; background: #ffffff; border: 2px dashed #bdc3c7; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; }
         #script-zone .scratch-block { cursor: default; box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
         #script-zone .scratch-block:active { transform: none; }
         
-        /* Indentation visuelle pour montrer qu'on est dans une boucle */
-        .indente { margin-left: 20px; border-left: 4px solid #FF9900; }
+        .indente-1 { margin-left: 20px; border-left: 4px solid #bdc3c7; }
+        .indente-2 { margin-left: 40px; border-left: 4px solid #7f8c8d; }
+        .indente-3 { margin-left: 60px; border-left: 4px solid #34495e; }
 
-        .scratch-input { width: 50px; text-align: center; border-radius: 15px; border: none; padding: 5px; margin: 0 8px; font-weight: bold; color: #333; font-size: 1.1rem; outline: none; }
-        .scratch-input:focus { box-shadow: 0 0 0 3px rgba(255,255,255,0.5); }
-        .btn-delete { background: rgba(0,0,0,0.2); border-radius: 50%; width: 25px; height: 25px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; }
+        .scratch-input { width: 50px; text-align: center; border-radius: 15px; border: none; padding: 5px; margin: 0 8px; font-weight: bold; color: #333; font-size: 1.1rem; outline: none; border: 1px solid #bdc3c7; }
+        .btn-delete { background: rgba(0,0,0,0.2); border-radius: 50%; width: 25px; height: 25px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; color:white; }
         .btn-delete:hover { background: #e74c3c; }
 
         .btn { font-family: 'Nunito', sans-serif; font-size: 1.1rem; font-weight: bold; padding: 12px 25px; border: none; border-radius: 10px; cursor: pointer; color: white; margin: 5px; transition: transform 0.1s; display: inline-block;}
@@ -79,8 +79,7 @@
             <h1>Code & Logique 🤖</h1>
             <p class="sous-titre">Initiation à l'algorithmique (Style Scratch)</p>
             <p style="font-size: 1.1rem; color: #2c3e50; font-weight: bold; margin-bottom: 25px;">
-                Programme le robot pour ramasser tous les cristaux d'énergie 💎.<br>
-                <strong>Astuce :</strong> Utilise les blocs "Répéter" pour raccourcir ton code !
+                Nouveauté : Utilise le bloc jaune "SI" pour que le robot prenne des décisions tout seul !
             </p>
             <button class="btn btn-primaire" style="font-size: 1.3rem; padding: 15px 40px; width:auto;" onclick="lancerJeuInfi()">Générer un niveau</button>
             <br>
@@ -106,30 +105,29 @@
                 <div class="right-panel">
                     <div class="palette-titre">📚 Bibliothèque de Blocs</div>
                     
-                    <!-- Ligne 1 : Mouvement -->
                     <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                        <div class="scratch-block bleu" style="flex:1;" onclick="ajouterBloc('avancer')">
-                            <span>Avancer <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"></span>
-                        </div>
-                        <div class="scratch-block bleu" style="flex:1;" onclick="ajouterBloc('reculer')">
-                            <span>Reculer <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"></span>
-                        </div>
+                        <div class="scratch-block bleu" style="flex:1;" onclick="ajouterBloc('avancer')"><span>Avancer <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"></span></div>
+                        <div class="scratch-block bleu" style="flex:1;" onclick="ajouterBloc('reculer')"><span>Reculer <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"></span></div>
                     </div>
                     
-                    <!-- Ligne 2 : Rotation & Action -->
                     <div style="display: flex; gap: 8px; margin-bottom: 8px;">
                         <div class="scratch-block violet" style="flex:1;" onclick="ajouterBloc('droite')"><span>Droite ↻</span></div>
                         <div class="scratch-block violet" style="flex:1;" onclick="ajouterBloc('gauche')"><span>Gauche ↺</span></div>
                         <div class="scratch-block rouge" style="flex:1;" onclick="ajouterBloc('laser')"><span>Laser 💥</span></div>
                     </div>
 
-                    <!-- Ligne 3 : BOUCLES (Nouveau) -->
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                        <div class="scratch-block orange" style="flex:2;" onclick="ajouterBloc('boucle_debut')"><span>🔁 Répéter <input type="number" class="scratch-input" value="2" min="2" max="20" onclick="event.stopPropagation()"> fois [</span></div>
+                        <div class="scratch-block orange" style="flex:1;" onclick="ajouterBloc('boucle_fin')"><span>] 🔚 Fin Répéter</span></div>
+                    </div>
+
+                    <!-- NOUVEAU : CONDITIONS (SI / ALORS) -->
                     <div style="display: flex; gap: 8px; margin-bottom: 25px;">
-                        <div class="scratch-block orange" style="flex:2;" onclick="ajouterBloc('boucle_debut')">
-                            <span>🔁 Répéter <input type="number" class="scratch-input" value="2" min="2" max="20" onclick="event.stopPropagation()"> fois</span>
+                        <div class="scratch-block jaune" style="flex:2;" onclick="ajouterBloc('si_mur')">
+                            <span>🤔 SI (Mur devant) ALORS [</span>
                         </div>
-                        <div class="scratch-block orange" style="flex:1;" onclick="ajouterBloc('boucle_fin')">
-                            <span>🔚 Fin</span>
+                        <div class="scratch-block jaune" style="flex:1;" onclick="ajouterBloc('fin_si')">
+                            <span>] 🔚 FIN SI</span>
                         </div>
                     </div>
 
@@ -161,7 +159,6 @@
 
         let cristauxTotal = 0;
         let cristauxRamasses = 0;
-        let dansUneBoucle = false; // Pour l'affichage visuel (indentation)
 
         async function chargerProfilCloud() {
             try {
@@ -178,10 +175,7 @@
             try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
         }
 
-        function changerEcran(id) { 
-            document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); 
-            document.getElementById(id).classList.add('actif'); 
-        }
+        function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); document.getElementById(id).classList.add('actif'); }
         function retourAccueil() { changerEcran('ecran-accueil'); }
 
         function lancerJeuInfi() {
@@ -225,12 +219,7 @@
                 }
             }
 
-            if (cristauxTotal === 0) {
-                let rx = Math.floor(taille / 2);
-                let ry = Math.floor(taille / 2);
-                grille[ry][rx] = 5;
-                cristauxTotal = 1;
-            }
+            if (cristauxTotal === 0) { let rx = Math.floor(taille / 2); let ry = Math.floor(taille / 2); grille[ry][rx] = 5; cristauxTotal = 1; }
 
             grilleOriginale = JSON.parse(JSON.stringify(grille));
             effacerScript(); 
@@ -253,43 +242,35 @@
             dessinerGrilleHTML();
         }
 
-        function actualiserAffichageCristaux() {
-            document.getElementById('ui-cristaux').textContent = `${cristauxRamasses} / ${cristauxTotal}`;
-        }
+        function actualiserAffichageCristaux() { document.getElementById('ui-cristaux').textContent = `${cristauxRamasses} / ${cristauxTotal}`; }
 
         function dessinerGrilleHTML(laserTarget = null) {
             const container = document.getElementById('grille-labyrinthe');
             container.innerHTML = '';
             
-            let nbLignes = grilleDynamique.length;
-            let nbColonnes = grilleDynamique[0].length;
-            
+            let nbLignes = grilleDynamique.length; let nbColonnes = grilleDynamique[0].length;
             container.style.gridTemplateColumns = `repeat(${nbColonnes}, 45px)`;
             container.style.gridTemplateRows = `repeat(${nbLignes}, 45px)`;
 
             for (let y = 0; y < nbLignes; y++) {
                 for (let x = 0; x < nbColonnes; x++) {
                     let div = document.createElement('div');
-                    div.className = 'cellule';
-                    div.id = `cell_${x}_${y}`;
+                    div.className = 'cellule'; div.id = `cell_${x}_${y}`;
                     
                     if (grilleDynamique[y][x] === 1) { div.classList.add('mur'); } 
                     else if (grilleDynamique[y][x] === 2) { 
                         let deg = (directionRobot * 90) - 90;
                         div.innerHTML = `<span style="transform: rotate(${deg}deg); display:inline-block; transition: 0.3s;">🤖</span>`;
-                        div.style.background = "#f1c40f";
-                        div.style.boxShadow = "inset 0 0 10px rgba(230, 126, 34, 0.5)";
+                        div.style.background = "#f1c40f"; div.style.boxShadow = "inset 0 0 10px rgba(230, 126, 34, 0.5)";
                     }
                     else if (grilleDynamique[y][x] === 3) { div.classList.add('sortie'); div.textContent = "🏁"; }
                     else if (grilleDynamique[y][x] === 4) { div.style.background = "#2ecc71"; div.textContent = "🤖"; }
                     else if (grilleDynamique[y][x] === 5) { div.innerHTML = "💎"; } 
                     
                     if (laserTarget && laserTarget.x === x && laserTarget.y === y) {
-                        div.style.background = "#FF6680";
-                        div.innerHTML = "💥";
+                        div.style.background = "#FF6680"; div.innerHTML = "💥";
                         setTimeout(() => { div.style.background = "#ecf0f1"; div.innerHTML = ""; }, 300);
                     }
-
                     container.appendChild(div);
                 }
             }
@@ -300,55 +281,61 @@
             const zone = document.getElementById('script-zone');
             let div = document.createElement('div');
             
-            // On gère l'indentation visuelle pour aider Théo
-            if (type === 'boucle_fin') dansUneBoucle = false;
-            if (dansUneBoucle) div.classList.add('indente');
-            if (type === 'boucle_debut') dansUneBoucle = true;
-
             if (type === 'avancer') {
-                div.className += " scratch-block bleu"; div.dataset.action = "avancer";
+                div.className = "scratch-block bleu"; div.dataset.action = "avancer";
                 div.innerHTML = `<span>Avancer de <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"> cases</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
             } else if (type === 'reculer') {
-                div.className += " scratch-block bleu"; div.dataset.action = "reculer";
+                div.className = "scratch-block bleu"; div.dataset.action = "reculer";
                 div.innerHTML = `<span>Reculer de <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"> cases</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
             } else if (type === 'droite') {
-                div.className += " scratch-block violet"; div.dataset.action = "droite";
+                div.className = "scratch-block violet"; div.dataset.action = "droite";
                 div.innerHTML = `<span>Tourner à droite ↻</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
             } else if (type === 'gauche') {
-                div.className += " scratch-block violet"; div.dataset.action = "gauche";
+                div.className = "scratch-block violet"; div.dataset.action = "gauche";
                 div.innerHTML = `<span>Tourner à gauche ↺</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
             } else if (type === 'laser') {
-                div.className += " scratch-block rouge"; div.dataset.action = "laser";
+                div.className = "scratch-block rouge"; div.dataset.action = "laser";
                 div.innerHTML = `<span>Tirer au Laser 💥</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
             } else if (type === 'boucle_debut') {
-                div.className += " scratch-block orange"; div.dataset.action = "boucle_debut";
+                div.className = "scratch-block orange"; div.dataset.action = "boucle_debut";
                 div.innerHTML = `<span>🔁 Répéter <input type="number" class="scratch-input" value="2" min="2" max="20" onclick="event.stopPropagation()"> fois [</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
             } else if (type === 'boucle_fin') {
-                div.className += " scratch-block orange"; div.dataset.action = "boucle_fin";
+                div.className = "scratch-block orange"; div.dataset.action = "boucle_fin";
                 div.innerHTML = `<span>] 🔚 Fin Répéter</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
+            } else if (type === 'si_mur') {
+                div.className = "scratch-block jaune"; div.dataset.action = "si_mur";
+                div.innerHTML = `<span>🤔 SI (Mur devant) ALORS [</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
+            } else if (type === 'fin_si') {
+                div.className = "scratch-block jaune"; div.dataset.action = "fin_si";
+                div.innerHTML = `<span>] 🔚 FIN SI</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
             }
 
             zone.appendChild(div);
+            calculerIndentation();
         }
 
-        // Fonction pour recalculer l'indentation si on supprime un bloc au milieu
         function supprimerBloc(boutonDelete) {
             if(estEnExecution) return;
             boutonDelete.parentElement.remove();
-            
-            // Recalcul de l'indentation visuelle de tout le script
-            dansUneBoucle = false;
+            calculerIndentation();
+        }
+
+        // Calcule dynamiquement l'imbrication des blocs (pour le visuel)
+        function calculerIndentation() {
+            let niveauIndent = 0;
             const blocs = document.getElementById('script-zone').children;
+            
             for(let i=0; i<blocs.length; i++) {
-                if (blocs[i].dataset.action === 'boucle_fin') dansUneBoucle = false;
+                let action = blocs[i].dataset.action;
                 
-                if (dansUneBoucle && blocs[i].dataset.action !== 'boucle_debut') {
-                    blocs[i].classList.add('indente');
-                } else {
-                    blocs[i].classList.remove('indente');
-                }
+                // Si on ferme un bloc, on réduit le niveau AVANT d'appliquer le style
+                if (action === 'boucle_fin' || action === 'fin_si') niveauIndent = Math.max(0, niveauIndent - 1);
                 
-                if (blocs[i].dataset.action === 'boucle_debut') dansUneBoucle = true;
+                blocs[i].className = blocs[i].className.replace(/indente-\d/g, '').trim(); // Nettoie
+                if (niveauIndent > 0) blocs[i].classList.add('indente-' + Math.min(niveauIndent, 3)); // Applique
+                
+                // Si on ouvre un bloc, on augmente le niveau APRES avoir appliqué le style
+                if (action === 'boucle_debut' || action === 'si_mur') niveauIndent++;
             }
         }
 
@@ -356,68 +343,59 @@
             if (estEnExecution) return;
             document.getElementById('script-zone').innerHTML = '';
             document.getElementById('feedback').textContent = "";
-            dansUneBoucle = false;
             reinitialiserJeu();
         }
 
-        // ==========================================
-        // LE COMPILATEUR (Le Cerveau du programme)
-        // ==========================================
+        // =========================================================================
+        // LE NOUVEAU COMPILATEUR : Arbre Syntaxique (AST) et Exécution Asynchrone
+        // =========================================================================
+
         function compilerEtExecuter() {
             if (estEnExecution) return;
             
-            let blocs = document.getElementById('script-zone').children;
-            if (blocs.length === 0) return;
+            let blocsHTML = document.getElementById('script-zone').children;
+            if (blocsHTML.length === 0) return;
 
-            // 1. On prépare la liste de lecture de l'ordinateur
-            let listeInstructions = [];
-            
-            // 2. On utilise une "Pile" (Stack) pour mémoriser les boucles en cours
-            let pileBoucles = [ { multiplicateur: 1, instructionsInterieures: listeInstructions } ];
+            // 1. CONSTRUCTION DE L'ARBRE (AST)
+            let programmePrincipal = [];
+            let pileHierarchie = [ programmePrincipal ];
 
-            for (let i = 0; i < blocs.length; i++) {
-                let action = blocs[i].dataset.action;
-                let niveauActuel = pileBoucles[pileBoucles.length - 1]; // On regarde dans quelle boucle on se trouve
+            for (let i = 0; i < blocsHTML.length; i++) {
+                let action = blocsHTML[i].dataset.action;
+                let listeCourante = pileHierarchie[pileHierarchie.length - 1];
 
                 if (action === 'boucle_debut') {
-                    // On ouvre une nouvelle boucle et on l'ajoute sur la pile
-                    let nbRepetitions = parseInt(blocs[i].querySelector('input').value) || 2;
-                    pileBoucles.push({ multiplicateur: nbRepetitions, instructionsInterieures: [] });
+                    let nb = parseInt(blocsHTML[i].querySelector('input').value) || 2;
+                    let noeudBoucle = { type: 'boucle', iterations: nb, instructions: [], blocHTML: blocsHTML[i] };
+                    listeCourante.push(noeudBoucle);
+                    pileHierarchie.push(noeudBoucle.instructions); // On "descend" dans l'arbre
                 } 
-                else if (action === 'boucle_fin') {
-                    // On ferme la boucle et on multiplie ce qu'il y a dedans !
-                    if (pileBoucles.length > 1) {
-                        let boucleTerminee = pileBoucles.pop();
-                        let niveauParent = pileBoucles[pileBoucles.length - 1];
-                        
-                        // On répète X fois les instructions sauvegardées
-                        for(let m = 0; m < boucleTerminee.multiplicateur; m++) {
-                            for(let instr of boucleTerminee.instructionsInterieures) {
-                                niveauParent.instructionsInterieures.push(instr);
-                            }
-                        }
+                else if (action === 'si_mur') {
+                    let noeudCondition = { type: 'condition', condition: 'mur_devant', instructions: [], blocHTML: blocsHTML[i] };
+                    listeCourante.push(noeudCondition);
+                    pileHierarchie.push(noeudCondition.instructions); // On "descend" dans l'arbre
+                }
+                else if (action === 'boucle_fin' || action === 'fin_si') {
+                    if (pileHierarchie.length > 1) {
+                        pileHierarchie.pop(); // On "remonte" dans l'arbre
                     } else {
-                        document.getElementById('feedback').textContent = "Erreur : Tu as mis un 'Fin Répéter' sans mettre de début !";
+                        document.getElementById('feedback').textContent = "Erreur : Tu as mis une 'Fin' sans mettre de début !";
                         document.getElementById('feedback').style.color = "#c0392b";
                         return;
                     }
                 } 
                 else {
-                    // C'est une instruction normale (Avancer, Laser, etc.)
-                    let nbFoisBase = 1;
+                    // Action normale
+                    let noeudAction = { type: 'action', commande: action, blocHTML: blocsHTML[i], param: 1 };
                     if (action === 'avancer' || action === 'reculer') {
-                        nbFoisBase = parseInt(blocs[i].querySelector('input').value) || 1;
+                        noeudAction.param = parseInt(blocsHTML[i].querySelector('input').value) || 1;
                     }
-                    
-                    for(let k = 0; k < nbFoisBase; k++) {
-                        niveauActuel.instructionsInterieures.push({ commande: action, blocOrigine: blocs[i] });
-                    }
+                    listeCourante.push(noeudAction);
                 }
             }
 
-            // Vérification : A-t-il oublié de fermer une boucle ?
-            if (pileBoucles.length > 1) {
-                document.getElementById('feedback').textContent = "Erreur de syntaxe : Tu as oublié le bloc 'Fin Répéter' !";
+            if (pileHierarchie.length > 1) {
+                document.getElementById('feedback').textContent = "Erreur : Tu as oublié de fermer un bloc 'Répéter' ou 'SI' !";
                 document.getElementById('feedback').style.color = "#c0392b";
                 return;
             }
@@ -428,24 +406,101 @@
             document.getElementById('feedback').style.color = "#2980b9";
             
             reinitialiserJeu(); 
-            jouerInstruction(listeInstructions, 0); // On lance la grande liste finale calculée
+            
+            // 2. LANCEMENT DU MOTEUR ASYNCHRONE
+            lancerMoteur(programmePrincipal);
         }
 
-        function jouerInstruction(instructions, index) {
-            document.querySelectorAll('#script-zone .scratch-block').forEach(b => b.style.boxShadow = "0 2px 0 rgba(0,0,0,0.2)");
+        // Outil pour créer une pause dans le code (Promise)
+        const attendre = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+        async function lancerMoteur(programme) {
+            let succes = await executerArbre(programme);
             
-            if (index >= instructions.length) {
-                verifierVictoire();
-                return;
+            if (succes) {
+                document.querySelectorAll('.scratch-block').forEach(b => b.style.boxShadow = "0 2px 0 rgba(0,0,0,0.2)");
+                if (grilleDynamique[posRobot.y][posRobot.x] === 4) {
+                    if (cristauxRamasses < cristauxTotal) {
+                        document.getElementById('feedback').textContent = "Mission échouée : Il manque des cristaux d'énergie ! 💎";
+                        document.getElementById('feedback').style.color = "#e74c3c";
+                        grilleDynamique[posRobot.y][posRobot.x] = 2; 
+                        dessinerGrilleHTML();
+                    } else {
+                        document.getElementById('feedback').textContent = "Mission Parfaite ! Code validé ✨";
+                        document.getElementById('feedback').style.color = "#27ae60";
+                        sauverProfilCloud(grilleDynamique.length * 20);
+                        compteurNiveau++;
+                        setTimeout(() => { genererNiveauAleatoire(); }, 2500);
+                    }
+                } else {
+                    document.getElementById('feedback').textContent = "Le robot n'est pas arrivé à la sortie ! 🔴";
+                    document.getElementById('feedback').style.color = "#e67e22";
+                }
             }
+            
+            estEnExecution = false;
+            document.getElementById('btn-executer').disabled = false;
+        }
 
-            let instr = instructions[index];
-            // Met en surbrillance le bloc d'origine (même s'il est joué dans une boucle, c'est le même bloc HTML !)
-            instr.blocOrigine.style.boxShadow = "0 0 0 4px #f1c40f";
+        async function executerArbre(instructions) {
+            for (let noeud of instructions) {
+                if (!estEnExecution) return false;
 
-            let cmd = instr.commande;
-            let newX = posRobot.x;
-            let newY = posRobot.y;
+                // Mise en surbrillance du bloc lu
+                document.querySelectorAll('.scratch-block').forEach(b => b.style.boxShadow = "0 2px 0 rgba(0,0,0,0.2)");
+                noeud.blocHTML.style.boxShadow = "0 0 0 4px #f1c40f";
+                await attendre(200); // Petite pause visuelle pour voir l'ordinateur "réfléchir"
+
+                if (noeud.type === 'action') {
+                    // Les actions peuvent avoir un paramètre de répétition (ex: avancer de 3 cases)
+                    for(let k=0; k < noeud.param; k++) {
+                        if (!estEnExecution) return false;
+                        let succes = appliquerActionRobot(noeud.commande);
+                        if (!succes) return false; // Collision
+                        await attendre(300); // Temps de déplacement
+                    }
+                } 
+                else if (noeud.type === 'boucle') {
+                    for(let i=0; i < noeud.iterations; i++) {
+                        let succes = await executerArbre(noeud.instructions);
+                        if (!succes) return false;
+                    }
+                } 
+                else if (noeud.type === 'condition') {
+                    // C'est ici toute la magie : l'ordinateur regarde le jeu EN DIRECT !
+                    let conditionRemplie = evaluerCondition(noeud.condition);
+                    if (conditionRemplie) {
+                        let succes = await executerArbre(noeud.instructions);
+                        if (!succes) return false;
+                    } else {
+                        // Il n'y a pas de mur, on saute ce qu'il y a à l'intérieur !
+                        await attendre(200);
+                    }
+                }
+            }
+            return true; // Fin de ce bloc d'instructions sans erreur
+        }
+
+        function evaluerCondition(conditionStr) {
+            if (conditionStr === 'mur_devant') {
+                let cibleX = posRobot.x; let cibleY = posRobot.y;
+                if (directionRobot === 0) cibleY--; 
+                else if (directionRobot === 1) cibleX++; 
+                else if (directionRobot === 2) cibleY++; 
+                else if (directionRobot === 3) cibleX--; 
+
+                // Si c'est hors de la carte (le bord de l'écran), on considère que c'est un mur
+                if (cibleY < 0 || cibleY >= grilleDynamique.length || cibleX < 0 || cibleX >= grilleDynamique[0].length) return true;
+                // Si c'est la valeur 1 (Mur), on renvoie Vrai
+                if (grilleDynamique[cibleY][cibleX] === 1) return true;
+                
+                return false;
+            }
+            return false;
+        }
+
+        function appliquerActionRobot(cmd) {
+            let newX = posRobot.x; let newY = posRobot.y;
             let targetLaser = null;
 
             if (cmd === 'droite') directionRobot = (directionRobot + 1) % 4; 
@@ -464,18 +519,13 @@
 
                 if (collision) {
                     document.getElementById(`cell_${posRobot.x}_${posRobot.y}`).classList.add('erreur');
-                    document.getElementById('feedback').textContent = "Bip Boup ! Collision dans le mur ! 💥";
+                    document.getElementById('feedback').textContent = "Bip Boup ! Collision ! 💥";
                     document.getElementById('feedback').style.color = "#c0392b";
-                    estEnExecution = false; document.getElementById('btn-executer').disabled = false;
-                    return;
+                    return false;
                 }
 
                 let valeurCible = grilleDynamique[newY][newX];
-                
-                if (valeurCible === 5) {
-                    cristauxRamasses++;
-                    actualiserAffichageCristaux();
-                }
+                if (valeurCible === 5) { cristauxRamasses++; actualiserAffichageCristaux(); }
 
                 grilleDynamique[posRobot.y][posRobot.x] = 0; 
                 if(valeurCible === 3) grilleDynamique[newY][newX] = 4;
@@ -487,38 +537,12 @@
                 let cibleX = posRobot.x; let cibleY = posRobot.y;
                 if (directionRobot === 0) cibleY--; else if (directionRobot === 1) cibleX++; else if (directionRobot === 2) cibleY++; else if (directionRobot === 3) cibleX--; 
                 if (cibleY >= 0 && cibleY < grilleDynamique.length && cibleX >= 0 && cibleX < grilleDynamique[0].length && grilleDynamique[cibleY][cibleX] === 1) {
-                    grilleDynamique[cibleY][cibleX] = 0;
-                    targetLaser = { x: cibleX, y: cibleY };
+                    grilleDynamique[cibleY][cibleX] = 0; targetLaser = { x: cibleX, y: cibleY };
                 }
             }
 
             dessinerGrilleHTML(targetLaser);
-            setTimeout(() => { jouerInstruction(instructions, index + 1); }, 400); // 400ms par instruction
-        }
-
-        function verifierVictoire() {
-            estEnExecution = false;
-            document.getElementById('btn-executer').disabled = false;
-            document.querySelectorAll('#script-zone .scratch-block').forEach(b => b.style.boxShadow = "0 2px 0 rgba(0,0,0,0.2)");
-
-            if (grilleDynamique[posRobot.y][posRobot.x] === 4) {
-                if (cristauxRamasses < cristauxTotal) {
-                    document.getElementById('feedback').textContent = "Mission échouée : Il manque des cristaux d'énergie ! 💎";
-                    document.getElementById('feedback').style.color = "#e74c3c";
-                    grilleDynamique[posRobot.y][posRobot.x] = 2; 
-                    dessinerGrilleHTML();
-                } else {
-                    document.getElementById('feedback').textContent = "Mission Parfaite ! Code validé ✨";
-                    document.getElementById('feedback').style.color = "#27ae60";
-                    let gainXP = grilleDynamique.length * 20; // Plus d'XP car plus difficile !
-                    sauverProfilCloud(gainXP);
-                    compteurNiveau++;
-                    setTimeout(() => { genererNiveauAleatoire(); }, 2500);
-                }
-            } else {
-                document.getElementById('feedback').textContent = "Le robot n'est pas arrivé à la sortie ! 🔴";
-                document.getElementById('feedback').style.color = "#e67e22";
-            }
+            return true;
         }
 
         chargerProfilCloud();
