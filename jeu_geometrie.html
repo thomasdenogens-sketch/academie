@@ -53,7 +53,8 @@
         .btn-valider { background: #3498db; color: white; font-weight: bold; font-size: 1.2rem; padding: 10px 25px; border: none; border-radius: 10px; cursor: pointer; }
 
         #zone-geoplan-actions { display: none; justify-content: center; gap: 10px; margin-bottom: 20px; }
-        .btn-action { background: #e67e22; color: white; font-weight: bold; font-size: 1.1rem; padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; }
+        .btn-action { background: #e67e22; color: white; font-weight: bold; font-size: 1.1rem; padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; transition: 0.2s;}
+        .btn-action:hover { transform: scale(1.05); }
 
         .btn-nav { background: #7f8c8d; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s;}
         .btn-nav:hover { background: #95a5a6; }
@@ -139,7 +140,7 @@
         // Variables spécifiques au Géoplan Dynamique
         let pointsGeoplan = [];
         const TAILLE_GRILLE = 40; 
-        let pointSelectionne = null; // Le point que Théo est en train de glisser
+        let pointSelectionne = null;
 
         async function chargerProfilCloud() {
             try { let res = await fetch(DB_URL); let data = await res.json(); if (data && data.xp) profil.xp = parseInt(data.xp) || 0; } catch(e) {}
@@ -175,7 +176,6 @@
             document.getElementById('zone-saisie').style.display = 'none';
             document.getElementById('zone-geoplan-actions').style.display = 'none';
 
-            // Nettoyage des événements souris
             canvas.onmousedown = null; canvas.onmousemove = null; canvas.onmouseup = null; canvas.onmouseleave = null;
 
             if (modeActuel === 'mesures') genererQuestionMesure();
@@ -184,22 +184,21 @@
         }
 
         // ==========================================
-        // LE GÉOPLAN DYNAMIQUE (Drag & Drop)
+        // LE GÉOPLAN DYNAMIQUE (Correction des bugs)
         // ==========================================
         function genererQuestionGeoplan() {
             document.getElementById('zone-geoplan-actions').style.display = 'flex';
             reponseAttendue = Math.floor(Math.random() * 9) + 4; 
             document.getElementById('question-texte').innerHTML = `Construis un polygone avec une <strong>Aire de ${reponseAttendue} carreaux</strong>.`;
-            document.getElementById('consigne-supp').textContent = "Clique pour placer des points. Reste appuyé sur un point pour l'étirer !";
+            document.getElementById('consigne-supp').textContent = "Clique pour placer des points. Clique sur le premier point pour fermer la forme. Tu pourras ensuite l'étirer !";
 
             pointsGeoplan = [];
             dessinerGeoplan();
 
-            // Les 3 écouteurs d'événements pour le Glisser-Déposer
             canvas.onmousedown = handleMouseDownGeoplan;
             canvas.onmousemove = handleMouseMoveGeoplan;
             canvas.onmouseup = handleMouseUpGeoplan;
-            canvas.onmouseleave = handleMouseUpGeoplan; // Si la souris sort du canvas
+            canvas.onmouseleave = handleMouseUpGeoplan;
         }
 
         function obtenirCoordonneesGrille(event) {
@@ -214,22 +213,35 @@
             if (isProcessing) return;
             const coords = obtenirCoordonneesGrille(event);
 
-            // 1. A-t-il cliqué sur un point existant pour l'attraper ?
+            // CORRECTION DES PRIORITÉS LOGIQUES :
+            
+            // PRIORITÉ 1 : Est-ce qu'on essaie de FERMER la forme ?
+            // S'il y a au moins 3 points, que la forme n'est pas fermée, et qu'on clique sur le premier point.
+            if (pointsGeoplan.length >= 3 && !estFormeFermee() && coords.x === pointsGeoplan[0].x && coords.y === pointsGeoplan[0].y) {
+                pointsGeoplan.push({x: coords.x, y: coords.y}); // On ferme la forme en rajoutant le point de départ à la fin !
+                dessinerGeoplan();
+                actualiserFeedbackAire();
+                return; // ⚠️ On s'arrête ici pour ne pas déclencher le mode "déplacement"
+            }
+
+            // PRIORITÉ 2 : Est-ce qu'on essaie d'ATTRAPER un point existant pour l'étirer ?
             for (let i = 0; i < pointsGeoplan.length; i++) {
                 if (pointsGeoplan[i].x === coords.x && pointsGeoplan[i].y === coords.y) {
                     pointSelectionne = pointsGeoplan[i];
-                    // Si la forme est fermée et qu'il attrape le dernier point, c'est en fait le premier point qu'il faut bouger !
-                    if (i === pointsGeoplan.length - 1 && estFormeFermee()) pointSelectionne = pointsGeoplan[0];
+                    // Si on attrape le tout dernier point d'une forme fermée, c'est le point 0 qu'on veut bouger
+                    if (i === pointsGeoplan.length - 1 && estFormeFermee()) {
+                        pointSelectionne = pointsGeoplan[0];
+                    }
                     return; 
                 }
             }
 
-            // 2. Sinon, on ajoute un point ou on ferme la forme
-            if (pointsGeoplan.length > 2 && coords.x === pointsGeoplan[0].x && coords.y === pointsGeoplan[0].y) {
-                pointsGeoplan.push({x: coords.x, y: coords.y}); // Forme fermée
-            } else if (!estFormeFermee()) {
+            // PRIORITÉ 3 : Si on n'a rien fermé, ni rien attrapé, on CRÉE un nouveau point.
+            if (!estFormeFermee()) {
                 let lastPt = pointsGeoplan[pointsGeoplan.length - 1];
-                if (!lastPt || lastPt.x !== coords.x || lastPt.y !== coords.y) pointsGeoplan.push({x: coords.x, y: coords.y});
+                if (!lastPt || lastPt.x !== coords.x || lastPt.y !== coords.y) {
+                    pointsGeoplan.push({x: coords.x, y: coords.y});
+                }
             }
 
             dessinerGeoplan();
@@ -237,16 +249,13 @@
         }
 
         function handleMouseMoveGeoplan(event) {
-            // Si un point est tenu par la souris, on le déplace !
             if (pointSelectionne) {
                 const coords = obtenirCoordonneesGrille(event);
                 
-                // On l'empêche de sortir de la grille
                 if (coords.x > 0 && coords.x < canvas.width/TAILLE_GRILLE && coords.y > 0 && coords.y < canvas.height/TAILLE_GRILLE) {
                     pointSelectionne.x = coords.x;
                     pointSelectionne.y = coords.y;
                     
-                    // Si la forme est fermée, le dernier point (le nœud) doit suivre le premier point
                     if (estFormeFermee() && pointSelectionne === pointsGeoplan[0]) {
                         pointsGeoplan[pointsGeoplan.length - 1].x = coords.x;
                         pointsGeoplan[pointsGeoplan.length - 1].y = coords.y;
@@ -259,7 +268,7 @@
         }
 
         function handleMouseUpGeoplan(event) {
-            pointSelectionne = null; // On lâche le point
+            pointSelectionne = null;
         }
 
         function dessinerGeoplan() {
@@ -289,8 +298,9 @@
         }
 
         function estFormeFermee() {
-            if (pointsGeoplan.length < 4) return false;
-            let premier = pointsGeoplan[0]; let dernier = pointsGeoplan[pointsGeoplan.length - 1];
+            if (pointsGeoplan.length < 4) return false; // Impossible de fermer avec moins de 3 côtés
+            let premier = pointsGeoplan[0]; 
+            let dernier = pointsGeoplan[pointsGeoplan.length - 1];
             return (premier.x === dernier.x && premier.y === dernier.y);
         }
 
@@ -318,7 +328,9 @@
         function validerGeoplan() {
             if (isProcessing) return;
             if (!estFormeFermee()) {
-                document.getElementById('feedback').textContent = "Tu dois d'abord fermer ta forme !"; document.getElementById('feedback').style.color = "#e67e22"; return;
+                document.getElementById('feedback').textContent = "Tu dois d'abord fermer ta forme (clique sur le premier point) !"; 
+                document.getElementById('feedback').style.color = "#e67e22"; 
+                return;
             }
 
             isProcessing = true;
@@ -330,13 +342,14 @@
             } else {
                 vies--; document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3-vies);
                 fb.textContent = `Ta forme a une aire de ${aireTrouvee}. Il fallait ${reponseAttendue}.`; fb.style.color = "#e74c3c";
-                setTimeout(() => { isProcessing = false; effacerGeoplan(); }, 3000);
+                setTimeout(() => { isProcessing = false; }, 2000);
             }
         }
 
         // ==========================================
         // LES AUTRES MODES (Conservés à l'identique)
         // ==========================================
+
         function genererQuestionMesure() {
             document.getElementById('zone-saisie').style.display = 'flex';
             let typeForme = Math.random() > 0.5 ? 'carre' : 'rectangle';
