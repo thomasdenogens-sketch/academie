@@ -23,58 +23,34 @@
         
         .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
 
-        .workspace {
-            display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; align-items: flex-start;
-        }
-
+        .workspace { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; align-items: flex-start; }
         .left-panel { flex: 1; min-width: 300px; display: flex; flex-direction: column; align-items: center; }
         .right-panel { flex: 1; min-width: 350px; background: #f8f9fa; padding: 20px; border-radius: 15px; border: 3px solid #ecf0f1; text-align: left;}
 
-        /* La grille du labyrinthe */
-        #grille-labyrinthe {
-            display: grid; gap: 2px; background: #bdc3c7; padding: 5px; border-radius: 10px;
-            margin: 0 auto 20px auto; width: fit-content; border: 4px solid #34495e;
-        }
-        .cellule {
-            width: 45px; height: 45px; background: #ecf0f1; border-radius: 5px;
-            display: flex; justify-content: center; align-items: center; font-size: 1.8rem;
-            transition: background 0.2s; /* Ajout d'une transition pour le laser */
-        }
+        /* HUD Mission (Nouveau) */
+        #hud-mission { background: #f1f8ff; border: 2px dashed #3498db; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-weight: bold; width: 100%; display: flex; justify-content: space-around; align-items: center;}
+        
+        #grille-labyrinthe { display: grid; gap: 2px; background: #bdc3c7; padding: 5px; border-radius: 10px; margin: 0 auto 20px auto; width: fit-content; border: 4px solid #34495e; }
+        .cellule { width: 45px; height: 45px; background: #ecf0f1; border-radius: 5px; display: flex; justify-content: center; align-items: center; font-size: 1.8rem; transition: background 0.2s; }
         .mur { background: #34495e; }
         .sortie { background: #2ecc71; box-shadow: inset 0 0 10px rgba(39, 174, 96, 0.5); }
         .erreur { background: #e74c3c !important; }
 
-        /* Style des blocs façon Scratch */
         .palette-titre { font-size: 1.2rem; font-weight: 900; color: #2c3e50; margin-bottom: 10px; border-bottom: 2px solid #bdc3c7; padding-bottom: 5px;}
-        
         .palette-blocs { display: flex; flex-direction: column; gap: 8px; margin-bottom: 25px; }
-        
-        .scratch-block {
-            padding: 10px 15px; border-radius: 8px; font-weight: bold; color: white;
-            display: flex; align-items: center; justify-content: space-between;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.2); cursor: pointer; transition: transform 0.1s;
-        }
+        .scratch-block { padding: 10px 15px; border-radius: 8px; font-weight: bold; color: white; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 0 rgba(0,0,0,0.2); cursor: pointer; transition: transform 0.1s; }
         .scratch-block:active { transform: translateY(4px); box-shadow: none; }
         
-        /* Couleurs des différentes catégories de blocs */
         .bleu { background: #4C97FF; border: 1px solid #3373CC; }
         .violet { background: #9966FF; border: 1px solid #774DCB; }
-        .rouge { background: #FF6680; border: 1px solid #FF4D6A; } /* Nouvelle catégorie Action */
+        .rouge { background: #FF6680; border: 1px solid #FF4D6A; }
         
-        #script-zone {
-            min-height: 150px; background: #ffffff; border: 2px dashed #bdc3c7; border-radius: 10px;
-            padding: 10px; display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px;
-        }
-        
+        #script-zone { min-height: 150px; background: #ffffff; border: 2px dashed #bdc3c7; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; }
         #script-zone .scratch-block { cursor: default; box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
         #script-zone .scratch-block:active { transform: none; }
         
-        .scratch-input {
-            width: 50px; text-align: center; border-radius: 15px; border: none;
-            padding: 5px; margin: 0 8px; font-weight: bold; color: #333; font-size: 1.1rem; outline: none;
-        }
+        .scratch-input { width: 50px; text-align: center; border-radius: 15px; border: none; padding: 5px; margin: 0 8px; font-weight: bold; color: #333; font-size: 1.1rem; outline: none; }
         .scratch-input:focus { box-shadow: 0 0 0 3px rgba(255,255,255,0.5); }
-        
         .btn-delete { background: rgba(0,0,0,0.2); border-radius: 50%; width: 25px; height: 25px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; }
         .btn-delete:hover { background: #e74c3c; }
 
@@ -85,7 +61,6 @@
         .btn-danger { background: #e74c3c; box-shadow: 0 4px #c0392b; width: 100%; margin-top: 10px;}
 
         #feedback { font-size: 1.4rem; font-weight: 900; height: 35px; margin: 15px 0; }
-        
         .ecran { display: none; }
         .ecran.actif { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
@@ -99,18 +74,15 @@
         <div id="ecran-accueil" class="ecran actif">
             <h1>Code & Logique 🤖</h1>
             <p class="sous-titre">Initiation à l'algorithmique (Style Scratch)</p>
-            
             <p style="font-size: 1.1rem; color: #2c3e50; font-weight: bold; margin-bottom: 25px;">
-                Assemble les blocs pour créer un vrai programme !<br>Attention, le robot va avancer dans la direction où il regarde.
+                Programme le robot pour ramasser tous les cristaux d'énergie avant d'aller sur le drapeau d'arrivée !
             </p>
-
             <button class="btn btn-primaire" style="font-size: 1.3rem; padding: 15px 40px; width:auto;" onclick="lancerJeuInfi()">Générer un niveau</button>
             <br>
             <button class="btn btn-secondaire" style="margin-top: 20px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
         <div id="ecran-jeu" class="ecran">
-            
             <div class="workspace">
                 <div class="left-panel">
                     <div style="display:flex; justify-content: space-between; align-items:center; width: 100%; margin-bottom: 10px;">
@@ -118,6 +90,10 @@
                         <button class="btn btn-secondaire" style="padding: 5px 10px; font-size:0.9rem;" onclick="genererNiveauAleatoire()">↻ Nouveau</button>
                     </div>
                     
+                    <div id="hud-mission">
+                        <span>Cristaux : <span id="ui-cristaux" style="color:#8e44ad; font-size:1.4rem;">0 / 0</span> 💎</span>
+                    </div>
+
                     <div id="grille-labyrinthe"></div>
                     <div id="feedback"></div>
                 </div>
@@ -125,7 +101,6 @@
                 <div class="right-panel">
                     <div class="palette-titre">📚 Bibliothèque de Blocs</div>
                     <div class="palette-blocs">
-                        <!-- LES NOUVEAUX BLOCS SONT ICI -->
                         <div class="scratch-block bleu" onclick="ajouterBloc('avancer')">
                             <span>Avancer de <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"> cases</span> <span>➕</span>
                         </div>
@@ -166,9 +141,12 @@
         let grilleOriginale = [];
         let grilleDynamique = []; 
         let posRobot = { x: 0, y: 0 };
-        let directionRobot = 1; // 0=Haut, 1=Droite, 2=Bas, 3=Gauche
-        
+        let directionRobot = 1;
         let estEnExecution = false;
+
+        // Nouvelles variables pour la gamification
+        let cristauxTotal = 0;
+        let cristauxRamasses = 0;
 
         async function chargerProfilCloud() {
             try {
@@ -201,7 +179,7 @@
             document.getElementById('titre-niveau').textContent = `Labyrinthe N°${compteurNiveau}`;
             document.getElementById('feedback').textContent = "";
             
-            let taille = Math.floor(Math.random() * 4) + 6; // Grille légèrement plus grande
+            let taille = Math.floor(Math.random() * 4) + 6; 
             let grille = Array(taille).fill(0).map(() => Array(taille).fill(1));
             
             let x = 0, y = 0;
@@ -219,12 +197,30 @@
             }
             grille[taille - 1][taille - 1] = 3; 
 
-            // Bruit (Création des murs destructibles)
+            // Bruit et ajout aléatoire de cristaux
+            cristauxTotal = 0;
             let nombreTrous = taille * 2;
             for(let i = 0; i < nombreTrous; i++) {
                 let rx = Math.floor(Math.random() * taille);
                 let ry = Math.floor(Math.random() * taille);
-                if (grille[ry][rx] === 1) grille[ry][rx] = 0;
+                
+                if (grille[ry][rx] === 1) {
+                    grille[ry][rx] = 0; // On creuse un trou
+                    
+                    // 30% de chance d'y placer un cristal
+                    if (Math.random() > 0.7 && cristauxTotal < 4) {
+                        grille[ry][rx] = 5; // 5 = identifiant du Cristal
+                        cristauxTotal++;
+                    }
+                }
+            }
+
+            // Sécurité : s'il n'y a pas de cristal, on en force au moins 1
+            if (cristauxTotal === 0) {
+                let rx = Math.floor(taille / 2);
+                let ry = Math.floor(taille / 2);
+                grille[ry][rx] = 5;
+                cristauxTotal = 1;
             }
 
             grilleOriginale = JSON.parse(JSON.stringify(grille));
@@ -237,12 +233,19 @@
             document.getElementById('btn-executer').disabled = false;
             
             directionRobot = 1;
+            cristauxRamasses = 0;
+            actualiserAffichageCristaux();
+
             for (let y = 0; y < grilleDynamique.length; y++) {
                 for (let x = 0; x < grilleDynamique[y].length; x++) {
                     if (grilleDynamique[y][x] === 2) posRobot = { x: x, y: y };
                 }
             }
             dessinerGrilleHTML();
+        }
+
+        function actualiserAffichageCristaux() {
+            document.getElementById('ui-cristaux').textContent = `${cristauxRamasses} / ${cristauxTotal}`;
         }
 
         function dessinerGrilleHTML(laserTarget = null) {
@@ -261,23 +264,17 @@
                     div.className = 'cellule';
                     div.id = `cell_${x}_${y}`;
                     
-                    if (grilleDynamique[y][x] === 1) {
-                        div.classList.add('mur');
-                    } else if (grilleDynamique[y][x] === 2) { 
-                        let deg = 0;
-                        if(directionRobot === 0) deg = 0;   
-                        if(directionRobot === 1) deg = 90;  
-                        if(directionRobot === 2) deg = 180; 
-                        if(directionRobot === 3) deg = -90; 
-                        
+                    if (grilleDynamique[y][x] === 1) { div.classList.add('mur'); } 
+                    else if (grilleDynamique[y][x] === 2) { 
+                        let deg = (directionRobot * 90) - 90;
                         div.innerHTML = `<span style="transform: rotate(${deg}deg); display:inline-block; transition: 0.3s;">🤖</span>`;
                         div.style.background = "#f1c40f";
                         div.style.boxShadow = "inset 0 0 10px rgba(230, 126, 34, 0.5)";
                     }
                     else if (grilleDynamique[y][x] === 3) { div.classList.add('sortie'); div.textContent = "🏁"; }
                     else if (grilleDynamique[y][x] === 4) { div.style.background = "#2ecc71"; div.textContent = "🤖"; }
+                    else if (grilleDynamique[y][x] === 5) { div.innerHTML = "💎"; } // Affichage du cristal
                     
-                    // Si le laser vient de détruire ce mur, on ajoute un effet d'explosion !
                     if (laserTarget && laserTarget.x === x && laserTarget.y === y) {
                         div.style.background = "#FF6680";
                         div.innerHTML = "💥";
@@ -289,35 +286,27 @@
             }
         }
 
-        // --- GÉNÉRATION DES BLOCS (HTML Dynamique) ---
         function ajouterBloc(type) {
             if (estEnExecution) return;
-            
             const zone = document.getElementById('script-zone');
             let div = document.createElement('div');
             
             if (type === 'avancer') {
-                div.className = "scratch-block bleu";
-                div.dataset.action = "avancer";
-                div.innerHTML = `<span>Avancer de <input type="number" class="scratch-input" value="1" min="1" max="10"> cases</span> <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>`;
+                div.className = "scratch-block bleu"; div.dataset.action = "avancer";
+                div.innerHTML = `<span>Avancer de <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"> cases</span> <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>`;
             } else if (type === 'reculer') {
-                div.className = "scratch-block bleu";
-                div.dataset.action = "reculer";
-                div.innerHTML = `<span>Reculer de <input type="number" class="scratch-input" value="1" min="1" max="10"> cases</span> <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>`;
+                div.className = "scratch-block bleu"; div.dataset.action = "reculer";
+                div.innerHTML = `<span>Reculer de <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"> cases</span> <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>`;
             } else if (type === 'droite') {
-                div.className = "scratch-block violet";
-                div.dataset.action = "droite";
+                div.className = "scratch-block violet"; div.dataset.action = "droite";
                 div.innerHTML = `<span>Tourner à droite ↻</span> <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>`;
             } else if (type === 'gauche') {
-                div.className = "scratch-block violet";
-                div.dataset.action = "gauche";
+                div.className = "scratch-block violet"; div.dataset.action = "gauche";
                 div.innerHTML = `<span>Tourner à gauche ↺</span> <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>`;
             } else if (type === 'laser') {
-                div.className = "scratch-block rouge";
-                div.dataset.action = "laser";
+                div.className = "scratch-block rouge"; div.dataset.action = "laser";
                 div.innerHTML = `<span>Tirer au Laser 💥</span> <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>`;
             }
-            
             zone.appendChild(div);
         }
 
@@ -328,28 +317,19 @@
             reinitialiserJeu();
         }
 
-        // --- COMPILATION ET EXÉCUTION ---
         function compilerEtExecuter() {
             if (estEnExecution) return;
             
             let listeInstructions = [];
             const blocs = document.getElementById('script-zone').children;
             
-            if (blocs.length === 0) {
-                document.getElementById('feedback').textContent = "Ton script est vide !";
-                document.getElementById('feedback').style.color = "#e67e22";
-                return;
-            }
+            if (blocs.length === 0) return;
 
             for (let i = 0; i < blocs.length; i++) {
                 let action = blocs[i].dataset.action;
-                
-                // On gère les paramètres dynamiques (Le nombre de cases entré par Théo)
                 if (action === 'avancer' || action === 'reculer') {
                     let nbCases = parseInt(blocs[i].querySelector('input').value) || 1;
-                    for(let k=0; k < nbCases; k++) {
-                        listeInstructions.push({ commande: action, blocOrigine: blocs[i] });
-                    }
+                    for(let k=0; k < nbCases; k++) listeInstructions.push({ commande: action, blocOrigine: blocs[i] });
                 } else {
                     listeInstructions.push({ commande: action, blocOrigine: blocs[i] });
                 }
@@ -380,14 +360,9 @@
             let newY = posRobot.y;
             let targetLaser = null;
 
-            if (cmd === 'droite') {
-                directionRobot = (directionRobot + 1) % 4; 
-            } 
-            else if (cmd === 'gauche') {
-                directionRobot = (directionRobot + 3) % 4; 
-            } 
+            if (cmd === 'droite') directionRobot = (directionRobot + 1) % 4; 
+            else if (cmd === 'gauche') directionRobot = (directionRobot + 3) % 4; 
             else if (cmd === 'avancer' || cmd === 'reculer') {
-                // Déterminer le modificateur de direction (Avancer = 1, Reculer = -1)
                 let mod = (cmd === 'avancer') ? 1 : -1;
 
                 if (directionRobot === 0) newY -= mod; 
@@ -395,24 +370,26 @@
                 else if (directionRobot === 2) newY += mod; 
                 else if (directionRobot === 3) newX -= mod; 
 
-                // Collision
                 let collision = false;
-                if (newY < 0 || newY >= grilleDynamique.length || newX < 0 || newX >= grilleDynamique[0].length) {
-                    collision = true; 
-                } else if (grilleDynamique[newY][newX] === 1) {
-                    collision = true; 
-                }
+                if (newY < 0 || newY >= grilleDynamique.length || newX < 0 || newX >= grilleDynamique[0].length) collision = true; 
+                else if (grilleDynamique[newY][newX] === 1) collision = true; 
 
                 if (collision) {
                     document.getElementById(`cell_${posRobot.x}_${posRobot.y}`).classList.add('erreur');
                     document.getElementById('feedback').textContent = "Bip Boup ! Collision dans le mur ! 💥";
                     document.getElementById('feedback').style.color = "#c0392b";
-                    estEnExecution = false;
-                    document.getElementById('btn-executer').disabled = false;
+                    estEnExecution = false; document.getElementById('btn-executer').disabled = false;
                     return;
                 }
 
                 let valeurCible = grilleDynamique[newY][newX];
+                
+                // Si on marche sur un cristal
+                if (valeurCible === 5) {
+                    cristauxRamasses++;
+                    actualiserAffichageCristaux();
+                }
+
                 grilleDynamique[posRobot.y][posRobot.x] = 0; 
                 
                 if(valeurCible === 3) grilleDynamique[newY][newX] = 4;
@@ -421,19 +398,11 @@
                 posRobot = { x: newX, y: newY };
             }
             else if (cmd === 'laser') {
-                // Déterminer la case juste en face du robot
                 let cibleX = posRobot.x; let cibleY = posRobot.y;
-                if (directionRobot === 0) cibleY--; 
-                else if (directionRobot === 1) cibleX++; 
-                else if (directionRobot === 2) cibleY++; 
-                else if (directionRobot === 3) cibleX--; 
-
-                // Si c'est un mur, on le détruit !
-                if (cibleY >= 0 && cibleY < grilleDynamique.length && cibleX >= 0 && cibleX < grilleDynamique[0].length) {
-                    if (grilleDynamique[cibleY][cibleX] === 1) {
-                        grilleDynamique[cibleY][cibleX] = 0;
-                        targetLaser = { x: cibleX, y: cibleY }; // Pour l'animation visuelle
-                    }
+                if (directionRobot === 0) cibleY--; else if (directionRobot === 1) cibleX++; else if (directionRobot === 2) cibleY++; else if (directionRobot === 3) cibleX--; 
+                if (cibleY >= 0 && cibleY < grilleDynamique.length && cibleX >= 0 && cibleX < grilleDynamique[0].length && grilleDynamique[cibleY][cibleX] === 1) {
+                    grilleDynamique[cibleY][cibleX] = 0;
+                    targetLaser = { x: cibleX, y: cibleY };
                 }
             }
 
@@ -447,14 +416,20 @@
             document.querySelectorAll('#script-zone .scratch-block').forEach(b => b.style.boxShadow = "0 2px 0 rgba(0,0,0,0.2)");
 
             if (grilleDynamique[posRobot.y][posRobot.x] === 4) {
-                document.getElementById('feedback').textContent = "Programme validé ! C'est parfait ✨";
-                document.getElementById('feedback').style.color = "#27ae60";
-                
-                let gainXP = grilleDynamique.length * 15;
-                sauverProfilCloud(gainXP);
-
-                compteurNiveau++;
-                setTimeout(() => { genererNiveauAleatoire(); }, 2500);
+                // Nouvelle condition : A-t-il ramassé tous les cristaux ?
+                if (cristauxRamasses < cristauxTotal) {
+                    document.getElementById('feedback').textContent = "Mission échouée : Il manque des cristaux d'énergie ! 💎";
+                    document.getElementById('feedback').style.color = "#e74c3c";
+                    grilleDynamique[posRobot.y][posRobot.x] = 2; // Le robot sort de la case victoire
+                    dessinerGrilleHTML();
+                } else {
+                    document.getElementById('feedback').textContent = "Mission Parfaite ! Code validé ✨";
+                    document.getElementById('feedback').style.color = "#27ae60";
+                    let gainXP = grilleDynamique.length * 15;
+                    sauverProfilCloud(gainXP);
+                    compteurNiveau++;
+                    setTimeout(() => { genererNiveauAleatoire(); }, 2500);
+                }
             } else {
                 document.getElementById('feedback').textContent = "Le robot n'est pas arrivé à la sortie ! 🔴";
                 document.getElementById('feedback').style.color = "#e67e22";
@@ -462,13 +437,7 @@
         }
 
         chargerProfilCloud();
-        
-        // Astuce de développement : Empêcher le champ texte du nombre de déclencher un clic accidentel sur la croix
-        document.querySelectorAll('.scratch-input').forEach(input => {
-            input.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-        });
+        document.querySelectorAll('.scratch-input').forEach(input => { input.addEventListener('click', function(e) { e.stopPropagation(); }); });
     </script>
 </body>
 </html>
