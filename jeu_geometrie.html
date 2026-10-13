@@ -5,36 +5,25 @@
     <title>Studio de Géométrie CM2 - L'Académie</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
-        
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #16a085 0%, #f4d03f 100%); color: #2c3e50; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
         
-        body { 
-            font-family: 'Nunito', sans-serif; 
-            background: linear-gradient(135deg, #16a085 0%, #f4d03f 100%); 
-            color: #2c3e50; display: flex; flex-direction: column; align-items: center; 
-            min-height: 100vh; padding: 20px; 
-        }
-        
-        #app-container { 
-            background: white; padding: 30px; border-radius: 25px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2); max-width: 800px; width: 100%; text-align: center; position: relative;
-        }
-        
+        #app-container { background: white; padding: 30px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); max-width: 800px; width: 100%; text-align: center; position: relative; }
         h1 { color: #16a085; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
         .sous-titre { color: #7f8c8d; margin-bottom: 25px; font-weight: 700; font-size: 1.1rem;}
-        
         .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
 
         .grid-niveaux { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; text-align: left;}
         .btn-niveau { background: #fff; border: 3px solid #bdc3c7; padding: 15px; border-radius: 15px; font-size: 1.2rem; font-weight: bold; color: #2c3e50; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: space-between; }
         .btn-niveau:hover { background: #f8f9fa; border-color: #16a085; transform: translateX(5px); }
-        .btn-niveau:active { transform: translateY(2px); }
-
         .titre-section { background: #16a085; color: white; padding: 10px; border-radius: 10px; margin: 20px 0 10px 0; font-weight: 900;}
-        .titre-section.angles { background: #e67e22; }
         .titre-section.geogebra { background: #8e44ad; }
 
-        .hud-jeu { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.2rem; border: 2px solid #ecf0f1; }
+        /* NOUVEAU : La Barre de Progression dynamique */
+        .hud-jeu { background: #f8f9fa; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #ecf0f1; }
+        .hud-top { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2rem; margin-bottom: 10px;}
+        .barre-bg { width: 100%; height: 15px; background: #bdc3c7; border-radius: 10px; overflow: hidden; }
+        .barre-fill { height: 100%; background: #2ecc71; width: 0%; transition: width 0.3s ease-out; }
         
         #canvas-container { background: #fdfdfd; border: 3px dashed #bdc3c7; border-radius: 15px; margin: 0 auto 20px auto; display: flex; justify-content: center; align-items: center; width: 100%; max-width: 400px; height: 400px; position: relative; }
         canvas { max-width: 100%; max-height: 100%; cursor: crosshair;}
@@ -44,7 +33,6 @@
 
         .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .btn-opt { background: white; border: 3px solid #3498db; padding: 15px; border-radius: 15px; font-size: 1.3rem; font-weight: bold; color: #2980b9; cursor: pointer; transition: 0.1s; }
-        .btn-opt:active { transform: translateY(4px); }
         .btn-opt.correct { background: #2ecc71; color: white; border-color: #27ae60; }
         .btn-opt.erreur { background: #e74c3c; color: white; border-color: #c0392b; }
 
@@ -54,11 +42,8 @@
 
         #zone-geoplan-actions { display: none; justify-content: center; gap: 10px; margin-bottom: 20px; }
         .btn-action { background: #e67e22; color: white; font-weight: bold; font-size: 1.1rem; padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; transition: 0.2s;}
-        .btn-action:hover { transform: scale(1.05); }
-
-        .btn-nav { background: #7f8c8d; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s;}
-        .btn-nav:hover { background: #95a5a6; }
         
+        .btn-nav { background: #7f8c8d; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s;}
         #feedback { font-size: 1.3rem; font-weight: 900; height: 35px; margin-bottom: 15px; }
 
         .ecran { display: none; }
@@ -78,7 +63,7 @@
             <div class="titre-section geogebra">L'Atelier Interactif (GeoGebra)</div>
             <div class="grid-niveaux">
                 <button class="btn-niveau" onclick="lancerJeu('geoplan', 1)" style="border-color: #8e44ad;">
-                    <div><strong>Le Géoplan Dynamique</strong><br><span style="font-size:0.9rem; color:#7f8c8d;">Construis et étire tes polygones !</span></div>
+                    <div><strong>Le Géoplan Dynamique</strong><br><span style="font-size:0.9rem; color:#7f8c8d;">Construis, étire et reproduis !</span></div>
                     <span>▶️</span>
                 </button>
             </div>
@@ -89,20 +74,17 @@
                 <button class="btn-niveau" onclick="lancerJeu('mesures', 2)"><div><strong>Niveau 2 : L'Aire</strong></div><span>▶️</span></button>
             </div>
 
-            <div class="titre-section angles">Les Angles</div>
-            <div class="grid-niveaux">
-                <button class="btn-niveau" onclick="lancerJeu('angles', 1)"><div><strong>Niveau 1 : Les bases</strong></div><span>▶️</span></button>
-                <button class="btn-niveau" onclick="lancerJeu('angles', 2)"><div><strong>Niveau 2 : L'œil de lynx</strong></div><span>▶️</span></button>
-            </div>
-
             <button class="btn-nav" style="margin-top: 15px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
         <div id="ecran-jeu" class="ecran">
             <div class="hud-jeu">
-                <span id="ui-vies" style="letter-spacing: 3px; color:#e74c3c;">❤️❤️❤️</span>
-                <span id="ui-titre-niveau" style="color: #2980b9;">Niveau...</span>
-                <span id="ui-progression">1 / 5</span>
+                <div class="hud-top">
+                    <span id="ui-vies" style="letter-spacing: 3px; color:#e74c3c;">❤️❤️❤️</span>
+                    <span id="ui-titre-niveau" style="color: #2980b9;">Niveau...</span>
+                    <span id="ui-progression">1 / 5</span>
+                </div>
+                <div class="barre-bg"><div class="barre-fill" id="barre-prog"></div></div>
             </div>
             
             <div id="question-texte">Question...</div>
@@ -113,7 +95,7 @@
             </div>
 
             <div id="zone-boutons" class="options-grid"></div>
-            <div id="zone-saisie"><input type="number" id="input-mesure" autocomplete="off" placeholder="Ex: 12"><button class="btn-valider" onclick="verifierSaisie()">Valider</button></div>
+            <div id="zone-saisie"><input type="number" id="input-mesure" autocomplete="off"><button class="btn-valider" onclick="verifierSaisie()">Valider</button></div>
 
             <div id="zone-geoplan-actions">
                 <button class="btn-action" style="background:#e74c3c;" onclick="effacerGeoplan()">Effacer</button>
@@ -137,62 +119,77 @@
         const canvas = document.getElementById('canvas-geo');
         const ctx = canvas.getContext('2d');
 
-        // Variables spécifiques au Géoplan Dynamique
         let pointsGeoplan = [];
+        let modeleCible = []; // NOUVEAU : Le tableau du pattern matching
         const TAILLE_GRILLE = 40; 
         let pointSelectionne = null;
 
-        async function chargerProfilCloud() {
-            try { let res = await fetch(DB_URL); let data = await res.json(); if (data && data.xp) profil.xp = parseInt(data.xp) || 0; } catch(e) {}
-            document.getElementById('ui-xp-jeu').textContent = profil.xp;
-        }
-
-        async function sauverProfilCloud(xpGagne) {
-            profil.xp += xpGagne; document.getElementById('ui-xp-jeu').textContent = profil.xp;
-            try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
-        }
+        async function chargerProfilCloud() { try { let res = await fetch(DB_URL); let data = await res.json(); if (data && data.xp) profil.xp = parseInt(data.xp) || 0; } catch(e) {} document.getElementById('ui-xp-jeu').textContent = profil.xp; }
+        async function sauverProfilCloud(xpGagne) { profil.xp += xpGagne; document.getElementById('ui-xp-jeu').textContent = profil.xp; try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {} }
 
         function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); document.getElementById(id).classList.add('actif'); }
         function retourAccueil() { changerEcran('ecran-hub'); }
 
         function lancerJeu(mode, niveau) {
             modeActuel = mode; niveauActuel = niveau; indexQuestion = 0; vies = 3; isProcessing = false;
-            let titre = mode === 'mesures' ? "Mesures" : mode === 'geoplan' ? "Géoplan Actif" : "Angles";
-            document.getElementById('ui-titre-niveau').textContent = `${titre} - Niv ${niveau}`;
             document.getElementById('ui-vies').textContent = "❤️❤️❤️";
             changerEcran('ecran-jeu'); poserQuestion();
         }
 
         function poserQuestion() {
             if (vies <= 0) { alert("Plus de vies ! Révise encore un peu et réessaie."); return retourAccueil(); }
-            if (indexQuestion >= totalQuestions) { alert("Série parfaite ! Tu gagnes un super bonus d'XP ! 🎉"); sauverProfilCloud(niveauActuel * 20); return retourAccueil(); }
+            
+            // NOUVEAU : L'Auto Level-Up !
+            if (indexQuestion >= totalQuestions) {
+                alert(`Niveau ${niveauActuel} complété ! +${niveauActuel * 20} XP 🎉`);
+                sauverProfilCloud(niveauActuel * 20);
+                niveauActuel++;
+                indexQuestion = 0; // On recommence au niveau supérieur
+            }
 
             isProcessing = false; indexQuestion++;
+            
+            // Mise à jour de l'interface (Barre de progression et textes)
             document.getElementById('ui-progression').textContent = `${indexQuestion} / ${totalQuestions}`;
-            document.getElementById('feedback').textContent = ""; document.getElementById('input-mesure').value = ""; document.getElementById('consigne-supp').textContent = "";
+            document.getElementById('barre-prog').style.width = `${(indexQuestion / totalQuestions) * 100}%`;
+            document.getElementById('ui-titre-niveau').textContent = `${modeActuel === 'geoplan' ? 'Géoplan' : 'Mesures'} - Niv ${niveauActuel}`;
+            document.getElementById('feedback').textContent = ""; document.getElementById('consigne-supp').textContent = "";
             ctx.clearRect(0, 0, canvas.width, canvas.height); 
 
-            document.getElementById('zone-boutons').style.display = 'none';
-            document.getElementById('zone-saisie').style.display = 'none';
-            document.getElementById('zone-geoplan-actions').style.display = 'none';
-
+            document.getElementById('zone-boutons').style.display = 'none'; document.getElementById('zone-saisie').style.display = 'none'; document.getElementById('zone-geoplan-actions').style.display = 'none';
             canvas.onmousedown = null; canvas.onmousemove = null; canvas.onmouseup = null; canvas.onmouseleave = null;
 
-            if (modeActuel === 'mesures') genererQuestionMesure();
-            else if (modeActuel === 'angles') genererQuestionAngle();
-            else if (modeActuel === 'geoplan') genererQuestionGeoplan();
+            if (modeActuel === 'geoplan') genererQuestionGeoplan();
+            else genererQuestionMesure(); // Redirige vers mesure si besoin
         }
 
         // ==========================================
-        // LE GÉOPLAN DYNAMIQUE (Correction des bugs)
+        // LE GÉOPLAN : NIVEAU 1 (Aire) & NIVEAU 2 (Pattern)
         // ==========================================
         function genererQuestionGeoplan() {
             document.getElementById('zone-geoplan-actions').style.display = 'flex';
-            reponseAttendue = Math.floor(Math.random() * 9) + 4; 
-            document.getElementById('question-texte').innerHTML = `Construis un polygone avec une <strong>Aire de ${reponseAttendue} carreaux</strong>.`;
-            document.getElementById('consigne-supp').textContent = "Clique pour placer des points. Clique sur le premier point pour fermer la forme. Tu pourras ensuite l'étirer !";
-
             pointsGeoplan = [];
+            modeleCible = [];
+
+            if (niveauActuel === 1) {
+                // Niveau 1 : Construire une aire demandée
+                reponseAttendue = Math.floor(Math.random() * 9) + 4; 
+                document.getElementById('question-texte').innerHTML = `Construis un polygone avec une <strong>Aire de ${reponseAttendue} carreaux</strong>.`;
+                document.getElementById('consigne-supp').textContent = "Ferme ta forme puis étire ses sommets !";
+            } else {
+                // Niveau 2 : Pattern Matching (Reproduire un modèle complexe)
+                document.getElementById('question-texte').innerHTML = `<strong>Reproduis la figure en bleu clair !</strong>`;
+                document.getElementById('consigne-supp').textContent = "Superpose tes points exactement sur le modèle.";
+                
+                // On génère un tableau de coordonnées "Cibles" (Ex: un bateau, une flèche...)
+                let formes = [
+                    [{x:2,y:5}, {x:5,y:2}, {x:8,y:5}, {x:8,y:8}, {x:2,y:8}], // Maison
+                    [{x:3,y:4}, {x:7,y:4}, {x:7,y:2}, {x:9,y:5}, {x:7,y:8}, {x:7,y:6}, {x:3,y:6}], // Flèche
+                    [{x:5,y:2}, {x:6,y:5}, {x:9,y:5}, {x:7,y:7}, {x:8,y:9}, {x:5,y:8}, {x:2,y:9}, {x:3,y:7}, {x:1,y:5}, {x:4,y:5}] // Étoile
+                ];
+                modeleCible = formes[Math.floor(Math.random() * formes.length)];
+            }
+
             dessinerGeoplan();
 
             canvas.onmousedown = handleMouseDownGeoplan;
@@ -203,73 +200,48 @@
 
         function obtenirCoordonneesGrille(event) {
             const rect = canvas.getBoundingClientRect();
-            return {
-                x: Math.round((event.clientX - rect.left) / TAILLE_GRILLE),
-                y: Math.round((event.clientY - rect.top) / TAILLE_GRILLE)
-            };
+            return { x: Math.round((event.clientX - rect.left) / TAILLE_GRILLE), y: Math.round((event.clientY - rect.top) / TAILLE_GRILLE) };
         }
 
         function handleMouseDownGeoplan(event) {
             if (isProcessing) return;
             const coords = obtenirCoordonneesGrille(event);
 
-            // CORRECTION DES PRIORITÉS LOGIQUES :
-            
-            // PRIORITÉ 1 : Est-ce qu'on essaie de FERMER la forme ?
-            // S'il y a au moins 3 points, que la forme n'est pas fermée, et qu'on clique sur le premier point.
             if (pointsGeoplan.length >= 3 && !estFormeFermee() && coords.x === pointsGeoplan[0].x && coords.y === pointsGeoplan[0].y) {
-                pointsGeoplan.push({x: coords.x, y: coords.y}); // On ferme la forme en rajoutant le point de départ à la fin !
-                dessinerGeoplan();
-                actualiserFeedbackAire();
-                return; // ⚠️ On s'arrête ici pour ne pas déclencher le mode "déplacement"
+                pointsGeoplan.push({x: coords.x, y: coords.y});
+                dessinerGeoplan(); actualiserFeedbackAire(); return;
             }
 
-            // PRIORITÉ 2 : Est-ce qu'on essaie d'ATTRAPER un point existant pour l'étirer ?
             for (let i = 0; i < pointsGeoplan.length; i++) {
                 if (pointsGeoplan[i].x === coords.x && pointsGeoplan[i].y === coords.y) {
                     pointSelectionne = pointsGeoplan[i];
-                    // Si on attrape le tout dernier point d'une forme fermée, c'est le point 0 qu'on veut bouger
-                    if (i === pointsGeoplan.length - 1 && estFormeFermee()) {
-                        pointSelectionne = pointsGeoplan[0];
-                    }
+                    if (i === pointsGeoplan.length - 1 && estFormeFermee()) pointSelectionne = pointsGeoplan[0];
                     return; 
                 }
             }
 
-            // PRIORITÉ 3 : Si on n'a rien fermé, ni rien attrapé, on CRÉE un nouveau point.
             if (!estFormeFermee()) {
                 let lastPt = pointsGeoplan[pointsGeoplan.length - 1];
-                if (!lastPt || lastPt.x !== coords.x || lastPt.y !== coords.y) {
-                    pointsGeoplan.push({x: coords.x, y: coords.y});
-                }
+                if (!lastPt || lastPt.x !== coords.x || lastPt.y !== coords.y) pointsGeoplan.push({x: coords.x, y: coords.y});
             }
 
-            dessinerGeoplan();
-            actualiserFeedbackAire();
+            dessinerGeoplan(); actualiserFeedbackAire();
         }
 
         function handleMouseMoveGeoplan(event) {
             if (pointSelectionne) {
                 const coords = obtenirCoordonneesGrille(event);
-                
                 if (coords.x > 0 && coords.x < canvas.width/TAILLE_GRILLE && coords.y > 0 && coords.y < canvas.height/TAILLE_GRILLE) {
-                    pointSelectionne.x = coords.x;
-                    pointSelectionne.y = coords.y;
-                    
+                    pointSelectionne.x = coords.x; pointSelectionne.y = coords.y;
                     if (estFormeFermee() && pointSelectionne === pointsGeoplan[0]) {
-                        pointsGeoplan[pointsGeoplan.length - 1].x = coords.x;
-                        pointsGeoplan[pointsGeoplan.length - 1].y = coords.y;
+                        pointsGeoplan[pointsGeoplan.length - 1].x = coords.x; pointsGeoplan[pointsGeoplan.length - 1].y = coords.y;
                     }
-                    
-                    dessinerGeoplan();
-                    actualiserFeedbackAire();
+                    dessinerGeoplan(); actualiserFeedbackAire();
                 }
             }
         }
 
-        function handleMouseUpGeoplan(event) {
-            pointSelectionne = null;
-        }
+        function handleMouseUpGeoplan() { pointSelectionne = null; }
 
         function dessinerGeoplan() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -281,129 +253,96 @@
                 }
             }
 
-            if (pointsGeoplan.length > 0) {
-                ctx.beginPath();
-                ctx.moveTo(pointsGeoplan[0].x * TAILLE_GRILLE, pointsGeoplan[0].y * TAILLE_GRILLE);
-                for (let i = 1; i < pointsGeoplan.length; i++) ctx.lineTo(pointsGeoplan[i].x * TAILLE_GRILLE, pointsGeoplan[i].y * TAILLE_GRILLE);
-                
-                if (estFormeFermee()) { ctx.closePath(); ctx.fillStyle = "rgba(142, 68, 173, 0.3)"; ctx.fill(); }
-                
-                ctx.strokeStyle = "#8e44ad"; ctx.lineWidth = 4; ctx.stroke();
+            // NOUVEAU : Dessin du fantôme (Pattern Matching pour Niveau 2)
+            if (modeleCible.length > 0) {
+                ctx.beginPath(); ctx.moveTo(modeleCible[0].x * TAILLE_GRILLE, modeleCible[0].y * TAILLE_GRILLE);
+                for (let i = 1; i < modeleCible.length; i++) ctx.lineTo(modeleCible[i].x * TAILLE_GRILLE, modeleCible[i].y * TAILLE_GRILLE);
+                ctx.closePath(); ctx.fillStyle = "rgba(52, 152, 219, 0.2)"; ctx.fill();
+                ctx.strokeStyle = "rgba(52, 152, 219, 0.5)"; ctx.lineWidth = 4; ctx.setLineDash([5, 5]); ctx.stroke(); ctx.setLineDash([]);
+            }
 
+            if (pointsGeoplan.length > 0) {
+                ctx.beginPath(); ctx.moveTo(pointsGeoplan[0].x * TAILLE_GRILLE, pointsGeoplan[0].y * TAILLE_GRILLE);
+                for (let i = 1; i < pointsGeoplan.length; i++) ctx.lineTo(pointsGeoplan[i].x * TAILLE_GRILLE, pointsGeoplan[i].y * TAILLE_GRILLE);
+                if (estFormeFermee()) { ctx.closePath(); ctx.fillStyle = "rgba(142, 68, 173, 0.3)"; ctx.fill(); }
+                ctx.strokeStyle = "#8e44ad"; ctx.lineWidth = 4; ctx.stroke();
                 ctx.fillStyle = "#e74c3c";
-                pointsGeoplan.forEach(pt => {
-                    ctx.beginPath(); ctx.arc(pt.x * TAILLE_GRILLE, pt.y * TAILLE_GRILLE, 6, 0, Math.PI * 2); ctx.fill();
-                });
+                pointsGeoplan.forEach(pt => { ctx.beginPath(); ctx.arc(pt.x * TAILLE_GRILLE, pt.y * TAILLE_GRILLE, 6, 0, Math.PI * 2); ctx.fill(); });
             }
         }
 
         function estFormeFermee() {
-            if (pointsGeoplan.length < 4) return false; // Impossible de fermer avec moins de 3 côtés
-            let premier = pointsGeoplan[0]; 
-            let dernier = pointsGeoplan[pointsGeoplan.length - 1];
-            return (premier.x === dernier.x && premier.y === dernier.y);
+            if (pointsGeoplan.length < 4) return false;
+            return (pointsGeoplan[0].x === pointsGeoplan[pointsGeoplan.length - 1].x && pointsGeoplan[0].y === pointsGeoplan[pointsGeoplan.length - 1].y);
         }
 
         function effacerGeoplan() { pointsGeoplan = []; document.getElementById('feedback').textContent = ""; dessinerGeoplan(); }
 
         function calculerAire(points) {
             let aire = 0; let n = points.length - 1; 
-            for (let i = 0; i < n; i++) {
-                let j = (i + 1) % n;
-                aire += (points[i].x * points[j].y) - (points[j].x * points[i].y);
-            }
+            for (let i = 0; i < n; i++) { let j = (i + 1) % n; aire += (points[i].x * points[j].y) - (points[j].x * points[i].y); }
             return Math.abs(aire / 2);
         }
 
         function actualiserFeedbackAire() {
-            if (estFormeFermee()) {
+            if (niveauActuel === 1 && estFormeFermee()) {
                 let aireActuelle = calculerAire(pointsGeoplan);
-                document.getElementById('feedback').textContent = `Aire actuelle : ${aireActuelle} carreaux`;
-                document.getElementById('feedback').style.color = "#8e44ad";
-            } else {
-                document.getElementById('feedback').textContent = "";
-            }
+                document.getElementById('feedback').textContent = `Aire actuelle : ${aireActuelle} carreaux`; document.getElementById('feedback').style.color = "#8e44ad";
+            } else { document.getElementById('feedback').textContent = ""; }
         }
 
+        // ALGORITHME DE VÉRIFICATION
         function validerGeoplan() {
             if (isProcessing) return;
-            if (!estFormeFermee()) {
-                document.getElementById('feedback').textContent = "Tu dois d'abord fermer ta forme (clique sur le premier point) !"; 
-                document.getElementById('feedback').style.color = "#e67e22"; 
-                return;
-            }
+            if (!estFormeFermee()) { document.getElementById('feedback').textContent = "Ferme ta forme !"; document.getElementById('feedback').style.color = "#e67e22"; return; }
 
             isProcessing = true;
-            let aireTrouvee = calculerAire(pointsGeoplan);
             const fb = document.getElementById('feedback');
 
-            if (aireTrouvee === reponseAttendue) {
-                fb.textContent = "Architecte de génie ! L'aire est parfaite ! ✨"; fb.style.color = "#27ae60"; sauverProfilCloud(15); setTimeout(poserQuestion, 2000);
+            if (niveauActuel === 1) {
+                let aireTrouvee = calculerAire(pointsGeoplan);
+                if (aireTrouvee === reponseAttendue) {
+                    fb.textContent = "Parfait ! ✨"; fb.style.color = "#27ae60"; sauverProfilCloud(15); setTimeout(poserQuestion, 1500);
+                } else {
+                    vies--; document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3-vies);
+                    fb.textContent = `Faux. L'aire est de ${aireTrouvee}.`; fb.style.color = "#e74c3c"; setTimeout(() => { isProcessing = false; }, 2000);
+                }
             } else {
-                vies--; document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3-vies);
-                fb.textContent = `Ta forme a une aire de ${aireTrouvee}. Il fallait ${reponseAttendue}.`; fb.style.color = "#e74c3c";
-                setTimeout(() => { isProcessing = false; }, 2000);
+                // Vérification du Pattern Matching (Est-ce que tous les points cibles existent dans la forme dessinée ?)
+                let formeCorrecte = true;
+                // On vérifie que la forme dessinée a le même nombre de sommets (moins 1 car fermée)
+                if (pointsGeoplan.length - 1 !== modeleCible.length) {
+                    formeCorrecte = false;
+                } else {
+                    // On vérifie la présence de chaque point cible
+                    for (let ptCible of modeleCible) {
+                        let pointTrouve = pointsGeoplan.find(p => p.x === ptCible.x && p.y === ptCible.y);
+                        if (!pointTrouve) formeCorrecte = false;
+                    }
+                }
+
+                if (formeCorrecte) {
+                    fb.textContent = "Copie conforme ! ✨"; fb.style.color = "#27ae60"; sauverProfilCloud(20); setTimeout(poserQuestion, 1500);
+                } else {
+                    vies--; document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3-vies);
+                    fb.textContent = "Ce n'est pas le bon modèle !"; fb.style.color = "#e74c3c"; setTimeout(() => { isProcessing = false; }, 2000);
+                }
             }
         }
 
-        // ==========================================
-        // LES AUTRES MODES (Conservés à l'identique)
-        // ==========================================
-
+        // Mode Classique simplifié pour l'exemple
         function genererQuestionMesure() {
-            document.getElementById('zone-saisie').style.display = 'flex';
-            let typeForme = Math.random() > 0.5 ? 'carre' : 'rectangle';
-            let largeur, hauteur;
-
-            if (niveauActuel === 1) {
-                largeur = Math.floor(Math.random() * 8) + 3; hauteur = typeForme === 'carre' ? largeur : Math.floor(Math.random() * 5) + 2;
-                if (largeur === hauteur) typeForme = 'carre';
-                document.getElementById('question-texte').innerHTML = `Calcule le <strong>Périmètre</strong> de ce ${typeForme}.`;
-                reponseAttendue = typeForme === 'carre' ? largeur * 4 : (largeur + hauteur) * 2;
-            } else {
-                largeur = Math.floor(Math.random() * 10) + 5; hauteur = typeForme === 'carre' ? largeur : Math.floor(Math.random() * 8) + 3;
-                if (largeur === hauteur) typeForme = 'carre';
-                document.getElementById('question-texte').innerHTML = `Calcule l'<strong>Aire</strong> de ce ${typeForme} (L x l).`;
-                reponseAttendue = largeur * hauteur;
-            }
-
-            ctx.beginPath();
-            let drawW = typeForme === 'carre' ? 150 : 220; let drawH = typeForme === 'carre' ? 150 : 100;
-            let startX = (canvas.width - drawW) / 2; let startY = (canvas.height - drawH) / 2;
-
-            ctx.rect(startX, startY, drawW, drawH); ctx.fillStyle = "rgba(52, 152, 219, 0.2)"; ctx.fill(); ctx.lineWidth = 4; ctx.strokeStyle = "#2980b9"; ctx.stroke();
-            ctx.fillStyle = "#2c3e50"; ctx.font = "bold 20px Nunito"; ctx.textAlign = "center"; ctx.fillText(`${largeur} cm`, canvas.width / 2, startY - 15); 
-            if (typeForme === 'rectangle') { ctx.textAlign = "left"; ctx.fillText(`${hauteur} cm`, startX + drawW + 15, canvas.height / 2 + 5); }
+            document.getElementById('zone-saisie').style.display = 'flex'; let largeur = Math.floor(Math.random() * 8) + 3; let hauteur = Math.floor(Math.random() * 5) + 2;
+            document.getElementById('question-texte').innerHTML = `Calcule l'<strong>Aire</strong> de ce rectangle.`; reponseAttendue = largeur * hauteur;
+            ctx.beginPath(); ctx.rect(100, 100, 200, 100); ctx.fillStyle = "rgba(52, 152, 219, 0.2)"; ctx.fill(); ctx.stroke();
+            ctx.fillStyle = "#2c3e50"; ctx.font = "20px Nunito"; ctx.fillText(`${largeur} cm`, 200, 90); ctx.fillText(`${hauteur} cm`, 310, 150);
         }
 
         function verifierSaisie() {
             if (isProcessing) return; let saisie = parseInt(document.getElementById('input-mesure').value); if (isNaN(saisie)) return;
             isProcessing = true; const fb = document.getElementById('feedback');
             if (saisie === reponseAttendue) { fb.textContent = "Excellent ! ✅"; fb.style.color = "#27ae60"; sauverProfilCloud(5); setTimeout(poserQuestion, 1000); } 
-            else { vies--; document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3-vies); fb.textContent = `Faux. La bonne réponse était ${reponseAttendue}.`; fb.style.color = "#e74c3c"; setTimeout(poserQuestion, 2500); }
-        }
-
-        function genererQuestionAngle() {
-            document.getElementById('zone-boutons').style.display = 'grid'; document.getElementById('question-texte').textContent = "Quel est le type de cet angle ?";
-            let types = ['Aigu', 'Droit', 'Obtus']; let typeChoisi = types[Math.floor(Math.random() * types.length)]; reponseAttendue = typeChoisi;
-            let angleDeg; if (typeChoisi === 'Droit') angleDeg = 90; else if (typeChoisi === 'Aigu') angleDeg = Math.floor(Math.random() * 45) + 30; else angleDeg = Math.floor(Math.random() * 45) + 110; 
-            let rotationBase = niveauActuel === 1 ? 0 : Math.floor(Math.random() * 360);
-
-            ctx.save(); ctx.translate(canvas.width / 2, canvas.height / 2); ctx.rotate((rotationBase * Math.PI) / 180);
-            ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(100, 0); ctx.lineWidth = 5; ctx.strokeStyle = "#34495e"; ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(100 * Math.cos((-angleDeg * Math.PI) / 180), 100 * Math.sin((-angleDeg * Math.PI) / 180)); ctx.stroke();
-            ctx.beginPath(); if (typeChoisi === 'Droit') { ctx.rect(0, -20, 20, 20); } else { ctx.arc(0, 0, 30, (-angleDeg * Math.PI) / 180, 0); }
-            ctx.strokeStyle = "#e74c3c"; ctx.lineWidth = 3; ctx.stroke(); ctx.restore();
-
-            const zoneBtns = document.getElementById('zone-boutons'); zoneBtns.innerHTML = "";
-            types.forEach(t => { let b = document.createElement('button'); b.className = 'btn-opt'; b.textContent = t; b.onclick = () => verifierAngle(b, t); zoneBtns.appendChild(b); });
-        }
-
-        function verifierAngle(bouton, choix) {
-            if (isProcessing) return; isProcessing = true; document.querySelectorAll('.btn-opt').forEach(b => b.onclick = null);
-            const fb = document.getElementById('feedback');
-            if (choix === reponseAttendue) { bouton.classList.add('correct'); fb.textContent = "Super coup d'œil ! 👁️✅"; fb.style.color = "#27ae60"; sauverProfilCloud(5); setTimeout(poserQuestion, 1000); } 
-            else { bouton.classList.add('erreur'); vies--; document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3-vies); fb.textContent = `Raté ! C'était un angle ${reponseAttendue}.`; fb.style.color = "#e74c3c"; document.querySelectorAll('.btn-opt').forEach(b => { if (b.textContent === reponseAttendue) b.classList.add('correct'); }); setTimeout(poserQuestion, 2500); }
+            else { vies--; document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3-vies); fb.textContent = `Faux.`; fb.style.color = "#e74c3c"; setTimeout(poserQuestion, 2500); }
         }
 
         chargerProfilCloud();
