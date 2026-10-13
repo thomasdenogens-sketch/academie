@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Code & Logique CM2 - L'Académie</title>
+    <title>Code & Logique (Style Scratch) - L'Académie</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
@@ -15,7 +15,7 @@
         
         #app-container { 
             background: white; padding: 30px; border-radius: 20px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3); max-width: 800px; width: 100%; text-align: center; position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3); max-width: 1000px; width: 100%; text-align: center; position: relative;
         }
         
         h1 { color: #2980b9; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
@@ -23,50 +23,70 @@
         
         .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
 
-        /* La grille du labyrinthe s'adapte dynamiquement */
+        /* L'écran principal divisé en deux (Labyrinthe / Code) */
+        .workspace {
+            display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; align-items: flex-start;
+        }
+
+        .left-panel { flex: 1; min-width: 300px; display: flex; flex-direction: column; align-items: center; }
+        .right-panel { flex: 1; min-width: 350px; background: #f8f9fa; padding: 20px; border-radius: 15px; border: 3px solid #ecf0f1; text-align: left;}
+
+        /* La grille du labyrinthe */
         #grille-labyrinthe {
             display: grid; gap: 2px; background: #bdc3c7; padding: 5px; border-radius: 10px;
             margin: 0 auto 20px auto; width: fit-content; border: 4px solid #34495e;
-            transition: all 0.3s;
         }
         .cellule {
             width: 45px; height: 45px; background: #ecf0f1; border-radius: 5px;
-            display: flex; justify-content: center; align-items: center; font-size: 1.5rem;
-            transition: background 0.2s;
+            display: flex; justify-content: center; align-items: center; font-size: 1.8rem;
         }
         .mur { background: #34495e; }
-        .robot { background: #f1c40f; box-shadow: inset 0 0 10px rgba(230, 126, 34, 0.5); }
         .sortie { background: #2ecc71; box-shadow: inset 0 0 10px rgba(39, 174, 96, 0.5); }
         .erreur { background: #e74c3c !important; }
 
-        #sequence-container {
-            background: #f8f9fa; min-height: 70px; padding: 10px; border-radius: 10px;
-            border: 2px dashed #95a5a6; margin-bottom: 20px;
-            display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start; align-items: center;
+        /* Style des blocs façon Scratch */
+        .palette-titre { font-size: 1.2rem; font-weight: 900; color: #2c3e50; margin-bottom: 10px; border-bottom: 2px solid #bdc3c7; padding-bottom: 5px;}
+        
+        .palette-blocs { display: flex; flex-direction: column; gap: 8px; margin-bottom: 25px; }
+        
+        .scratch-block {
+            padding: 10px 15px; border-radius: 8px; font-weight: bold; color: white;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2); cursor: pointer; transition: transform 0.1s;
         }
-        .cmd-bulle {
-            background: #3498db; color: white; width: 40px; height: 40px; border-radius: 8px;
-            display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 1.2rem;
-            cursor: pointer; box-shadow: 0 4px 0 #2980b9; transition: 0.1s;
+        .scratch-block:active { transform: translateY(4px); box-shadow: none; }
+        
+        .bleu { background: #4C97FF; border: 1px solid #3373CC; }
+        .violet { background: #9966FF; border: 1px solid #774DCB; }
+        
+        /* Zone où le script est empilé */
+        #script-zone {
+            min-height: 150px; background: #ffffff; border: 2px dashed #bdc3c7; border-radius: 10px;
+            padding: 10px; display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px;
         }
-        .cmd-bulle:active { transform: translateY(4px); box-shadow: none; }
-        .cmd-bulle.active { background: #e67e22; box-shadow: 0 4px 0 #d35400; transform: scale(1.1); }
+        
+        /* Les blocs dans le script ne sont pas cliquables comme des boutons, on ajuste le style */
+        #script-zone .scratch-block { cursor: default; box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
+        #script-zone .scratch-block:active { transform: none; }
+        
+        .scratch-input {
+            width: 50px; text-align: center; border-radius: 15px; border: none;
+            padding: 5px; margin: 0 8px; font-weight: bold; color: #333; font-size: 1.1rem; outline: none;
+        }
+        .scratch-input:focus { box-shadow: 0 0 0 3px rgba(255,255,255,0.5); }
+        
+        .btn-delete { background: rgba(0,0,0,0.2); border-radius: 50%; width: 25px; height: 25px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; }
+        .btn-delete:hover { background: #e74c3c; }
 
-        #clavier-commandes { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
-        .btn-cmd {
-            background: #ecf0f1; border: 3px solid #bdc3c7; padding: 15px 20px; border-radius: 12px;
-            font-size: 1.5rem; cursor: pointer; transition: 0.1s; box-shadow: 0 4px 0 #bdc3c7;
-        }
-        .btn-cmd:active { transform: translateY(4px); box-shadow: none; }
-        .btn-cmd:hover { background: #e2e8f0; }
-
+        /* Boutons globaux */
         .btn { font-family: 'Nunito', sans-serif; font-size: 1.1rem; font-weight: bold; padding: 12px 25px; border: none; border-radius: 10px; cursor: pointer; color: white; margin: 5px; transition: transform 0.1s; display: inline-block;}
         .btn:active { transform: scale(0.95); }
-        .btn-primaire { background: #27ae60; box-shadow: 0 4px #219a52; }
+        .btn-primaire { background: #27ae60; box-shadow: 0 4px #219a52; width: 100%; font-size: 1.3rem;}
         .btn-secondaire { background: #95a5a6; box-shadow: 0 4px #7f8c8d; color:#2c3e50;}
-        .btn-danger { background: #e74c3c; box-shadow: 0 4px #c0392b; }
+        .btn-danger { background: #e74c3c; box-shadow: 0 4px #c0392b; width: 100%; margin-top: 10px;}
 
         #feedback { font-size: 1.4rem; font-weight: 900; height: 35px; margin: 15px 0; }
+        
         .ecran { display: none; }
         .ecran.actif { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
@@ -80,43 +100,58 @@
         <!-- ECRAN D'ACCUEIL -->
         <div id="ecran-accueil" class="ecran actif">
             <h1>Code & Logique 🤖</h1>
-            <p class="sous-titre">Génération de Labyrinthes Infinis</p>
+            <p class="sous-titre">Initiation à l'algorithmique (Style Scratch)</p>
             
             <p style="font-size: 1.1rem; color: #2c3e50; font-weight: bold; margin-bottom: 25px;">
-                L'ordinateur va générer un nouveau défi à chaque fois. Programme le chemin parfait pour guider le robot 🤖 vers la sortie 🏁 !
+                Assemble les blocs pour créer un vrai programme !<br>Attention, le robot va avancer dans la direction où il regarde.
             </p>
 
-            <button class="btn btn-primaire" style="font-size: 1.3rem; padding: 15px 40px;" onclick="lancerJeuInfi()">Générer un niveau</button>
+            <button class="btn btn-primaire" style="font-size: 1.3rem; padding: 15px 40px; width:auto;" onclick="lancerJeuInfi()">Générer un niveau</button>
             <br>
             <button class="btn btn-secondaire" style="margin-top: 20px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
         <!-- ECRAN DE JEU -->
         <div id="ecran-jeu" class="ecran">
-            <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom: 10px;">
-                <h2 style="color: #2980b9; margin: 0;" id="titre-niveau">Niveau 1</h2>
-                <button class="btn btn-secondaire" style="padding: 5px 10px; font-size:0.9rem;" onclick="genererNiveauAleatoire()">↻ Nouveau Labyrinthe</button>
-            </div>
             
-            <div id="grille-labyrinthe"></div>
+            <div class="workspace">
+                <!-- PANNEAU GAUCHE : LE LABYRINTHE -->
+                <div class="left-panel">
+                    <div style="display:flex; justify-content: space-between; align-items:center; width: 100%; margin-bottom: 10px;">
+                        <h2 style="color: #2980b9; margin: 0;" id="titre-niveau">Niveau 1</h2>
+                        <button class="btn btn-secondaire" style="padding: 5px 10px; font-size:0.9rem;" onclick="genererNiveauAleatoire()">↻ Nouveau</button>
+                    </div>
+                    
+                    <div id="grille-labyrinthe"></div>
+                    <div id="feedback"></div>
+                </div>
 
-            <div style="text-align: left; font-weight: bold; color: #7f8c8d; margin-bottom: 5px;">Ton Algorithme :</div>
-            <div id="sequence-container"></div>
+                <!-- PANNEAU DROIT : L'EDITEUR DE CODE -->
+                <div class="right-panel">
+                    <div class="palette-titre">📚 Bibliothèque de Blocs</div>
+                    <div class="palette-blocs">
+                        <!-- Blocs que Théo peut cliquer pour ajouter à son script -->
+                        <div class="scratch-block bleu" onclick="ajouterBloc('avancer')">
+                            <span>Avancer de ( x ) cases</span> <span>➕</span>
+                        </div>
+                        <div class="scratch-block violet" onclick="ajouterBloc('droite')">
+                            <span>Tourner à droite ↻</span> <span>➕</span>
+                        </div>
+                        <div class="scratch-block violet" onclick="ajouterBloc('gauche')">
+                            <span>Tourner à gauche ↺</span> <span>➕</span>
+                        </div>
+                    </div>
 
-            <div id="clavier-commandes">
-                <button class="btn-cmd" onclick="ajouterCommande('Haut')">⬆️</button>
-                <button class="btn-cmd" onclick="ajouterCommande('Gauche')">⬅️</button>
-                <button class="btn-cmd" onclick="ajouterCommande('Bas')">⬇️</button>
-                <button class="btn-cmd" onclick="ajouterCommande('Droite')">➡️</button>
+                    <div class="palette-titre">📝 Ton Script</div>
+                    <div id="script-zone">
+                        <!-- Les blocs empilés apparaîtront ici -->
+                    </div>
+
+                    <button class="btn btn-primaire" id="btn-executer" onclick="compilerEtExecuter()">▶️ Exécuter le Script</button>
+                    <button class="btn btn-danger" onclick="effacerScript()">🗑️ Tout effacer</button>
+                </div>
             </div>
 
-            <div id="feedback"></div>
-
-            <div>
-                <button class="btn btn-danger" onclick="effacerSequence()">🔄 Effacer le code</button>
-                <button class="btn btn-primaire" id="btn-executer" onclick="executerSequence()">▶️ Exécuter</button>
-            </div>
-            
             <button class="btn btn-secondaire" style="margin-top:20px;" onclick="retourAccueil()">Terminer la session</button>
         </div>
 
@@ -132,7 +167,8 @@
         let grilleOriginale = [];
         let grilleDynamique = []; 
         let posRobot = { x: 0, y: 0 };
-        let sequenceCommandes = [];
+        let directionRobot = 1; // 0=Haut, 1=Droite, 2=Bas, 3=Gauche (Il commence en regardant à droite)
+        
         let estEnExecution = false;
 
         // --- GESTION DU CLOUD ---
@@ -158,7 +194,7 @@
         }
         function retourAccueil() { changerEcran('ecran-accueil'); }
 
-        // --- GÉNÉRATION PROCÉDURALE (L'Algorithme central) ---
+        // --- GÉNÉRATION DU NIVEAU ---
         function lancerJeuInfi() {
             compteurNiveau = 1;
             changerEcran('ecran-jeu');
@@ -169,29 +205,25 @@
             document.getElementById('titre-niveau').textContent = `Labyrinthe N°${compteurNiveau}`;
             document.getElementById('feedback').textContent = "";
             
-            // 1. Définir une taille aléatoire (entre 5x5 et 8x8)
-            let taille = Math.floor(Math.random() * 4) + 5;
-            
-            // 2. Créer une grille remplie de murs (1 = mur, 0 = vide)
+            let taille = Math.floor(Math.random() * 4) + 5; // Entre 5 et 8
             let grille = Array(taille).fill(0).map(() => Array(taille).fill(1));
             
             let x = 0, y = 0;
-            grille[y][x] = 2; // Position de départ du Robot
+            grille[y][x] = 2; // Départ
 
-            // 3. Génération du chemin parfait garanti (vers la droite ou le bas)
+            // Chemin garanti
             while(x < taille - 1 || y < taille - 1) {
-                if (x === taille - 1) { y++; } // Au bord droit, on descend
-                else if (y === taille - 1) { x++; } // Au bord bas, on va à droite
+                if (x === taille - 1) { y++; }
+                else if (y === taille - 1) { x++; }
                 else {
-                    // Choix aléatoire : descendre ou aller à droite
                     if (Math.random() > 0.5) x++;
                     else y++;
                 }
-                grille[y][x] = 0; // On creuse le chemin
+                grille[y][x] = 0;
             }
-            grille[taille - 1][taille - 1] = 3; // La Sortie
+            grille[taille - 1][taille - 1] = 3; // Sortie
 
-            // 4. Ajout de "Bruit" : on casse des murs aléatoires pour créer de fausses pistes
+            // Trous (Fausses pistes)
             let nombreTrous = taille * 2;
             for(let i = 0; i < nombreTrous; i++) {
                 let rx = Math.floor(Math.random() * taille);
@@ -199,31 +231,26 @@
                 if (grille[ry][rx] === 1) grille[ry][rx] = 0;
             }
 
-            // Sauvegarde de l'état initial pour pouvoir réinitialiser
             grilleOriginale = JSON.parse(JSON.stringify(grille));
-            effacerSequence();
+            effacerScript(); // Vide le script à chaque nouveau niveau
         }
 
-        // --- GESTION DE L'INTERFACE ET DE LA GRILLE ---
-        function reinitialiserGrille() {
+        function reinitialiserJeu() {
             grilleDynamique = JSON.parse(JSON.stringify(grilleOriginale));
             estEnExecution = false;
             document.getElementById('btn-executer').disabled = false;
-            trouverRobot();
+            
+            // On remet le robot à sa position initiale et orienté vers la droite
+            directionRobot = 1;
+            for (let y = 0; y < grilleDynamique.length; y++) {
+                for (let x = 0; x < grilleDynamique[y].length; x++) {
+                    if (grilleDynamique[y][x] === 2) posRobot = { x: x, y: y };
+                }
+            }
             dessinerGrilleHTML();
         }
 
-        function trouverRobot() {
-            for (let y = 0; y < grilleDynamique.length; y++) {
-                for (let x = 0; x < grilleDynamique[y].length; x++) {
-                    if (grilleDynamique[y][x] === 2) {
-                        posRobot = { x: x, y: y };
-                        return;
-                    }
-                }
-            }
-        }
-
+        // --- AFFICHAGE DE LA GRILLE ---
         function dessinerGrilleHTML() {
             const container = document.getElementById('grille-labyrinthe');
             container.innerHTML = '';
@@ -241,125 +268,187 @@
                     div.id = `cell_${x}_${y}`;
                     
                     if (grilleDynamique[y][x] === 1) div.classList.add('mur');
-                    else if (grilleDynamique[y][x] === 2) { div.classList.add('robot'); div.textContent = "🤖"; }
+                    else if (grilleDynamique[y][x] === 2) { 
+                        // L'orientation visuelle du robot !
+                        let rotation = directionRobot * 90 - 90; // -90 car l'emoji de base regarde souvent à droite ou face. Ajustons selon l'emoji.
+                        // Emoji 🤖 regarde en face. S'il va à droite (1), on le tourne de 90°.
+                        let deg = 0;
+                        if(directionRobot === 0) deg = 0;   // Haut
+                        if(directionRobot === 1) deg = 90;  // Droite
+                        if(directionRobot === 2) deg = 180; // Bas
+                        if(directionRobot === 3) deg = -90; // Gauche
+                        
+                        div.innerHTML = `<span style="transform: rotate(${deg}deg); display:inline-block; transition: 0.3s;">🤖</span>`;
+                        div.style.background = "#f1c40f";
+                        div.style.boxShadow = "inset 0 0 10px rgba(230, 126, 34, 0.5)";
+                    }
                     else if (grilleDynamique[y][x] === 3) { div.classList.add('sortie'); div.textContent = "🏁"; }
+                    else if (grilleDynamique[y][x] === 4) { div.style.background = "#2ecc71"; div.textContent = "🤖"; } // Gagne
                     
                     container.appendChild(div);
                 }
             }
         }
 
-        // --- GESTION DES COMMANDES ---
-        function ajouterCommande(direction) {
+        // --- GESTION DES BLOCS (L'Éditeur visuel) ---
+        function ajouterBloc(type) {
             if (estEnExecution) return;
-            let symbole = direction === 'Haut' ? '⬆️' : direction === 'Bas' ? '⬇️' : direction === 'Gauche' ? '⬅️' : '➡️';
-            sequenceCommandes.push(direction);
             
+            const zone = document.getElementById('script-zone');
             let div = document.createElement('div');
-            div.className = 'cmd-bulle';
-            div.textContent = symbole;
             
-            // Permet de supprimer une instruction en cliquant dessus
-            div.onclick = function() {
-                if(estEnExecution) return;
-                let index = Array.from(this.parentNode.children).indexOf(this);
-                sequenceCommandes.splice(index, 1);
-                this.remove();
-            };
+            // Construction du bloc selon le type
+            if (type === 'avancer') {
+                div.className = "scratch-block bleu";
+                div.dataset.action = "avancer";
+                div.innerHTML = `
+                    <span>Avancer de <input type="number" class="scratch-input" value="1" min="1" max="10"> cases</span>
+                    <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>
+                `;
+            } else if (type === 'droite') {
+                div.className = "scratch-block violet";
+                div.dataset.action = "droite";
+                div.innerHTML = `
+                    <span>Tourner à droite ↻</span>
+                    <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>
+                `;
+            } else if (type === 'gauche') {
+                div.className = "scratch-block violet";
+                div.dataset.action = "gauche";
+                div.innerHTML = `
+                    <span>Tourner à gauche ↺</span>
+                    <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>
+                `;
+            }
             
-            document.getElementById('sequence-container').appendChild(div);
+            zone.appendChild(div);
         }
 
-        function effacerSequence() {
+        function effacerScript() {
             if (estEnExecution) return;
-            sequenceCommandes = [];
-            document.getElementById('sequence-container').innerHTML = '';
-            reinitialiserGrille();
+            document.getElementById('script-zone').innerHTML = '';
             document.getElementById('feedback').textContent = "";
+            reinitialiserJeu();
         }
 
-        // --- EXÉCUTION DE L'ALGORITHME (Le Moteur) ---
-        function executerSequence() {
-            if (sequenceCommandes.length === 0 || estEnExecution) return;
+        // --- COMPILATION ET EXÉCUTION ---
+        function compilerEtExecuter() {
+            if (estEnExecution) return;
+            
+            // 1. Lire tous les blocs du DOM et les traduire en liste d'instructions simples
+            let listeInstructions = [];
+            const blocs = document.getElementById('script-zone').children;
+            
+            if (blocs.length === 0) {
+                document.getElementById('feedback').textContent = "Ton script est vide !";
+                document.getElementById('feedback').style.color = "#e67e22";
+                return;
+            }
+
+            for (let i = 0; i < blocs.length; i++) {
+                let action = blocs[i].dataset.action;
+                
+                if (action === 'avancer') {
+                    // S'il y a marqué "Avancer de 3", on ajoute 3 fois "avancer" à la liste
+                    let nbCases = parseInt(blocs[i].querySelector('input').value) || 1;
+                    for(let k=0; k < nbCases; k++) {
+                        listeInstructions.push({ commande: 'avancer', blocOrigine: blocs[i] });
+                    }
+                } else {
+                    listeInstructions.push({ commande: action, blocOrigine: blocs[i] });
+                }
+            }
+
+            // 2. Lancer la machine
             estEnExecution = true;
             document.getElementById('btn-executer').disabled = true;
-            document.getElementById('feedback').textContent = "Exécution du code...";
+            document.getElementById('feedback').textContent = "Exécution du programme...";
             document.getElementById('feedback').style.color = "#2980b9";
             
-            reinitialiserGrille(); 
-            lireInstruction(0);
+            reinitialiserJeu(); 
+            jouerInstruction(listeInstructions, 0);
         }
 
-        function lireInstruction(index) {
-            const domCommandes = document.getElementById('sequence-container').children;
+        function jouerInstruction(instructions, index) {
+            // Retirer le style "actif" de tous les blocs
+            document.querySelectorAll('#script-zone .scratch-block').forEach(b => b.style.boxShadow = "0 2px 0 rgba(0,0,0,0.2)");
             
-            // Retirer la surbrillance de l'instruction précédente
-            if (index > 0 && domCommandes[index-1]) domCommandes[index-1].classList.remove('active');
-            
-            if (index >= sequenceCommandes.length) {
+            // Fin du programme
+            if (index >= instructions.length) {
                 verifierVictoire();
                 return;
             }
 
-            // Mettre en surbrillance l'instruction en cours
-            if (domCommandes[index]) domCommandes[index].classList.add('active');
+            let instr = instructions[index];
+            
+            // Mettre en surbrillance le bloc qui est en train de s'exécuter
+            instr.blocOrigine.style.boxShadow = "0 0 0 4px #f1c40f";
 
-            let cmd = sequenceCommandes[index];
+            let cmd = instr.commande;
             let newX = posRobot.x;
             let newY = posRobot.y;
 
-            if (cmd === 'Haut') newY--;
-            if (cmd === 'Bas') newY++;
-            if (cmd === 'Gauche') newX--;
-            if (cmd === 'Droite') newX++;
+            if (cmd === 'droite') {
+                directionRobot = (directionRobot + 1) % 4; // Tourne à 90° à droite
+            } 
+            else if (cmd === 'gauche') {
+                directionRobot = (directionRobot + 3) % 4; // Tourne à 90° à gauche (équivalent à +270°)
+            } 
+            else if (cmd === 'avancer') {
+                // Calcule la nouvelle position selon l'orientation
+                if (directionRobot === 0) newY--; // Haut
+                else if (directionRobot === 1) newX++; // Droite
+                else if (directionRobot === 2) newY++; // Bas
+                else if (directionRobot === 3) newX--; // Gauche
 
-            // Détection de collision (Mur ou Hors limite)
-            let collision = false;
-            if (newY < 0 || newY >= grilleDynamique.length || newX < 0 || newX >= grilleDynamique[0].length) {
-                collision = true; 
-            } else if (grilleDynamique[newY][newX] === 1) {
-                collision = true; 
+                // Détection de collision
+                let collision = false;
+                if (newY < 0 || newY >= grilleDynamique.length || newX < 0 || newX >= grilleDynamique[0].length) {
+                    collision = true; 
+                } else if (grilleDynamique[newY][newX] === 1) {
+                    collision = true; 
+                }
+
+                if (collision) {
+                    document.getElementById(`cell_${posRobot.x}_${posRobot.y}`).classList.add('erreur');
+                    document.getElementById('feedback').textContent = "Bip Boup ! Collision dans le mur ! 💥";
+                    document.getElementById('feedback').style.color = "#c0392b";
+                    estEnExecution = false;
+                    document.getElementById('btn-executer').disabled = false;
+                    return;
+                }
+
+                let valeurCible = grilleDynamique[newY][newX];
+                grilleDynamique[posRobot.y][posRobot.x] = 0; 
+                
+                if(valeurCible === 3) grilleDynamique[newY][newX] = 4; // Atteint la sortie
+                else grilleDynamique[newY][newX] = 2; // Avance normalement
+                
+                posRobot = { x: newX, y: newY };
             }
 
-            if (collision) {
-                document.getElementById(`cell_${posRobot.x}_${posRobot.y}`).classList.add('erreur');
-                document.getElementById('feedback').textContent = "Erreur : Collision (Bug détecté) 🔴";
-                document.getElementById('feedback').style.color = "#c0392b";
-                estEnExecution = false;
-                document.getElementById('btn-executer').disabled = false;
-                return;
-            }
-
-            let valeurCible = grilleDynamique[newY][newX];
-            grilleDynamique[posRobot.y][posRobot.x] = 0; 
-            
-            if(valeurCible === 3) grilleDynamique[newY][newX] = 4; // Succès
-            else grilleDynamique[newY][newX] = 2; // Avance normale
-            
-            posRobot = { x: newX, y: newY };
             dessinerGrilleHTML();
 
-            // Délai pour l'animation (600ms)
-            setTimeout(() => { lireInstruction(index + 1); }, 600);
+            // Vitesse d'exécution : 400ms entre chaque pas
+            setTimeout(() => { jouerInstruction(instructions, index + 1); }, 400);
         }
 
         function verifierVictoire() {
             estEnExecution = false;
             document.getElementById('btn-executer').disabled = false;
+            document.querySelectorAll('#script-zone .scratch-block').forEach(b => b.style.boxShadow = "0 2px 0 rgba(0,0,0,0.2)");
 
             if (grilleDynamique[posRobot.y][posRobot.x] === 4) {
-                document.getElementById('feedback').textContent = "Programme validé ! Code Parfait ✨";
+                document.getElementById('feedback').textContent = "Programme validé ! C'est parfait ✨";
                 document.getElementById('feedback').style.color = "#27ae60";
                 
-                // L'XP gagné dépend de la taille de la grille (plus c'est grand, plus ça rapporte)
-                let gainXP = grilleDynamique.length * 10;
+                let gainXP = grilleDynamique.length * 15;
                 sauverProfilCloud(gainXP);
 
                 compteurNiveau++;
-                // Génère le labyrinthe suivant après 2 secondes
-                setTimeout(() => { genererNiveauAleatoire(); }, 2000);
+                setTimeout(() => { genererNiveauAleatoire(); }, 2500);
             } else {
-                document.getElementById('feedback').textContent = "Séquence incomplète ! 🔴";
+                document.getElementById('feedback').textContent = "Le robot n'est pas arrivé à la sortie ! 🔴";
                 document.getElementById('feedback').style.color = "#e67e22";
             }
         }
