@@ -15,7 +15,7 @@
         
         #app-container { 
             background: white; padding: 30px; border-radius: 20px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3); max-width: 1000px; width: 100%; text-align: center; position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3); max-width: 1050px; width: 100%; text-align: center; position: relative;
         }
         
         h1 { color: #2980b9; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
@@ -25,9 +25,8 @@
 
         .workspace { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; align-items: flex-start; }
         .left-panel { flex: 1; min-width: 300px; display: flex; flex-direction: column; align-items: center; }
-        .right-panel { flex: 1; min-width: 350px; background: #f8f9fa; padding: 20px; border-radius: 15px; border: 3px solid #ecf0f1; text-align: left;}
+        .right-panel { flex: 1; min-width: 400px; background: #f8f9fa; padding: 20px; border-radius: 15px; border: 3px solid #ecf0f1; text-align: left;}
 
-        /* HUD Mission (Nouveau) */
         #hud-mission { background: #f1f8ff; border: 2px dashed #3498db; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-weight: bold; width: 100%; display: flex; justify-content: space-around; align-items: center;}
         
         #grille-labyrinthe { display: grid; gap: 2px; background: #bdc3c7; padding: 5px; border-radius: 10px; margin: 0 auto 20px auto; width: fit-content; border: 4px solid #34495e; }
@@ -41,14 +40,19 @@
         .scratch-block { padding: 10px 15px; border-radius: 8px; font-weight: bold; color: white; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 0 rgba(0,0,0,0.2); cursor: pointer; transition: transform 0.1s; }
         .scratch-block:active { transform: translateY(4px); box-shadow: none; }
         
-        .bleu { background: #4C97FF; border: 1px solid #3373CC; }
-        .violet { background: #9966FF; border: 1px solid #774DCB; }
-        .rouge { background: #FF6680; border: 1px solid #FF4D6A; }
+        /* Les couleurs du code */
+        .bleu { background: #4C97FF; border: 1px solid #3373CC; } /* Mouvement */
+        .violet { background: #9966FF; border: 1px solid #774DCB; } /* Rotation */
+        .rouge { background: #FF6680; border: 1px solid #FF4D6A; } /* Action spéciale */
+        .orange { background: #FF9900; border: 1px solid #CC7A00; } /* Contrôle / Boucles */
         
-        #script-zone { min-height: 150px; background: #ffffff; border: 2px dashed #bdc3c7; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; }
+        #script-zone { min-height: 200px; background: #ffffff; border: 2px dashed #bdc3c7; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; }
         #script-zone .scratch-block { cursor: default; box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
         #script-zone .scratch-block:active { transform: none; }
         
+        /* Indentation visuelle pour montrer qu'on est dans une boucle */
+        .indente { margin-left: 20px; border-left: 4px solid #FF9900; }
+
         .scratch-input { width: 50px; text-align: center; border-radius: 15px; border: none; padding: 5px; margin: 0 8px; font-weight: bold; color: #333; font-size: 1.1rem; outline: none; }
         .scratch-input:focus { box-shadow: 0 0 0 3px rgba(255,255,255,0.5); }
         .btn-delete { background: rgba(0,0,0,0.2); border-radius: 50%; width: 25px; height: 25px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; }
@@ -75,7 +79,8 @@
             <h1>Code & Logique 🤖</h1>
             <p class="sous-titre">Initiation à l'algorithmique (Style Scratch)</p>
             <p style="font-size: 1.1rem; color: #2c3e50; font-weight: bold; margin-bottom: 25px;">
-                Programme le robot pour ramasser tous les cristaux d'énergie avant d'aller sur le drapeau d'arrivée !
+                Programme le robot pour ramasser tous les cristaux d'énergie 💎.<br>
+                <strong>Astuce :</strong> Utilise les blocs "Répéter" pour raccourcir ton code !
             </p>
             <button class="btn btn-primaire" style="font-size: 1.3rem; padding: 15px 40px; width:auto;" onclick="lancerJeuInfi()">Générer un niveau</button>
             <br>
@@ -100,21 +105,31 @@
 
                 <div class="right-panel">
                     <div class="palette-titre">📚 Bibliothèque de Blocs</div>
-                    <div class="palette-blocs">
-                        <div class="scratch-block bleu" onclick="ajouterBloc('avancer')">
-                            <span>Avancer de <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"> cases</span> <span>➕</span>
+                    
+                    <!-- Ligne 1 : Mouvement -->
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                        <div class="scratch-block bleu" style="flex:1;" onclick="ajouterBloc('avancer')">
+                            <span>Avancer <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"></span>
                         </div>
-                        <div class="scratch-block bleu" onclick="ajouterBloc('reculer')">
-                            <span>Reculer de <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"> cases</span> <span>➕</span>
+                        <div class="scratch-block bleu" style="flex:1;" onclick="ajouterBloc('reculer')">
+                            <span>Reculer <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"></span>
                         </div>
-                        <div class="scratch-block violet" onclick="ajouterBloc('droite')">
-                            <span>Tourner à droite ↻</span> <span>➕</span>
+                    </div>
+                    
+                    <!-- Ligne 2 : Rotation & Action -->
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                        <div class="scratch-block violet" style="flex:1;" onclick="ajouterBloc('droite')"><span>Droite ↻</span></div>
+                        <div class="scratch-block violet" style="flex:1;" onclick="ajouterBloc('gauche')"><span>Gauche ↺</span></div>
+                        <div class="scratch-block rouge" style="flex:1;" onclick="ajouterBloc('laser')"><span>Laser 💥</span></div>
+                    </div>
+
+                    <!-- Ligne 3 : BOUCLES (Nouveau) -->
+                    <div style="display: flex; gap: 8px; margin-bottom: 25px;">
+                        <div class="scratch-block orange" style="flex:2;" onclick="ajouterBloc('boucle_debut')">
+                            <span>🔁 Répéter <input type="number" class="scratch-input" value="2" min="2" max="20" onclick="event.stopPropagation()"> fois</span>
                         </div>
-                        <div class="scratch-block violet" onclick="ajouterBloc('gauche')">
-                            <span>Tourner à gauche ↺</span> <span>➕</span>
-                        </div>
-                        <div class="scratch-block rouge" onclick="ajouterBloc('laser')">
-                            <span>Tirer au Laser 💥</span> <span>➕</span>
+                        <div class="scratch-block orange" style="flex:1;" onclick="ajouterBloc('boucle_fin')">
+                            <span>🔚 Fin</span>
                         </div>
                     </div>
 
@@ -144,9 +159,9 @@
         let directionRobot = 1;
         let estEnExecution = false;
 
-        // Nouvelles variables pour la gamification
         let cristauxTotal = 0;
         let cristauxRamasses = 0;
+        let dansUneBoucle = false; // Pour l'affichage visuel (indentation)
 
         async function chargerProfilCloud() {
             try {
@@ -185,19 +200,16 @@
             let x = 0, y = 0;
             grille[y][x] = 2; 
 
-            // Chemin garanti
             while(x < taille - 1 || y < taille - 1) {
                 if (x === taille - 1) { y++; }
                 else if (y === taille - 1) { x++; }
                 else {
-                    if (Math.random() > 0.5) x++;
-                    else y++;
+                    if (Math.random() > 0.5) x++; else y++;
                 }
                 grille[y][x] = 0;
             }
             grille[taille - 1][taille - 1] = 3; 
 
-            // Bruit et ajout aléatoire de cristaux
             cristauxTotal = 0;
             let nombreTrous = taille * 2;
             for(let i = 0; i < nombreTrous; i++) {
@@ -205,17 +217,14 @@
                 let ry = Math.floor(Math.random() * taille);
                 
                 if (grille[ry][rx] === 1) {
-                    grille[ry][rx] = 0; // On creuse un trou
-                    
-                    // 30% de chance d'y placer un cristal
+                    grille[ry][rx] = 0; 
                     if (Math.random() > 0.7 && cristauxTotal < 4) {
-                        grille[ry][rx] = 5; // 5 = identifiant du Cristal
+                        grille[ry][rx] = 5; 
                         cristauxTotal++;
                     }
                 }
             }
 
-            // Sécurité : s'il n'y a pas de cristal, on en force au moins 1
             if (cristauxTotal === 0) {
                 let rx = Math.floor(taille / 2);
                 let ry = Math.floor(taille / 2);
@@ -273,7 +282,7 @@
                     }
                     else if (grilleDynamique[y][x] === 3) { div.classList.add('sortie'); div.textContent = "🏁"; }
                     else if (grilleDynamique[y][x] === 4) { div.style.background = "#2ecc71"; div.textContent = "🤖"; }
-                    else if (grilleDynamique[y][x] === 5) { div.innerHTML = "💎"; } // Affichage du cristal
+                    else if (grilleDynamique[y][x] === 5) { div.innerHTML = "💎"; } 
                     
                     if (laserTarget && laserTarget.x === x && laserTarget.y === y) {
                         div.style.background = "#FF6680";
@@ -291,48 +300,126 @@
             const zone = document.getElementById('script-zone');
             let div = document.createElement('div');
             
+            // On gère l'indentation visuelle pour aider Théo
+            if (type === 'boucle_fin') dansUneBoucle = false;
+            if (dansUneBoucle) div.classList.add('indente');
+            if (type === 'boucle_debut') dansUneBoucle = true;
+
             if (type === 'avancer') {
-                div.className = "scratch-block bleu"; div.dataset.action = "avancer";
-                div.innerHTML = `<span>Avancer de <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"> cases</span> <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>`;
+                div.className += " scratch-block bleu"; div.dataset.action = "avancer";
+                div.innerHTML = `<span>Avancer de <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"> cases</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
             } else if (type === 'reculer') {
-                div.className = "scratch-block bleu"; div.dataset.action = "reculer";
-                div.innerHTML = `<span>Reculer de <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"> cases</span> <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>`;
+                div.className += " scratch-block bleu"; div.dataset.action = "reculer";
+                div.innerHTML = `<span>Reculer de <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"> cases</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
             } else if (type === 'droite') {
-                div.className = "scratch-block violet"; div.dataset.action = "droite";
-                div.innerHTML = `<span>Tourner à droite ↻</span> <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>`;
+                div.className += " scratch-block violet"; div.dataset.action = "droite";
+                div.innerHTML = `<span>Tourner à droite ↻</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
             } else if (type === 'gauche') {
-                div.className = "scratch-block violet"; div.dataset.action = "gauche";
-                div.innerHTML = `<span>Tourner à gauche ↺</span> <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>`;
+                div.className += " scratch-block violet"; div.dataset.action = "gauche";
+                div.innerHTML = `<span>Tourner à gauche ↺</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
             } else if (type === 'laser') {
-                div.className = "scratch-block rouge"; div.dataset.action = "laser";
-                div.innerHTML = `<span>Tirer au Laser 💥</span> <span class="btn-delete" onclick="this.parentElement.remove()">✖</span>`;
+                div.className += " scratch-block rouge"; div.dataset.action = "laser";
+                div.innerHTML = `<span>Tirer au Laser 💥</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
+            } else if (type === 'boucle_debut') {
+                div.className += " scratch-block orange"; div.dataset.action = "boucle_debut";
+                div.innerHTML = `<span>🔁 Répéter <input type="number" class="scratch-input" value="2" min="2" max="20" onclick="event.stopPropagation()"> fois [</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
+            } else if (type === 'boucle_fin') {
+                div.className += " scratch-block orange"; div.dataset.action = "boucle_fin";
+                div.innerHTML = `<span>] 🔚 Fin Répéter</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
             }
+
             zone.appendChild(div);
+        }
+
+        // Fonction pour recalculer l'indentation si on supprime un bloc au milieu
+        function supprimerBloc(boutonDelete) {
+            if(estEnExecution) return;
+            boutonDelete.parentElement.remove();
+            
+            // Recalcul de l'indentation visuelle de tout le script
+            dansUneBoucle = false;
+            const blocs = document.getElementById('script-zone').children;
+            for(let i=0; i<blocs.length; i++) {
+                if (blocs[i].dataset.action === 'boucle_fin') dansUneBoucle = false;
+                
+                if (dansUneBoucle && blocs[i].dataset.action !== 'boucle_debut') {
+                    blocs[i].classList.add('indente');
+                } else {
+                    blocs[i].classList.remove('indente');
+                }
+                
+                if (blocs[i].dataset.action === 'boucle_debut') dansUneBoucle = true;
+            }
         }
 
         function effacerScript() {
             if (estEnExecution) return;
             document.getElementById('script-zone').innerHTML = '';
             document.getElementById('feedback').textContent = "";
+            dansUneBoucle = false;
             reinitialiserJeu();
         }
 
+        // ==========================================
+        // LE COMPILATEUR (Le Cerveau du programme)
+        // ==========================================
         function compilerEtExecuter() {
             if (estEnExecution) return;
             
-            let listeInstructions = [];
-            const blocs = document.getElementById('script-zone').children;
-            
+            let blocs = document.getElementById('script-zone').children;
             if (blocs.length === 0) return;
+
+            // 1. On prépare la liste de lecture de l'ordinateur
+            let listeInstructions = [];
+            
+            // 2. On utilise une "Pile" (Stack) pour mémoriser les boucles en cours
+            let pileBoucles = [ { multiplicateur: 1, instructionsInterieures: listeInstructions } ];
 
             for (let i = 0; i < blocs.length; i++) {
                 let action = blocs[i].dataset.action;
-                if (action === 'avancer' || action === 'reculer') {
-                    let nbCases = parseInt(blocs[i].querySelector('input').value) || 1;
-                    for(let k=0; k < nbCases; k++) listeInstructions.push({ commande: action, blocOrigine: blocs[i] });
-                } else {
-                    listeInstructions.push({ commande: action, blocOrigine: blocs[i] });
+                let niveauActuel = pileBoucles[pileBoucles.length - 1]; // On regarde dans quelle boucle on se trouve
+
+                if (action === 'boucle_debut') {
+                    // On ouvre une nouvelle boucle et on l'ajoute sur la pile
+                    let nbRepetitions = parseInt(blocs[i].querySelector('input').value) || 2;
+                    pileBoucles.push({ multiplicateur: nbRepetitions, instructionsInterieures: [] });
+                } 
+                else if (action === 'boucle_fin') {
+                    // On ferme la boucle et on multiplie ce qu'il y a dedans !
+                    if (pileBoucles.length > 1) {
+                        let boucleTerminee = pileBoucles.pop();
+                        let niveauParent = pileBoucles[pileBoucles.length - 1];
+                        
+                        // On répète X fois les instructions sauvegardées
+                        for(let m = 0; m < boucleTerminee.multiplicateur; m++) {
+                            for(let instr of boucleTerminee.instructionsInterieures) {
+                                niveauParent.instructionsInterieures.push(instr);
+                            }
+                        }
+                    } else {
+                        document.getElementById('feedback').textContent = "Erreur : Tu as mis un 'Fin Répéter' sans mettre de début !";
+                        document.getElementById('feedback').style.color = "#c0392b";
+                        return;
+                    }
+                } 
+                else {
+                    // C'est une instruction normale (Avancer, Laser, etc.)
+                    let nbFoisBase = 1;
+                    if (action === 'avancer' || action === 'reculer') {
+                        nbFoisBase = parseInt(blocs[i].querySelector('input').value) || 1;
+                    }
+                    
+                    for(let k = 0; k < nbFoisBase; k++) {
+                        niveauActuel.instructionsInterieures.push({ commande: action, blocOrigine: blocs[i] });
+                    }
                 }
+            }
+
+            // Vérification : A-t-il oublié de fermer une boucle ?
+            if (pileBoucles.length > 1) {
+                document.getElementById('feedback').textContent = "Erreur de syntaxe : Tu as oublié le bloc 'Fin Répéter' !";
+                document.getElementById('feedback').style.color = "#c0392b";
+                return;
             }
 
             estEnExecution = true;
@@ -341,7 +428,7 @@
             document.getElementById('feedback').style.color = "#2980b9";
             
             reinitialiserJeu(); 
-            jouerInstruction(listeInstructions, 0);
+            jouerInstruction(listeInstructions, 0); // On lance la grande liste finale calculée
         }
 
         function jouerInstruction(instructions, index) {
@@ -353,6 +440,7 @@
             }
 
             let instr = instructions[index];
+            // Met en surbrillance le bloc d'origine (même s'il est joué dans une boucle, c'est le même bloc HTML !)
             instr.blocOrigine.style.boxShadow = "0 0 0 4px #f1c40f";
 
             let cmd = instr.commande;
@@ -384,14 +472,12 @@
 
                 let valeurCible = grilleDynamique[newY][newX];
                 
-                // Si on marche sur un cristal
                 if (valeurCible === 5) {
                     cristauxRamasses++;
                     actualiserAffichageCristaux();
                 }
 
                 grilleDynamique[posRobot.y][posRobot.x] = 0; 
-                
                 if(valeurCible === 3) grilleDynamique[newY][newX] = 4;
                 else grilleDynamique[newY][newX] = 2; 
                 
@@ -407,7 +493,7 @@
             }
 
             dessinerGrilleHTML(targetLaser);
-            setTimeout(() => { jouerInstruction(instructions, index + 1); }, 400);
+            setTimeout(() => { jouerInstruction(instructions, index + 1); }, 400); // 400ms par instruction
         }
 
         function verifierVictoire() {
@@ -416,16 +502,15 @@
             document.querySelectorAll('#script-zone .scratch-block').forEach(b => b.style.boxShadow = "0 2px 0 rgba(0,0,0,0.2)");
 
             if (grilleDynamique[posRobot.y][posRobot.x] === 4) {
-                // Nouvelle condition : A-t-il ramassé tous les cristaux ?
                 if (cristauxRamasses < cristauxTotal) {
                     document.getElementById('feedback').textContent = "Mission échouée : Il manque des cristaux d'énergie ! 💎";
                     document.getElementById('feedback').style.color = "#e74c3c";
-                    grilleDynamique[posRobot.y][posRobot.x] = 2; // Le robot sort de la case victoire
+                    grilleDynamique[posRobot.y][posRobot.x] = 2; 
                     dessinerGrilleHTML();
                 } else {
                     document.getElementById('feedback').textContent = "Mission Parfaite ! Code validé ✨";
                     document.getElementById('feedback').style.color = "#27ae60";
-                    let gainXP = grilleDynamique.length * 15;
+                    let gainXP = grilleDynamique.length * 20; // Plus d'XP car plus difficile !
                     sauverProfilCloud(gainXP);
                     compteurNiveau++;
                     setTimeout(() => { genererNiveauAleatoire(); }, 2500);
