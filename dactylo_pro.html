@@ -36,15 +36,33 @@
         .btn-mode.verrouille { background: #ecf0f1; border-color: #95a5a6; color: #7f8c8d; cursor: not-allowed; opacity: 0.8; }
         .btn-mode.verrouille:hover { transform: none; box-shadow: none; border-color: #95a5a6; }
         
-        /* Mode Entraînement (Classique) */
+        /* CORRECTION : Mode Entraînement (Classique) */
         #texte-entrainement {
             font-family: 'Fira Code', monospace; 
-            font-size: 2.5rem; letter-spacing: 5px; margin: 30px 0;
+            font-size: 2.5rem; 
+            letter-spacing: 2px; /* Ajusté pour le mode inline-block */
+            margin: 30px 0;
             background: #f1f8ff; padding: 30px; border-radius: 15px; border: 2px dashed #3498db;
-            word-wrap: break-word; line-height: 1.5;
+            word-wrap: break-word; 
+            line-height: 1.8; /* On donne de la hauteur pour éviter les sauts de ligne */
         }
-        .lettre { color: #7f8c8d; transition: 0.1s; border-bottom: 3px solid transparent; }
-        .lettre.active { border-bottom: 4px solid #3498db; color: #2c3e50; transform: scale(1.1); display: inline-block;}
+        
+        /* La structure de base est figée pour TOUTES les lettres */
+        .lettre { 
+            color: #7f8c8d; 
+            transition: 0.1s; 
+            border-bottom: 4px solid transparent; /* On réserve l'espace de la bordure d'activation */
+            display: inline-block; /* On fige l'alignement */
+            min-width: 1.8rem; /* On force une largeur même pour les espaces */
+            text-align: center;
+        }
+        
+        .lettre.active { 
+            border-bottom-color: #3498db; /* On révèle la bordure déjà existante */
+            color: #2c3e50; 
+            transform: scale(1.15); 
+        }
+        
         .lettre.correct { color: #27ae60; }
         .lettre.erreur { color: #e74c3c; background: #fadbd8; border-radius: 5px;}
 
@@ -112,7 +130,7 @@
                 <span style="color:#e74c3c;">Fautes : <span id="compteur-fautes">0</span></span>
             </div>
             
-            <div class="clavier-astuce">💡 Place tes index sur le F et le J (cherche le petit trait en relief sur ton clavier). Ne regarde plus tes mains !</div>
+            <div class="clavier-astuce">💡 Place tes index sur le F et le J (cherche le petit trait en relief). Ne regarde plus tes mains !</div>
             
             <div id="texte-entrainement"></div>
             
@@ -194,7 +212,6 @@
             const conteneurTexte = document.getElementById('texte-entrainement');
             conteneurTexte.innerHTML = "";
             
-            // Intégration de la correction pour la touche Espace
             for (let i = 0; i < leconDeBase.length; i++) {
                 let span = document.createElement('span');
                 span.className = 'lettre';
@@ -202,7 +219,6 @@
                 if (leconDeBase[i] === " ") {
                     span.textContent = "␣";
                     span.style.color = "#bdc3c7";
-                    span.style.padding = "0 5px";
                 } else {
                     span.textContent = leconDeBase[i];
                 }
@@ -352,11 +368,9 @@
             quitterJeu();
         }
 
-        // --- INITIALISATION AU CHARGEMENT ---
         document.addEventListener("DOMContentLoaded", () => {
             chargerProfilCloud();
-            
-            // Écoute du Mode Développeur depuis le menu principal !
+            // Déverrouillage automatique si la porte dérobée (Mode Dev) est activée via le Hub
             if (localStorage.getItem('modeDev') === 'actif') {
                 deverrouillerArcade();
             }
