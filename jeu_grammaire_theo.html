@@ -16,7 +16,7 @@
 
         #hud { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; border: 2px solid #ecf0f1;}
         
-        #consigne { font-size: 1.5rem; font-weight: 900; color: #e67e22; margin-bottom: 25px; background: #fdf2e9; padding: 15px; border-radius: 10px; border-left: 5px solid #d35400;}
+        #consigne { font-size: 1.3rem; font-weight: 900; color: #e67e22; margin-bottom: 25px; background: #fdf2e9; padding: 15px; border-radius: 10px; border-left: 5px solid #d35400;}
 
         /* L'analyseur de phrase */
         #phrase-container { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; padding: 20px; background: #f1f8ff; border-radius: 15px; border: 2px dashed #3498db; }
@@ -49,11 +49,9 @@
             <span id="ui-progression" style="color: #7f8c8d;">1 / 10</span>
         </div>
         
-        <div id="consigne">Trouve le COD de cette phrase !</div>
+        <div id="consigne">Trouve la bonne fonction ou nature !</div>
 
-        <!-- C'est ici que l'algorithme va découper la phrase en boutons -->
         <div id="phrase-container"></div>
-
         <div id="feedback"></div>
 
         <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
@@ -63,16 +61,33 @@
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
         const DB_URL = `${FIREBASE_URL}scores/theo/grammaireV1.json`;
 
-        // BASE DE DONNÉES D'ANALYSE LOGIQUE (CM2)
+        // ==========================================
+        // BASE DE DONNÉES ENRICHIE CM2
+        // ==========================================
         const bddGrammaire = [
-            { consigne: "Trouve le Verbe Conjugué", mots: ["Le petit chien", "dort", "sur le canapé."], rep: 1 },
-            { consigne: "Trouve le Sujet", mots: ["Le petit chien", "dort", "sur le canapé."], rep: 0 },
-            { consigne: "Trouve le COD (Complément d'Objet Direct)", mots: ["Théo", "mange", "une grosse pomme."], rep: 2 },
-            { consigne: "Trouve le COI (Complément d'Objet Indirect)", mots: ["Il", "parle", "à son meilleur ami."], rep: 2 },
-            { consigne: "Trouve l'Adjectif Qualificatif", mots: ["Lola a vu", "un grand", "oiseau."], rep: 1 },
-            { consigne: "Trouve le Complément Circonstanciel de Lieu (Où ?)", mots: ["Demain,", "nous irons", "à la mer."], rep: 2 },
-            { consigne: "Trouve le Complément Circonstanciel de Temps (Quand ?)", mots: ["Ce matin,", "le soleil", "brille."], rep: 0 },
-            { consigne: "Trouve le Pronom Personnel", mots: ["Lola dit qu'", "elle", "aime les mathématiques."], rep: 1 }
+            // Révisions de base
+            { consigne: "Trouve le Verbe Conjugué", mots: ["Le jeune athlète", "court", "très vite."], rep: 1 },
+            { consigne: "Trouve le Sujet", mots: ["Le vent violent", "souffle", "sur la côte."], rep: 0 },
+            { consigne: "Trouve le COD (Complément d'Objet Direct)", mots: ["Théo", "a acheté", "un nouveau livre."], rep: 2 },
+            { consigne: "Trouve le COI (Complément d'Objet Indirect)", mots: ["Il", "parle", "à son grand-père."], rep: 2 },
+            
+            // Les Nouveautés CM2
+            { consigne: "Trouve l'Attribut du Sujet (Verbe d'état)", mots: ["Ce garçon", "semble", "très fatigué."], rep: 2 },
+            { consigne: "Trouve l'Attribut du Sujet", mots: ["La mer", "est", "calme aujourd'hui."], rep: 2 },
+            
+            { consigne: "Trouve la Proposition Subordonnée Relative", mots: ["Le chien", "qui aboie", "appartient au voisin."], rep: 1 },
+            { consigne: "Trouve la Proposition Principale", mots: ["La voiture", "que tu regardes", "est très rapide."], rep: 0 }, // Un peu piégeux, on scinde pour l'exemple : "La voiture est très rapide" serait la principale entière. Simplifions :
+            { consigne: "Trouve le Pronom Relatif", mots: ["Le film", "que", "nous avons vu", "est génial."], rep: 1 },
+
+            { consigne: "Trouve un Adverbe", mots: ["Il a", "rapidement", "terminé ses devoirs."], rep: 1 },
+            { consigne: "Trouve un Adverbe de temps", mots: ["Demain,", "nous partirons", "en vacances."], rep: 0 },
+
+            { consigne: "Trouve la Conjonction de coordination (Mais ou et donc or ni car)", mots: ["Je veux sortir", "mais", "il pleut."], rep: 1 },
+            { consigne: "Trouve la Préposition", mots: ["Il se promène", "avec", "son chien."], rep: 1 },
+
+            { consigne: "Trouve le Complément Circonstanciel de Temps (CCT)", mots: ["Hier soir,", "nous avons mangé", "une pizza."], rep: 0 },
+            { consigne: "Trouve le Complément Circonstanciel de Lieu (CCL)", mots: ["Les enfants jouent", "dans le parc", "avec leurs amis."], rep: 1 },
+            { consigne: "Trouve le Complément Circonstanciel de Manière (CCM)", mots: ["Le chat avance", "silencieusement", "vers la souris."], rep: 1 }
         ];
 
         let profil = { xp: 0 };
@@ -92,7 +107,6 @@
         }
 
         function initJeu() {
-            // Tire 10 questions au hasard (ou toutes s'il y en a moins de 10)
             listeQuestions = [...bddGrammaire].sort(() => Math.random() - 0.5).slice(0, 10);
             poserQuestion();
         }
@@ -106,12 +120,11 @@
             document.getElementById('feedback').textContent = "";
             
             let data = listeQuestions[indexQuestion];
-            document.getElementById('consigne').textContent = "🎯 " + data.consigne;
+            document.getElementById('consigne').innerHTML = `🎯 <strong>${data.consigne}</strong>`;
 
             const container = document.getElementById('phrase-container');
             container.innerHTML = "";
 
-            // L'algorithme génère un bouton pour chaque groupe de mots
             data.mots.forEach((groupe, index) => {
                 let btn = document.createElement('button');
                 btn.className = "mot-bloc";
