@@ -57,7 +57,7 @@
         .rarete-commune { background: #3498db; } .rarete-rare { background: #9b59b6; } .rarete-legendaire { background: #f1c40f; color: #d35400; border: 1px solid #f39c12;}
         .debloque.commune { border-color: #3498db; } .debloque.rare { border-color: #9b59b6; background: #fdfaef; } .debloque.legendaire { border-color: #f1c40f; background: #fffcf0; box-shadow: 0 0 15px rgba(241, 196, 15, 0.5); }
 
-        /* NOUVEAU : L'ATELIER CRÉATIF */
+        /* L'ATELIER CRÉATIF */
         #ecran-dessin { display: none; }
         .toolbar-dessin { display: flex; gap: 15px; margin-bottom: 15px; justify-content: center; align-items: center; background: #f1f8ff; padding: 15px; border-radius: 15px; border: 2px solid #3498db;}
         .outil-btn { font-size: 1.5rem; background: white; border: 3px solid #bdc3c7; padding: 10px; border-radius: 10px; cursor: pointer; transition: 0.2s;}
@@ -121,12 +121,10 @@
                 <button class="outil-btn" onclick="nettoyerCanvas()" title="Effacer tout">🗑️</button>
             </div>
 
-            <!-- La palette dynamique de tampons (Stickers débloqués) -->
             <div class="palette-tampons" id="palette-tampons">
                 <div class="msg-vide">Ouvre des pochettes pour gagner des tampons !</div>
             </div>
 
-            <!-- La zone de dessin (HTML5 Canvas) -->
             <canvas id="canvas-dessin" width="700" height="450"></canvas>
         </div>
 
@@ -150,52 +148,15 @@
         const PRIX_POCHETTE = 50;
         let isProcessing = false;
 
-        // ==========================================
-        // 1. LA BASE DE DONNÉES STRUCTURÉE (Albums)
-        // ==========================================
         const bddAlbums = [
-            {
-                id: "album_animaux",
-                nom: "Les Animaux Mignons",
-                stickers: [
-                    { id: "c1", icon: "🐱", nom: "Petit Chat", rarete: "commune" },
-                    { id: "c2", icon: "🐶", nom: "Chiot Fidèle", rarete: "commune" },
-                    { id: "c3", icon: "🐰", nom: "Lapin Blanc", rarete: "commune" },
-                    { id: "r1", icon: "🦊", nom: "Renard Malin", rarete: "rare" },
-                    { id: "r2", icon: "🐬", nom: "Dauphin Joueur", rarete: "rare" }
-                ]
-            },
-            {
-                id: "album_magie",
-                nom: "Le Monde Magique",
-                stickers: [
-                    { id: "c4", icon: "🦋", nom: "Papillon", rarete: "commune" },
-                    { id: "c5", icon: "🌻", nom: "Fleur magique", rarete: "commune" },
-                    { id: "r3", icon: "🌈", nom: "Arc-en-ciel", rarete: "rare" },
-                    { id: "l1", icon: "🦄", nom: "Licorne", rarete: "legendaire" },
-                    { id: "l2", icon: "👑", nom: "Couronne", rarete: "legendaire" }
-                ]
-            },
-            {
-                id: "album_espace",
-                nom: "Voyage dans l'Espace",
-                stickers: [
-                    { id: "c6", icon: "🌍", nom: "La Terre", rarete: "commune" },
-                    { id: "c7", icon: "🌙", nom: "La Lune", rarete: "commune" },
-                    { id: "r4", icon: "⭐", nom: "Étoile filante", rarete: "rare" },
-                    { id: "l3", icon: "🚀", nom: "Fusée", rarete: "legendaire" },
-                    { id: "l4", icon: "👽", nom: "Petit Martien", rarete: "legendaire" }
-                ]
-            }
+            { id: "album_animaux", nom: "Les Animaux Mignons", stickers: [ { id: "c1", icon: "🐱", nom: "Petit Chat", rarete: "commune" }, { id: "c2", icon: "🐶", nom: "Chiot Fidèle", rarete: "commune" }, { id: "c3", icon: "🐰", nom: "Lapin Blanc", rarete: "commune" }, { id: "r1", icon: "🦊", nom: "Renard Malin", rarete: "rare" }, { id: "r2", icon: "🐬", nom: "Dauphin Joueur", rarete: "rare" } ] },
+            { id: "album_magie", nom: "Le Monde Magique", stickers: [ { id: "c4", icon: "🦋", nom: "Papillon", rarete: "commune" }, { id: "c5", icon: "🌻", nom: "Fleur magique", rarete: "commune" }, { id: "r3", icon: "🌈", nom: "Arc-en-ciel", rarete: "rare" }, { id: "l1", icon: "🦄", nom: "Licorne", rarete: "legendaire" }, { id: "l2", icon: "👑", nom: "Couronne", rarete: "legendaire" } ] },
+            { id: "album_espace", nom: "Voyage dans l'Espace", stickers: [ { id: "c6", icon: "🌍", nom: "La Terre", rarete: "commune" }, { id: "c7", icon: "🌙", nom: "La Lune", rarete: "commune" }, { id: "r4", icon: "⭐", nom: "Étoile filante", rarete: "rare" }, { id: "l3", icon: "🚀", nom: "Fusée", rarete: "legendaire" }, { id: "l4", icon: "👽", nom: "Petit Martien", rarete: "legendaire" } ] }
         ];
 
-        // Regroupe tous les stickers dans un seul tableau plat pour le tirage "Gacha"
         let tousLesStickers = [];
         bddAlbums.forEach(album => tousLesStickers = tousLesStickers.concat(album.stickers));
 
-        // ==========================================
-        // 2. GESTION DE L'INTERFACE (Onglets & Cloud)
-        // ==========================================
         function changerOnglet(onglet) {
             if (onglet === 'album') {
                 document.getElementById('ecran-album').style.display = 'block';
@@ -207,7 +168,7 @@
                 document.getElementById('ecran-dessin').style.display = 'block';
                 document.getElementById('onglet-album').classList.remove('actif');
                 document.getElementById('onglet-dessin').classList.add('actif');
-                genererPaletteTampons(); // On met à jour les tampons quand on ouvre l'atelier
+                genererPaletteTampons(); 
             }
         }
 
@@ -227,6 +188,12 @@
             
             actualiserInterfaceBoutique();
             genererAffichageAlbums();
+
+            // NOUVEAU : Lecture du paramètre d'URL pour le routage automatique
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('onglet') === 'dessin') {
+                changerOnglet('dessin');
+            }
         }
 
         function actualiserInterfaceBoutique() {
@@ -243,7 +210,6 @@
             zone.innerHTML = "";
 
             bddAlbums.forEach(album => {
-                // On calcule combien de stickers de CET album Lola possède
                 let nbPossedes = album.stickers.filter(s => lolaProfil.stickers_debloques.includes(s.id)).length;
                 let estComplet = (nbPossedes === album.stickers.length);
 
@@ -273,9 +239,6 @@
             });
         }
 
-        // ==========================================
-        // 3. LE GACHA (Tirage au sort)
-        // ==========================================
         async function acheterPochette() {
             if (isProcessing || lolaProfil.xp < PRIX_POCHETTE) return;
             isProcessing = true;
@@ -323,16 +286,12 @@
             actualiserInterfaceBoutique(); genererAffichageAlbums(); isProcessing = false;
         }
 
-        // ==========================================
-        // 4. L'ATELIER CRÉATIF (Dessin & Tampons HTML5)
-        // ==========================================
         const canvas = document.getElementById('canvas-dessin');
         const ctx = canvas.getContext('2d');
         let isDrawing = false;
-        let modeOutil = 'crayon'; // 'crayon' ou 'tampon'
+        let modeOutil = 'crayon'; 
         let emojiTamponActuel = '';
 
-        // Fond blanc par défaut pour éviter la transparence lors d'une éventuelle sauvegarde future
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -344,7 +303,7 @@
             }
 
             palette.innerHTML = "";
-            let uniquesIds = [...new Set(lolaProfil.stickers_debloques)]; // Retirer doublons
+            let uniquesIds = [...new Set(lolaProfil.stickers_debloques)]; 
             
             uniquesIds.forEach(id => {
                 let stickerData = tousLesStickers.find(s => s.id === id);
@@ -360,8 +319,6 @@
 
         function choisirOutil(nouveauMode, emoji = null, elementDOM = null) {
             modeOutil = nouveauMode;
-            
-            // Réinitialisation visuelle des boutons
             document.getElementById('btn-crayon').classList.remove('actif');
             document.querySelectorAll('.tampon-item').forEach(el => el.classList.remove('actif'));
 
@@ -382,42 +339,27 @@
 
         function obtenirCoordsSouris(event) {
             const rect = canvas.getBoundingClientRect();
-            // Prise en compte du décalage si le canvas est redimensionné en CSS
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
-            return {
-                x: (event.clientX - rect.left) * scaleX,
-                y: (event.clientY - rect.top) * scaleY
-            };
+            return { x: (event.clientX - rect.left) * scaleX, y: (event.clientY - rect.top) * scaleY };
         }
 
-        // Événements de dessin
         canvas.addEventListener('mousedown', (e) => {
             const pos = obtenirCoordsSouris(e);
-            
             if (modeOutil === 'crayon') {
-                isDrawing = true;
-                ctx.beginPath();
-                ctx.moveTo(pos.x, pos.y);
+                isDrawing = true; ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
                 ctx.strokeStyle = document.getElementById('couleur-dessin').value;
-                ctx.lineWidth = 5;
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
+                ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
             } 
             else if (modeOutil === 'tampon' && emojiTamponActuel !== '') {
-                // C'est l'API de texte du Canvas ! Un emoji est dessiné comme du texte.
-                ctx.font = "40px Arial";
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
+                ctx.font = "40px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
                 ctx.fillText(emojiTamponActuel, pos.x, pos.y);
             }
         });
 
         canvas.addEventListener('mousemove', (e) => {
             if (isDrawing && modeOutil === 'crayon') {
-                const pos = obtenirCoordsSouris(e);
-                ctx.lineTo(pos.x, pos.y);
-                ctx.stroke();
+                const pos = obtenirCoordsSouris(e); ctx.lineTo(pos.x, pos.y); ctx.stroke();
             }
         });
 
