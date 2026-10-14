@@ -89,7 +89,8 @@
         .btn-parents:hover { opacity: 1; transform: translateY(-3px);}
         
         .input-parent { font-size: 1.2rem; padding: 10px; width: 100%; margin-bottom: 15px; border: 2px solid #bdc3c7; border-radius: 10px; text-align: center;}
-        .btn-valider { background: #27ae60; color: white; font-size: 1.2rem; font-weight: bold; padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; margin-top: 10px; width: 100%;}
+        .btn-valider { background: #27ae60; color: white; font-size: 1.2rem; font-weight: bold; padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; margin-top: 10px; width: 100%; transition: 0.2s;}
+        .btn-valider:hover { filter: brightness(1.1); }
         
         .section-bloquee .games-list { opacity: 0.3; pointer-events: none; filter: grayscale(100%); }
         .section-bloquee .parcours-jour { opacity: 0.3; filter: grayscale(100%); }
@@ -119,7 +120,6 @@
                 <div class="jauge-fill" id="jauge-remplissage"></div>
                 <div class="jauge-text"><span id="xp-famille-actuel">0</span> / <span id="xp-famille-objectif">...</span> XP</div>
             </div>
-            <!-- Le texte de la récompense deviendra dynamique ici -->
             <div class="recompense-texte" id="ui-texte-recompense">🎁 Chargement...</div>
         </div>
 
@@ -140,9 +140,7 @@
 
                 <h3 style="font-size: 1rem; color: #7f8c8d; margin-bottom: 10px; text-transform: uppercase;">Tes Missions</h3>
                 <div class="games-list">
-                    <a href="kanban_projet.html" class="game-btn" style="border-color: #3b82f6;">
-                        <span class="game-icon">📋</span><span>Kanban Développeur</span>
-                    </a>
+                    <!-- LE KANBAN A ÉTÉ RETIRÉ DE L'ESPACE ENFANT -->
                     <a href="hub_maths_theo.html" class="game-btn" onclick="return enregistrerDepart('Maths', 'Théo')">
                         <span class="game-icon">🧮</span><span>Mathématiques</span>
                     </a>
@@ -246,7 +244,7 @@
         </div>
     </div>
 
-    <!-- NOUVEAU OVERLAY PARENTS (Le Back-Office Connecté au Cloud) -->
+    <!-- OVERLAY PARENTS (Le Back-Office) -->
     <div id="overlay-parents" class="overlay">
         <div class="modal">
             <h2 style="color: #2c3e50; margin-bottom: 20px;">⚙️ Espace Parents</h2>
@@ -285,6 +283,8 @@
                 <div class="admin-section" style="border-color: #f39c12; background: #fff3cd;">
                     <div class="admin-title" style="color: #d35400; border-color: #f39c12;">⚡ Actions Rapides</div>
                     <button class="btn-valider" style="background: #e67e22;" onclick="donnerBonusManuel()">🎁 +100 XP Bonus à la famille</button>
+                    <!-- LE BOUTON D'ACCÈS AU KANBAN POUR LE PARENT EST ICI -->
+                    <button class="btn-valider" style="background: #8e44ad; margin-top: 10px;" onclick="window.location.href='kanban_projet.html'">📋 Ouvrir le Kanban Développeur</button>
                 </div>
 
                 <button class="btn-valider" style="background: #2980b9;" onclick="sauvegarderParametres()">💾 Sauvegarder dans le Cloud</button>
@@ -299,19 +299,14 @@
         const CODE_PIN_PARENT = "1234"; 
         
         let xpGagnable = 0; let enfantEnQuete = ""; let compteurClicsSecrets = 0; 
-        
-        // Stockage global temporaire des paramètres chargés
         let parametresActuels = null;
 
-        // --- NOUVEAUTÉ : LECTURE DEPUIS FIREBASE ---
         async function lireParametresCloud() {
             try {
                 let res = await fetch(`${FIREBASE_URL}scores/parent_settings.json`);
                 let data = await res.json();
                 if (data) return data;
             } catch(e) { console.error("Erreur de lecture Cloud"); }
-            
-            // Valeurs par défaut si le fichier n'existe pas encore sur Firebase
             return { objectifFamille: 5000, texteRecompense: "Sortie au Parc !", seuilRecreTheo: 50, limiteTheo: 30, limiteLola: 30 };
         }
 
@@ -332,7 +327,7 @@
         }
 
         async function chargerJaugeFamiliale() {
-            parametresActuels = await lireParametresCloud(); // On attend les réglages du Cloud
+            parametresActuels = await lireParametresCloud(); 
 
             try {
                 let resTheo = await fetch(`${FIREBASE_URL}scores/theo.json`); let dataTheo = await resTheo.json() || {};
@@ -445,7 +440,6 @@
             document.getElementById('parametres-parents').style.display = 'none';
             document.getElementById('msg-parent-erreur').textContent = "";
             
-            // On s'assure d'avoir les données fraîches depuis le cloud
             if(!parametresActuels) parametresActuels = await lireParametresCloud();
         }
 
@@ -462,7 +456,6 @@
             } else { document.getElementById('msg-parent-erreur').textContent = "Code PIN incorrect."; }
         }
 
-        // --- NOUVEAUTÉ : SAUVEGARDE SUR FIREBASE ---
         async function sauvegarderParametres() {
             let paramsCloud = {
                 objectifFamille: parseInt(document.getElementById('admin-objectif-xp').value) || 5000,
@@ -473,20 +466,12 @@
             };
             
             try {
-                await fetch(`${FIREBASE_URL}scores/parent_settings.json`, {
-                    method: 'PUT',
-                    body: JSON.stringify(paramsCloud)
-                });
+                await fetch(`${FIREBASE_URL}scores/parent_settings.json`, { method: 'PUT', body: JSON.stringify(paramsCloud) });
                 alert("✅ Paramètres sauvegardés sur le Cloud pour toute la famille !");
-                parametresActuels = paramsCloud; // On met à jour la variable globale en mémoire
-            } catch (e) { 
-                alert("Erreur de sauvegarde réseau"); 
-            }
+                parametresActuels = paramsCloud; 
+            } catch (e) { alert("Erreur de sauvegarde réseau"); }
             
-            chargerJaugeFamiliale();
-            initTempsEcran(); 
-            verifierRecreationTheo();
-            fermerModals();
+            chargerJaugeFamiliale(); initTempsEcran(); verifierRecreationTheo(); fermerModals();
         }
 
         async function donnerBonusManuel() {
