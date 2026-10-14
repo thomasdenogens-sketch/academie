@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Histoire CE1 - L'Académie de Lola</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); 
+            color: #2c3e50; display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; padding: 20px; 
+        }
+        
+        #app-container { 
+            background: white; padding: 30px; border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); max-width: 900px; width: 100%; text-align: center; position: relative;
+        }
+        
+        h1 { color: #d35400; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
+        .sous-titre { color: #e67e22; margin-bottom: 25px; font-weight: 700; font-size: 1.2rem;}
+        
+        .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
+
+        /* HUD Jeu */
+        #hud { display: flex; justify-content: space-between; background: #fdf2e9; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.2rem; border: 2px solid #fdebd0; color: #d35400;}
+
+        #consigne { font-size: 1.3rem; font-weight: 900; color: #c0392b; margin-bottom: 20px; }
+
+        /* La zone de la frise (Les cases vides) */
+        .frise-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 15px; border: 3px dashed #bdc3c7;}
+        .slot { width: 140px; height: 160px; background: white; border: 3px dashed #95a5a6; border-radius: 15px; display: flex; justify-content: center; align-items: center; transition: 0.2s; position: relative; }
+        .slot.survol { background: #fcf3cf; border-color: #f1c40f; transform: scale(1.05); }
+        .slot::before { content: attr(data-index); position: absolute; top: -15px; background: #95a5a6; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; }
+
+        /* La réserve de cartes (mélangées) */
+        .reserve-cartes { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; min-height: 160px;}
+        
+        .carte-histoire { 
+            width: 140px; height: 160px; background: white; border: 4px solid #e67e22; border-radius: 15px; 
+            cursor: grab; display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3); transition: transform 0.1s; background-color: #fff;
+        }
+        .carte-histoire:active { cursor: grabbing; transform: scale(0.95); }
+        .carte-icon { font-size: 3.5rem; margin-bottom: 10px; pointer-events: none;}
+        .carte-nom { font-size: 0.9rem; font-weight: bold; color: #2c3e50; padding: 0 5px; line-height: 1.1; pointer-events: none;}
+
+        .btn { font-family: 'Nunito', sans-serif; font-size: 1.2rem; font-weight: bold; padding: 12px 25px; border: none; border-radius: 12px; cursor: pointer; color: white; margin: 5px; transition: 0.2s;}
+        .btn:active { transform: translateY(4px); }
+        .btn-primaire { background: #27ae60; box-shadow: 0 4px #219a52; }
+        .btn-secondaire { background: #95a5a6; box-shadow: 0 4px #7f8c8d; }
+
+        #feedback { font-size: 1.5rem; font-weight: 900; height: 40px; margin: 15px 0; }
+        
+        .ecran { display: none; }
+        .ecran.actif { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <div class="xp-badge" id="ui-xp">XP: ... ⭐</div>
+
+        <!-- ECRAN D'ACCUEIL -->
+        <div id="ecran-accueil" class="ecran actif">
+            <h1>Histoire & Temps 🕰️</h1>
+            <p class="sous-titre">Remonte le temps et classe les événements !</p>
+            
+            <button class="btn btn-primaire" style="font-size: 1.5rem; padding: 20px 40px; margin-top: 30px;" onclick="lancerNiveau()">
+                ▶️ Jouer à la Frise Chronologique
+            </button>
+            <br>
+            <button class="btn btn-secondaire" style="margin-top: 30px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+        </div>
+
+        <!-- ECRAN DE JEU -->
+        <div id="ecran-jeu" class="ecran">
+            <div id="hud">
+                <span id="ui-niveau">Niveau 1</span>
+                <span style="color:#e74c3c;">Vies : <span id="ui-vies">❤️❤️❤️</span></span>
+            </div>
+            
+            <div id="consigne">Glisse les cartes du plus ANCIEN (1) au plus RÉCENT (4) !</div>
+
+            <!-- La Frise où Lola doit déposer les cartes -->
+            <div class="frise-container" id="frise-zones">
+                <div class="slot" data-index="1" ondrop="deposerCarte(event)" ondragover="autoriserDepot(event)" ondragenter="survoler(event)" ondragleave="quitterSurvol(event)"></div>
+                <div class="slot" data-index="2" ondrop="deposerCarte(event)" ondragover="autoriserDepot(event)" ondragenter="survoler(event)" ondragleave="quitterSurvol(event)"></div>
+                <div class="slot" data-index="3" ondrop="deposerCarte(event)" ondragover="autoriserDepot(event)" ondragenter="survoler(event)" ondragleave="quitterSurvol(event)"></div>
+                <div class="slot" data-index="4" ondrop="deposerCarte(event)" ondragover="autoriserDepot(event)" ondragenter="survoler(event)" ondragleave="quitterSurvol(event)"></div>
+            </div>
+
+            <!-- La réserve où les cartes apparaissent mélangées -->
+            <div class="reserve-cartes" id="reserve" ondrop="deposerCarte(event)" ondragover="autoriserDepot(event)">
+                <!-- Généré par JavaScript -->
+            </div>
+
+            <div id="feedback"></div>
+
+            <button class="btn btn-primaire" onclick="validerFrise()">✅ Valider ma frise</button>
+            <button class="btn btn-secondaire" onclick="retourAccueil()">⬅️ Quitter</button>
+        </div>
+    </div>
+
+    <script>
+        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+        const DB_URL = `${FIREBASE_URL}scores/lola/histoireLola.json`;
+
+        // BASE DE DONNÉES CHRONOLOGIQUE
+        // L'ordre 'chronologie' définit l'ordre exact attendu (1, 2, 3, 4)
+        const bddHistoire = [
+            [
+                { id: "h1", icon: "🦕", nom: "Les Dinosaures", chronologie: 1 },
+                { id: "h2", icon: "🦴", nom: "Les Hommes Préhistoriques", chronologie: 2 },
+                { id: "h3", icon: "🏰", nom: "Le Moyen-Âge (Chevaliers)", chronologie: 3 },
+                { id: "h4", icon: "🚀", nom: "La Conquête de l'Espace", chronologie: 4 }
+            ],
+            [
+                { id: "t1", icon: "👶", nom: "Bébé", chronologie: 1 },
+                { id: "t2", icon: "👧", nom: "Enfant (École)", chronologie: 2 },
+                { id: "t3", icon: "👩‍💼", nom: "Adulte (Travail)", chronologie: 3 },
+                { id: "t4", icon: "👵", nom: "Grand-parent", chronologie: 4 }
+            ]
+        ];
+
+        let profil = { xp: 0 };
+        let vies = 3; 
+        let niveauActuel = 0;
+        let isProcessing = false;
+
+        async function chargerProfilCloud() {
+            try { let res = await fetch(DB_URL); let data = await res.json(); if (data && data.xp) profil.xp = parseInt(data.xp) || 0; } catch(e) {}
+            document.getElementById('ui-xp').textContent = `XP: ${profil.xp} ⭐`;
+        }
+        async function sauverProfilCloud(xpGagne) {
+            profil.xp += xpGagne; document.getElementById('ui-xp').textContent = `XP: ${profil.xp} ⭐`;
+            try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
+        }
+
+        function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); document.getElementById(id).classList.add('actif'); }
+        function retourAccueil() { changerEcran('ecran-accueil'); }
+
+        function lancerNiveau() {
+            vies = 3; niveauActuel = 0; isProcessing = false;
+            changerEcran('ecran-jeu');
+            preparerFrise();
+        }
+
+        function preparerFrise() {
+            if (vies <= 0) { alert("Plus de vies ! Réessaie plus tard."); return retourAccueil(); }
+            if (niveauActuel >= bddHistoire.length) { alert("Tu as terminé tous les défis chronologiques ! +20 XP ! 🎉"); sauverProfilCloud(20); return retourAccueil(); }
+
+            document.getElementById('ui-niveau').textContent = `Niveau ${niveauActuel + 1}`;
+            document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3 - vies);
+            document.getElementById('feedback').textContent = "";
+            
+            // Vider les slots de la frise
+            document.querySelectorAll('.slot').forEach(slot => slot.innerHTML = "");
+
+            const reserve = document.getElementById('reserve');
+            reserve.innerHTML = "";
+
+            // Copier et mélanger les cartes du niveau
+            let cartesMelangees = [...bddHistoire[niveauActuel]].sort(() => Math.random() - 0.5);
+
+            cartesMelangees.forEach(carte => {
+                let div = document.createElement('div');
+                div.className = "carte-histoire";
+                div.draggable = true;
+                div.id = carte.id;
+                div.dataset.ordre = carte.chronologie; // On cache la réponse dans l'attribut HTML !
+                div.ondragstart = attraperCarte;
+                
+                div.innerHTML = `
+                    <div class="carte-icon">${carte.icon}</div>
+                    <div class="carte-nom">${carte.nom}</div>
+                `;
+                reserve.appendChild(div);
+            });
+        }
+
+        // --- GESTION DU DRAG AND DROP ---
+        function attraperCarte(event) { event.dataTransfer.setData("text", event.target.id); }
+        function autoriserDepot(event) { event.preventDefault(); }
+        function survoler(event) { if (event.target.classList.contains('slot')) event.target.classList.add('survol'); }
+        function quitterSurvol(event) { if (event.target.classList.contains('slot')) event.target.classList.remove('survol'); }
+
+        function deposerCarte(event) {
+            event.preventDefault();
+            if (event.target.classList.contains('slot')) {
+                event.target.classList.remove('survol');
+                
+                // Si le slot a déjà une carte, on ne peut pas déposer par-dessus
+                if (event.target.children.length > 0) return;
+
+                let idCarte = event.dataTransfer.getData("text");
+                let carte = document.getElementById(idCarte);
+                event.target.appendChild(carte);
+            } 
+            else if (event.target.id === 'reserve') {
+                let idCarte = event.dataTransfer.getData("text");
+                let carte = document.getElementById(idCarte);
+                event.target.appendChild(carte);
+            }
+        }
+
+        // --- MOTEUR DE VALIDATION ---
+        function validerFrise() {
+            if (isProcessing) return;
+
+            const slots = document.querySelectorAll('.slot');
+            const reserve = document.getElementById('reserve');
+            
+            // Vérifier si toutes les cartes ont été placées
+            if (reserve.children.length > 0) {
+                document.getElementById('feedback').textContent = "Tu dois placer toutes les cartes sur la frise !";
+                document.getElementById('feedback').style.color = "#d35400";
+                return;
+            }
+
+            isProcessing = true;
+            let estCorrect = true;
+
+            // L'ALGORITHME DE VÉRIFICATION : On lit les cases de 1 à 4
+            slots.forEach((slot, index) => {
+                let carte = slot.children[0];
+                let ordreAttendu = index + 1; // Le premier slot (index 0) attend l'ordre 1
+                
+                if (parseInt(carte.dataset.ordre) !== ordreAttendu) {
+                    estCorrect = false;
+                }
+            });
+
+            const fb = document.getElementById('feedback');
+
+            if (estCorrect) {
+                fb.textContent = "C'est exact ! Bravo ! ✨";
+                fb.style.color = "#27ae60";
+                sauverProfilCloud(15);
+                setTimeout(() => { niveauActuel++; isProcessing = false; preparerFrise(); }, 2000);
+            } else {
+                vies--;
+                document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3 - vies);
+                fb.textContent = "Aïe... L'ordre n'est pas bon. Réessaie !";
+                fb.style.color = "#c0392b";
+                
+                // On remet toutes les cartes dans la réserve pour qu'elle recommence
+                setTimeout(() => {
+                    slots.forEach(slot => {
+                        if (slot.children.length > 0) reserve.appendChild(slot.children[0]);
+                    });
+                    isProcessing = false;
+                    fb.textContent = "";
+                }, 2000);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", chargerProfilCloud);
+    </script>
+</body>
+</html>
