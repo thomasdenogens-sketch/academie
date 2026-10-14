@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Mathématiques CE1 - L'Académie de Lola</title>
+    <title>L'Aventure des Nombres - L'Académie de Lola</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
         
@@ -10,57 +10,57 @@
         
         body { 
             font-family: 'Nunito', sans-serif; 
-            background: linear-gradient(135deg, #f8bbd0 0%, #e1bee7 100%); 
-            color: #4a148c; display: flex; flex-direction: column; align-items: center; 
+            background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%); /* Le fond chaud de ta capture */
+            color: #2c3e50; display: flex; flex-direction: column; align-items: center; 
             min-height: 100vh; padding: 20px; 
         }
         
         #app-container { 
-            background: white; padding: 30px; border-radius: 25px; 
-            box-shadow: 0 15px 35px rgba(233, 30, 99, 0.2); max-width: 800px; width: 100%; text-align: center; position: relative;
-            border: 4px solid #f06292;
+            background: white; padding: 30px; border-radius: 15px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); max-width: 600px; width: 100%; text-align: center; position: relative;
         }
         
-        h1 { color: #e91e63; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
-        .sous-titre { color: #880e4f; margin-bottom: 25px; font-weight: 700; font-size: 1.2rem;}
+        h1 { color: #e74c3c; font-weight: 900; font-size: 2.2rem; margin-bottom: 5px; }
+        .sous-titre { color: #e67e22; margin-bottom: 25px; font-weight: 700; font-size: 1.1rem;}
         
-        .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
+        .xp-badge { position: absolute; top: -15px; right: 20px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 10px 20px; border-radius: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 1.1rem;}
 
-        /* Menu Principal */
-        .grid-niveaux { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; text-align: left;}
-        .btn-niveau { background: #fff; border: 3px solid #f48fb1; padding: 15px; border-radius: 15px; font-size: 1.2rem; font-weight: bold; color: #4a148c; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: space-between; }
-        .btn-niveau:hover { background: #fce4ec; border-color: #e91e63; transform: translateX(5px); }
+        /* Menu de la capture d'écran */
+        .etape-container { border: 2px solid #ecf0f1; border-radius: 15px; padding: 15px; margin-bottom: 20px; text-align: left; }
+        .etape-titre { font-size: 1.2rem; font-weight: 900; color: #2c3e50; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .dot { width: 15px; height: 15px; border-radius: 50%; display: inline-block; }
+        .dot-vert { background: #2ecc71; }
+        .dot-bleu { background: #3498db; }
+        .dot-violet { background: #9b59b6; }
 
-        .titre-section { background: #e91e63; color: white; padding: 10px; border-radius: 10px; margin: 20px 0 10px 0; font-weight: 900;}
-        .titre-section.multi { background: #9b59b6; }
+        .btn-mission { 
+            background: white; border: 2px solid #1abc9c; padding: 12px 15px; border-radius: 10px; 
+            font-size: 1rem; font-weight: bold; color: #2c3e50; cursor: pointer; transition: 0.2s; 
+            display: flex; align-items: center; gap: 10px; margin-bottom: 10px; width: 100%; text-align: left;
+        }
+        .btn-mission:hover { background: #e8f8f5; transform: translateX(5px); }
+        .etape-2 .btn-mission { border-color: #3498db; }
+        .etape-2 .btn-mission:hover { background: #ebf5fb; }
+        .etape-3 .btn-mission { border-color: #9b59b6; }
+        .etape-3 .btn-mission:hover { background: #f4ecf7; }
 
-        /* HUD du jeu */
-        .hud { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; background: #fce4ec; padding: 15px; border-radius: 12px; border: 2px solid #f48fb1;}
-        .progression-container { width: 100%; background: #f8bbd0; height: 15px; border-radius: 10px; margin-bottom: 25px; overflow: hidden; border: 1px solid #f06292;}
+        .btn-nav { background: #95a5a6; color: white; padding: 10px 20px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1rem; transition: 0.2s; margin-top: 10px;}
+        .btn-nav:hover { background: #7f8c8d; }
+
+        /* HUD du jeu QCM */
+        .hud { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; background: #f8f9fa; padding: 15px; border-radius: 12px; border: 2px solid #ecf0f1;}
+        .progression-container { width: 100%; background: #ecf0f1; height: 10px; border-radius: 10px; margin-bottom: 25px; overflow: hidden;}
         #barre-progression { background: #2ecc71; height: 100%; width: 0%; transition: width 0.4s ease-out; }
 
-        /* Zone de question */
-        #zone-calcul {
-            font-size: 3.5rem; font-weight: 900; color: #e91e63; margin-bottom: 30px;
-            background: #fff0f5; padding: 20px; border-radius: 20px; border: 3px dashed #f48fb1;
-            letter-spacing: 2px;
-        }
+        #zone-calcul { font-size: 3rem; font-weight: 900; color: #e74c3c; margin-bottom: 30px; letter-spacing: 2px; }
 
-        /* QCM (Choix Multiples) */
-        .options-grid { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
-        .btn-opt { 
-            background: white; border: 4px solid #3498db; padding: 20px 30px; border-radius: 20px; 
-            font-size: 2rem; font-weight: 900; color: #2980b9; cursor: pointer; transition: 0.1s; 
-            min-width: 100px;
-        }
+        .options-grid { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;}
+        .btn-opt { background: white; border: 3px solid #3498db; padding: 15px 25px; border-radius: 15px; font-size: 1.8rem; font-weight: 900; color: #2980b9; cursor: pointer; transition: 0.1s; min-width: 90px; }
         .btn-opt:active { transform: translateY(4px); }
         .btn-opt.correct { background: #2ecc71; color: white; border-color: #27ae60; }
         .btn-opt.erreur { background: #e74c3c; color: white; border-color: #c0392b; }
 
-        .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s;}
-        .btn-nav:hover { background: #7f8c8d; }
-        
-        #feedback { font-size: 1.5rem; font-weight: 900; height: 35px; margin-bottom: 15px; }
+        #feedback { font-size: 1.3rem; font-weight: 900; height: 35px; margin-bottom: 15px; }
 
         .ecran { display: none; }
         .ecran.actif { display: block; animation: fadeIn 0.4s; }
@@ -72,37 +72,38 @@
     <div id="app-container">
         <div class="xp-badge">XP: <span id="ui-xp">...</span> ⭐</div>
 
-        <!-- ECRAN D'ACCUEIL -->
+        <!-- ECRAN D'ACCUEIL (Restauration de ton design original) -->
         <div id="ecran-hub" class="ecran actif">
-            <h1>Maths Magiques 🧮</h1>
-            <p class="sous-titre">Entraîne ton calcul mental !</p>
+            <h1>L'Aventure des Nombres</h1>
+            <p class="sous-titre">Progression Douce : du CP au CE1</p>
             
-            <div class="titre-section">➕ Les Additions</div>
-            <div class="grid-niveaux">
-                <button class="btn-niveau" onclick="lancerJeu('addition', 1)"><div><strong>Niveau 1 : Facile</strong><br><span style="font-size:0.9rem; color:#7f8c8d;">Nombres jusqu'à 20</span></div><span>▶️</span></button>
-                <button class="btn-niveau" onclick="lancerJeu('addition', 2)"><div><strong>Niveau 2 : Avancé</strong><br><span style="font-size:0.9rem; color:#7f8c8d;">Nombres jusqu'à 100</span></div><span>▶️</span></button>
+            <div class="etape-container">
+                <div class="etape-titre"><span class="dot dot-vert"></span> Étape 1 : Révisions de fin de CP</div>
+                <button class="btn-mission" onclick="lancerJeu('add10', 'Additions jusqu\'à 10')">➕ Additions jusqu'à 10 (ex: 4 + 3)</button>
+                <button class="btn-mission" onclick="lancerJeu('add20', 'Additions jusqu\'à 20')">➕ Additions jusqu'à 20 (ex: 12 + 5)</button>
+                <button class="btn-mission" onclick="lancerJeu('sous_petites', 'Petites Soustractions')">➖ Petites Soustractions (ex: 8 - 2)</button>
             </div>
 
-            <div class="titre-section" style="background: #3498db;">➖ Les Soustractions</div>
-            <div class="grid-niveaux">
-                <button class="btn-niveau" style="border-color: #85c1e9;" onclick="lancerJeu('soustraction', 1)"><div><strong>Niveau 1 : Facile</strong></div><span>▶️</span></button>
-                <button class="btn-niveau" style="border-color: #85c1e9;" onclick="lancerJeu('soustraction', 2)"><div><strong>Niveau 2 : Avancé</strong></div><span>▶️</span></button>
+            <div class="etape-container etape-2">
+                <div class="etape-titre"><span class="dot dot-bleu"></span> Étape 2 : L'entrée en CE1</div>
+                <button class="btn-mission" onclick="lancerJeu('dizaines', 'Dizaines entières')">➕ Dizaines entières (ex: 20 + 30)</button>
+                <button class="btn-mission" onclick="lancerJeu('add50', 'Nombres jusqu\'à 50')">➕ Nombres jusqu'à 50 (ex: 24 + 12)</button>
+                <button class="btn-mission" onclick="lancerJeu('doubles', 'Les petits doubles')">⚖️ Les petits doubles (ex: Double de 4)</button>
             </div>
 
-            <div class="titre-section multi">✖️ Les Tables de Multiplication</div>
-            <div class="grid-niveaux">
-                <button class="btn-niveau" style="border-color: #c39bd3;" onclick="lancerJeu('multiplication', 1)">
-                    <div><strong>Tables 2, 3, 4 et 5</strong><br><span style="font-size:0.9rem; color:#7f8c8d;">Pour démarrer !</span></div><span>🔓▶️</span>
-                </button>
+            <!-- La nouvelle étape ajoutée -->
+            <div class="etape-container etape-3">
+                <div class="etape-titre"><span class="dot dot-violet"></span> Étape 3 : Les Défis de CE1</div>
+                <button class="btn-mission" onclick="lancerJeu('multi', 'Les Multiplications')">✖️ Les Tables (2, 3, 4, 5 et 10)</button>
             </div>
 
-            <button class="btn-nav" style="margin-top: 15px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+            <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
-        <!-- ECRAN DE JEU -->
+        <!-- ECRAN DE JEU (QCM Intelligent) -->
         <div id="ecran-jeu" class="ecran">
             <div class="hud">
-                <span id="ui-titre-niveau" style="color: #c2185b;">Opération...</span>
+                <span id="ui-titre-niveau" style="color: #2c3e50;">Mission...</span>
                 <span style="color:#e74c3c;">Vies : <span id="ui-vies">❤️❤️❤️</span></span>
             </div>
             
@@ -110,11 +111,9 @@
             
             <div id="zone-calcul">? + ? =</div>
 
-            <div id="zone-boutons" class="options-grid">
-                <!-- Les boutons de réponse seront générés ici -->
-            </div>
-
+            <div id="zone-boutons" class="options-grid"></div>
             <div id="feedback"></div>
+
             <button class="btn-nav" onclick="retourAccueil()">⬅️ Quitter l'exercice</button>
         </div>
     </div>
@@ -124,7 +123,7 @@
         const DB_URL = `${FIREBASE_URL}scores/lola/mathsLola.json`;
 
         let profil = { xp: 0 };
-        let modeActuel = "", niveauActuel = 1;
+        let modeActuel = "";
         let indexQuestion = 0, vies = 3;
         const questionsParSession = 10;
         let reponseAttendue = 0;
@@ -143,133 +142,102 @@
         function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); document.getElementById(id).classList.add('actif'); }
         function retourAccueil() { changerEcran('ecran-hub'); }
 
-        function lancerJeu(mode, niveau) {
-            modeActuel = mode; niveauActuel = niveau; 
+        function lancerJeu(mode, titre) {
+            modeActuel = mode; 
             indexQuestion = 0; vies = 3; isProcessing = false;
-            
-            let nomTitre = mode === 'addition' ? 'Additions' : mode === 'soustraction' ? 'Soustractions' : 'Multiplications';
-            document.getElementById('ui-titre-niveau').textContent = `${nomTitre} - Niv ${niveauActuel}`;
+            document.getElementById('ui-titre-niveau').textContent = titre;
             document.getElementById('ui-vies').textContent = "❤️❤️❤️";
-            
             changerEcran('ecran-jeu'); 
             poserQuestion();
         }
 
         // ==========================================
-        // MOTEUR GÉNÉRATEUR DE CALCULS
+        // LE MOTEUR ALGORITHMIQUE SPÉCIFIQUE CE1
         // ==========================================
         function poserQuestion() {
-            if (vies <= 0) { alert("Plus de vies ! Révise encore un peu et réessaie."); return retourAccueil(); }
-            
+            if (vies <= 0) { alert("Plus de vies ! Révise bien et réessaie."); return retourAccueil(); }
             if (indexQuestion >= questionsParSession) {
-                alert(`Niveau complété ! +${niveauActuel * 15} XP Bonus 🎉`);
-                sauverProfilCloud(niveauActuel * 15);
-                niveauActuel++;
-                indexQuestion = 0; // On boucle sur le niveau d'après
-                
-                // Si on a fini le niveau 2 en addition, on arrête l'auto level-up pour éviter les maths trop dures
-                if(niveauActuel > 2) {
-                    alert("Tu as atteint le niveau maximum pour aujourd'hui !");
-                    return retourAccueil();
-                }
+                alert(`Mission accomplie ! +20 XP Bonus 🎉`);
+                sauverProfilCloud(20); return retourAccueil();
             }
 
-            isProcessing = false; 
-            indexQuestion++;
-            
+            isProcessing = false; indexQuestion++;
             document.getElementById('barre-progression').style.width = `${(indexQuestion / questionsParSession) * 100}%`;
             document.getElementById('feedback').textContent = "";
             
-            let num1, num2, operateur;
+            let num1, num2, affichage;
 
-            if (modeActuel === 'addition') {
-                operateur = "+";
-                if (niveauActuel === 1) { num1 = mathAleatoire(1, 15); num2 = mathAleatoire(1, 10); } 
-                else { num1 = mathAleatoire(10, 50); num2 = mathAleatoire(10, 50); }
-                reponseAttendue = num1 + num2;
+            // Logique mathématique stricte selon le mode choisi
+            if (modeActuel === 'add10') {
+                num1 = mathAleatoire(1, 9); num2 = mathAleatoire(1, 10 - num1); // Somme max = 10
+                reponseAttendue = num1 + num2; affichage = `${num1} + ${num2} = ?`;
             } 
-            else if (modeActuel === 'soustraction') {
-                operateur = "-";
-                // Règle d'or : On s'assure toujours que num1 est plus grand que num2 pour éviter les nombres négatifs !
-                if (niveauActuel === 1) { num1 = mathAleatoire(10, 20); num2 = mathAleatoire(1, num1); } 
-                else { num1 = mathAleatoire(30, 100); num2 = mathAleatoire(10, num1 - 5); }
-                reponseAttendue = num1 - num2;
+            else if (modeActuel === 'add20') {
+                num1 = mathAleatoire(5, 15); num2 = mathAleatoire(1, 20 - num1); // Somme max = 20
+                reponseAttendue = num1 + num2; affichage = `${num1} + ${num2} = ?`;
             }
-            else if (modeActuel === 'multiplication') {
-                operateur = "x";
+            else if (modeActuel === 'sous_petites') {
+                num1 = mathAleatoire(5, 10); num2 = mathAleatoire(1, num1 - 1); // Résultat toujours positif
+                reponseAttendue = num1 - num2; affichage = `${num1} - ${num2} = ?`;
+            }
+            else if (modeActuel === 'dizaines') {
+                num1 = mathAleatoire(1, 5) * 10; num2 = mathAleatoire(1, 4) * 10; // ex: 20 + 30
+                reponseAttendue = num1 + num2; affichage = `${num1} + ${num2} = ?`;
+            }
+            else if (modeActuel === 'add50') {
+                num1 = mathAleatoire(10, 30); num2 = mathAleatoire(5, 20); // Somme max = 50
+                reponseAttendue = num1 + num2; affichage = `${num1} + ${num2} = ?`;
+            }
+            else if (modeActuel === 'doubles') {
+                num1 = mathAleatoire(2, 10);
+                reponseAttendue = num1 * 2; affichage = `Double de ${num1} = ?`;
+            }
+            else if (modeActuel === 'multi') {
                 let tables = [2, 3, 4, 5, 10];
-                num1 = tables[Math.floor(Math.random() * tables.length)]; // Pioche une table de CE1
-                num2 = mathAleatoire(1, 10); // Multiplié par 1 à 10
-                reponseAttendue = num1 * num2;
+                num1 = tables[Math.floor(Math.random() * tables.length)]; 
+                num2 = mathAleatoire(1, 10); 
+                reponseAttendue = num1 * num2; affichage = `${num1} x ${num2} = ?`;
             }
 
-            document.getElementById('zone-calcul').textContent = `${num1} ${operateur} ${num2} = ?`;
+            document.getElementById('zone-calcul').textContent = affichage;
             genererBoutonsQCM();
         }
 
-        function mathAleatoire(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
+        function mathAleatoire(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-        // ==========================================
-        // ALGORITHME DES FAUSSES RÉPONSES (Leurres)
-        // ==========================================
         function genererBoutonsQCM() {
-            let choix = [reponseAttendue]; // On met la bonne réponse dans le tableau
+            let choix = [reponseAttendue]; 
 
-            // On génère 2 fausses réponses crédibles
             while(choix.length < 3) {
-                // On crée une variation de -5 à +5 autour de la bonne réponse
                 let ecart = Math.floor(Math.random() * 5) + 1;
                 let fauxChoix = Math.random() > 0.5 ? reponseAttendue + ecart : reponseAttendue - ecart;
-                
-                // Si la fausse réponse est positive et n'est pas déjà dans le tableau, on l'ajoute
-                if(fauxChoix >= 0 && !choix.includes(fauxChoix)) {
-                    choix.push(fauxChoix);
-                }
+                if(fauxChoix >= 0 && !choix.includes(fauxChoix)) choix.push(fauxChoix);
             }
 
-            // On mélange le tableau pour que la bonne réponse ne soit pas toujours au même endroit
-            choix.sort(() => Math.random() - 0.5);
+            choix.sort(() => Math.random() - 0.5); // Mélange
 
-            // Création visuelle des boutons HTML
             const zoneBtns = document.getElementById('zone-boutons');
             zoneBtns.innerHTML = "";
-            
             choix.forEach(valeur => {
-                let btn = document.createElement('button');
-                btn.className = 'btn-opt';
-                btn.textContent = valeur;
-                btn.onclick = () => verifierReponse(btn, valeur);
-                zoneBtns.appendChild(btn);
+                let btn = document.createElement('button'); btn.className = 'btn-opt'; btn.textContent = valeur;
+                btn.onclick = () => verifierReponse(btn, valeur); zoneBtns.appendChild(btn);
             });
         }
 
         function verifierReponse(boutonElement, valeurChoisie) {
-            if (isProcessing) return; 
-            isProcessing = true;
-            
+            if (isProcessing) return; isProcessing = true;
             const fb = document.getElementById('feedback');
 
             if (valeurChoisie === reponseAttendue) {
                 boutonElement.classList.add('correct');
-                fb.textContent = "Bravo ! ✨"; 
-                fb.style.color = "#27ae60";
-                sauverProfilCloud(3); // 3 XP par calcul réussi
-                setTimeout(poserQuestion, 1000); // Passe à la suivante rapidement
+                fb.textContent = "Bravo ! ✨"; fb.style.color = "#27ae60"; sauverProfilCloud(3);
+                setTimeout(poserQuestion, 1000); 
             } else {
-                boutonElement.classList.add('erreur');
-                vies--; 
+                boutonElement.classList.add('erreur'); vies--; 
                 document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3-vies);
-                fb.textContent = `Aïe ! La réponse était ${reponseAttendue}.`; 
-                fb.style.color = "#e74c3c";
-                
-                // On montre visuellement quelle était la bonne réponse
-                document.querySelectorAll('.btn-opt').forEach(b => { 
-                    if (parseInt(b.textContent) === reponseAttendue) b.classList.add('correct'); 
-                });
-                
-                setTimeout(poserQuestion, 2500); // Laisse plus de temps pour lire l'erreur
+                fb.textContent = `Aïe ! La réponse était ${reponseAttendue}.`; fb.style.color = "#e74c3c";
+                document.querySelectorAll('.btn-opt').forEach(b => { if (parseInt(b.textContent) === reponseAttendue) b.classList.add('correct'); });
+                setTimeout(poserQuestion, 2500); 
             }
         }
 
