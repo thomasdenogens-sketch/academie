@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Vocabulaire CE1 - L'Académie de Lola</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); 
+            color: #2c3e50; display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; padding: 20px; 
+        }
+        
+        #app-container { 
+            background: white; padding: 30px; border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-width: 800px; width: 100%; text-align: center; position: relative;
+        }
+        
+        h1 { color: #8e44ad; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
+        .sous-titre { color: #9b59b6; margin-bottom: 25px; font-weight: 700; font-size: 1.2rem;}
+        
+        .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
+
+        /* Menu Principal */
+        .grid-niveaux { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .btn-menu {
+            background: #fdf2f8; border: 3px solid #f48fb1; padding: 20px; border-radius: 15px;
+            font-size: 1.2rem; font-weight: bold; color: #8e44ad; cursor: pointer; transition: 0.2s;
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+            box-shadow: 0 5px 0 #f48fb1;
+        }
+        .btn-menu:active { transform: translateY(5px); box-shadow: none; }
+        .menu-icon { font-size: 3rem; }
+
+        /* HUD Jeu */
+        #hud { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; border: 2px solid #ecf0f1; color: #8e44ad;}
+        
+        /* LA GRILLE DU MEMORY */
+        .grille-cartes {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px;
+            max-width: 600px; margin-left: auto; margin-right: auto;
+        }
+
+        /* L'Animation 3D des Cartes */
+        .carte { perspective: 1000px; height: 100px; cursor: pointer; }
+        .carte-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
+        
+        .carte.retournee .carte-inner, .carte.trouvee .carte-inner { transform: rotateY(180deg); }
+        
+        .carte-front, .carte-back {
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden; 
+            border-radius: 15px; display: flex; align-items: center; justify-content: center;
+        }
+        
+        /* Face cachée (Le dos de la carte) */
+        .carte-front { background: #9b59b6; border: 3px solid #8e44ad; color: white; font-size: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        /* Face visible (Le mot) */
+        .carte-back { 
+            background: white; border: 3px solid #3498db; color: #2c3e50; 
+            transform: rotateY(180deg); font-weight: 900; font-size: 1.2rem;
+            box-shadow: inset 0 0 10px rgba(52,152,219,0.2);
+        }
+
+        .carte.trouvee .carte-back { border-color: #2ecc71; background: #eafaf1; color: #27ae60; box-shadow: 0 0 15px rgba(46,204,113,0.5); }
+        .carte.erreur .carte-back { border-color: #e74c3c; background: #fadbd8; color: #c0392b; }
+
+        .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s; margin-top: 10px;}
+        .btn-nav:hover { background: #7f8c8d; }
+
+        #feedback { font-size: 1.5rem; font-weight: 900; height: 35px; margin-bottom: 15px; color: #e91e63;}
+
+        .ecran { display: none; }
+        .ecran.actif { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <div class="xp-badge" id="ui-xp">XP: ... ⭐</div>
+
+        <!-- ECRAN D'ACCUEIL -->
+        <div id="ecran-accueil" class="ecran actif">
+            <h1>Le Jeu des Mots 🧩</h1>
+            <p class="sous-titre">Enrichis ton vocabulaire de CE1 !</p>
+            
+            <div class="grid-niveaux">
+                <button class="btn-menu" onclick="lancerJeu('synonymes', 'Les Synonymes')">
+                    <span class="menu-icon">🤝</span>
+                    <span>Les Synonymes</span>
+                    <span style="font-size:0.9rem; color:#7f8c8d; font-weight:normal;">Mots qui veulent dire la même chose</span>
+                </button>
+                <button class="btn-menu" style="border-color: #3498db; box-shadow: 0 5px 0 #3498db;" onclick="lancerJeu('contraires', 'Les Contraires')">
+                    <span class="menu-icon">↔️</span>
+                    <span style="color:#2980b9;">Les Contraires</span>
+                    <span style="font-size:0.9rem; color:#7f8c8d; font-weight:normal;">Mots de sens opposé</span>
+                </button>
+            </div>
+
+            <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+        </div>
+
+        <!-- ECRAN DE JEU -->
+        <div id="ecran-jeu" class="ecran">
+            <div id="hud">
+                <span id="ui-titre-niveau">Thème...</span>
+                <span style="color:#e74c3c;">Essais : <span id="ui-essais">0</span></span>
+            </div>
+
+            <div class="grille-cartes" id="grille-memory">
+                <!-- Les cartes seront générées ici par JavaScript -->
+            </div>
+
+            <div id="feedback">Trouve les paires !</div>
+
+            <button class="btn-nav" onclick="retourAccueil()">⬅️ Quitter l'exercice</button>
+        </div>
+    </div>
+
+    <script>
+        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+        const DB_URL = `${FIREBASE_URL}scores/lola/francaisLola.json`;
+
+        // ==========================================
+        // LA BASE DE DONNÉES DES PAIRES
+        // ==========================================
+        const baseDeMots = {
+            synonymes: [
+                { id: 1, mots: ["Beau", "Joli"] },
+                { id: 2, mots: ["Heureux", "Joyeux"] },
+                { id: 3, mots: ["Rapide", "Vite"] },
+                { id: 4, mots: ["Triste", "Chagriné"] },
+                { id: 5, mots: ["Maison", "Habitation"] },
+                { id: 6, mots: ["Casser", "Briser"] },
+                { id: 7, mots: ["Gros", "Énorme"] },
+                { id: 8, mots: ["Finir", "Terminer"] }
+            ],
+            contraires: [
+                { id: 1, mots: ["Grand", "Petit"] },
+                { id: 2, mots: ["Chaud", "Froid"] },
+                { id: 3, mots: ["Jour", "Nuit"] },
+                { id: 4, mots: ["Vrai", "Faux"] },
+                { id: 5, mots: ["Monter", "Descendre"] },
+                { id: 6, mots: ["Lourd", "Léger"] },
+                { id: 7, mots: ["Mince", "Gros"] },
+                { id: 8, mots: ["Jeune", "Vieux"] }
+            ]
+        };
+
+        let profil = { xp: 0 };
+        let cartesEnJeu = [];
+        let premiereCarte = null;
+        let deuxiemeCarte = null;
+        let bloqueInterface = false;
+        let pairesTrouvees = 0;
+        let nbEssais = 0;
+        const PAIRES_A_TROUVER = 4; // On joue avec 8 cartes (4 paires) pour que ce soit adapté au CE1
+
+        async function chargerProfilCloud() {
+            try { let res = await fetch(DB_URL); let data = await res.json(); if (data && data.xp) profil.xp = parseInt(data.xp) || 0; } catch(e) {}
+            document.getElementById('ui-xp').textContent = `XP: ${profil.xp} ⭐`;
+        }
+
+        async function sauverProfilCloud(xpGagne) {
+            profil.xp += xpGagne; document.getElementById('ui-xp').textContent = `XP: ${profil.xp} ⭐`;
+            try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
+        }
+
+        function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); document.getElementById(id).classList.add('actif'); }
+        function retourAccueil() { changerEcran('ecran-accueil'); }
+
+        function lancerJeu(mode, titre) {
+            document.getElementById('ui-titre-niveau').textContent = titre;
+            nbEssais = 0; pairesTrouvees = 0;
+            premiereCarte = null; deuxiemeCarte = null; bloqueInterface = false;
+            
+            document.getElementById('ui-essais').textContent = nbEssais;
+            document.getElementById('feedback').textContent = "Trouve les paires !";
+            document.getElementById('feedback').style.color = "#8e44ad";
+            
+            changerEcran('ecran-jeu');
+            genererGrille(mode);
+        }
+
+        // ==========================================
+        // LE GÉNÉRATEUR DE GRILLE (Algorithme de Mélange)
+        // ==========================================
+        function genererGrille(mode) {
+            const grille = document.getElementById('grille-memory');
+            grille.innerHTML = "";
+            cartesEnJeu = [];
+
+            // 1. On pioche 4 paires au hasard dans la base de données
+            let dictionnaire = [...baseDeMots[mode]].sort(() => Math.random() - 0.5).slice(0, PAIRES_A_TROUVER);
+
+            // 2. On "découpe" les paires pour en faire des cartes individuelles
+            dictionnaire.forEach(paire => {
+                cartesEnJeu.push({ id_paire: paire.id, texte: paire.mots[0] });
+                cartesEnJeu.push({ id_paire: paire.id, texte: paire.mots[1] });
+            });
+
+            // 3. On mélange toutes les cartes (Algorithme de Fisher-Yates simplifié)
+            cartesEnJeu.sort(() => Math.random() - 0.5);
+
+            // 4. On génère le code HTML de chaque carte
+            cartesEnJeu.forEach((carte, index) => {
+                let divCarte = document.createElement('div');
+                divCarte.className = "carte";
+                divCarte.dataset.idPaire = carte.id_paire; // La donnée secrète !
+                divCarte.dataset.index = index;
+                
+                divCarte.innerHTML = `
+                    <div class="carte-inner">
+                        <div class="carte-front">❓</div>
+                        <div class="carte-back">${carte.texte}</div>
+                    </div>
+                `;
+                
+                divCarte.onclick = () => retournerCarte(divCarte);
+                grille.appendChild(divCarte);
+            });
+        }
+
+        // ==========================================
+        // LA MACHINE À ÉTATS DU JEU
+        // ==========================================
+        function retournerCarte(carteDiv) {
+            // Sécurité : On bloque si le jeu analyse déjà deux cartes, si on clique sur une carte déjà trouvée, ou sur la même carte deux fois
+            if (bloqueInterface) return;
+            if (carteDiv.classList.contains('retournee') || carteDiv.classList.contains('trouvee')) return;
+
+            // On retourne visuellement la carte
+            carteDiv.classList.add('retournee');
+
+            if (premiereCarte === null) {
+                // ÉTAT 1 : C'est la première carte cliquée
+                premiereCarte = carteDiv;
+            } else {
+                // ÉTAT 2 : C'est la deuxième carte cliquée, on vérifie !
+                deuxiemeCarte = carteDiv;
+                bloqueInterface = true; // On bloque les autres clics
+                nbEssais++;
+                document.getElementById('ui-essais').textContent = nbEssais;
+
+                verifierCorrespondance();
+            }
+        }
+
+        function verifierCorrespondance() {
+            let id1 = premiereCarte.dataset.idPaire;
+            let id2 = deuxiemeCarte.dataset.idPaire;
+
+            if (id1 === id2) {
+                // VICTOIRE : Les cartes correspondent
+                setTimeout(() => {
+                    premiereCarte.classList.add('trouvee');
+                    deuxiemeCarte.classList.add('trouvee');
+                    reinitialiserTour();
+                    pairesTrouvees++;
+                    
+                    if (pairesTrouvees === PAIRES_A_TROUVER) {
+                        finDePartie();
+                    }
+                }, 500); // Petit délai pour laisser Lola voir sa victoire
+            } else {
+                // DÉFAITE : Les cartes ne correspondent pas
+                premiereCarte.classList.add('erreur');
+                deuxiemeCarte.classList.add('erreur');
+                
+                setTimeout(() => {
+                    premiereCarte.classList.remove('retournee', 'erreur');
+                    deuxiemeCarte.classList.remove('retournee', 'erreur');
+                    reinitialiserTour();
+                }, 1500); // Laisse 1.5 secondes à Lola pour mémoriser les cartes !
+            }
+        }
+
+        function reinitialiserTour() {
+            premiereCarte = null;
+            deuxiemeCarte = null;
+            bloqueInterface = false;
+        }
+
+        function finDePartie() {
+            const fb = document.getElementById('feedback');
+            fb.textContent = `Gagné en ${nbEssais} essais ! 🎉 +20 XP !`;
+            fb.style.color = "#27ae60";
+            sauverProfilCloud(20);
+
+            setTimeout(retourAccueil, 3000);
+        }
+
+        document.addEventListener("DOMContentLoaded", chargerProfilCloud);
+    </script>
+</body>
+</html>
