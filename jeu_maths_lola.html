@@ -2,82 +2,120 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Maths Progression - Lola</title>
+    <title>Mathématiques CE1 - L'Académie de Lola</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-        body { font-family: 'Nunito', sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #333; text-align: center; padding: 20px; }
-        #conteneur-appli { width: 100%; max-width: 650px; background-color: #ffffff; padding: 30px; border-radius: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative; }
-        .ecran { display: none; animation: fadeIn 0.4s ease-out; }
-        .ecran.actif { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        h1 { font-size: 2.2rem; color: #ff6b6b; margin-bottom: 5px; font-weight: 900;}
-        .subtitle { font-size: 1.1rem; color: #e67e22; margin-bottom: 25px; font-weight: bold;}
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            background: linear-gradient(135deg, #f8bbd0 0%, #e1bee7 100%); 
+            color: #4a148c; display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; padding: 20px; 
+        }
+        
+        #app-container { 
+            background: white; padding: 30px; border-radius: 25px; 
+            box-shadow: 0 15px 35px rgba(233, 30, 99, 0.2); max-width: 800px; width: 100%; text-align: center; position: relative;
+            border: 4px solid #f06292;
+        }
+        
+        h1 { color: #e91e63; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
+        .sous-titre { color: #880e4f; margin-bottom: 25px; font-weight: 700; font-size: 1.2rem;}
+        
         .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
 
-        /* Nouveaux styles pour les niveaux progressifs */
-        .niveau-section { text-align: left; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 15px; border: 2px solid #ecf0f1; }
-        .niveau-titre { font-size: 1.2rem; font-weight: 900; color: #2c3e50; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
-        .btn-progression { background: white; border: 3px solid #bdc3c7; padding: 12px 15px; border-radius: 12px; font-size: 1rem; font-weight: bold; color: #34495e; cursor: pointer; transition: 0.1s; box-shadow: 0 4px 0 #bdc3c7; width: 100%; margin-bottom: 10px; text-align: left;}
-        .btn-progression:active { transform: translateY(4px); box-shadow: none; }
-        .btn-progression.niv1 { border-color: #4ecdc4; box-shadow: 0 4px 0 #16a085; }
-        .btn-progression.niv2 { border-color: #3498db; box-shadow: 0 4px 0 #2980b9; }
+        /* Menu Principal */
+        .grid-niveaux { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; text-align: left;}
+        .btn-niveau { background: #fff; border: 3px solid #f48fb1; padding: 15px; border-radius: 15px; font-size: 1.2rem; font-weight: bold; color: #4a148c; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: space-between; }
+        .btn-niveau:hover { background: #fce4ec; border-color: #e91e63; transform: translateX(5px); }
 
-        /* Zone de jeu */
-        #infos-jeu { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; font-weight: bold; font-size: 1.2rem; margin-bottom: 20px; border: 2px solid #ecf0f1; }
-        #question { font-size: 4rem; font-weight: 900; margin: 25px 0; color: #2c3e50; min-height: 80px; display: flex; justify-content: center; align-items: center;}
-        #zone-saisie { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 20px; }
-        #reponse { font-size: 3rem; width: 140px; padding: 10px; text-align: center; border: 4px solid #f39c12; border-radius: 15px; font-weight: bold; outline: none; color: #d35400; font-family: 'Nunito', sans-serif;}
-        #btn-valider { padding: 15px 30px; font-size: 1.5rem; font-weight: 900; background: #27ae60; box-shadow: 0 5px 0 #2ecc71; color: white; border:none; border-radius: 15px; cursor:pointer; transition: 0.1s;}
-        #btn-valider:active { transform: translateY(5px); box-shadow: none; }
-        #feedback { height: 40px; font-size: 1.5rem; margin-top: 20px; font-weight: 900; }
+        .titre-section { background: #e91e63; color: white; padding: 10px; border-radius: 10px; margin: 20px 0 10px 0; font-weight: 900;}
+        .titre-section.multi { background: #9b59b6; }
+
+        /* HUD du jeu */
+        .hud { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; background: #fce4ec; padding: 15px; border-radius: 12px; border: 2px solid #f48fb1;}
+        .progression-container { width: 100%; background: #f8bbd0; height: 15px; border-radius: 10px; margin-bottom: 25px; overflow: hidden; border: 1px solid #f06292;}
+        #barre-progression { background: #2ecc71; height: 100%; width: 0%; transition: width 0.4s ease-out; }
+
+        /* Zone de question */
+        #zone-calcul {
+            font-size: 3.5rem; font-weight: 900; color: #e91e63; margin-bottom: 30px;
+            background: #fff0f5; padding: 20px; border-radius: 20px; border: 3px dashed #f48fb1;
+            letter-spacing: 2px;
+        }
+
+        /* QCM (Choix Multiples) */
+        .options-grid { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .btn-opt { 
+            background: white; border: 4px solid #3498db; padding: 20px 30px; border-radius: 20px; 
+            font-size: 2rem; font-weight: 900; color: #2980b9; cursor: pointer; transition: 0.1s; 
+            min-width: 100px;
+        }
+        .btn-opt:active { transform: translateY(4px); }
+        .btn-opt.correct { background: #2ecc71; color: white; border-color: #27ae60; }
+        .btn-opt.erreur { background: #e74c3c; color: white; border-color: #c0392b; }
+
+        .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s;}
+        .btn-nav:hover { background: #7f8c8d; }
         
-        .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin-top: 15px; }
+        #feedback { font-size: 1.5rem; font-weight: 900; height: 35px; margin-bottom: 15px; }
+
+        .ecran { display: none; }
+        .ecran.actif { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     </style>
 </head>
 <body>
 
-    <div id="conteneur-appli">
-        <div class="xp-badge" id="ui-xp">XP: ... ⭐</div>
+    <div id="app-container">
+        <div class="xp-badge">XP: <span id="ui-xp">...</span> ⭐</div>
 
-        <!-- MENU DE SÉLECTION PROGRESSIF -->
-        <div id="ecran-selection" class="ecran actif">
-            <h1>L'Aventure des Nombres 🦄</h1>
-            <p class="subtitle">Progression Douce : du CP au CE1</p>
+        <!-- ECRAN D'ACCUEIL -->
+        <div id="ecran-hub" class="ecran actif">
+            <h1>Maths Magiques 🧮</h1>
+            <p class="sous-titre">Entraîne ton calcul mental !</p>
             
-            <div class="niveau-section">
-                <div class="niveau-titre">🟢 Étape 1 : Révisions de fin de CP</div>
-                <button onclick="lancerJeu('cp_add10')" class="btn-progression niv1">➕ Additions jusqu'à 10 (ex: 4 + 3)</button>
-                <button onclick="lancerJeu('cp_add20')" class="btn-progression niv1">➕ Additions jusqu'à 20 (ex: 12 + 5)</button>
-                <button onclick="lancerJeu('cp_sous10')" class="btn-progression niv1">➖ Petites Soustractions (ex: 8 - 2)</button>
+            <div class="titre-section">➕ Les Additions</div>
+            <div class="grid-niveaux">
+                <button class="btn-niveau" onclick="lancerJeu('addition', 1)"><div><strong>Niveau 1 : Facile</strong><br><span style="font-size:0.9rem; color:#7f8c8d;">Nombres jusqu'à 20</span></div><span>▶️</span></button>
+                <button class="btn-niveau" onclick="lancerJeu('addition', 2)"><div><strong>Niveau 2 : Avancé</strong><br><span style="font-size:0.9rem; color:#7f8c8d;">Nombres jusqu'à 100</span></div><span>▶️</span></button>
             </div>
 
-            <div class="niveau-section">
-                <div class="niveau-titre">🔵 Étape 2 : L'entrée en CE1</div>
-                <button onclick="lancerJeu('ce1_addDizaines')" class="btn-progression niv2">➕ Dizaines entières (ex: 20 + 30)</button>
-                <button onclick="lancerJeu('ce1_addCinquante')" class="btn-progression niv2">➕ Nombres jusqu'à 50 (ex: 24 + 12)</button>
-                <button onclick="lancerJeu('ce1_doubles')" class="btn-progression niv2">⚖️ Les petits doubles (ex: Double de 4)</button>
+            <div class="titre-section" style="background: #3498db;">➖ Les Soustractions</div>
+            <div class="grid-niveaux">
+                <button class="btn-niveau" style="border-color: #85c1e9;" onclick="lancerJeu('soustraction', 1)"><div><strong>Niveau 1 : Facile</strong></div><span>▶️</span></button>
+                <button class="btn-niveau" style="border-color: #85c1e9;" onclick="lancerJeu('soustraction', 2)"><div><strong>Niveau 2 : Avancé</strong></div><span>▶️</span></button>
             </div>
-            
-            <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+
+            <div class="titre-section multi">✖️ Les Tables de Multiplication</div>
+            <div class="grid-niveaux">
+                <button class="btn-niveau" style="border-color: #c39bd3;" onclick="lancerJeu('multiplication', 1)">
+                    <div><strong>Tables 2, 3, 4 et 5</strong><br><span style="font-size:0.9rem; color:#7f8c8d;">Pour démarrer !</span></div><span>🔓▶️</span>
+                </button>
+            </div>
+
+            <button class="btn-nav" style="margin-top: 15px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
         <!-- ECRAN DE JEU -->
         <div id="ecran-jeu" class="ecran">
-            <div id="infos-jeu">
-                <span id="infos-vies" style="letter-spacing: 5px;">❤️❤️❤️</span>
-                <span id="infos-progression" style="color: #7f8c8d;">1 / 10</span>
+            <div class="hud">
+                <span id="ui-titre-niveau" style="color: #c2185b;">Opération...</span>
+                <span style="color:#e74c3c;">Vies : <span id="ui-vies">❤️❤️❤️</span></span>
             </div>
             
-            <div id="question">...</div>
-            <div id="zone-saisie">
-                <input type="number" id="reponse" autocomplete="off" inputmode="numeric">
-                <button id="btn-valider" onclick="verifierReponse()">OK</button>
+            <div class="progression-container"><div id="barre-progression"></div></div>
+            
+            <div id="zone-calcul">? + ? =</div>
+
+            <div id="zone-boutons" class="options-grid">
+                <!-- Les boutons de réponse seront générés ici -->
             </div>
+
             <div id="feedback"></div>
-            
-            <button class="btn-nav" onclick="montrerEcran('ecran-selection')">⬅️ Changer de niveau</button>
+            <button class="btn-nav" onclick="retourAccueil()">⬅️ Quitter l'exercice</button>
         </div>
     </div>
 
@@ -86,96 +124,156 @@
         const DB_URL = `${FIREBASE_URL}scores/lola/mathsLola.json`;
 
         let profil = { xp: 0 };
-        let vies = 3; let indexQuestion = 0; let nbQuestions = 10;
-        let modeActuel = ''; let reponseAttendue = 0; let isProcessing = false;
-        const E = (id) => document.getElementById(id);
+        let modeActuel = "", niveauActuel = 1;
+        let indexQuestion = 0, vies = 3;
+        const questionsParSession = 10;
+        let reponseAttendue = 0;
+        let isProcessing = false;
 
         async function chargerProfilCloud() {
-            try {
-                let res = await fetch(DB_URL);
-                let data = await res.json();
-                if (data && data.xp !== undefined) profil.xp = parseInt(data.xp) || 0;
-            } catch(e) {}
-            E('ui-xp').textContent = `XP: ${profil.xp} ⭐`;
+            try { let res = await fetch(DB_URL); let data = await res.json(); if (data && data.xp) profil.xp = parseInt(data.xp) || 0; } catch(e) {}
+            document.getElementById('ui-xp').textContent = profil.xp;
         }
 
-        async function sauverProfilCloud() {
+        async function sauverProfilCloud(xpGagne) {
+            profil.xp += xpGagne; document.getElementById('ui-xp').textContent = profil.xp;
             try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
-            E('ui-xp').textContent = `XP: ${profil.xp} ⭐`;
         }
 
-        function montrerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); E(id).classList.add('actif'); }
+        function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); document.getElementById(id).classList.add('actif'); }
+        function retourAccueil() { changerEcran('ecran-hub'); }
 
-        function lancerJeu(mode) {
-            modeActuel = mode; vies = 3; indexQuestion = 1; isProcessing = false;
-            E('infos-vies').textContent = "❤️❤️❤️"; 
-            montrerEcran('ecran-jeu'); poserQuestion();
+        function lancerJeu(mode, niveau) {
+            modeActuel = mode; niveauActuel = niveau; 
+            indexQuestion = 0; vies = 3; isProcessing = false;
+            
+            let nomTitre = mode === 'addition' ? 'Additions' : mode === 'soustraction' ? 'Soustractions' : 'Multiplications';
+            document.getElementById('ui-titre-niveau').textContent = `${nomTitre} - Niv ${niveauActuel}`;
+            document.getElementById('ui-vies').textContent = "❤️❤️❤️";
+            
+            changerEcran('ecran-jeu'); 
+            poserQuestion();
         }
 
+        // ==========================================
+        // MOTEUR GÉNÉRATEUR DE CALCULS
+        // ==========================================
         function poserQuestion() {
-            if (vies <= 0 || indexQuestion > nbQuestions) {
-                alert(vies > 0 ? "Superbe ! Fin de la série." : "Plus de vies, on réessaie !");
-                profil.xp += (vies * 5); sauverProfilCloud();
-                return montrerEcran('ecran-selection');
+            if (vies <= 0) { alert("Plus de vies ! Révise encore un peu et réessaie."); return retourAccueil(); }
+            
+            if (indexQuestion >= questionsParSession) {
+                alert(`Niveau complété ! +${niveauActuel * 15} XP Bonus 🎉`);
+                sauverProfilCloud(niveauActuel * 15);
+                niveauActuel++;
+                indexQuestion = 0; // On boucle sur le niveau d'après
+                
+                // Si on a fini le niveau 2 en addition, on arrête l'auto level-up pour éviter les maths trop dures
+                if(niveauActuel > 2) {
+                    alert("Tu as atteint le niveau maximum pour aujourd'hui !");
+                    return retourAccueil();
+                }
             }
-            isProcessing = false;
-            E('infos-progression').textContent = `${indexQuestion} / ${nbQuestions}`;
-            let n1, n2, txt;
 
-            // --- ALGORITHME DE DIFFICULTÉ PROGRESSIVE ---
-            if (modeActuel === 'cp_add10') {
-                n1 = Math.floor(Math.random() * 8) + 1; n2 = Math.floor(Math.random() * (10 - n1)) + 1;
-                reponseAttendue = n1 + n2; txt = `${n1} + ${n2} =`;
+            isProcessing = false; 
+            indexQuestion++;
+            
+            document.getElementById('barre-progression').style.width = `${(indexQuestion / questionsParSession) * 100}%`;
+            document.getElementById('feedback').textContent = "";
+            
+            let num1, num2, operateur;
+
+            if (modeActuel === 'addition') {
+                operateur = "+";
+                if (niveauActuel === 1) { num1 = mathAleatoire(1, 15); num2 = mathAleatoire(1, 10); } 
+                else { num1 = mathAleatoire(10, 50); num2 = mathAleatoire(10, 50); }
+                reponseAttendue = num1 + num2;
             } 
-            else if (modeActuel === 'cp_add20') {
-                n1 = Math.floor(Math.random() * 10) + 5; n2 = Math.floor(Math.random() * 8) + 1;
-                reponseAttendue = n1 + n2; txt = `${n1} + ${n2} =`;
+            else if (modeActuel === 'soustraction') {
+                operateur = "-";
+                // Règle d'or : On s'assure toujours que num1 est plus grand que num2 pour éviter les nombres négatifs !
+                if (niveauActuel === 1) { num1 = mathAleatoire(10, 20); num2 = mathAleatoire(1, num1); } 
+                else { num1 = mathAleatoire(30, 100); num2 = mathAleatoire(10, num1 - 5); }
+                reponseAttendue = num1 - num2;
             }
-            else if (modeActuel === 'cp_sous10') {
-                n1 = Math.floor(Math.random() * 6) + 4; // de 4 à 10
-                n2 = Math.floor(Math.random() * (n1 - 1)) + 1; // plus petit que n1
-                reponseAttendue = n1 - n2; txt = `${n1} - ${n2} =`;
+            else if (modeActuel === 'multiplication') {
+                operateur = "x";
+                let tables = [2, 3, 4, 5, 10];
+                num1 = tables[Math.floor(Math.random() * tables.length)]; // Pioche une table de CE1
+                num2 = mathAleatoire(1, 10); // Multiplié par 1 à 10
+                reponseAttendue = num1 * num2;
             }
-            else if (modeActuel === 'ce1_addDizaines') {
-                n1 = (Math.floor(Math.random() * 4) + 1) * 10; // 10, 20, 30, 40
-                n2 = (Math.floor(Math.random() * 4) + 1) * 10;
-                reponseAttendue = n1 + n2; txt = `${n1} + ${n2} =`;
-            }
-            else if (modeActuel === 'ce1_addCinquante') {
-                n1 = Math.floor(Math.random() * 20) + 10; // 10 à 30
-                n2 = Math.floor(Math.random() * 10) + 5;  // 5 à 15 (sans retenue complexe pour l'instant)
-                reponseAttendue = n1 + n2; txt = `${n1} + ${n2} =`;
-            }
-            else if (modeActuel === 'ce1_doubles') {
-                let base = Math.floor(Math.random() * 10) + 1;
-                reponseAttendue = base * 2; txt = `Double de ${base} =`;
-            }
-            
-            E('question').textContent = txt; 
-            E('reponse').value = ''; E('reponse').disabled = false; 
-            E('btn-valider').style.display = 'inline-block'; 
-            E('reponse').focus(); E('feedback').textContent = '';
+
+            document.getElementById('zone-calcul').textContent = `${num1} ${operateur} ${num2} = ?`;
+            genererBoutonsQCM();
         }
 
-        function verifierReponse() {
-            if (isProcessing) return;
-            let valeur = E('reponse').value; if (valeur.trim() === '') return;
+        function mathAleatoire(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // ==========================================
+        // ALGORITHME DES FAUSSES RÉPONSES (Leurres)
+        // ==========================================
+        function genererBoutonsQCM() {
+            let choix = [reponseAttendue]; // On met la bonne réponse dans le tableau
+
+            // On génère 2 fausses réponses crédibles
+            while(choix.length < 3) {
+                // On crée une variation de -5 à +5 autour de la bonne réponse
+                let ecart = Math.floor(Math.random() * 5) + 1;
+                let fauxChoix = Math.random() > 0.5 ? reponseAttendue + ecart : reponseAttendue - ecart;
+                
+                // Si la fausse réponse est positive et n'est pas déjà dans le tableau, on l'ajoute
+                if(fauxChoix >= 0 && !choix.includes(fauxChoix)) {
+                    choix.push(fauxChoix);
+                }
+            }
+
+            // On mélange le tableau pour que la bonne réponse ne soit pas toujours au même endroit
+            choix.sort(() => Math.random() - 0.5);
+
+            // Création visuelle des boutons HTML
+            const zoneBtns = document.getElementById('zone-boutons');
+            zoneBtns.innerHTML = "";
+            
+            choix.forEach(valeur => {
+                let btn = document.createElement('button');
+                btn.className = 'btn-opt';
+                btn.textContent = valeur;
+                btn.onclick = () => verifierReponse(btn, valeur);
+                zoneBtns.appendChild(btn);
+            });
+        }
+
+        function verifierReponse(boutonElement, valeurChoisie) {
+            if (isProcessing) return; 
             isProcessing = true;
-            E('reponse').disabled = true; E('btn-valider').style.display = 'none';
             
-            if (parseInt(valeur) === reponseAttendue) { 
-                E('feedback').textContent = "Bravo Lola ! ✨"; E('feedback').style.color = "#27ae60"; 
-                profil.xp += 2; sauverProfilCloud();
-                indexQuestion++; setTimeout(poserQuestion, 1000); 
-            } else { 
-                vies--; E('infos-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3 - vies);
-                E('feedback').textContent = `Presque ! C'était ${reponseAttendue}`; E('feedback').style.color = "#c0392b"; 
-                setTimeout(() => { indexQuestion++; poserQuestion(); }, 2000);
+            const fb = document.getElementById('feedback');
+
+            if (valeurChoisie === reponseAttendue) {
+                boutonElement.classList.add('correct');
+                fb.textContent = "Bravo ! ✨"; 
+                fb.style.color = "#27ae60";
+                sauverProfilCloud(3); // 3 XP par calcul réussi
+                setTimeout(poserQuestion, 1000); // Passe à la suivante rapidement
+            } else {
+                boutonElement.classList.add('erreur');
+                vies--; 
+                document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3-vies);
+                fb.textContent = `Aïe ! La réponse était ${reponseAttendue}.`; 
+                fb.style.color = "#e74c3c";
+                
+                // On montre visuellement quelle était la bonne réponse
+                document.querySelectorAll('.btn-opt').forEach(b => { 
+                    if (parseInt(b.textContent) === reponseAttendue) b.classList.add('correct'); 
+                });
+                
+                setTimeout(poserQuestion, 2500); // Laisse plus de temps pour lire l'erreur
             }
         }
 
-        E('reponse').addEventListener("keyup", (e) => { if (e.key === "Enter" && !E('reponse').disabled) verifierReponse(); });
-        chargerProfilCloud();
+        document.addEventListener("DOMContentLoaded", chargerProfilCloud);
     </script>
 </body>
 </html>
