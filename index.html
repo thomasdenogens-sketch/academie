@@ -140,6 +140,9 @@
 
                 <h3 style="font-size: 1rem; color: #7f8c8d; margin-bottom: 10px; text-transform: uppercase;">Tes Missions</h3>
                 <div class="games-list">
+                    <a href="kanban_projet.html" class="game-btn" style="border-color: #3b82f6;">
+                        <span class="game-icon">📋</span><span>Kanban Développeur</span>
+                    </a>
                     <a href="hub_maths_theo.html" class="game-btn" onclick="return enregistrerDepart('Maths', 'Théo')">
                         <span class="game-icon">🧮</span><span>Mathématiques</span>
                     </a>
@@ -243,7 +246,7 @@
         </div>
     </div>
 
-    <!-- NOUVEAU OVERLAY PARENTS (Le Back-Office) -->
+    <!-- NOUVEAU OVERLAY PARENTS (Le Back-Office Connecté au Cloud) -->
     <div id="overlay-parents" class="overlay">
         <div class="modal">
             <h2 style="color: #2c3e50; margin-bottom: 20px;">⚙️ Espace Parents</h2>
@@ -256,7 +259,6 @@
 
             <div id="parametres-parents" style="display: none;">
                 
-                <!-- Section 1 : La Jauge -->
                 <div class="admin-section">
                     <div class="admin-title">🏆 La Jauge Familiale</div>
                     <label class="admin-label">Objectif XP à atteindre :</label>
@@ -266,14 +268,12 @@
                     <input type="text" id="admin-texte-recompense" class="admin-input" placeholder="Ex: Sortie au parc !">
                 </div>
 
-                <!-- Section 2 : Tuning des Jeux -->
                 <div class="admin-section">
                     <div class="admin-title">🎮 Paramètres des Jeux</div>
                     <label class="admin-label">XP quotidien requis pour débloquer le jeu de Code (Théo) :</label>
                     <input type="number" id="admin-seuil-recre" class="admin-input" placeholder="Ex: 50">
                 </div>
 
-                <!-- Section 3 : Temps d'écran -->
                 <div class="admin-section">
                     <div class="admin-title">⏱️ Temps d'écran (Minutes / Jour)</div>
                     <div style="display:flex; gap:10px;">
@@ -282,13 +282,12 @@
                     </div>
                 </div>
 
-                <!-- Section 4 : Outils d'Admin -->
                 <div class="admin-section" style="border-color: #f39c12; background: #fff3cd;">
                     <div class="admin-title" style="color: #d35400; border-color: #f39c12;">⚡ Actions Rapides</div>
                     <button class="btn-valider" style="background: #e67e22;" onclick="donnerBonusManuel()">🎁 +100 XP Bonus à la famille</button>
                 </div>
 
-                <button class="btn-valider" style="background: #2980b9;" onclick="sauvegarderParametres()">💾 Sauvegarder et Appliquer</button>
+                <button class="btn-valider" style="background: #2980b9;" onclick="sauvegarderParametres()">💾 Sauvegarder dans le Cloud</button>
             </div>
 
             <button class="btn-valider" style="background: #95a5a6; margin-top: 10px;" onclick="fermerModals()">Fermer</button>
@@ -296,32 +295,30 @@
     </div>
 
     <script>
-        // CONFIGURATION
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
         const CODE_PIN_PARENT = "1234"; 
         
-        let xpGagnable = 0;
-        let enfantEnQuete = "";
-        let compteurClicsSecrets = 0; 
+        let xpGagnable = 0; let enfantEnQuete = ""; let compteurClicsSecrets = 0; 
+        
+        // Stockage global temporaire des paramètres chargés
+        let parametresActuels = null;
 
-        // --- LECTURE DES VARIABLES DYNAMIQUES ---
-        // Au lieu d'utiliser des "const", on lit la mémoire locale ou on applique une valeur par défaut.
-        function lireParametres() {
-            return {
-                objectifFamille: parseInt(localStorage.getItem('admin_objectifFamille')) || 5000,
-                texteRecompense: localStorage.getItem('admin_texteRecompense') || "Sortie au Parc tous ensemble !",
-                seuilRecreTheo: parseInt(localStorage.getItem('admin_seuilRecreTheo')) || 50,
-                limiteTheo: parseInt(localStorage.getItem('limiteTemps_Théo')) || 30,
-                limiteLola: parseInt(localStorage.getItem('limiteTemps_Lola')) || 30
-            };
+        // --- NOUVEAUTÉ : LECTURE DEPUIS FIREBASE ---
+        async function lireParametresCloud() {
+            try {
+                let res = await fetch(`${FIREBASE_URL}scores/parent_settings.json`);
+                let data = await res.json();
+                if (data) return data;
+            } catch(e) { console.error("Erreur de lecture Cloud"); }
+            
+            // Valeurs par défaut si le fichier n'existe pas encore sur Firebase
+            return { objectifFamille: 5000, texteRecompense: "Sortie au Parc !", seuilRecreTheo: 50, limiteTheo: 30, limiteLola: 30 };
         }
 
         function activerPorteDerobee() {
             compteurClicsSecrets++;
             if (compteurClicsSecrets >= 5) {
-                localStorage.setItem('modeDev', 'actif');
-                localStorage.setItem('tempsJoue_Théo', 0);
-                localStorage.setItem('tempsJoue_Lola', 0);
+                localStorage.setItem('modeDev', 'actif'); localStorage.setItem('tempsJoue_Théo', 0); localStorage.setItem('tempsJoue_Lola', 0);
                 alert("🛠️ MODE DÉVELOPPEUR ACTIVÉ !\n\n- Les temps de jeu ont été réinitialisés à 0.\n- Les jeux bloqués sont déverrouillés.\n- Fini de tester ? Recharge la page.");
                 window.location.reload();
             }
@@ -329,44 +326,39 @@
 
         function determinerNiveau(anneeEntreeCP) {
             const dateActuelle = new Date(); let anneeScolaire = dateActuelle.getFullYear();
-            if (dateActuelle.getMonth() < 8) anneeScolaire--;
-            const anneesEcoulees = anneeScolaire - anneeEntreeCP;
+            if (dateActuelle.getMonth() < 8) anneeScolaire--; const anneesEcoulees = anneeScolaire - anneeEntreeCP;
             const niveaux = ["CP", "CE1", "CE2", "CM1", "CM2", "6ème", "5ème", "4ème", "3ème", "Lycée"];
             return (anneesEcoulees >= 0 && anneesEcoulees < niveaux.length) ? niveaux[anneesEcoulees] : "Scolarisé";
         }
 
         async function chargerJaugeFamiliale() {
-            let params = lireParametres(); // On charge les réglages parents
+            parametresActuels = await lireParametresCloud(); // On attend les réglages du Cloud
 
             try {
-                let resTheo = await fetch(`${FIREBASE_URL}scores/theo.json`);
-                let dataTheo = await resTheo.json() || {};
+                let resTheo = await fetch(`${FIREBASE_URL}scores/theo.json`); let dataTheo = await resTheo.json() || {};
                 let xpTheo = 0; for (let mat in dataTheo) { if(dataTheo[mat].xp) xpTheo += parseInt(dataTheo[mat].xp); }
 
-                let resLola = await fetch(`${FIREBASE_URL}scores/lola.json`);
-                let dataLola = await resLola.json() || {};
+                let resLola = await fetch(`${FIREBASE_URL}scores/lola.json`); let dataLola = await resLola.json() || {};
                 let xpLola = 0; for (let mat in dataLola) { if(dataLola[mat].xp && mat !== "boutiqueLola") xpLola += parseInt(dataLola[mat].xp); }
 
                 let xpTotalFamille = xpTheo + xpLola;
                 
-                // On met à jour l'interface avec les variables dynamiques
-                document.getElementById('xp-famille-objectif').textContent = params.objectifFamille;
+                document.getElementById('xp-famille-objectif').textContent = parametresActuels.objectifFamille;
                 document.getElementById('xp-famille-actuel').textContent = xpTotalFamille;
-                document.getElementById('ui-texte-recompense').innerHTML = `🎁 Récompense en jeu : <strong>${params.texteRecompense}</strong>`;
+                document.getElementById('ui-texte-recompense').innerHTML = `🎁 Récompense en jeu : <strong>${parametresActuels.texteRecompense}</strong>`;
 
-                let pourcentage = Math.min((xpTotalFamille / params.objectifFamille) * 100, 100);
+                let pourcentage = Math.min((xpTotalFamille / parametresActuels.objectifFamille) * 100, 100);
                 document.getElementById('jauge-remplissage').style.width = pourcentage + "%";
                 if (pourcentage >= 100) document.getElementById('jauge-remplissage').style.background = "#2ecc71";
             } catch(e) {}
         }
 
-        function initTempsEcran() {
-            let params = lireParametres();
+        async function initTempsEcran() {
+            if(!parametresActuels) parametresActuels = await lireParametresCloud();
+            
             const aujourdhui = new Date().toLocaleDateString('fr-FR');
             if (localStorage.getItem('dateTempsEcran') !== aujourdhui) {
-                localStorage.setItem('dateTempsEcran', aujourdhui);
-                localStorage.setItem('tempsJoue_Théo', 0);
-                localStorage.setItem('tempsJoue_Lola', 0);
+                localStorage.setItem('dateTempsEcran', aujourdhui); localStorage.setItem('tempsJoue_Théo', 0); localStorage.setItem('tempsJoue_Lola', 0);
             }
 
             let depart = localStorage.getItem('heureDepartJeu'); let enfant = localStorage.getItem('enfantEnCours');
@@ -379,40 +371,27 @@
                 localStorage.removeItem('heureDepartJeu'); localStorage.removeItem('enfantEnCours'); localStorage.removeItem('jeuEnCours');
             }
 
-            actualiserAffichageEnfant('Théo', params.limiteTheo);
-            actualiserAffichageEnfant('Lola', params.limiteLola);
+            actualiserAffichageEnfant('Théo', parametresActuels.limiteTheo);
+            actualiserAffichageEnfant('Lola', parametresActuels.limiteLola);
         }
 
         function actualiserAffichageEnfant(nom, limite) {
             let tempsJoue = parseInt(localStorage.getItem(`tempsJoue_${nom}`)) || 0;
             let nomHtml = nom.toLowerCase().replace('é', 'e');
             const section = document.getElementById(`section-${nomHtml}`);
-            
-            if (tempsJoue >= limite && localStorage.getItem('modeDev') !== 'actif') section.classList.add('section-bloquee');
-            else section.classList.remove('section-bloquee');
+            if (tempsJoue >= limite && localStorage.getItem('modeDev') !== 'actif') section.classList.add('section-bloquee'); else section.classList.remove('section-bloquee');
         }
 
         function enregistrerDepart(nomDuJeu, nomEnfant) {
             let tempsJoue = parseInt(localStorage.getItem(`tempsJoue_${nomEnfant}`)) || 0;
-            let limite = parseInt(localStorage.getItem(`limiteTemps_${nomEnfant}`)) || 30;
+            let limite = nomEnfant === 'Théo' ? parametresActuels.limiteTheo : parametresActuels.limiteLola;
 
-            if (tempsJoue >= limite && localStorage.getItem('modeDev') !== 'actif') {
-                alert(`Ton temps d'écran est écoulé pour aujourd'hui !`); return false; 
-            }
-            localStorage.setItem('jeuEnCours', nomDuJeu); localStorage.setItem('enfantEnCours', nomEnfant); localStorage.setItem('heureDepartJeu', Date.now());
-            return true; 
+            if (tempsJoue >= limite && localStorage.getItem('modeDev') !== 'actif') { alert(`Ton temps d'écran est écoulé pour aujourd'hui !`); return false; }
+            localStorage.setItem('jeuEnCours', nomDuJeu); localStorage.setItem('enfantEnCours', nomEnfant); localStorage.setItem('heureDepartJeu', Date.now()); return true; 
         }
 
-        const matieresTheo = [
-            { id: "mathsV8", nom: "Mathématiques", icon: "🧮" }, { id: "motsSaveV3", nom: "Orthographe", icon: "📖" },
-            { id: "conjHero9", nom: "Conjugaison", icon: "✍️" }, { id: "histoireSaveV1", nom: "Histoire", icon: "⏳" },
-            { id: "geoSaveV1", nom: "Géographie", icon: "🌍" }, { id: "sciencesSaveV1", nom: "Sciences", icon: "🔬" }
-        ];
-
-        const matieresLola = [
-            { id: "mathsLola", nom: "Mathématiques", icon: "🧮" }, { id: "francaisLola", nom: "Français", icon: "📚" },
-            { id: "geoLola", nom: "Découverte du Monde", icon: "🌍" }, { id: "anglaisLola", nom: "Anglais", icon: "🇬🇧" }
-        ];
+        const matieresTheo = [ { id: "mathsV8", nom: "Mathématiques", icon: "🧮" }, { id: "motsSaveV3", nom: "Orthographe", icon: "📖" }, { id: "conjHero9", nom: "Conjugaison", icon: "✍️" }, { id: "histoireSaveV1", nom: "Histoire", icon: "⏳" }, { id: "geoSaveV1", nom: "Géographie", icon: "🌍" }, { id: "sciencesSaveV1", nom: "Sciences", icon: "🔬" } ];
+        const matieresLola = [ { id: "mathsLola", nom: "Mathématiques", icon: "🧮" }, { id: "francaisLola", nom: "Français", icon: "📚" }, { id: "geoLola", nom: "Découverte du Monde", icon: "🌍" }, { id: "anglaisLola", nom: "Anglais", icon: "🇬🇧" } ];
 
         async function genererParcoursIntelligent(nomEnfant, matieresConfig, htmlElementId) {
             const dateDuJour = new Date().toLocaleDateString('fr-FR');
@@ -420,23 +399,20 @@
             if (localStorage.getItem(keyDate) === dateDuJour) { document.getElementById(htmlElementId).innerHTML = localStorage.getItem(keyContenu); return; }
 
             try {
-                let res = await fetch(`${FIREBASE_URL}scores/${nomEnfant.toLowerCase().replace('é', 'e')}.json`);
-                let data = await res.json() || {};
+                let res = await fetch(`${FIREBASE_URL}scores/${nomEnfant.toLowerCase().replace('é', 'e')}.json`); let data = await res.json() || {};
                 let matieresXP = matieresConfig.map(m => { return { ...m, xp: (data[m.id] && data[m.id].xp) ? parseInt(data[m.id].xp) : 0 }; });
-
                 matieresXP.sort((a, b) => a.xp - b.xp);
                 let choix1 = matieresXP[0]; let choix2 = matieresXP[1] || matieresXP[0];
                 let jeuFun = Math.random() > 0.5 ? { nom: "Dactylographie", icon: "⌨️" } : { nom: "Géométrie", icon: "📐" };
                 if (nomEnfant === "Lola") jeuFun = { nom: "Dactylo Junior", icon: "⌨️" };
 
                 let html = `<li>👉 Ta priorité : ${choix1.icon} ${choix1.nom}</li><li>👉 Puis consolider : ${choix2.icon} ${choix2.nom}</li><li>👉 Et pour finir : ${jeuFun.icon} ${jeuFun.nom}</li>`;
-                localStorage.setItem(keyDate, dateDuJour); localStorage.setItem(keyContenu, html);
-                document.getElementById(htmlElementId).innerHTML = html;
+                localStorage.setItem(keyDate, dateDuJour); localStorage.setItem(keyContenu, html); document.getElementById(htmlElementId).innerHTML = html;
             } catch (error) { document.getElementById(htmlElementId).innerHTML = "<li>👉 Choisis librement tes matières !</li>"; }
         }
 
         async function verifierRecreationTheo() {
-            let params = lireParametres();
+            if(!parametresActuels) parametresActuels = await lireParametresCloud();
             try {
                 let res = await fetch(`${FIREBASE_URL}scores/theo.json`); let data = await res.json() || {};
                 let xpTotalActuel = 0; for (const mat in data) { if(data[mat].xp) xpTotalActuel += parseInt(data[mat].xp); }
@@ -451,70 +427,75 @@
                 let xpGagneAujourdhui = Math.max(0, xpTotalActuel - xpDebutJournee);
                 const zoneRecre = document.getElementById('zone-recreation-theo'); const msg = document.getElementById('theo-unlock-msg');
 
-                if (xpGagneAujourdhui >= params.seuilRecreTheo || localStorage.getItem('modeDev') === 'actif') {
+                if (xpGagneAujourdhui >= parametresActuels.seuilRecreTheo || localStorage.getItem('modeDev') === 'actif') {
                     zoneRecre.classList.remove('verrouille'); zoneRecre.classList.add('deverrouille');
                     msg.textContent = "✨ Objectif atteint ! Le jeu de Code est déverrouillé !";
                 } else {
-                    let pourcentage = (xpGagneAujourdhui / params.seuilRecreTheo) * 100;
+                    let pourcentage = (xpGagneAujourdhui / parametresActuels.seuilRecreTheo) * 100;
                     document.getElementById('theo-unlock-bar').style.width = `${pourcentage}%`;
-                    msg.textContent = `Gagne encore ${params.seuilRecreTheo - xpGagneAujourdhui} XP aujourd'hui pour débloquer !`;
+                    msg.textContent = `Gagne encore ${parametresActuels.seuilRecreTheo - xpGagneAujourdhui} XP aujourd'hui pour débloquer !`;
                 }
             } catch(e) {}
         }
 
-        // --- GESTION DU NOUVEAU MENU PARENT ---
-        function ouvrirMenuParents() {
+        async function ouvrirMenuParents() {
             document.getElementById('overlay-parents').style.display = 'flex';
             document.getElementById('pin-parents').value = "";
             document.getElementById('zone-auth-parent').style.display = 'block';
             document.getElementById('parametres-parents').style.display = 'none';
             document.getElementById('msg-parent-erreur').textContent = "";
+            
+            // On s'assure d'avoir les données fraîches depuis le cloud
+            if(!parametresActuels) parametresActuels = await lireParametresCloud();
         }
 
         function authentifierParent() {
             if (document.getElementById('pin-parents').value === CODE_PIN_PARENT) {
-                // On cache la zone de code et on affiche les paramètres
                 document.getElementById('zone-auth-parent').style.display = 'none';
                 document.getElementById('parametres-parents').style.display = 'block';
                 
-                // On remplit les champs avec les paramètres actuels lus en mémoire
-                let params = lireParametres();
-                document.getElementById('admin-objectif-xp').value = params.objectifFamille;
-                document.getElementById('admin-texte-recompense').value = params.texteRecompense;
-                document.getElementById('admin-seuil-recre').value = params.seuilRecreTheo;
-                document.getElementById('admin-temps-theo').value = params.limiteTheo;
-                document.getElementById('admin-temps-lola').value = params.limiteLola;
-            } else { 
-                document.getElementById('msg-parent-erreur').textContent = "Code PIN incorrect."; 
-            }
+                document.getElementById('admin-objectif-xp').value = parametresActuels.objectifFamille;
+                document.getElementById('admin-texte-recompense').value = parametresActuels.texteRecompense;
+                document.getElementById('admin-seuil-recre').value = parametresActuels.seuilRecreTheo;
+                document.getElementById('admin-temps-theo').value = parametresActuels.limiteTheo;
+                document.getElementById('admin-temps-lola').value = parametresActuels.limiteLola;
+            } else { document.getElementById('msg-parent-erreur').textContent = "Code PIN incorrect."; }
         }
 
-        function sauvegarderParametres() {
-            // On sauvegarde ce que le parent a tapé dans la mémoire locale
-            localStorage.setItem('admin_objectifFamille', document.getElementById('admin-objectif-xp').value);
-            localStorage.setItem('admin_texteRecompense', document.getElementById('admin-texte-recompense').value);
-            localStorage.setItem('admin_seuilRecreTheo', document.getElementById('admin-seuil-recre').value);
-            localStorage.setItem('limiteTemps_Théo', document.getElementById('admin-temps-theo').value);
-            localStorage.setItem('limiteTemps_Lola', document.getElementById('admin-temps-lola').value);
+        // --- NOUVEAUTÉ : SAUVEGARDE SUR FIREBASE ---
+        async function sauvegarderParametres() {
+            let paramsCloud = {
+                objectifFamille: parseInt(document.getElementById('admin-objectif-xp').value) || 5000,
+                texteRecompense: document.getElementById('admin-texte-recompense').value || "Surprise !",
+                seuilRecreTheo: parseInt(document.getElementById('admin-seuil-recre').value) || 50,
+                limiteTheo: parseInt(document.getElementById('admin-temps-theo').value) || 30,
+                limiteLola: parseInt(document.getElementById('admin-temps-lola').value) || 30
+            };
             
-            // On met à jour l'interface immédiatement
+            try {
+                await fetch(`${FIREBASE_URL}scores/parent_settings.json`, {
+                    method: 'PUT',
+                    body: JSON.stringify(paramsCloud)
+                });
+                alert("✅ Paramètres sauvegardés sur le Cloud pour toute la famille !");
+                parametresActuels = paramsCloud; // On met à jour la variable globale en mémoire
+            } catch (e) { 
+                alert("Erreur de sauvegarde réseau"); 
+            }
+            
             chargerJaugeFamiliale();
             initTempsEcran(); 
             verifierRecreationTheo();
             fermerModals();
         }
 
-        // Nouvelle fonction Admin : Donner de l'XP gratuit
         async function donnerBonusManuel() {
             try {
-                // On rajoute l'XP bonus directement dans le "mondeReel" de Théo pour que ça s'ajoute à la jauge globale
                 let urlBase = `${FIREBASE_URL}scores/theo/mondeReel.json`;
                 let res = await fetch(urlBase); let data = await res.json() || {};
                 let nouvelXP = (parseInt(data.xp) || 0) + 100;
                 await fetch(urlBase, { method: 'PUT', body: JSON.stringify({ xp: nouvelXP }) });
-                
-                alert("✅ +100 XP ajoutés à la jauge familiale !");
-                chargerJaugeFamiliale();
+                alert("✅ +100 XP ajoutés à la jauge familiale !"); chargerJaugeFamiliale();
             } catch(e) { alert("Erreur de connexion."); }
         }
 
@@ -529,8 +510,7 @@
                 try {
                     let res = await fetch(urlBase); let data = await res.json() || {};
                     await fetch(urlBase, { method: 'PUT', body: JSON.stringify({ xp: (parseInt(data.xp) || 0) + xpGagnable }) });
-                    document.getElementById('msg-quete').textContent = `Magnifique ! +${xpGagnable} XP ! 🎉`;
-                    setTimeout(() => { fermerModals(); chargerJaugeFamiliale(); }, 2000);
+                    document.getElementById('msg-quete').textContent = `Magnifique ! +${xpGagnable} XP ! 🎉`; setTimeout(() => { fermerModals(); chargerJaugeFamiliale(); }, 2000);
                 } catch(e) {}
             } else { document.getElementById('msg-quete').textContent = "Code PIN incorrect 🔴"; }
         }
