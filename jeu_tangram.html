@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Le Tangram - Jeux de Réflexion</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        
+        body { 
+            font-family: 'Nunito', sans-serif; background: #2c3e50; color: #ecf0f1; 
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 20px; 
+            overflow: hidden; /* Empêche de scroller en déplaçant les pièces */
+        }
+        
+        h1 { color: #2ecc71; font-weight: 900; margin-bottom: 5px; }
+        .sous-titre { color: #bdc3c7; margin-bottom: 20px; }
+
+        /* Le plateau de jeu */
+        #plateau-tangram {
+            width: 600px; height: 500px; background: white; border-radius: 15px; border: 4px dashed #7f8c8d;
+            position: relative; box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        /* Les pièces du Tangram (SVG) */
+        .piece { position: absolute; cursor: grab; transition: transform 0.2s, filter 0.2s; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3));}
+        .piece:active { cursor: grabbing; z-index: 100 !important; filter: drop-shadow(5px 10px 15px rgba(0,0,0,0.5));}
+
+        /* Menu latéral d'outils */
+        .toolbar { display: flex; gap: 15px; margin-bottom: 15px; }
+        .btn-outil { background: #34495e; color: white; border: 2px solid #bdc3c7; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 1.1rem;}
+        .btn-outil:hover { background: #2ecc71; border-color: #27ae60; }
+
+        .consigne { font-weight: bold; color: #f1c40f; margin-bottom: 10px;}
+        .btn-nav { background: #95a5a6; color: white; padding: 10px 20px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 20px;}
+    </style>
+</head>
+<body>
+
+    <h1>Le Tangram 🔺</h1>
+    <p class="sous-titre">Reconstruis le carré parfait ou crée tes propres formes !</p>
+
+    <div class="consigne">👉 Clique et glisse une pièce pour la bouger. Double-clique dessus pour la faire tourner !</div>
+
+    <div class="toolbar">
+        <button class="btn-outil" onclick="reinitialiserPieces()">🔄 Ranger les pièces</button>
+    </div>
+
+    <!-- Le Plateau où l'on déplace les divs SVG -->
+    <div id="plateau-tangram"></div>
+
+    <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour</button>
+
+    <script>
+        // Formes SVG pures pour les 7 pièces du Tangram classique
+        const piecesTangram = [
+            { id: "gros1", color: "#e74c3c", path: "M 0 0 L 200 0 L 100 100 Z", w: 200, h: 100, x: 50, y: 50, rot: 0 },
+            { id: "gros2", color: "#3498db", path: "M 0 0 L 0 200 L 100 100 Z", w: 100, h: 200, x: 50, y: 50, rot: 0 },
+            { id: "moyen", color: "#2ecc71", path: "M 100 0 L 200 100 L 100 200 Z", w: 200, h: 200, x: 250, y: 50, rot: 0 },
+            { id: "petit1", color: "#f1c40f", path: "M 0 0 L 100 0 L 50 50 Z", w: 100, h: 50, x: 50, y: 250, rot: 0 },
+            { id: "petit2", color: "#9b59b6", path: "M 0 0 L 100 100 L 0 100 Z", w: 100, h: 100, x: 150, y: 250, rot: 0 },
+            { id: "carre", color: "#e67e22", path: "M 50 0 L 100 50 L 50 100 L 0 50 Z", w: 100, h: 100, x: 250, y: 250, rot: 0 },
+            { id: "para", color: "#1abc9c", path: "M 50 0 L 150 0 L 100 50 L 0 50 Z", w: 150, h: 50, x: 50, y: 350, rot: 0 }
+        ];
+
+        let pieceEnMouvement = null;
+        let decalageX = 0, decalageY = 0;
+        let indexZ = 1;
+
+        function initialiserPlateau() {
+            const plateau = document.getElementById('plateau-tangram');
+            plateau.innerHTML = "";
+
+            piecesTangram.forEach(p => {
+                let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                svg.setAttribute("class", "piece");
+                svg.setAttribute("id", p.id);
+                svg.setAttribute("width", p.w);
+                svg.setAttribute("height", p.h);
+                svg.style.left = p.x + "px";
+                svg.style.top = p.y + "px";
+                svg.dataset.rotation = p.rot;
+
+                let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute("d", p.path);
+                path.setAttribute("fill", p.color);
+                svg.appendChild(path);
+
+                // Événements de souris
+                svg.addEventListener("mousedown", demarrerGlissement);
+                svg.addEventListener("dblclick", tournerPiece); // Le Double-clic pour tourner !
+
+                plateau.appendChild(svg);
+            });
+        }
+
+        // --- MOTEUR DE DRAG & DROP MANUEL ---
+        function demarrerGlissement(e) {
+            pieceEnMouvement = e.currentTarget;
+            indexZ++; 
+            pieceEnMouvement.style.zIndex = indexZ; // Passe au-dessus des autres
+
+            const rect = pieceEnMouvement.getBoundingClientRect();
+            const plateauRect = document.getElementById('plateau-tangram').getBoundingClientRect();
+
+            // On calcule où la souris a cliqué par rapport au coin de la pièce
+            decalageX = e.clientX - rect.left;
+            decalageY = e.clientY - rect.top;
+
+            document.addEventListener("mousemove", glisserPiece);
+            document.addEventListener("mouseup", stopperGlissement);
+        }
+
+        function glisserPiece(e) {
+            if (!pieceEnMouvement) return;
+            const plateauRect = document.getElementById('plateau-tangram').getBoundingClientRect();
+            
+            let nouvX = e.clientX - plateauRect.left - decalageX;
+            let nouvY = e.clientY - plateauRect.top - decalageY;
+
+            pieceEnMouvement.style.left = nouvX + "px";
+            pieceEnMouvement.style.top = nouvY + "px";
+        }
+
+        function stopperGlissement() {
+            pieceEnMouvement = null;
+            document.removeEventListener("mousemove", glisserPiece);
+            document.removeEventListener("mouseup", stopperGlissement);
+        }
+
+        // --- MOTEUR DE ROTATION ---
+        function tournerPiece(e) {
+            let piece = e.currentTarget;
+            let rotActuelle = parseInt(piece.dataset.rotation) || 0;
+            rotActuelle = (rotActuelle + 45) % 360; // Tourne de 45 degrés
+            
+            piece.dataset.rotation = rotActuelle;
+            piece.style.transform = `rotate(${rotActuelle}deg)`;
+        }
+
+        function reinitialiserPieces() {
+            piecesTangram.forEach(p => {
+                let piece = document.getElementById(p.id);
+                piece.style.left = p.x + "px";
+                piece.style.top = p.y + "px";
+                piece.style.transform = `rotate(0deg)`;
+                piece.dataset.rotation = 0;
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", initialiserPlateau);
+    </script>
+</body>
+</html>
