@@ -27,19 +27,38 @@
 
         .hud { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2rem; margin-bottom: 20px; background: #f8f9fa; padding: 10px 20px; border-radius: 12px; border: 2px solid #ecf0f1; }
         
-        /* NOUVEAU DESIGN : Le texte à trou */
         #zone-phrase {
             background: #f1f8ff; padding: 30px; border-radius: 15px; border: 2px dashed #3498db;
             font-size: 1.6rem; font-weight: 700; color: #2c3e50; line-height: 2;
             margin-bottom: 25px; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;
         }
 
+        /* Mode Saisie Classique */
         #input-verbe {
             font-family: 'Nunito', sans-serif; font-size: 1.6rem; font-weight: 900; color: #2980b9;
             border: 3px solid #bdc3c7; border-radius: 10px; padding: 5px 15px; width: 200px; text-align: center; outline: none;
             transition: 0.2s;
         }
         #input-verbe:focus { border-color: #3498db; box-shadow: 0 0 10px rgba(52, 152, 219, 0.3); }
+
+        /* Mode Drag & Drop (Nouveauté CM2) */
+        .slot-container { display: flex; gap: 10px; align-items: center; }
+        .slot { 
+            width: 140px; height: 50px; background: white; border: 3px dashed #bdc3c7; border-radius: 10px; 
+            display: flex; justify-content: center; align-items: center; transition: 0.2s;
+        }
+        .slot.survol { background: #eafaf1; border-color: #2ecc71; transform: scale(1.05); }
+        
+        #banque-mots { 
+            display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 25px;
+            background: #f8f9fa; padding: 15px; border-radius: 15px; border: 2px solid #ecf0f1; min-height: 80px;
+        }
+        
+        .mot-drag { 
+            background: #f39c12; color: white; padding: 8px 20px; border-radius: 8px; 
+            font-size: 1.3rem; font-weight: 900; cursor: grab; box-shadow: 0 4px 0 #d35400; transition: transform 0.1s;
+        }
+        .mot-drag:active { cursor: grabbing; transform: translateY(4px); box-shadow: none; }
 
         .indication-temps { background: #e74c3c; color: white; padding: 5px 15px; border-radius: 20px; font-size: 1rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: inline-block;}
 
@@ -49,6 +68,9 @@
         .btn-secondaire { background: #95a5a6; box-shadow: 0 4px #7f8c8d; }
 
         #feedback { font-size: 1.4rem; font-weight: 900; height: 35px; margin: 15px 0; }
+        
+        .correct-ui { border-color: #27ae60 !important; color: #27ae60 !important; background: #eafaf1 !important; }
+        .erreur-ui { border-color: #e74c3c !important; color: #e74c3c !important; background: #fadbd8 !important; }
     </style>
 </head>
 <body>
@@ -56,24 +78,28 @@
     <div id="app-container">
         <div class="xp-badge">XP: <span id="ui-xp">...</span> ⭐</div>
 
-        <h1>Conjugaison ✍️</h1>
-        <p class="sous-titre">Complète les phrases avec le verbe conjugué !</p>
+        <h1>Conjugaison CM2 ✍️</h1>
+        <p class="sous-titre">Maîtrise les temps simples et les temps composés !</p>
         
         <div class="hud">
             <span style="color:#2980b9;">Question <span id="ui-progression">1/10</span></span>
             <span style="color:#e74c3c;">Vies : <span id="ui-vies">❤️❤️❤️</span></span>
         </div>
 
-        <!-- Indication du temps demandé -->
         <div class="indication-temps" id="ui-temps">Présent</div>
         <div style="font-weight: bold; color: #7f8c8d; margin-bottom: 10px;">Verbe : <span id="ui-infinitif" style="color: #8e44ad; font-size: 1.2rem;">manger</span></div>
 
-        <!-- La nouvelle phrase à trous -->
         <div id="zone-phrase">
             <span id="texte-avant">Demain, je</span>
-            <input type="text" id="input-verbe" autocomplete="off" placeholder="...">
+            
+            <!-- CONTENEUR DYNAMIQUE : Sera basculé via Javascript -->
+            <div id="conteneur-interaction"></div>
+            
             <span id="texte-apres">une pomme.</span>
         </div>
+
+        <!-- LA BANQUE DE MOTS (Visible uniquement en mode Drag & Drop) -->
+        <div id="banque-mots" style="display: none;" ondrop="drop(event)" ondragover="dragOver(event)"></div>
 
         <div id="feedback"></div>
 
@@ -92,16 +118,54 @@
         let isProcessing = false;
         let questionEnCours = null;
 
-        // Base de données structurée
+        // ==========================================
+        // BASE DE DONNÉES ENRICHIE (CM2)
+        // ==========================================
         const bddConjugaison = [
-            { avant: "Demain, nous", infinitif: "manger", temps: "Futur Simple", rep: "mangerons", apres: "au restaurant." },
-            { avant: "En ce moment, il", infinitif: "finir", temps: "Présent", rep: "finit", apres: "ses devoirs." },
-            { avant: "Hier, elles", infinitif: "aller", temps: "Passé Composé", rep: "sont allées", apres: "au cinéma." },
-            { avant: "Autrefois, vous", infinitif: "jouer", temps: "Imparfait", rep: "jouiez", apres: "dans ce parc." },
-            { avant: "Si je pouvais, je", infinitif: "prendre", temps: "Conditionnel Présent", rep: "prendrais", apres: "des vacances." },
-            { avant: "Le mois prochain, tu", infinitif: "faire", temps: "Futur Simple", rep: "feras", apres: "une présentation." },
-            { avant: "Actuellement, je", infinitif: "être", temps: "Présent", rep: "suis", apres: "très concentré." },
-            { avant: "Ce matin, nous", infinitif: "avoir", temps: "Passé Composé", rep: "avons eu", apres: "très froid." }
+            // Temps Simples (Saisie au clavier)
+            { type: "saisie", avant: "Soudain, la foudre", infinitif: "frapper", temps: "Passé Simple", rep: "frappa", apres: "l'arbre." },
+            { type: "saisie", avant: "L'année prochaine, nous", infinitif: "aller", temps: "Futur Simple", rep: "irons", apres: "au collège." },
+            { type: "saisie", avant: "Si j'avais de l'argent, j'", infinitif: "acheter", temps: "Conditionnel Présent", rep: "achèterais", apres: "un vélo." },
+            { type: "saisie", avant: "(Finir)", infinitif: "finir", temps: "Impératif Présent (2e pers. singulier)", rep: "Finis", apres: "tes devoirs immédiatement !" },
+            { type: "saisie", avant: "Hier soir, je", infinitif: "lire", temps: "Imparfait", rep: "lisais", apres: "quand tu es rentré." },
+
+            // Temps Composés (Drag & Drop Auxiliaire + Participe Passé)
+            { 
+                type: "dragdrop", 
+                avant: "Quand la pluie a commencé, ils", 
+                infinitif: "partir", 
+                temps: "Plus-que-parfait", 
+                rep: ["étaient", "partis"], 
+                mots: ["avaient", "étaient", "parti", "partis", "partie"],
+                apres: "depuis une heure." 
+            },
+            { 
+                type: "dragdrop", 
+                avant: "Avant le spectacle, nous", 
+                infinitif: "répéter", 
+                temps: "Plus-que-parfait", 
+                rep: ["avions", "répété"], 
+                mots: ["avions", "étions", "répété", "répétés", "répétée"],
+                apres: "notre texte plusieurs fois." 
+            },
+            { 
+                type: "dragdrop", 
+                avant: "Lola", 
+                infinitif: "prendre", 
+                temps: "Passé Composé", 
+                rep: ["a", "pris"], 
+                mots: ["a", "est", "pris", "prise", "prit"],
+                apres: "son cartable en vitesse." 
+            },
+            { 
+                type: "dragdrop", 
+                avant: "Dès qu'elles", 
+                infinitif: "finir", 
+                temps: "Futur Antérieur", 
+                rep: ["auront", "fini"], 
+                mots: ["auront", "seront", "fini", "finis", "finie"],
+                apres: ", elles pourront jouer." 
+            }
         ];
 
         let questionsMelangees = [];
@@ -117,22 +181,16 @@
         }
 
         function initJeu() {
-            // On mélange la base de données pour avoir des phrases aléatoires
             questionsMelangees = [...bddConjugaison].sort(() => Math.random() - 0.5);
-            indexQuestion = 0;
-            vies = 3;
-            poserQuestion();
+            indexQuestion = 0; vies = 3; poserQuestion();
         }
 
         function poserQuestion() {
             if (vies <= 0) {
-                alert("Plus de vies ! Révise tes terminaisons et réessaie.");
-                return window.location.href='index.html';
+                alert("Plus de vies ! Révise tes terminaisons et réessaie."); return window.location.href='index.html';
             }
             if (indexQuestion >= totalQuestions || indexQuestion >= questionsMelangees.length) {
-                alert(`Série parfaite ! +20 XP Bonus 🎉`);
-                sauverProfilCloud(20);
-                return window.location.href='index.html';
+                alert(`Série parfaite ! +20 XP Bonus 🎉`); sauverProfilCloud(20); return window.location.href='index.html';
             }
 
             isProcessing = false;
@@ -144,51 +202,143 @@
             
             document.getElementById('ui-temps').textContent = questionEnCours.temps;
             document.getElementById('ui-infinitif').textContent = questionEnCours.infinitif;
-            
             document.getElementById('texte-avant').textContent = questionEnCours.avant;
             document.getElementById('texte-apres').textContent = questionEnCours.apres;
             
-            let input = document.getElementById('input-verbe');
-            input.value = "";
-            input.focus();
-            
             document.getElementById('feedback').textContent = "";
-            document.getElementById('input-verbe').style.borderColor = "#bdc3c7";
-            document.getElementById('input-verbe').style.color = "#2980b9";
+            genererInterfaceInteraction();
         }
 
-        function verifierReponse() {
-            if (isProcessing) return;
-            let saisie = document.getElementById('input-verbe').value.trim().toLowerCase();
-            if (saisie === "") return;
-            
-            isProcessing = true;
-            const fb = document.getElementById('feedback');
-            const input = document.getElementById('input-verbe');
+        // ==========================================
+        // LE MOTEUR DE ROUTAGE D'INTERFACE
+        // ==========================================
+        function genererInterfaceInteraction() {
+            const conteneur = document.getElementById('conteneur-interaction');
+            const banqueMots = document.getElementById('banque-mots');
+            conteneur.innerHTML = "";
+            banqueMots.innerHTML = "";
 
-            if (saisie === questionEnCours.rep) {
-                fb.textContent = "C'est exact ! ✨"; fb.style.color = "#27ae60";
-                input.style.borderColor = "#27ae60"; input.style.color = "#27ae60";
-                sauverProfilCloud(5);
-                setTimeout(poserQuestion, 1200);
-            } else {
-                vies--;
-                document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3-vies);
-                fb.textContent = `Aïe ! La bonne réponse était : "${questionEnCours.rep}"`; fb.style.color = "#e74c3c";
-                input.style.borderColor = "#e74c3c"; input.style.color = "#e74c3c";
-                setTimeout(poserQuestion, 3000);
+            if (questionEnCours.type === "saisie") {
+                // Mode Classique
+                banqueMots.style.display = "none";
+                conteneur.innerHTML = `<input type="text" id="input-verbe" autocomplete="off" placeholder="...">`;
+                
+                let input = document.getElementById('input-verbe');
+                input.focus();
+                input.addEventListener('keypress', function (e) { if (e.key === 'Enter') verifierReponse(); });
+            } 
+            else if (questionEnCours.type === "dragdrop") {
+                // Mode Temps Composés (CM2)
+                banqueMots.style.display = "flex";
+                
+                // Création des 2 cases de dépôt (Auxiliaire + Participe)
+                conteneur.innerHTML = `
+                    <div class="slot-container">
+                        <div class="slot" id="slot-0" ondrop="drop(event)" ondragover="dragOver(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)"></div>
+                        <div class="slot" id="slot-1" ondrop="drop(event)" ondragover="dragOver(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)"></div>
+                    </div>
+                `;
+
+                // Création des mots déplaçables
+                let motsMelanges = [...questionEnCours.mots].sort(() => Math.random() - 0.5);
+                motsMelanges.forEach((mot, index) => {
+                    let divMot = document.createElement('div');
+                    divMot.className = "mot-drag";
+                    divMot.textContent = mot;
+                    divMot.id = `mot-${index}`;
+                    divMot.draggable = true;
+                    divMot.ondragstart = dragStart;
+                    banqueMots.appendChild(divMot);
+                });
             }
         }
 
-        // Permet de valider avec la touche "Entrée" du clavier
-        document.getElementById('input-verbe').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') verifierReponse();
-        });
+        // ==========================================
+        // L'API DRAG & DROP HTML5
+        // ==========================================
+        function dragStart(e) { e.dataTransfer.setData('text/plain', e.target.id); }
+        function dragOver(e) { e.preventDefault(); }
+        function dragEnter(e) { if (e.target.classList.contains('slot')) e.target.classList.add('survol'); }
+        function dragLeave(e) { if (e.target.classList.contains('slot')) e.target.classList.remove('survol'); }
 
-        document.addEventListener("DOMContentLoaded", () => {
-            chargerProfilCloud();
-            initJeu();
-        });
+        function drop(e) {
+            e.preventDefault();
+            e.target.classList.remove('survol');
+            
+            const idMot = e.dataTransfer.getData('text/plain');
+            const elementMot = document.getElementById(idMot);
+
+            // Si on lâche dans un emplacement (slot) vide
+            if (e.target.classList.contains('slot') && e.target.children.length === 0) {
+                e.target.appendChild(elementMot);
+            } 
+            // Si on veut remettre le mot dans la banque
+            else if (e.target.id === 'banque-mots' || e.target.classList.contains('mot-drag')) {
+                document.getElementById('banque-mots').appendChild(elementMot);
+            }
+        }
+
+        // ==========================================
+        // LE MOTEUR DE VALIDATION MIXTE
+        // ==========================================
+        function verifierReponse() {
+            if (isProcessing) return;
+            isProcessing = true;
+            const fb = document.getElementById('feedback');
+            let estCorrect = false;
+
+            // VÉRIFICATION MODE SAISIE
+            if (questionEnCours.type === "saisie") {
+                const input = document.getElementById('input-verbe');
+                let saisie = input.value.trim().toLowerCase();
+                
+                if (saisie === "") { isProcessing = false; return; }
+                
+                if (saisie === questionEnCours.rep.toLowerCase()) {
+                    estCorrect = true;
+                    input.classList.add('correct-ui');
+                } else {
+                    input.classList.add('erreur-ui');
+                    fb.innerHTML = `Aïe ! La bonne réponse était : <strong>${questionEnCours.rep}</strong>`;
+                }
+            } 
+            // VÉRIFICATION MODE DRAG & DROP
+            else if (questionEnCours.type === "dragdrop") {
+                const slot0 = document.getElementById('slot-0');
+                const slot1 = document.getElementById('slot-1');
+                
+                if (slot0.children.length === 0 || slot1.children.length === 0) {
+                    fb.textContent = "Place les deux mots avant de valider !";
+                    fb.style.color = "#e67e22";
+                    isProcessing = false; return;
+                }
+
+                let reponse0 = slot0.children[0].textContent.toLowerCase();
+                let reponse1 = slot1.children[0].textContent.toLowerCase();
+
+                if (reponse0 === questionEnCours.rep[0].toLowerCase() && reponse1 === questionEnCours.rep[1].toLowerCase()) {
+                    estCorrect = true;
+                    slot0.classList.add('correct-ui'); slot1.classList.add('correct-ui');
+                } else {
+                    slot0.classList.add('erreur-ui'); slot1.classList.add('erreur-ui');
+                    fb.innerHTML = `Attention ! C'était : <strong>${questionEnCours.rep.join(' ')}</strong>`;
+                }
+            }
+
+            // GESTION DU RÉSULTAT
+            if (estCorrect) {
+                fb.textContent = "C'est exact ! ✨"; fb.style.color = "#27ae60";
+                sauverProfilCloud(5);
+                setTimeout(poserQuestion, 1500);
+            } else {
+                vies--;
+                document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3-vies);
+                fb.style.color = "#e74c3c";
+                setTimeout(poserQuestion, 3500);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => { chargerProfilCloud(); initJeu(); });
     </script>
 </body>
 </html>
