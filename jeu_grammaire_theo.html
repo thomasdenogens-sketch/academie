@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Grammaire CM2 - Théo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: #333; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
+        
+        #app { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); max-width: 800px; width: 100%; text-align: center; position: relative;}
+        
+        h1 { color: #2980b9; font-weight: 900; font-size: 2.2rem; margin-bottom: 5px; }
+        .subtitle { color: #7f8c8d; font-weight: bold; font-size: 1.1rem; margin-bottom: 25px; }
+        .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
+
+        #hud { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; border: 2px solid #ecf0f1;}
+        
+        #consigne { font-size: 1.5rem; font-weight: 900; color: #e67e22; margin-bottom: 25px; background: #fdf2e9; padding: 15px; border-radius: 10px; border-left: 5px solid #d35400;}
+
+        /* L'analyseur de phrase */
+        #phrase-container { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; padding: 20px; background: #f1f8ff; border-radius: 15px; border: 2px dashed #3498db; }
+        
+        .mot-bloc {
+            background: white; border: 2px solid #bdc3c7; padding: 10px 15px; border-radius: 10px;
+            font-size: 1.5rem; font-weight: bold; color: #2c3e50; cursor: pointer; transition: 0.2s;
+            box-shadow: 0 4px 0 #bdc3c7;
+        }
+        .mot-bloc:active { transform: translateY(4px); box-shadow: none; }
+        .mot-bloc.correct { background: #2ecc71; color: white; border-color: #27ae60; box-shadow: 0 4px 0 #2196f3; }
+        .mot-bloc.erreur { background: #e74c3c; color: white; border-color: #c0392b; box-shadow: 0 4px 0 #c0392b; }
+
+        .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; text-decoration: none; display: inline-block; transition: 0.2s;}
+        .btn-nav:hover { background: #7f8c8d; }
+        
+        #feedback { font-size: 1.5rem; font-weight: 900; height: 40px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+
+    <div id="app">
+        <div class="xp-badge" id="ui-xp">XP: ... ⭐</div>
+        
+        <h1>L'Analyse Logique 🔎</h1>
+        <p class="subtitle">Nature et Fonction des mots (Niveau CM2)</p>
+        
+        <div id="hud">
+            <span id="ui-vies" style="letter-spacing: 5px;">❤️❤️❤️</span>
+            <span id="ui-progression" style="color: #7f8c8d;">1 / 10</span>
+        </div>
+        
+        <div id="consigne">Trouve le COD de cette phrase !</div>
+
+        <!-- C'est ici que l'algorithme va découper la phrase en boutons -->
+        <div id="phrase-container"></div>
+
+        <div id="feedback"></div>
+
+        <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+    </div>
+
+    <script>
+        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+        const DB_URL = `${FIREBASE_URL}scores/theo/grammaireV1.json`;
+
+        // BASE DE DONNÉES D'ANALYSE LOGIQUE (CM2)
+        const bddGrammaire = [
+            { consigne: "Trouve le Verbe Conjugué", mots: ["Le petit chien", "dort", "sur le canapé."], rep: 1 },
+            { consigne: "Trouve le Sujet", mots: ["Le petit chien", "dort", "sur le canapé."], rep: 0 },
+            { consigne: "Trouve le COD (Complément d'Objet Direct)", mots: ["Théo", "mange", "une grosse pomme."], rep: 2 },
+            { consigne: "Trouve le COI (Complément d'Objet Indirect)", mots: ["Il", "parle", "à son meilleur ami."], rep: 2 },
+            { consigne: "Trouve l'Adjectif Qualificatif", mots: ["Lola a vu", "un grand", "oiseau."], rep: 1 },
+            { consigne: "Trouve le Complément Circonstanciel de Lieu (Où ?)", mots: ["Demain,", "nous irons", "à la mer."], rep: 2 },
+            { consigne: "Trouve le Complément Circonstanciel de Temps (Quand ?)", mots: ["Ce matin,", "le soleil", "brille."], rep: 0 },
+            { consigne: "Trouve le Pronom Personnel", mots: ["Lola dit qu'", "elle", "aime les mathématiques."], rep: 1 }
+        ];
+
+        let profil = { xp: 0 };
+        let vies = 3;
+        let indexQuestion = 0;
+        let listeQuestions = [];
+        let bloque = false;
+
+        async function chargerProfil() {
+            try { let res = await fetch(DB_URL); let data = await res.json(); if (data && data.xp) profil.xp = parseInt(data.xp) || 0; } catch(e) {}
+            document.getElementById('ui-xp').textContent = `XP: ${profil.xp} ⭐`;
+        }
+
+        async function ajouterXP(points) {
+            profil.xp += points; document.getElementById('ui-xp').textContent = `XP: ${profil.xp} ⭐`;
+            try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
+        }
+
+        function initJeu() {
+            // Tire 10 questions au hasard (ou toutes s'il y en a moins de 10)
+            listeQuestions = [...bddGrammaire].sort(() => Math.random() - 0.5).slice(0, 10);
+            poserQuestion();
+        }
+
+        function poserQuestion() {
+            if (vies <= 0) { alert("Plus de vies ! Révise tes leçons de CM2."); return window.location.href = 'index.html'; }
+            if (indexQuestion >= listeQuestions.length) { alert("Mission parfaite ! +20 XP !"); ajouterXP(20); return window.location.href = 'index.html'; }
+
+            bloque = false;
+            document.getElementById('ui-progression').textContent = `${indexQuestion + 1} / ${listeQuestions.length}`;
+            document.getElementById('feedback').textContent = "";
+            
+            let data = listeQuestions[indexQuestion];
+            document.getElementById('consigne').textContent = "🎯 " + data.consigne;
+
+            const container = document.getElementById('phrase-container');
+            container.innerHTML = "";
+
+            // L'algorithme génère un bouton pour chaque groupe de mots
+            data.mots.forEach((groupe, index) => {
+                let btn = document.createElement('button');
+                btn.className = "mot-bloc";
+                btn.textContent = groupe;
+                btn.onclick = () => verifier(btn, index === data.rep);
+                container.appendChild(btn);
+            });
+        }
+
+        function verifier(bouton, estCorrect) {
+            if(bloque) return;
+            bloque = true;
+
+            const fb = document.getElementById('feedback');
+
+            if (estCorrect) {
+                bouton.classList.add('correct');
+                fb.textContent = "C'est exact ! ✨"; fb.style.color = "#27ae60";
+                ajouterXP(5);
+                setTimeout(() => { indexQuestion++; poserQuestion(); }, 1500);
+            } else {
+                bouton.classList.add('erreur');
+                vies--;
+                document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3-vies);
+                fb.textContent = "Aïe... Regarde la bonne réponse en vert."; fb.style.color = "#c0392b";
+                
+                let repIndex = listeQuestions[indexQuestion].rep;
+                document.querySelectorAll('.mot-bloc')[repIndex].classList.add('correct');
+                
+                setTimeout(() => { indexQuestion++; poserQuestion(); }, 3000);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => { chargerProfil(); initJeu(); });
+    </script>
+</body>
+</html>
