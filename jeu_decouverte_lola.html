@@ -17,7 +17,7 @@
         
         #app-container { 
             background: white; padding: 30px; border-radius: 20px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2); max-width: 700px; width: 100%; text-align: center; position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); max-width: 750px; width: 100%; text-align: center; position: relative;
         }
         
         h1 { color: #27ae60; font-weight: 900; font-size: 2.2rem; margin-bottom: 5px; }
@@ -25,25 +25,35 @@
         
         .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
 
-        /* Menu des thèmes */
-        .grid-menu { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 25px; }
-        .btn-menu-theme {
-            background: #f8f9fa; border: 3px solid #e2e8f0; padding: 15px 20px; border-radius: 15px;
-            font-size: 1.2rem; font-weight: bold; color: #2c3e50; cursor: pointer; transition: 0.2s;
-            display: flex; align-items: center; justify-content: flex-start; gap: 15px; text-align: left;
+        /* Menu des thèmes avec Niveaux */
+        .theme-container { border: 2px solid #ecf0f1; border-radius: 15px; padding: 15px; margin-bottom: 20px; text-align: left; }
+        .theme-header { font-size: 1.4rem; font-weight: 900; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .theme-espace .theme-header { color: #3498db; }
+        .theme-temps .theme-header { color: #e67e22; }
+        .theme-vivant .theme-header { color: #27ae60; }
+
+        .grid-niveaux { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .btn-menu-niv {
+            background: #f8f9fa; border: 3px solid #e2e8f0; padding: 12px; border-radius: 12px;
+            font-size: 1.1rem; font-weight: bold; color: #2c3e50; cursor: pointer; transition: 0.2s;
+            display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center;
         }
-        .btn-menu-theme:hover { transform: translateX(5px); background: #f0fdf4;}
-        .theme-espace { border-color: #3498db; }
-        .theme-temps { border-color: #e67e22; }
-        .theme-vivant { border-color: #27ae60; }
-        .theme-icon { font-size: 2.5rem; }
+        .btn-menu-niv:hover { transform: translateY(-4px); box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
+        .theme-espace .btn-menu-niv:hover { border-color: #3498db; background: #ebf5fb; }
+        .theme-temps .btn-menu-niv:hover { border-color: #e67e22; background: #fdf2e9; }
+        .theme-vivant .btn-menu-niv:hover { border-color: #27ae60; background: #eafaf1; }
 
         /* HUD Jeu */
         #hud { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; border: 2px solid #ecf0f1;}
+        #ui-titre-niveau { color: #27ae60; font-weight: 900; font-size: 1.2rem;}
+
+        /* Zone de la question enrichie */
+        #question-box { background: #f1f8ff; padding: 20px; border-radius: 15px; border: 3px dashed #3498db; margin-bottom: 25px; }
+        #question-image { font-size: 4rem; margin-bottom: 10px; animation: pop 0.3s ease-out; }
+        #question-texte { font-size: 1.4rem; font-weight: 900; color: #2c3e50; line-height: 1.4; }
         
-        #question-box { background: #f1f8ff; padding: 25px; border-radius: 15px; border: 3px dashed #3498db; margin-bottom: 25px; }
-        #question-texte { font-size: 1.5rem; font-weight: 900; color: #2c3e50; line-height: 1.4; }
-        
+        @keyframes pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+
         .zone-boutons { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;}
         .btn-rep { background: white; border: 3px solid #bdc3c7; padding: 15px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; color: #34495e; cursor: pointer; transition: 0.1s; box-shadow: 0 4px 0 #bdc3c7; display: flex; align-items: center; justify-content: center; min-height: 80px;}
         .btn-rep:active { transform: translateY(4px); box-shadow: none; }
@@ -71,28 +81,43 @@
             <h1>Découverte du Monde 🌍</h1>
             <p class="subtitle">Espace, Temps et Nature (Niveau CE1)</p>
             
-            <div class="grid-menu">
-                <button class="btn-menu-theme theme-espace" onclick="lancerNiveau('espace')">
-                    <span class="theme-icon">🗺️</span>
-                    <div>
-                        <div style="color:#3498db;">L'Espace et la Géographie</div>
-                        <div style="font-size:0.9rem; color:#7f8c8d;">Continents, paysages, océans...</div>
-                    </div>
-                </button>
-                <button class="btn-menu-theme theme-temps" onclick="lancerNiveau('temps')">
-                    <span class="theme-icon">⏳</span>
-                    <div>
-                        <div style="color:#e67e22;">Le Temps qui passe</div>
-                        <div style="font-size:0.9rem; color:#7f8c8d;">Jours, mois, saisons, l'heure...</div>
-                    </div>
-                </button>
-                <button class="btn-menu-theme theme-vivant" onclick="lancerNiveau('vivant')">
-                    <span class="theme-icon">🌱</span>
-                    <div>
-                        <div style="color:#27ae60;">Le Monde Vivant</div>
-                        <div style="font-size:0.9rem; color:#7f8c8d;">Animaux, plantes, eau...</div>
-                    </div>
-                </button>
+            <!-- SECTION ESPACE -->
+            <div class="theme-container theme-espace">
+                <div class="theme-header">🗺️ L'Espace et la Géographie</div>
+                <div class="grid-niveaux">
+                    <button class="btn-menu-niv" onclick="lancerNiveau('espace_1', 'La Terre et l\'Eau')">
+                        <span style="font-size: 1.5rem;">🌍</span><span>Niv 1 : La Terre et l'eau</span>
+                    </button>
+                    <button class="btn-menu-niv" onclick="lancerNiveau('espace_2', 'Les Paysages')">
+                        <span style="font-size: 1.5rem;">🏔️</span><span>Niv 2 : Les Paysages</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- SECTION TEMPS -->
+            <div class="theme-container theme-temps">
+                <div class="theme-header">⏳ Le Temps qui passe</div>
+                <div class="grid-niveaux">
+                    <button class="btn-menu-niv" onclick="lancerNiveau('temps_1', 'Les Jours et Saisons')">
+                        <span style="font-size: 1.5rem;">📅</span><span>Niv 1 : Les Jours et Saisons</span>
+                    </button>
+                    <button class="btn-menu-niv" onclick="lancerNiveau('temps_2', 'Passé, Présent, Futur')">
+                        <span style="font-size: 1.5rem;">🕰️</span><span>Niv 2 : Passé, Présent, Futur</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- SECTION VIVANT -->
+            <div class="theme-container theme-vivant">
+                <div class="theme-header">🌱 Le Monde Vivant</div>
+                <div class="grid-niveaux">
+                    <button class="btn-menu-niv" onclick="lancerNiveau('vivant_1', 'Animaux et Plantes')">
+                        <span style="font-size: 1.5rem;">🦊</span><span>Niv 1 : Animaux et Plantes</span>
+                    </button>
+                    <button class="btn-menu-niv" onclick="lancerNiveau('vivant_2', 'Vivant ou Non-Vivant ?')">
+                        <span style="font-size: 1.5rem;">🪨</span><span>Niv 2 : Vivant ou Non-Vivant ?</span>
+                    </button>
+                </div>
             </div>
             
             <button class="btn-nav" style="margin-top: 10px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
@@ -102,10 +127,12 @@
         <div id="ecran-jeu" class="ecran">
             <div id="hud">
                 <span id="ui-vies" style="letter-spacing: 5px;">❤️❤️❤️</span>
+                <span id="ui-titre-niveau">Thème</span>
                 <span id="ui-progression" style="color: #7f8c8d;">1 / 5</span>
             </div>
             
             <div id="question-box">
+                <div id="question-image">❓</div>
                 <div id="question-texte">Chargement...</div>
             </div>
 
@@ -118,31 +145,51 @@
 
     <script>
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
-        // On conserve l'ancienne base de données pour garder l'XP de Lola
         const DB_URL = `${FIREBASE_URL}scores/lola/geoLola.json`;
 
-        // BASE DE DONNÉES DÉCOUVERTE DU MONDE CE1
+        // BASE DE DONNÉES ENRICHIE AVEC DES EMOJIS VISUELS
         const bdd = {
-            espace: [
-                { q: "Sur quel continent habitons-nous ?", rep: "En Europe", faux: ["En Asie", "En Afrique", "En Amérique"] },
-                { q: "Quel est le paysage où l'on trouve du sable et la mer ?", rep: "Le littoral (la plage)", faux: ["La montagne", "La campagne", "La forêt"] },
-                { q: "Quelle est la capitale de la France ?", rep: "Paris", faux: ["Lyon", "Marseille", "Londres"] },
-                { q: "Comment s'appelle une grande étendue d'eau salée ?", rep: "Un océan ou une mer", faux: ["Une rivière", "Un lac", "Un fleuve"] },
-                { q: "Qu'est-ce qu'une île ?", rep: "Une terre entourée d'eau", faux: ["Une grande montagne", "Une forêt très dense", "Un désert de sable"] }
+            espace_1: [
+                { img: "🌍", q: "Sur quel continent habitons-nous ?", rep: "En Europe", faux: ["En Asie", "En Afrique", "En Amérique"] },
+                { img: "🌊", q: "Comment s'appelle une très grande étendue d'eau salée ?", rep: "Un océan", faux: ["Une rivière", "Un lac", "Un fleuve"] },
+                { img: "🏝️", q: "Qu'est-ce qu'une île ?", rep: "Une terre entourée d'eau", faux: ["Une grande montagne", "Une forêt très dense", "Un désert de sable"] },
+                { img: "🇫🇷", q: "Quelle est la capitale de la France ?", rep: "Paris", faux: ["Lyon", "Marseille", "Londres"] },
+                { img: "🌐", q: "Comment s'appelle l'objet rond qui représente la Terre ?", rep: "Un globe terrestre", faux: ["Une boussole", "Une longue-vue", "Une carte"] }
             ],
-            temps: [
-                { q: "Combien y a-t-il de mois dans une année entière ?", rep: "12 mois", faux: ["10 mois", "7 mois", "24 mois"] },
-                { q: "Quelle saison vient juste après l'hiver ?", rep: "Le printemps", faux: ["L'été", "L'automne", "La mousson"] },
-                { q: "Combien y a-t-il d'heures dans une journée complète ?", rep: "24 heures", faux: ["12 heures", "60 heures", "7 heures"] },
-                { q: "Quel mois vient juste après le mois d'Août ?", rep: "Septembre", faux: ["Juillet", "Octobre", "Décembre"] },
-                { q: "Dans quelle saison les feuilles tombent-elles des arbres ?", rep: "L'automne", faux: ["Le printemps", "L'été", "L'hiver"] }
+            espace_2: [
+                { img: "🏖️", q: "Quel est le paysage où l'on trouve du sable et la mer ?", rep: "Le littoral (la côte)", faux: ["La montagne", "La campagne", "La forêt"] },
+                { img: "🏙️", q: "Où trouve-t-on beaucoup de grands immeubles et de routes ?", rep: "En ville", faux: ["À la campagne", "À la montagne", "Dans la forêt"] },
+                { img: "🚜", q: "Où trouve-t-on des champs cultivés et des fermes ?", rep: "À la campagne", faux: ["En ville", "Au pôle nord", "Dans le désert"] },
+                { img: "⛷️", q: "Dans quel paysage peut-on voir des vallées et des sommets ?", rep: "À la montagne", faux: ["Sur le littoral", "En pleine ville", "Dans l'océan"] },
+                { img: "🧭", q: "Quel outil utilise-t-on pour s'orienter et trouver le Nord ?", rep: "Une boussole", faux: ["Un thermomètre", "Une montre", "Une balance"] }
             ],
-            vivant: [
-                { q: "Que faut-il à une plante pour grandir ?", rep: "De l'eau et de la lumière", faux: ["Seulement de la terre", "Du vent et du sable", "Rien du tout"] },
-                { q: "Lequel de ces animaux est un mammifère (il allaite ses petits) ?", rep: "Le chat", faux: ["La poule", "Le crocodile", "Le requin"] },
-                { q: "Sous quelle forme est l'eau quand elle est transformée en glace ?", rep: "Solide", faux: ["Liquide", "Gazeuse", "Chaude"] },
-                { q: "Comment appelle-t-on les animaux qui mangent de la viande ?", rep: "Les carnivores", faux: ["Les herbivores", "Les végétariens", "Les omnivores"] },
-                { q: "Quel insecte fabrique du miel ?", rep: "L'abeille", faux: ["La fourmi", "Le moustique", "Le papillon"] }
+            temps_1: [
+                { img: "📆", q: "Combien y a-t-il de mois dans une année entière ?", rep: "12 mois", faux: ["10 mois", "7 mois", "24 mois"] },
+                { img: "🌸", q: "Quelle saison vient juste après l'hiver ?", rep: "Le printemps", faux: ["L'été", "L'automne", "La saison des pluies"] },
+                { img: "🏫", q: "Quel mois marque la rentrée des classes en France ?", rep: "Septembre", faux: ["Juillet", "Octobre", "Décembre"] },
+                { img: "🍂", q: "Dans quelle saison les feuilles tombent-elles des arbres ?", rep: "L'automne", faux: ["Le printemps", "L'été", "L'hiver"] },
+                { img: "🌞", q: "Quelle est la saison la plus chaude de l'année ?", rep: "L'été", faux: ["L'hiver", "L'automne", "Le printemps"] }
+            ],
+            temps_2: [
+                { img: "⌚", q: "Combien y a-t-il d'heures dans une journée complète ?", rep: "24 heures", faux: ["12 heures", "60 heures", "7 heures"] },
+                { img: "🦕", q: "Le temps des dinosaures, c'est...", rep: "Le passé", faux: ["Le présent", "Le futur", "Demain"] },
+                { img: "🚀", q: "Quand tu seras grande et que tu travailleras, ce sera...", rep: "Le futur", faux: ["Le passé", "Le présent", "Hier"] },
+                { img: "🎮", q: "Ce que tu es en train de faire en ce moment même, c'est...", rep: "Le présent", faux: ["Le passé", "Le futur", "L'année prochaine"] },
+                { img: "⏰", q: "S'il est 8h00, c'est...", rep: "Le matin", faux: ["L'après-midi", "Le soir", "La nuit"] }
+            ],
+            vivant_1: [
+                { img: "🌱", q: "Que faut-il à une plante pour grandir ?", rep: "De l'eau et de la lumière", faux: ["Seulement de la terre", "Du vent et du sable", "Rien du tout"] },
+                { img: "🐱", q: "Lequel de ces animaux est un mammifère (il allaite ses petits) ?", rep: "Le chat", faux: ["La poule", "Le crocodile", "Le requin"] },
+                { img: "🧊", q: "Sous quelle forme est l'eau quand elle est transformée en glace ?", rep: "Solide", faux: ["Liquide", "Gazeuse", "Chaude"] },
+                { img: "🐝", q: "Quel insecte butine les fleurs pour fabriquer du miel ?", rep: "L'abeille", faux: ["La fourmi", "Le moustique", "Le papillon"] },
+                { img: "🐣", q: "Comment appelle-t-on un animal qui naît dans un œuf ?", rep: "Un ovipare", faux: ["Un mammifère", "Un herbivore", "Un dinosaure"] }
+            ],
+            vivant_2: [
+                { img: "🪨", q: "Lequel de ces éléments est NON-VIVANT ?", rep: "Un caillou", faux: ["Un arbre", "Une fourmi", "Un champignon"] },
+                { img: "🦁", q: "Comment appelle-t-on les animaux qui mangent de la viande ?", rep: "Les carnivores", faux: ["Les herbivores", "Les végétariens", "Les omnivores"] },
+                { img: "🐄", q: "La vache mange de l'herbe. Elle est donc...", rep: "Herbivore", faux: ["Carnivore", "Insectivore", "Omnivore"] },
+                { img: "🧍‍♀️", q: "Les humains mangent de tout (viande, plantes). Ils sont...", rep: "Omnivores", faux: ["Herbivores", "Carnivores", "Granivores"] },
+                { img: "🌳", q: "Un arbre grandit, se nourrit et meurt. Est-il vivant ?", rep: "Oui, c'est un être vivant", faux: ["Non, c'est comme un caillou", "Non, car il ne bouge pas", "Non, car il ne parle pas"] }
             ]
         };
 
@@ -155,7 +202,6 @@
 
         const E = (id) => document.getElementById(id);
 
-        // --- GESTION DU CLOUD ---
         async function chargerProfilCloud() {
             try {
                 let res = await fetch(DB_URL);
@@ -172,15 +218,15 @@
         function majXP() { E('ui-xp').textContent = `XP: ${profil.xp} ⭐`; }
         function ajouterXP(points) { profil.xp += points; majXP(); sauverProfilCloud(); }
 
-        // --- NAVIGATION ---
         function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); E(id).classList.add('actif'); }
         function retourAccueil() { changerEcran('ecran-accueil'); }
 
-        // --- MOTEUR DE JEU ---
-        function lancerNiveau(mode) {
+        function lancerNiveau(mode, titreNiveau) {
             vies = 3; 
             indexQuestion = 0; 
-            // Mélange et sélectionne 5 questions du thème
+            E('ui-titre-niveau').textContent = titreNiveau;
+            
+            // Si la base contient plus de 5 questions à l'avenir, ça en piochera 5 aléatoirement !
             listeQuestions = [...bdd[mode]].sort(() => Math.random() - 0.5).slice(0, 5); 
             
             E('ui-vies').textContent = "❤️❤️❤️"; 
@@ -192,11 +238,12 @@
 
         function poserQuestion() {
             if (vies <= 0) {
-                alert("Plus de vies ! Entraîne-toi encore.");
+                alert("Plus de vies ! Réfléchis bien et réessaie.");
                 return retourAccueil();
             }
             if (indexQuestion >= listeQuestions.length) {
-                alert("Série terminée ! Bien joué Lola !");
+                alert("Niveau terminé ! Bien joué Lola ! +15 XP 🎉");
+                ajouterXP(15);
                 return retourAccueil();
             }
 
@@ -206,8 +253,12 @@
             
             questionActuelle = listeQuestions[indexQuestion];
             E('question-texte').textContent = questionActuelle.q;
+            E('question-image').textContent = questionActuelle.img; // Affiche l'emoji
             
-            // Mélange de la bonne réponse avec les mauvaises
+            // Retire l'animation et la remet pour qu'elle s'exécute à chaque question
+            E('question-image').style.animation = 'none';
+            setTimeout(() => { E('question-image').style.animation = ''; }, 10);
+
             let options = [questionActuelle.rep, ...questionActuelle.faux];
             options.sort(() => Math.random() - 0.5);
 
@@ -232,23 +283,22 @@
 
             if (isCorrect) {
                 btn.classList.add('correct');
-                fb.textContent = "Excellent ! ✨"; fb.style.color = "#27ae60"; ajouterXP(10);
+                fb.textContent = "Excellent ! ✨"; fb.style.color = "#27ae60"; ajouterXP(5);
                 setTimeout(() => { indexQuestion++; poserQuestion(); }, 1500);
             } else {
                 btn.classList.add('erreur');
                 fb.textContent = "Aïe... Regarde la bonne réponse."; fb.style.color = "#c0392b";
                 
-                // Révéler la bonne réponse
                 document.querySelectorAll('.btn-rep').forEach(b => {
                     if (b.textContent === questionActuelle.rep) b.classList.add('correct');
                 });
 
                 vies--; E('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3 - vies);
-                setTimeout(() => { poserQuestion(); }, 2500);
+                setTimeout(() => { indexQuestion++; poserQuestion(); }, 3500);
             }
         }
 
-        chargerProfilCloud();
+        document.addEventListener("DOMContentLoaded", chargerProfilCloud);
     </script>
 </body>
 </html>
