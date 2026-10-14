@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Histoire - La Machine à Remonter le Temps V2</title>
+    <title>Histoire CM2 - La Ligne du Temps</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
         
@@ -17,20 +17,21 @@
         #app-container {
             background: white; padding: 25px 35px; border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-            max-width: 950px; width: 100%; text-align: center;
+            max-width: 950px; width: 100%; text-align: center; position: relative;
         }
 
         h1 { color: #8b5a2b; font-weight: 900; font-size: 2.2rem; margin-bottom: 5px; }
-        .sous-titre { color: #888; margin-bottom: 20px; font-weight: 700; }
+        .sous-titre { color: #888; margin-bottom: 20px; font-weight: 700; font-size: 1.1rem;}
+
+        .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
 
         /* HUD */
         #hud {
             display: flex; justify-content: space-between;
             background: #f8f9fa; padding: 12px 20px; border-radius: 12px;
-            margin-bottom: 20px; font-weight: bold; font-size: 1.1rem;
+            margin-bottom: 20px; font-weight: bold; font-size: 1.2rem; border: 2px solid #ecf0f1;
         }
-        .xp-text { color: #e67e22; font-weight: 900; }
-        .vies-text { letter-spacing: 5px; }
+        .vies-text { letter-spacing: 5px; color: #e74c3c;}
 
         /* Frise Chronologique */
         #frise-container {
@@ -54,16 +55,16 @@
         /* Cartes d'événements */
         #deck-container {
             display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;
-            min-height: 130px; padding: 15px; background: #f8f9fa; border-radius: 15px;
+            min-height: 130px; padding: 15px; background: #f8f9fa; border-radius: 15px; border: 2px solid #ecf0f1;
         }
 
         .carte-event {
-            background: #fff; border: 2px solid #ddd; padding: 15px 10px; border-radius: 10px;
+            background: #fff; border: 3px solid #ddd; padding: 15px 10px; border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; font-weight: bold; color: #444;
             width: 140px; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; font-size: 0.95rem;
         }
-        .carte-event .emoji { font-size: 2rem; margin-bottom: 5px; }
+        .carte-event .emoji { font-size: 2rem; margin-bottom: 5px; pointer-events: none;}
         .carte-event:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
         .carte-event.selectionnee { border-color: #f39c12; background: #f39c12; color: white; transform: scale(1.1); box-shadow: 0 8px 15px rgba(243, 156, 18, 0.4); }
         .carte-event.erreur { background: #e74c3c; color: white; border-color: #c0392b; animation: secousse 0.4s; }
@@ -99,70 +100,68 @@
         .ecran.actif { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
         
-        #feedback { font-size: 1.2rem; font-weight: bold; height: 30px; margin: 15px 0; }
+        #feedback { font-size: 1.4rem; font-weight: bold; height: 30px; margin: 15px 0; }
     </style>
 </head>
 <body>
 
     <div id="app-container">
+        <div class="xp-badge">XP: <span id="ui-xp">...</span> ⭐</div>
         
+        <!-- MENU PRINCIPAL -->
         <div id="ecran-accueil" class="ecran actif">
-            <h1>Histoire ⏳</h1>
-            <p class="sous-titre">La Machine à Remonter le Temps V2</p>
-            
-            <div id="hud" style="justify-content: center;">
-                <span class="xp-text">XP Histoire : <span id="ui-xp-accueil">0</span> ⭐</span>
-            </div>
+            <h1>Histoire CM2 ⏳</h1>
+            <p class="sous-titre">De la Révolution à l'Époque Contemporaine</p>
 
-            <h3>Les Grandes Périodes :</h3>
-            <div style="margin-bottom: 20px;">
-                <button class="btn btn-primaire" onclick="lancerNiveau('prehistoire', false)">🦖 La Préhistoire</button>
-                <button class="btn btn-primaire" style="background:#c0392b; box-shadow:0 4px #922b21;" onclick="lancerNiveau('antiquite', false)">🏛️ L'Antiquité</button>
-                <button class="btn btn-primaire" style="background:#2980b9; box-shadow:0 4px #1f618d;" onclick="lancerNiveau('moyen_age', false)">🏰 Le Moyen Âge</button>
-                <button class="btn btn-primaire" style="background:#8e44ad; box-shadow:0 4px #5b2c6f;" onclick="lancerNiveau('temps_modernes', false)">🚂 Temps Modernes & Époque Contemp.</button>
+            <h3 style="margin-top: 15px;">Les Grandes Périodes :</h3>
+            <div style="margin-bottom: 20px; margin-top: 10px;">
+                <button class="btn btn-primaire" onclick="lancerNiveau('revolution', false)">✊ La Révolution & l'Empire</button>
+                <button class="btn btn-primaire" style="background:#c0392b; box-shadow:0 4px #922b21;" onclick="lancerNiveau('xix_siecle', false)">🚂 Le XIXe Siècle</button>
+                <button class="btn btn-primaire" style="background:#2980b9; box-shadow:0 4px #1f618d;" onclick="lancerNiveau('guerres', false)">🎖️ Les Guerres Mondiales</button>
+                <button class="btn btn-primaire" style="background:#8e44ad; box-shadow:0 4px #5b2c6f;" onclick="lancerNiveau('contemporain', false)">🇪🇺 La France depuis 1945</button>
             </div>
 
             <hr style="border: 1px solid #eee; margin: 20px 0;">
 
             <h3>Tes propres frises :</h3>
-            <div id="liste-themes-custom">
-                </div>
+            <div id="liste-themes-custom"></div>
 
             <div style="margin-top: 30px;">
                 <button class="btn btn-primaire" style="background: #27ae60; box-shadow: 0 4px #1e8449;" onclick="changerEcran('ecran-config')">➕ Créer une Frise</button>
                 <br>
-                <button class="btn btn-secondaire" style="margin-top: 15px;" onclick="window.location.href='academie.html'">🏠 Retour à l'Académie</button>
+                <button class="btn btn-secondaire" style="margin-top: 15px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
             </div>
         </div>
 
+        <!-- ECRAN DE JEU -->
         <div id="ecran-jeu" class="ecran">
             <div id="hud">
-                <span class="vies-text" id="ui-vies">❤️❤️❤️</span>
                 <span id="ui-theme-titre" style="color: #8b5a2b;">Mission : ...</span>
-                <span class="xp-text">XP : <span id="ui-xp-jeu">0</span> ⭐</span>
+                <span class="vies-text" id="ui-vies">❤️❤️❤️</span>
             </div>
 
-            <p style="font-weight: bold; margin-bottom: 5px; color: #8b5a2b;">L'ordre chronologique (du plus ancien au plus récent) :</p>
+            <p style="font-weight: 900; font-size: 1.2rem; margin-bottom: 10px; color: #8b5a2b;">L'ordre chronologique (du plus ancien au plus récent) :</p>
             
             <div id="frise-container"></div>
             <div id="deck-container"></div>
             <div id="feedback"></div>
 
-            <button id="btn-verifier" class="btn btn-primaire" style="display: none;" onclick="verifierFrise()">Vérifier ma frise</button>
+            <button id="btn-verifier" class="btn btn-primaire" style="display: none; padding: 15px 40px; font-size: 1.3rem;" onclick="verifierFrise()">Vérifier ma frise</button>
             <button class="btn btn-secondaire" onclick="retourAccueil()">Abandonner</button>
         </div>
 
+        <!-- ECRAN CONFIGURATION -->
         <div id="ecran-config" class="ecran">
             <h2 style="color: #27ae60;">✍️ Créateur de Frises</h2>
             <p>Tape les événements <strong>dans l'ordre chronologique</strong> (1 par ligne).</p>
-            <p style="font-size: 0.9rem; color: #888;">Le jeu se chargera de les mélanger ! (Tu peux ajouter des emojis).</p>
+            <p style="font-size: 0.9rem; color: #888;">Le jeu se chargera de les mélanger !</p>
             
             <div id="zone-config">
                 <label><strong>Titre de la frise :</strong></label>
-                <input type="text" id="input-nom-theme" placeholder="Ex: La Révolution Française">
+                <input type="text" id="input-nom-theme" placeholder="Ex: La vie de Théo">
                 
                 <label><strong>Événements (du plus ancien au plus récent) :</strong></label>
-                <textarea id="input-mots" rows="6" placeholder="Prise de la Bastille ⚔️&#10;Déclaration des droits de l'homme 📜&#10;Napoléon Empereur 👑"></textarea>
+                <textarea id="input-mots" rows="6" placeholder="Naissance de Théo 👶&#10;Entrée au CP 🎒&#10;Entrée au CM2 🎓"></textarea>
                 
                 <button class="btn btn-primaire" style="background: #27ae60; box-shadow: 0 4px #1e8449;" onclick="sauvegarderTheme()">Sauvegarder ma frise</button>
                 <p id="msg-config" style="color: green; font-weight: bold; margin-top: 10px;"></p>
@@ -171,53 +170,57 @@
             <button class="btn btn-secondaire" style="margin-top: 20px;" onclick="retourAccueil()">Retour Menu</button>
         </div>
 
+        <!-- ECRAN DE FIN -->
         <div id="ecran-fin" class="ecran">
             <h1>Mission Accomplie ! 🎉</h1>
-            <p class="sous-titre">Tu as restauré la ligne du temps !</p>
-            <div id="hud" style="justify-content: center;">
-                <span class="xp-text" style="font-size: 1.5rem;">+<span id="gain-xp"></span> XP gagnés !</span>
-            </div>
-            <button class="btn btn-primaire" onclick="window.location.href='academie.html'">Retour à l'Académie</button>
+            <p class="sous-titre" style="font-size: 1.3rem; margin-top: 10px;">Tu as restauré la ligne du temps !</p>
+            <div style="font-size: 2rem; color: #f39c12; font-weight: 900; margin: 20px 0;">+<span id="gain-xp"></span> XP !</div>
+            <button class="btn btn-primaire" onclick="window.location.href='index.html'">Retour à l'Académie</button>
             <button class="btn btn-secondaire" onclick="retourAccueil()">Faire une autre mission</button>
         </div>
 
     </div>
 
     <script>
-        // --- DONNÉES DU JEU (Programme complet Histoire CM1) ---
+        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+        const DB_URL = `${FIREBASE_URL}scores/theo/histoireSaveV1.json`;
+
+        // ==========================================
+        // BASE DE DONNÉES ENRICHIE CM2
+        // ==========================================
         const donneesBase = {
-            prehistoire: { nom: "La Préhistoire", events: [
-                { ordre: 1, texte: "Apparition des premiers humains", emoji: "🚶" },
-                { ordre: 2, texte: "Maîtrise du feu", emoji: "🔥" },
-                { ordre: 3, texte: "Peintures de Lascaux", emoji: "🎨" },
-                { ordre: 4, texte: "Début de l'agriculture", emoji: "🌾" },
-                { ordre: 5, texte: "Invention de l'écriture", emoji: "✍️" }
+            revolution: { nom: "Révolution & Empire", events: [
+                { ordre: 1, texte: "Prise de la Bastille", emoji: "⚔️" },
+                { ordre: 2, texte: "Déclaration des Droits de l'Homme", emoji: "📜" },
+                { ordre: 3, texte: "Proclamation de la 1ère République", emoji: "🇫🇷" },
+                { ordre: 4, texte: "Sacre de Napoléon 1er", emoji: "👑" },
+                { ordre: 5, texte: "Bataille de Waterloo", emoji: "🐎" }
             ]},
-            antiquite: { nom: "L'Antiquité", events: [
-                { ordre: 1, texte: "Fondation de Rome", emoji: "🏛️" },
-                { ordre: 2, texte: "Bataille d'Alésia (Vercingétorix)", emoji: "⚔️" },
-                { ordre: 3, texte: "Conquête de la Gaule par Jules César", emoji: "🛡️" },
-                { ordre: 4, texte: "Naissance de Jésus-Christ", emoji: "🌟" },
-                { ordre: 5, texte: "Chute de l'Empire Romain", emoji: "🔥" }
+            xix_siecle: { nom: "Le XIXe Siècle", events: [
+                { ordre: 1, texte: "Abolition de l'esclavage en France", emoji: "⛓️‍💥" },
+                { ordre: 2, texte: "Invention de la machine à vapeur", emoji: "🚂" },
+                { ordre: 3, texte: "Lois Jules Ferry (École gratuite)", emoji: "🎒" },
+                { ordre: 4, texte: "Découverte du vaccin par Pasteur", emoji: "💉" },
+                { ordre: 5, texte: "Construction de la Tour Eiffel", emoji: "🗼" }
             ]},
-            moyen_age: { nom: "Le Moyen Âge", events: [
-                { ordre: 1, texte: "Baptême de Clovis", emoji: "👑" },
-                { ordre: 2, texte: "Couronnement de Charlemagne", emoji: "🦅" },
-                { ordre: 3, texte: "Guerre de Cent Ans (Jeanne d'Arc)", emoji: "⚜️" },
-                { ordre: 4, texte: "Invention de l'imprimerie (Gutenberg)", emoji: "📖" },
-                { ordre: 5, texte: "Découverte de l'Amérique (C. Colomb)", emoji: "⛵" }
+            guerres: { nom: "Les Guerres Mondiales", events: [
+                { ordre: 1, texte: "Début de la Première Guerre Mondiale", emoji: "🪖" },
+                { ordre: 2, texte: "Armistice de 1918", emoji: "🕊️" },
+                { ordre: 3, texte: "Début de la Seconde Guerre Mondiale", emoji: "⚠️" },
+                { ordre: 4, texte: "Appel du 18 juin (Général de Gaulle)", emoji: "🎙️" },
+                { ordre: 5, texte: "Libération de la France", emoji: "🎉" }
             ]},
-            temps_modernes: { nom: "Temps Modernes & Époque Contemp.", events: [
-                { ordre: 1, texte: "Règne de Louis XIV (Versailles)", emoji: "🏰" },
-                { ordre: 2, texte: "La Révolution Française (1789)", emoji: "✊" },
-                { ordre: 3, texte: "Abolition de l'esclavage", emoji: "⛓️‍💥" },
-                { ordre: 4, texte: "Première Guerre Mondiale", emoji: "🎖️" },
-                { ordre: 5, texte: "Premier homme sur la Lune", emoji: "🚀" }
+            contemporain: { nom: "La France depuis 1945", events: [
+                { ordre: 1, texte: "Droit de vote des femmes", emoji: "🗳️" },
+                { ordre: 2, texte: "Création de la Ve République", emoji: "🏛️" },
+                { ordre: 3, texte: "Premier homme sur la Lune", emoji: "🚀" },
+                { ordre: 4, texte: "Chute du mur de Berlin", emoji: "🧱" },
+                { ordre: 5, texte: "Mise en circulation de l'Euro", emoji: "💶" }
             ]}
         };
 
         let customThemes = JSON.parse(localStorage.getItem('histoireCustomV2')) || {};
-        let profil = JSON.parse(localStorage.getItem('histoireSaveV1')) || { xp: 0 };
+        let profil = { xp: 0 };
         
         let vies = 3;
         let carteSelectionnee = null;
@@ -225,10 +228,17 @@
         let isThemeCustom = false;
         let eventsPartie = [];
 
-        // --- INITIALISATION ---
+        async function chargerProfilCloud() {
+            try { let res = await fetch(DB_URL); let data = await res.json(); if (data && data.xp) profil.xp = parseInt(data.xp) || 0; } catch(e) {}
+            document.getElementById('ui-xp').textContent = profil.xp;
+        }
+
+        async function sauverProfilCloud(xpGagne) {
+            profil.xp += xpGagne; document.getElementById('ui-xp').textContent = profil.xp;
+            try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
+        }
+
         function majAccueil() {
-            document.getElementById('ui-xp-accueil').textContent = profil.xp;
-            
             const conteneurCustom = document.getElementById('liste-themes-custom');
             conteneurCustom.innerHTML = '';
             
@@ -253,12 +263,6 @@
             }
         }
 
-        function sauverProfil() {
-            localStorage.setItem('histoireSaveV1', JSON.stringify(profil));
-            document.getElementById('ui-xp-accueil').textContent = profil.xp;
-            document.getElementById('ui-xp-jeu').textContent = profil.xp;
-        }
-
         function sauverCustom() { localStorage.setItem('histoireCustomV2', JSON.stringify(customThemes)); }
 
         function sauvegarderTheme() {
@@ -269,13 +273,10 @@
             let lignes = motsBruts.split('\n');
             let listeEvents = [];
 
-            // On lit les lignes. L'ordre est automatique (ligne 1 = ordre 1, etc.)
             let ordreActuel = 1;
             for(let ligne of lignes) {
                 let txt = ligne.trim();
                 if(txt.length > 0) {
-                    // On essaie d'extraire l'emoji s'il y en a un à la fin ou au début (basique)
-                    // Pour simplifier l'espace parents, on met tout le texte et pas d'emoji séparé
                     listeEvents.push({ ordre: ordreActuel, texte: txt, emoji: "" });
                     ordreActuel++;
                 }
@@ -310,7 +311,6 @@
             eventsPartie = [...themeData.events];
 
             document.getElementById('ui-vies').textContent = "❤️❤️❤️";
-            document.getElementById('ui-xp-jeu').textContent = profil.xp;
             document.getElementById('ui-theme-titre').textContent = themeData.nom;
             document.getElementById('feedback').textContent = "";
             document.getElementById('btn-verifier').style.display = "none";
@@ -324,7 +324,6 @@
             const deck = document.getElementById('deck-container');
             frise.innerHTML = ''; deck.innerHTML = '';
 
-            // 1. Créer les emplacements de la frise
             for (let i = 1; i <= eventsPartie.length; i++) {
                 let slot = document.createElement('div');
                 slot.className = 'emplacement';
@@ -333,7 +332,6 @@
                 frise.appendChild(slot);
             }
 
-            // 2. Mélanger les événements et créer les cartes
             let evenementsMelanges = [...eventsPartie].sort(() => Math.random() - 0.5);
 
             evenementsMelanges.forEach(evt => {
@@ -341,7 +339,6 @@
                 carte.className = 'carte-event';
                 carte.id = "evt_" + evt.ordre;
                 
-                // S'il y a un emoji défini, on le met en gros au-dessus
                 if (evt.emoji) {
                     carte.innerHTML = `<div class="emoji">${evt.emoji}</div><div>${evt.texte}</div>`;
                 } else {
@@ -349,15 +346,11 @@
                 }
                 
                 carte.dataset.ordre = evt.ordre;
-                carte.onclick = (e) => {
-                    e.stopPropagation(); // Évite que le clic se propage
-                    clicCarte(carte);
-                };
+                carte.onclick = (e) => { e.stopPropagation(); clicCarte(carte); };
                 deck.appendChild(carte);
             });
         }
 
-        // --- LOGIQUE DE SELECTION ---
         function clicCarte(carte) {
             if (carteSelectionnee === carte) {
                 carte.classList.remove('selectionnee');
@@ -400,7 +393,6 @@
             document.getElementById('btn-verifier').style.display = (emplacementsVides === 0) ? "inline-block" : "none";
         }
 
-        // --- VALIDATION ---
         function verifierFrise() {
             const emplacements = document.querySelectorAll('.emplacement');
             let toutesBonnes = true;
@@ -424,9 +416,8 @@
                 feedback.textContent = "Parfait ! La frise est exacte ! ✨";
                 feedback.style.color = "#27ae60";
                 
-                let gain = 50 + (vies * 10);
-                profil.xp += gain;
-                sauverProfil();
+                let gain = 30 + (vies * 10);
+                sauverProfilCloud(gain);
 
                 setTimeout(() => {
                     document.getElementById('gain-xp').textContent = gain;
@@ -447,7 +438,7 @@
             }
         }
 
-        majAccueil();
+        document.addEventListener("DOMContentLoaded", () => { chargerProfilCloud(); majAccueil(); });
 
     </script>
 </body>
