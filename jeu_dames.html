@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Jeu de Dames - Salle de Jeux Lola</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); 
+            color: #2c3e50; display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; padding: 20px; 
+        }
+        
+        #app-container { 
+            background: white; padding: 30px; border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-width: 700px; width: 100%; text-align: center; position: relative;
+        }
+        
+        h1 { color: #8e44ad; font-weight: 900; font-size: 2.2rem; margin-bottom: 5px; }
+        .sous-titre { color: #9b59b6; margin-bottom: 25px; font-weight: 700; font-size: 1.1rem;}
+        
+        .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
+
+        /* HUD Scores & Tour */
+        .hud-scores { 
+            display: flex; justify-content: space-around; background: #f8f9fa; 
+            padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #ecf0f1;
+        }
+        .score-box { font-size: 1.2rem; font-weight: 900; padding: 10px 20px; border-radius: 12px; transition: 0.3s; opacity: 0.5;}
+        .score-lola { color: #e91e63; }
+        .score-ia { color: #3498db; }
+        .tour-actif { opacity: 1; transform: scale(1.1); box-shadow: 0 5px 15px rgba(0,0,0,0.1); background: white;}
+
+        /* LE PLATEAU DE DAMES */
+        #plateau-container {
+            display: grid;
+            grid-template-columns: repeat(8, 50px);
+            grid-template-rows: repeat(8, 50px);
+            gap: 0; border: 6px solid #2c3e50; border-radius: 5px; margin: 0 auto 20px auto; width: fit-content;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .case { width: 50px; height: 50px; display: flex; justify-content: center; align-items: center; position: relative; }
+        .case-claire { background: #f5deb3; } /* Couleur bois clair */
+        .case-sombre { background: #8b4513; } /* Couleur bois foncé */
+        
+        /* Mise en évidence des mouvements possibles */
+        .case-possible { background: #2ecc71 !important; cursor: pointer; box-shadow: inset 0 0 15px rgba(0,0,0,0.5); }
+        
+        /* LES PIONS */
+        .pion {
+            width: 40px; height: 40px; border-radius: 50%; box-shadow: 0 4px 6px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.4);
+            display: flex; justify-content: center; align-items: center; font-size: 1.2rem; font-weight: bold; color: white;
+            transition: 0.2s;
+        }
+        .pion-lola { background: radial-gradient(circle at 15px 15px, #ff4081, #c2185b); cursor: pointer; border: 2px solid #880e4f;}
+        .pion-ia { background: radial-gradient(circle at 15px 15px, #4fc3f7, #0288d1); border: 2px solid #01579b;}
+        
+        .pion.selectionne { transform: scale(1.2); box-shadow: 0 0 15px #f1c40f; border-color: #f1c40f; z-index: 10;}
+        .pion.dame::after { content: '👑'; font-size: 1.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+
+        .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s;}
+        .btn-nav:hover { background: #7f8c8d; }
+        #feedback { font-size: 1.3rem; font-weight: 900; height: 35px; margin-bottom: 15px; color: #8e44ad;}
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <div class="xp-badge" id="ui-xp">XP: ... ⭐</div>
+        
+        <h1>Jeu de Dames 👑</h1>
+        <p class="sous-titre">Réfléchis bien pour capturer les pions de l'ordinateur !</p>
+        
+        <div class="hud-scores">
+            <div id="box-lola" class="score-box score-lola tour-actif">👧 Lola <br> Pions: <span id="pions-lola">12</span></div>
+            <div id="box-ia" class="score-box score-ia">🤖 Ordi <br> Pions: <span id="pions-ia">12</span></div>
+        </div>
+
+        <div id="plateau-container">
+            <!-- La grille sera générée par Javascript -->
+        </div>
+
+        <div id="feedback">C'est à ton tour ! Touche un pion rose.</div>
+
+        <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+    </div>
+
+    <script>
+        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+        const DB_URL = `${FIREBASE_URL}scores/lola/jeux.json`; // On crée un espace "jeux" pour ses récompenses
+
+        let xpGlobale = 0;
+        
+        // --- LA REPRÉSENTATION DU PLATEAU EN CODE ---
+        // 0: Vide, 1: Pion Lola, 2: Pion IA, 3: Dame Lola, 4: Dame IA
+        let plateau = [];
+        let tourActuel = 1; // 1 = Lola, 2 = IA
+        let pionSelectionne = null; // Enregistre les coordonnées {x, y} du pion qu'elle veut bouger
+        let mouvementsPossibles = []; // Liste des cases où le pion peut atterrir
+
+        async function chargerXP() {
+            try { let res = await fetch(DB_URL); let data = await res.json(); if (data && data.xp) xpGlobale = parseInt(data.xp) || 0; } catch(e) {}
+            document.getElementById('ui-xp').textContent = `XP: ${xpGlobale} ⭐`;
+        }
+
+        async function ajouterXP(p) {
+            xpGlobale += p; document.getElementById('ui-xp').textContent = `XP: ${xpGlobale} ⭐`;
+            try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: xpGlobale }) }); } catch(e) {}
+        }
+
+        function initialiserJeu() {
+            // Création de la matrice 8x8 vide
+            plateau = Array(8).fill(0).map(() => Array(8).fill(0));
+            
+            // Placement des pions de l'IA (en haut, valeurs = 2)
+            for (let y = 0; y < 3; y++) {
+                for (let x = 0; x < 8; x++) {
+                    if ((x + y) % 2 !== 0) plateau[y][x] = 2;
+                }
+            }
+            
+            // Placement des pions de Lola (en bas, valeurs = 1)
+            for (let y = 5; y < 8; y++) {
+                for (let x = 0; x < 8; x++) {
+                    if ((x + y) % 2 !== 0) plateau[y][x] = 1;
+                }
+            }
+            
+            tourActuel = 1;
+            pionSelectionne = null;
+            mouvementsPossibles = [];
+            dessinerPlateau();
+        }
+
+        // --- L'AFFICHAGE DU PLATEAU HTML ---
+        function dessinerPlateau() {
+            const container = document.getElementById('plateau-container');
+            container.innerHTML = '';
+            
+            let compteLola = 0;
+            let compteIA = 0;
+
+            for (let y = 0; y < 8; y++) {
+                for (let x = 0; x < 8; x++) {
+                    let caseDiv = document.createElement('div');
+                    // Alternance des cases claires et sombres
+                    caseDiv.className = `case ${(x + y) % 2 === 0 ? 'case-claire' : 'case-sombre'}`;
+                    
+                    // Si la case fait partie des mouvements possibles, on la colore en vert
+                    let estMouvementPossible = mouvementsPossibles.find(m => m.toX === x && m.toY === y);
+                    if (estMouvementPossible && tourActuel === 1) {
+                        caseDiv.classList.add('case-possible');
+                        caseDiv.onclick = () => executerMouvement(estMouvementPossible);
+                    }
+
+                    // Ajout du pion s'il y en a un
+                    let valeur = plateau[y][x];
+                    if (valeur !== 0) {
+                        let pionDiv = document.createElement('div');
+                        if (valeur === 1 || valeur === 3) {
+                            pionDiv.className = `pion pion-lola ${valeur === 3 ? 'dame' : ''}`;
+                            compteLola++;
+                            // Lola peut cliquer sur ses pions pour les sélectionner si c'est son tour
+                            if (tourActuel === 1) pionDiv.onclick = (e) => { e.stopPropagation(); selectionnerPion(x, y); };
+                        } else {
+                            pionDiv.className = `pion pion-ia ${valeur === 4 ? 'dame' : ''}`;
+                            compteIA++;
+                        }
+                        
+                        // Surligner le pion s'il est sélectionné
+                        if (pionSelectionne && pionSelectionne.x === x && pionSelectionne.y === y) {
+                            pionDiv.classList.add('selectionne');
+                        }
+                        
+                        caseDiv.appendChild(pionDiv);
+                    }
+                    container.appendChild(caseDiv);
+                }
+            }
+
+            document.getElementById('pions-lola').textContent = compteLola;
+            document.getElementById('pions-ia').textContent = compteIA;
+
+            // Vérification de fin de partie
+            if (compteLola === 0) finDePartie("L'ordinateur a gagné ! 🤖");
+            else if (compteIA === 0) finDePartie("Bravo Lola ! Tu as gagné ! 🏆", 50);
+        }
+
+        // --- LA LOGIQUE DES MOUVEMENTS (L'Algorithme) ---
+        function selectionnerPion(x, y) {
+            if (tourActuel !== 1) return;
+            pionSelectionne = {x: x, y: y};
+            mouvementsPossibles = calculerMouvementsPossibles(x, y, plateau[y][x]);
+            dessinerPlateau();
+        }
+
+        function calculerMouvementsPossibles(x, y, typePion) {
+            let mouvements = [];
+            // Un pion normal de Lola (1) va vers le haut (-1). Une dame (3 ou 4) va dans les 2 sens. L'IA (2) va vers le bas (+1).
+            let directionsY = [];
+            if (typePion === 1) directionsY = [-1];
+            else if (typePion === 2) directionsY = [1];
+            else directionsY = [-1, 1]; // Dames
+
+            let directionsX = [-1, 1]; // Diagonales gauche et droite
+
+            directionsY.forEach(dy => {
+                directionsX.forEach(dx => {
+                    let nx = x + dx;
+                    let ny = y + dy;
+
+                    // Mouvement simple (Case vide adjacente)
+                    if (estDansPlateau(nx, ny) && plateau[ny][nx] === 0) {
+                        mouvements.push({ fromX: x, fromY: y, toX: nx, toY: ny, capture: false });
+                    }
+                    
+                    // Prise (Saut par dessus un adversaire)
+                    if (estDansPlateau(nx, ny) && estAdversaire(plateau[ny][nx], typePion)) {
+                        let sautX = nx + dx;
+                        let sautY = ny + dy;
+                        if (estDansPlateau(sautX, sautY) && plateau[sautY][sautX] === 0) {
+                            mouvements.push({ fromX: x, fromY: y, toX: sautX, toY: sautY, capture: true, prisX: nx, prisY: ny });
+                        }
+                    }
+                });
+            });
+
+            // Règle des dames : La prise est prioritaire ! S'il y a des prises, on retire les mouvements simples.
+            let prises = mouvements.filter(m => m.capture);
+            if (prises.length > 0) return prises;
+            return mouvements;
+        }
+
+        function estDansPlateau(x, y) { return x >= 0 && x < 8 && y >= 0 && y < 8; }
+        
+        function estAdversaire(valeurCase, typePionJoueur) {
+            if (valeurCase === 0) return false;
+            if (typePionJoueur === 1 || typePionJoueur === 3) return valeurCase === 2 || valeurCase === 4; // Lola vérifie si c'est l'IA
+            return valeurCase === 1 || valeurCase === 3; // L'IA vérifie si c'est Lola
+        }
+
+        function executerMouvement(mouv) {
+            let typePion = plateau[mouv.fromY][mouv.fromX];
+            
+            // On déplace le pion
+            plateau[mouv.toY][mouv.toX] = typePion;
+            plateau[mouv.fromY][mouv.fromX] = 0;
+
+            // Si c'est une capture, on retire le pion mangé
+            if (mouv.capture) {
+                plateau[mouv.prisY][mouv.prisX] = 0;
+            }
+
+            // PROMOTION EN DAME !
+            if (typePion === 1 && mouv.toY === 0) plateau[mouv.toY][mouv.toX] = 3; // Lola devient Dame
+            if (typePion === 2 && mouv.toY === 7) plateau[mouv.toY][mouv.toX] = 4; // IA devient Dame
+
+            pionSelectionne = null;
+            mouvementsPossibles = [];
+            dessinerPlateau();
+
+            // Changement de tour
+            if (tourActuel === 1) {
+                tourActuel = 2;
+                document.getElementById('box-lola').classList.remove('tour-actif');
+                document.getElementById('box-ia').classList.add('tour-actif');
+                document.getElementById('feedback').textContent = "L'ordinateur réfléchit...";
+                setTimeout(jouerTourIA, 1000); // L'IA joue après 1 seconde
+            } else {
+                tourActuel = 1;
+                document.getElementById('box-ia').classList.remove('tour-actif');
+                document.getElementById('box-lola').classList.add('tour-actif');
+                document.getElementById('feedback').textContent = "C'est à ton tour !";
+            }
+        }
+
+        // --- L'INTELLIGENCE ARTIFICIELLE ---
+        function jouerTourIA() {
+            let tousLesMouvementsIA = [];
+
+            // L'ordinateur scanne le plateau pour trouver tous ses pions et leurs mouvements
+            for (let y = 0; y < 8; y++) {
+                for (let x = 0; x < 8; x++) {
+                    let val = plateau[y][x];
+                    if (val === 2 || val === 4) {
+                        let mouv = calculerMouvementsPossibles(x, y, val);
+                        tousLesMouvementsIA = tousLesMouvementsIA.concat(mouv);
+                    }
+                }
+            }
+
+            if (tousLesMouvementsIA.length === 0) {
+                finDePartie("L'ordinateur ne peut plus bouger. Tu as gagné !", 50);
+                return;
+            }
+
+            // L'IA est programmée pour manger en priorité
+            let mouvementsPrise = tousLesMouvementsIA.filter(m => m.capture);
+            let mouvementChoisi;
+
+            if (mouvementsPrise.length > 0) {
+                // S'il y a une prise possible, elle en choisit une au hasard
+                mouvementChoisi = mouvementsPrise[Math.floor(Math.random() * mouvementsPrise.length)];
+            } else {
+                // Sinon, mouvement normal au hasard
+                mouvementChoisi = tousLesMouvementsIA[Math.floor(Math.random() * tousLesMouvementsIA.length)];
+            }
+
+            executerMouvement(mouvementChoisi);
+        }
+
+        function finDePartie(message, xp = 0) {
+            tourActuel = 0; // Bloque le jeu
+            document.getElementById('feedback').textContent = message;
+            if (xp > 0) {
+                document.getElementById('feedback').textContent += ` +${xp} XP !`;
+                ajouterXP(xp);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            chargerXP();
+            initialiserJeu();
+        });
+    </script>
+</body>
+</html>
