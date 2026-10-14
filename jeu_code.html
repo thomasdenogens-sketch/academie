@@ -39,12 +39,11 @@
         .scratch-block { padding: 10px 15px; border-radius: 8px; font-weight: bold; color: white; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 0 rgba(0,0,0,0.2); cursor: pointer; transition: transform 0.1s; }
         .scratch-block:active { transform: translateY(4px); box-shadow: none; }
         
-        /* Les couleurs du code */
-        .bleu { background: #4C97FF; border: 1px solid #3373CC; } /* Mouvement */
-        .violet { background: #9966FF; border: 1px solid #774DCB; } /* Rotation */
-        .rouge { background: #FF6680; border: 1px solid #FF4D6A; } /* Action spéciale */
-        .orange { background: #FF9900; border: 1px solid #CC7A00; } /* Boucles */
-        .jaune { background: #f1c40f; border: 1px solid #f39c12; color: #2c3e50; } /* NOUVEAU : Conditions (If) */
+        .bleu { background: #4C97FF; border: 1px solid #3373CC; }
+        .violet { background: #9966FF; border: 1px solid #774DCB; }
+        .rouge { background: #FF6680; border: 1px solid #FF4D6A; }
+        .orange { background: #FF9900; border: 1px solid #CC7A00; }
+        .jaune { background: #f1c40f; border: 1px solid #f39c12; color: #2c3e50; }
         
         #script-zone { min-height: 200px; background: #ffffff; border: 2px dashed #bdc3c7; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; }
         #script-zone .scratch-block { cursor: default; box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
@@ -79,7 +78,7 @@
             <h1>Code & Logique 🤖</h1>
             <p class="sous-titre">Initiation à l'algorithmique (Style Scratch)</p>
             <p style="font-size: 1.1rem; color: #2c3e50; font-weight: bold; margin-bottom: 25px;">
-                Nouveauté : Utilise le bloc jaune "SI" pour que le robot prenne des décisions tout seul !
+                Utilise tes blocs pour ramasser les cristaux et atteindre l'arrivée !
             </p>
             <button class="btn btn-primaire" style="font-size: 1.3rem; padding: 15px 40px; width:auto;" onclick="lancerJeuInfi()">Générer un niveau</button>
             <br>
@@ -121,7 +120,6 @@
                         <div class="scratch-block orange" style="flex:1;" onclick="ajouterBloc('boucle_fin')"><span>] 🔚 Fin Répéter</span></div>
                     </div>
 
-                    <!-- NOUVEAU : CONDITIONS (SI / ALORS) -->
                     <div style="display: flex; gap: 8px; margin-bottom: 25px;">
                         <div class="scratch-block jaune" style="flex:2;" onclick="ajouterBloc('si_mur')">
                             <span>🤔 SI (Mur devant) ALORS [</span>
@@ -149,29 +147,22 @@
         const DB_URL = `${FIREBASE_URL}scores/theo/codeSaveV1.json`;
 
         let profil = { xp: 0 };
-        
         let compteurNiveau = 1;
         let grilleOriginale = [];
         let grilleDynamique = []; 
         let posRobot = { x: 0, y: 0 };
         let directionRobot = 1;
         let estEnExecution = false;
-
         let cristauxTotal = 0;
         let cristauxRamasses = 0;
 
         async function chargerProfilCloud() {
-            try {
-                let res = await fetch(DB_URL);
-                let data = await res.json();
-                if (data && data.xp !== undefined) profil.xp = parseInt(data.xp) || 0;
-            } catch(e) {}
+            try { let res = await fetch(DB_URL); let data = await res.json(); if (data && data.xp) profil.xp = parseInt(data.xp) || 0; } catch(e) {}
             document.getElementById('ui-xp-jeu').textContent = profil.xp;
         }
 
         async function sauverProfilCloud(xpGagne) {
-            profil.xp += xpGagne;
-            document.getElementById('ui-xp-jeu').textContent = profil.xp;
+            profil.xp += xpGagne; document.getElementById('ui-xp-jeu').textContent = profil.xp;
             try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
         }
 
@@ -179,9 +170,7 @@
         function retourAccueil() { changerEcran('ecran-accueil'); }
 
         function lancerJeuInfi() {
-            compteurNiveau = 1;
-            changerEcran('ecran-jeu');
-            genererNiveauAleatoire();
+            compteurNiveau = 1; changerEcran('ecran-jeu'); genererNiveauAleatoire();
         }
 
         function genererNiveauAleatoire() {
@@ -191,15 +180,10 @@
             let taille = Math.floor(Math.random() * 4) + 6; 
             let grille = Array(taille).fill(0).map(() => Array(taille).fill(1));
             
-            let x = 0, y = 0;
-            grille[y][x] = 2; 
+            let x = 0, y = 0; grille[y][x] = 2; 
 
             while(x < taille - 1 || y < taille - 1) {
-                if (x === taille - 1) { y++; }
-                else if (y === taille - 1) { x++; }
-                else {
-                    if (Math.random() > 0.5) x++; else y++;
-                }
+                if (x === taille - 1) y++; else if (y === taille - 1) x++; else { if (Math.random() > 0.5) x++; else y++; }
                 grille[y][x] = 0;
             }
             grille[taille - 1][taille - 1] = 3; 
@@ -207,20 +191,14 @@
             cristauxTotal = 0;
             let nombreTrous = taille * 2;
             for(let i = 0; i < nombreTrous; i++) {
-                let rx = Math.floor(Math.random() * taille);
-                let ry = Math.floor(Math.random() * taille);
-                
+                let rx = Math.floor(Math.random() * taille); let ry = Math.floor(Math.random() * taille);
                 if (grille[ry][rx] === 1) {
                     grille[ry][rx] = 0; 
-                    if (Math.random() > 0.7 && cristauxTotal < 4) {
-                        grille[ry][rx] = 5; 
-                        cristauxTotal++;
-                    }
+                    if (Math.random() > 0.7 && cristauxTotal < 4) { grille[ry][rx] = 5; cristauxTotal++; }
                 }
             }
 
             if (cristauxTotal === 0) { let rx = Math.floor(taille / 2); let ry = Math.floor(taille / 2); grille[ry][rx] = 5; cristauxTotal = 1; }
-
             grilleOriginale = JSON.parse(JSON.stringify(grille));
             effacerScript(); 
         }
@@ -230,9 +208,7 @@
             estEnExecution = false;
             document.getElementById('btn-executer').disabled = false;
             
-            directionRobot = 1;
-            cristauxRamasses = 0;
-            actualiserAffichageCristaux();
+            directionRobot = 1; cristauxRamasses = 0; actualiserAffichageCristaux();
 
             for (let y = 0; y < grilleDynamique.length; y++) {
                 for (let x = 0; x < grilleDynamique[y].length; x++) {
@@ -245,19 +221,15 @@
         function actualiserAffichageCristaux() { document.getElementById('ui-cristaux').textContent = `${cristauxRamasses} / ${cristauxTotal}`; }
 
         function dessinerGrilleHTML(laserTarget = null) {
-            const container = document.getElementById('grille-labyrinthe');
-            container.innerHTML = '';
-            
+            const container = document.getElementById('grille-labyrinthe'); container.innerHTML = '';
             let nbLignes = grilleDynamique.length; let nbColonnes = grilleDynamique[0].length;
-            container.style.gridTemplateColumns = `repeat(${nbColonnes}, 45px)`;
-            container.style.gridTemplateRows = `repeat(${nbLignes}, 45px)`;
+            container.style.gridTemplateColumns = `repeat(${nbColonnes}, 45px)`; container.style.gridTemplateRows = `repeat(${nbLignes}, 45px)`;
 
             for (let y = 0; y < nbLignes; y++) {
                 for (let x = 0; x < nbColonnes; x++) {
-                    let div = document.createElement('div');
-                    div.className = 'cellule'; div.id = `cell_${x}_${y}`;
+                    let div = document.createElement('div'); div.className = 'cellule'; div.id = `cell_${x}_${y}`;
                     
-                    if (grilleDynamique[y][x] === 1) { div.classList.add('mur'); } 
+                    if (grilleDynamique[y][x] === 1) div.classList.add('mur'); 
                     else if (grilleDynamique[y][x] === 2) { 
                         let deg = (directionRobot * 90) - 90;
                         div.innerHTML = `<span style="transform: rotate(${deg}deg); display:inline-block; transition: 0.3s;">🤖</span>`;
@@ -265,7 +237,7 @@
                     }
                     else if (grilleDynamique[y][x] === 3) { div.classList.add('sortie'); div.textContent = "🏁"; }
                     else if (grilleDynamique[y][x] === 4) { div.style.background = "#2ecc71"; div.textContent = "🤖"; }
-                    else if (grilleDynamique[y][x] === 5) { div.innerHTML = "💎"; } 
+                    else if (grilleDynamique[y][x] === 5) div.innerHTML = "💎"; 
                     
                     if (laserTarget && laserTarget.x === x && laserTarget.y === y) {
                         div.style.background = "#FF6680"; div.innerHTML = "💥";
@@ -278,87 +250,48 @@
 
         function ajouterBloc(type) {
             if (estEnExecution) return;
-            const zone = document.getElementById('script-zone');
-            let div = document.createElement('div');
+            const zone = document.getElementById('script-zone'); let div = document.createElement('div');
             
-            if (type === 'avancer') {
-                div.className = "scratch-block bleu"; div.dataset.action = "avancer";
-                div.innerHTML = `<span>Avancer de <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"> cases</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
-            } else if (type === 'reculer') {
-                div.className = "scratch-block bleu"; div.dataset.action = "reculer";
-                div.innerHTML = `<span>Reculer de <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"> cases</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
-            } else if (type === 'droite') {
-                div.className = "scratch-block violet"; div.dataset.action = "droite";
-                div.innerHTML = `<span>Tourner à droite ↻</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
-            } else if (type === 'gauche') {
-                div.className = "scratch-block violet"; div.dataset.action = "gauche";
-                div.innerHTML = `<span>Tourner à gauche ↺</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
-            } else if (type === 'laser') {
-                div.className = "scratch-block rouge"; div.dataset.action = "laser";
-                div.innerHTML = `<span>Tirer au Laser 💥</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
-            } else if (type === 'boucle_debut') {
-                div.className = "scratch-block orange"; div.dataset.action = "boucle_debut";
-                div.innerHTML = `<span>🔁 Répéter <input type="number" class="scratch-input" value="2" min="2" max="20" onclick="event.stopPropagation()"> fois [</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
-            } else if (type === 'boucle_fin') {
-                div.className = "scratch-block orange"; div.dataset.action = "boucle_fin";
-                div.innerHTML = `<span>] 🔚 Fin Répéter</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
-            } else if (type === 'si_mur') {
-                div.className = "scratch-block jaune"; div.dataset.action = "si_mur";
-                div.innerHTML = `<span>🤔 SI (Mur devant) ALORS [</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
-            } else if (type === 'fin_si') {
-                div.className = "scratch-block jaune"; div.dataset.action = "fin_si";
-                div.innerHTML = `<span>] 🔚 FIN SI</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`;
-            }
+            if (type === 'avancer') { div.className = "scratch-block bleu"; div.dataset.action = "avancer"; div.innerHTML = `<span>Avancer de <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"> cases</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`; }
+            else if (type === 'reculer') { div.className = "scratch-block bleu"; div.dataset.action = "reculer"; div.innerHTML = `<span>Reculer de <input type="number" class="scratch-input" value="1" min="1" max="10" onclick="event.stopPropagation()"> cases</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`; }
+            else if (type === 'droite') { div.className = "scratch-block violet"; div.dataset.action = "droite"; div.innerHTML = `<span>Tourner à droite ↻</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`; }
+            else if (type === 'gauche') { div.className = "scratch-block violet"; div.dataset.action = "gauche"; div.innerHTML = `<span>Tourner à gauche ↺</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`; }
+            else if (type === 'laser') { div.className = "scratch-block rouge"; div.dataset.action = "laser"; div.innerHTML = `<span>Tirer au Laser 💥</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`; }
+            else if (type === 'boucle_debut') { div.className = "scratch-block orange"; div.dataset.action = "boucle_debut"; div.innerHTML = `<span>🔁 Répéter <input type="number" class="scratch-input" value="2" min="2" max="20" onclick="event.stopPropagation()"> fois [</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`; }
+            else if (type === 'boucle_fin') { div.className = "scratch-block orange"; div.dataset.action = "boucle_fin"; div.innerHTML = `<span>] 🔚 Fin Répéter</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`; }
+            else if (type === 'si_mur') { div.className = "scratch-block jaune"; div.dataset.action = "si_mur"; div.innerHTML = `<span>🤔 SI (Mur devant) ALORS [</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`; }
+            else if (type === 'fin_si') { div.className = "scratch-block jaune"; div.dataset.action = "fin_si"; div.innerHTML = `<span>] 🔚 FIN SI</span> <span class="btn-delete" onclick="supprimerBloc(this)">✖</span>`; }
 
-            zone.appendChild(div);
-            calculerIndentation();
+            zone.appendChild(div); calculerIndentation();
         }
 
         function supprimerBloc(boutonDelete) {
-            if(estEnExecution) return;
-            boutonDelete.parentElement.remove();
-            calculerIndentation();
+            if(estEnExecution) return; boutonDelete.parentElement.remove(); calculerIndentation();
         }
 
-        // Calcule dynamiquement l'imbrication des blocs (pour le visuel)
         function calculerIndentation() {
-            let niveauIndent = 0;
-            const blocs = document.getElementById('script-zone').children;
-            
+            let niveauIndent = 0; const blocs = document.getElementById('script-zone').children;
             for(let i=0; i<blocs.length; i++) {
                 let action = blocs[i].dataset.action;
-                
-                // Si on ferme un bloc, on réduit le niveau AVANT d'appliquer le style
                 if (action === 'boucle_fin' || action === 'fin_si') niveauIndent = Math.max(0, niveauIndent - 1);
-                
-                blocs[i].className = blocs[i].className.replace(/indente-\d/g, '').trim(); // Nettoie
-                if (niveauIndent > 0) blocs[i].classList.add('indente-' + Math.min(niveauIndent, 3)); // Applique
-                
-                // Si on ouvre un bloc, on augmente le niveau APRES avoir appliqué le style
+                blocs[i].className = blocs[i].className.replace(/indente-\d/g, '').trim(); 
+                if (niveauIndent > 0) blocs[i].classList.add('indente-' + Math.min(niveauIndent, 3)); 
                 if (action === 'boucle_debut' || action === 'si_mur') niveauIndent++;
             }
         }
 
         function effacerScript() {
-            if (estEnExecution) return;
-            document.getElementById('script-zone').innerHTML = '';
-            document.getElementById('feedback').textContent = "";
-            reinitialiserJeu();
+            if (estEnExecution) return; document.getElementById('script-zone').innerHTML = ''; document.getElementById('feedback').textContent = ""; reinitialiserJeu();
         }
 
-        // =========================================================================
-        // LE NOUVEAU COMPILATEUR : Arbre Syntaxique (AST) et Exécution Asynchrone
-        // =========================================================================
-
+        // LE COMPILATEUR (Correction ici)
         function compilerEtExecuter() {
             if (estEnExecution) return;
             
             let blocsHTML = document.getElementById('script-zone').children;
             if (blocsHTML.length === 0) return;
 
-            // 1. CONSTRUCTION DE L'ARBRE (AST)
-            let programmePrincipal = [];
-            let pileHierarchie = [ programmePrincipal ];
+            let programmePrincipal = []; let pileHierarchie = [ programmePrincipal ];
 
             for (let i = 0; i < blocsHTML.length; i++) {
                 let action = blocsHTML[i].dataset.action;
@@ -367,171 +300,107 @@
                 if (action === 'boucle_debut') {
                     let nb = parseInt(blocsHTML[i].querySelector('input').value) || 2;
                     let noeudBoucle = { type: 'boucle', iterations: nb, instructions: [], blocHTML: blocsHTML[i] };
-                    listeCourante.push(noeudBoucle);
-                    pileHierarchie.push(noeudBoucle.instructions); // On "descend" dans l'arbre
-                } 
-                else if (action === 'si_mur') {
+                    listeCourante.push(noeudBoucle); pileHierarchie.push(noeudBoucle.instructions);
+                } else if (action === 'si_mur') {
                     let noeudCondition = { type: 'condition', condition: 'mur_devant', instructions: [], blocHTML: blocsHTML[i] };
-                    listeCourante.push(noeudCondition);
-                    pileHierarchie.push(noeudCondition.instructions); // On "descend" dans l'arbre
-                }
-                else if (action === 'boucle_fin' || action === 'fin_si') {
-                    if (pileHierarchie.length > 1) {
-                        pileHierarchie.pop(); // On "remonte" dans l'arbre
-                    } else {
-                        document.getElementById('feedback').textContent = "Erreur : Tu as mis une 'Fin' sans mettre de début !";
-                        document.getElementById('feedback').style.color = "#c0392b";
-                        return;
-                    }
-                } 
-                else {
-                    // Action normale
+                    listeCourante.push(noeudCondition); pileHierarchie.push(noeudCondition.instructions); 
+                } else if (action === 'boucle_fin' || action === 'fin_si') {
+                    if (pileHierarchie.length > 1) pileHierarchie.pop(); 
+                    else { document.getElementById('feedback').textContent = "Erreur : Tu as mis une 'Fin' sans mettre de début !"; document.getElementById('feedback').style.color = "#c0392b"; return; }
+                } else {
                     let noeudAction = { type: 'action', commande: action, blocHTML: blocsHTML[i], param: 1 };
-                    if (action === 'avancer' || action === 'reculer') {
-                        noeudAction.param = parseInt(blocsHTML[i].querySelector('input').value) || 1;
-                    }
+                    if (action === 'avancer' || action === 'reculer') noeudAction.param = parseInt(blocsHTML[i].querySelector('input').value) || 1;
                     listeCourante.push(noeudAction);
                 }
             }
 
-            if (pileHierarchie.length > 1) {
-                document.getElementById('feedback').textContent = "Erreur : Tu as oublié de fermer un bloc 'Répéter' ou 'SI' !";
-                document.getElementById('feedback').style.color = "#c0392b";
-                return;
-            }
+            if (pileHierarchie.length > 1) { document.getElementById('feedback').textContent = "Erreur : Tu as oublié de fermer un bloc !"; document.getElementById('feedback').style.color = "#c0392b"; return; }
 
-            estEnExecution = true;
+            // L'ORDRE EST CORRIGÉ ICI
+            reinitialiserJeu(); 
+            
+            estEnExecution = true; 
             document.getElementById('btn-executer').disabled = true;
             document.getElementById('feedback').textContent = "Exécution du programme...";
             document.getElementById('feedback').style.color = "#2980b9";
             
-            reinitialiserJeu(); 
-            
-            // 2. LANCEMENT DU MOTEUR ASYNCHRONE
             lancerMoteur(programmePrincipal);
         }
 
-        // Outil pour créer une pause dans le code (Promise)
         const attendre = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
         async function lancerMoteur(programme) {
             let succes = await executerArbre(programme);
-            
             if (succes) {
                 document.querySelectorAll('.scratch-block').forEach(b => b.style.boxShadow = "0 2px 0 rgba(0,0,0,0.2)");
                 if (grilleDynamique[posRobot.y][posRobot.x] === 4) {
                     if (cristauxRamasses < cristauxTotal) {
-                        document.getElementById('feedback').textContent = "Mission échouée : Il manque des cristaux d'énergie ! 💎";
-                        document.getElementById('feedback').style.color = "#e74c3c";
-                        grilleDynamique[posRobot.y][posRobot.x] = 2; 
-                        dessinerGrilleHTML();
+                        document.getElementById('feedback').textContent = "Mission échouée : Il manque des cristaux d'énergie ! 💎"; document.getElementById('feedback').style.color = "#e74c3c";
+                        grilleDynamique[posRobot.y][posRobot.x] = 2; dessinerGrilleHTML();
                     } else {
-                        document.getElementById('feedback').textContent = "Mission Parfaite ! Code validé ✨";
-                        document.getElementById('feedback').style.color = "#27ae60";
-                        sauverProfilCloud(grilleDynamique.length * 20);
-                        compteurNiveau++;
-                        setTimeout(() => { genererNiveauAleatoire(); }, 2500);
+                        document.getElementById('feedback').textContent = "Mission Parfaite ! Code validé ✨"; document.getElementById('feedback').style.color = "#27ae60";
+                        sauverProfilCloud(grilleDynamique.length * 20); compteurNiveau++; setTimeout(() => { genererNiveauAleatoire(); }, 2500);
                     }
                 } else {
-                    document.getElementById('feedback').textContent = "Le robot n'est pas arrivé à la sortie ! 🔴";
-                    document.getElementById('feedback').style.color = "#e67e22";
+                    document.getElementById('feedback').textContent = "Le robot n'est pas arrivé à la sortie ! 🔴"; document.getElementById('feedback').style.color = "#e67e22";
                 }
             }
-            
-            estEnExecution = false;
-            document.getElementById('btn-executer').disabled = false;
+            estEnExecution = false; document.getElementById('btn-executer').disabled = false;
         }
 
         async function executerArbre(instructions) {
             for (let noeud of instructions) {
                 if (!estEnExecution) return false;
-
-                // Mise en surbrillance du bloc lu
                 document.querySelectorAll('.scratch-block').forEach(b => b.style.boxShadow = "0 2px 0 rgba(0,0,0,0.2)");
-                noeud.blocHTML.style.boxShadow = "0 0 0 4px #f1c40f";
-                await attendre(200); // Petite pause visuelle pour voir l'ordinateur "réfléchir"
+                noeud.blocHTML.style.boxShadow = "0 0 0 4px #f1c40f"; await attendre(200);
 
                 if (noeud.type === 'action') {
-                    // Les actions peuvent avoir un paramètre de répétition (ex: avancer de 3 cases)
                     for(let k=0; k < noeud.param; k++) {
                         if (!estEnExecution) return false;
-                        let succes = appliquerActionRobot(noeud.commande);
-                        if (!succes) return false; // Collision
-                        await attendre(300); // Temps de déplacement
+                        let succes = appliquerActionRobot(noeud.commande); if (!succes) return false; 
+                        await attendre(300); 
                     }
-                } 
-                else if (noeud.type === 'boucle') {
-                    for(let i=0; i < noeud.iterations; i++) {
-                        let succes = await executerArbre(noeud.instructions);
-                        if (!succes) return false;
-                    }
-                } 
-                else if (noeud.type === 'condition') {
-                    // C'est ici toute la magie : l'ordinateur regarde le jeu EN DIRECT !
+                } else if (noeud.type === 'boucle') {
+                    for(let i=0; i < noeud.iterations; i++) { let succes = await executerArbre(noeud.instructions); if (!succes) return false; }
+                } else if (noeud.type === 'condition') {
                     let conditionRemplie = evaluerCondition(noeud.condition);
-                    if (conditionRemplie) {
-                        let succes = await executerArbre(noeud.instructions);
-                        if (!succes) return false;
-                    } else {
-                        // Il n'y a pas de mur, on saute ce qu'il y a à l'intérieur !
-                        await attendre(200);
-                    }
+                    if (conditionRemplie) { let succes = await executerArbre(noeud.instructions); if (!succes) return false; } 
+                    else await attendre(200);
                 }
             }
-            return true; // Fin de ce bloc d'instructions sans erreur
+            return true; 
         }
 
         function evaluerCondition(conditionStr) {
             if (conditionStr === 'mur_devant') {
                 let cibleX = posRobot.x; let cibleY = posRobot.y;
-                if (directionRobot === 0) cibleY--; 
-                else if (directionRobot === 1) cibleX++; 
-                else if (directionRobot === 2) cibleY++; 
-                else if (directionRobot === 3) cibleX--; 
-
-                // Si c'est hors de la carte (le bord de l'écran), on considère que c'est un mur
+                if (directionRobot === 0) cibleY--; else if (directionRobot === 1) cibleX++; else if (directionRobot === 2) cibleY++; else if (directionRobot === 3) cibleX--; 
                 if (cibleY < 0 || cibleY >= grilleDynamique.length || cibleX < 0 || cibleX >= grilleDynamique[0].length) return true;
-                // Si c'est la valeur 1 (Mur), on renvoie Vrai
-                if (grilleDynamique[cibleY][cibleX] === 1) return true;
-                
-                return false;
+                if (grilleDynamique[cibleY][cibleX] === 1) return true; return false;
             }
             return false;
         }
 
         function appliquerActionRobot(cmd) {
-            let newX = posRobot.x; let newY = posRobot.y;
-            let targetLaser = null;
-
-            if (cmd === 'droite') directionRobot = (directionRobot + 1) % 4; 
-            else if (cmd === 'gauche') directionRobot = (directionRobot + 3) % 4; 
+            let newX = posRobot.x; let newY = posRobot.y; let targetLaser = null;
+            if (cmd === 'droite') directionRobot = (directionRobot + 1) % 4; else if (cmd === 'gauche') directionRobot = (directionRobot + 3) % 4; 
             else if (cmd === 'avancer' || cmd === 'reculer') {
                 let mod = (cmd === 'avancer') ? 1 : -1;
-
-                if (directionRobot === 0) newY -= mod; 
-                else if (directionRobot === 1) newX += mod; 
-                else if (directionRobot === 2) newY += mod; 
-                else if (directionRobot === 3) newX -= mod; 
+                if (directionRobot === 0) newY -= mod; else if (directionRobot === 1) newX += mod; else if (directionRobot === 2) newY += mod; else if (directionRobot === 3) newX -= mod; 
 
                 let collision = false;
-                if (newY < 0 || newY >= grilleDynamique.length || newX < 0 || newX >= grilleDynamique[0].length) collision = true; 
-                else if (grilleDynamique[newY][newX] === 1) collision = true; 
+                if (newY < 0 || newY >= grilleDynamique.length || newX < 0 || newX >= grilleDynamique[0].length) collision = true; else if (grilleDynamique[newY][newX] === 1) collision = true; 
 
                 if (collision) {
                     document.getElementById(`cell_${posRobot.x}_${posRobot.y}`).classList.add('erreur');
-                    document.getElementById('feedback').textContent = "Bip Boup ! Collision ! 💥";
-                    document.getElementById('feedback').style.color = "#c0392b";
-                    return false;
+                    document.getElementById('feedback').textContent = "Bip Boup ! Collision ! 💥"; document.getElementById('feedback').style.color = "#c0392b"; return false;
                 }
 
                 let valeurCible = grilleDynamique[newY][newX];
                 if (valeurCible === 5) { cristauxRamasses++; actualiserAffichageCristaux(); }
 
                 grilleDynamique[posRobot.y][posRobot.x] = 0; 
-                if(valeurCible === 3) grilleDynamique[newY][newX] = 4;
-                else grilleDynamique[newY][newX] = 2; 
-                
-                posRobot = { x: newX, y: newY };
+                if(valeurCible === 3) grilleDynamique[newY][newX] = 4; else grilleDynamique[newY][newX] = 2; posRobot = { x: newX, y: newY };
             }
             else if (cmd === 'laser') {
                 let cibleX = posRobot.x; let cibleY = posRobot.y;
@@ -540,9 +409,7 @@
                     grilleDynamique[cibleY][cibleX] = 0; targetLaser = { x: cibleX, y: cibleY };
                 }
             }
-
-            dessinerGrilleHTML(targetLaser);
-            return true;
+            dessinerGrilleHTML(targetLaser); return true;
         }
 
         chargerProfilCloud();
