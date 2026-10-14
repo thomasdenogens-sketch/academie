@@ -77,6 +77,7 @@
         .deverrouille .zone-titre { color: #27ae60; }
         .deverrouille .unlock-progress-container { display: none; }
         .deverrouille .unlock-message { color: #27ae60; }
+        
         .boutique-lola { border-color: #f368e0; background: #fff0f5; }
         .boutique-lola .zone-titre { color: #f368e0; }
 
@@ -102,7 +103,6 @@
         .admin-title { font-size: 1.1rem; color: #2980b9; font-weight: 900; border-bottom: 2px solid #3498db; padding-bottom: 5px; margin-bottom: 15px; }
         .admin-label { font-weight: bold; color: #34495e; font-size: 0.95rem; display: block; margin-bottom: 5px;}
         .admin-input { width: 100%; padding: 8px; border: 2px solid #bdc3c7; border-radius: 8px; margin-bottom: 10px; font-family: 'Nunito', sans-serif;}
-
     </style>
 </head>
 <body>
@@ -126,7 +126,9 @@
 
         <div class="kids-grid">
             
-            <!-- THEO -->
+            <!-- ==========================================
+                 SECTION THEO
+                 ========================================== -->
             <div class="kid-section theo-section" id="section-theo">
                 <div class="kid-header"><span style="color:#3498db;">👦 Théo</span> <span class="badge-niveau" id="niveau-theo">CM2</span></div>
 
@@ -142,8 +144,12 @@
                     <a href="hub_maths_theo.html" class="game-btn" onclick="return enregistrerDepart('Maths', 'Théo')">
                         <span class="game-icon">🧮</span><span>Mathématiques</span>
                     </a>
-                    <a href="jeu_conjugaison_v6.html" class="game-btn" onclick="return enregistrerDepart('Français', 'Théo')">
+                    <a href="jeu_conjugaison_v6.html" class="game-btn" onclick="return enregistrerDepart('Conjugaison', 'Théo')">
                         <span class="game-icon">✍️</span><span>Conjugaison</span>
+                    </a>
+                    <!-- RESTAURATION DU JEU DE GRAMMAIRE POUR THÉO -->
+                    <a href="jeu_grammaire_theo.html" class="game-btn" onclick="return enregistrerDepart('Grammaire', 'Théo')">
+                        <span class="game-icon">🔎</span><span>Grammaire</span>
                     </a>
                     <a href="mots_meles_v3.html" class="game-btn" onclick="return enregistrerDepart('Orthographe', 'Théo')">
                         <span class="game-icon">📖</span><span>Orthographe</span>
@@ -165,19 +171,26 @@
                     </a>
                 </div>
 
+                <!-- SALLE DE JEUX THEO -->
                 <div id="zone-recreation-theo" class="zone-speciale verrouille">
-                    <div class="zone-titre">🔓 Le Bonus du Codeur</div>
+                    <div class="zone-titre">🔓 Salle de Jeux (Code & Échecs)</div>
                     <div class="unlock-progress-container"><div id="theo-unlock-bar" class="unlock-progress-bar"></div></div>
                     <div id="theo-unlock-msg" class="unlock-message">Gagne de l'XP aujourd'hui pour débloquer !</div>
                     <div class="games-list">
                         <a href="jeu_code.html" class="game-btn" onclick="return enregistrerDepart('Code', 'Théo')">
                             <span class="game-icon">🤖</span><span>Code & Logique</span>
                         </a>
+                        <!-- RESTAURATION DU JEU D'ÉCHECS -->
+                        <a href="jeu_echecs.html" class="game-btn" onclick="return enregistrerDepart('Échecs', 'Théo')">
+                            <span class="game-icon">♟️</span><span>Jeu d'Échecs</span>
+                        </a>
                     </div>
                 </div>
             </div>
 
-            <!-- LOLA -->
+            <!-- ==========================================
+                 SECTION LOLA
+                 ========================================== -->
             <div class="kid-section lola-section" id="section-lola">
                 <div class="kid-header"><span style="color:#e91e63;">👧 Lola</span> <span class="badge-niveau" id="niveau-lola">CE1</span></div>
 
@@ -196,20 +209,21 @@
                     <a href="jeu_francais_lola.html" class="game-btn" onclick="return enregistrerDepart('Français', 'Lola')">
                         <span class="game-icon">📚</span><span>Français</span>
                     </a>
+                    <!-- NOUVEAU : LE JEU DE VOCABULAIRE DE LOLA -->
+                    <a href="jeu_vocabulaire_lola.html" class="game-btn" onclick="return enregistrerDepart('Vocabulaire', 'Lola')">
+                        <span class="game-icon">🧩</span><span>Vocabulaire Memory</span>
+                    </a>
                     <a href="jeu_decouverte_lola.html" class="game-btn" onclick="return enregistrerDepart('Découverte', 'Lola')">
                         <span class="game-icon">🌍</span><span>Découverte du Monde</span>
+                    </a>
+                    <a href="jeu_histoire_lola.html" class="game-btn" onclick="return enregistrerDepart('Histoire', 'Lola')">
+                        <span class="game-icon">⏳</span><span>Histoire & Temps</span>
                     </a>
                     <a href="jeu_anglais_lola.html" class="game-btn" onclick="return enregistrerDepart('Anglais', 'Lola')">
                         <span class="game-icon">🇬🇧</span><span>Anglais</span>
                     </a>
                     <a href="jeu_dactylo_lola.html" class="game-btn" onclick="return enregistrerDepart('Dactylo', 'Lola')">
                         <span class="game-icon">⌨️</span><span>Dactylo Junior</span>
-                    </a>
-                    <a href="jeu_histoire_lola.html" class="game-btn" onclick="return enregistrerDepart('Histoire', 'Lola')">
-                        <span class="game-icon">⏳</span><span>Histoire & Temps</span>
-                    </a>
-                    <a href="jeu_vocabulaire_lola.html" class="game-btn" onclick="return enregistrerDepart('Vocabulaire', 'Lola')">
-                        <span class="game-icon">🧩</span><span>Vocabulaire Memory</span>
                     </a>
                 </div>
 
@@ -219,10 +233,22 @@
                         <a href="boutique_lola.html" class="game-btn" onclick="return enregistrerDepart('Boutique', 'Lola')">
                             <span class="game-icon">✨</span><span>L'Album Magique</span>
                         </a>
-                        <!-- NOUVEAU : Lien direct avec paramètre d'URL -->
                         <a href="boutique_lola.html?onglet=dessin" class="game-btn" onclick="return enregistrerDepart('Dessin', 'Lola')">
                             <span class="game-icon">🎨</span><span>L'Atelier Créatif</span>
                         </a>
+                    </div>
+                </div>
+
+                <!-- NOUVEAU : SALLE DE JEUX LOLA (Verrouillée) -->
+                <div id="zone-recreation-lola" class="zone-speciale verrouille" style="margin-top: 20px;">
+                    <div class="zone-titre" style="color: #8e44ad;">🔓 La Salle de Jeux</div>
+                    <div class="unlock-progress-container"><div id="lola-unlock-bar" class="unlock-progress-bar" style="background: #9b59b6;"></div></div>
+                    <div id="lola-unlock-msg" class="unlock-message" style="color: #8e44ad;">Gagne de l'XP aujourd'hui pour débloquer !</div>
+                    <div class="games-list">
+                        <a href="jeu_memory_ia_lola.html" class="game-btn" onclick="return enregistrerDepart('Memory', 'Lola')">
+                            <span class="game-icon">🧠</span><span>Memory vs Ordi</span>
+                        </a>
+                        <!-- Les Dames et le Tangram pourront être ajoutés ici ! -->
                     </div>
                 </div>
             </div>
@@ -269,15 +295,22 @@
                     <div class="admin-title">🏆 La Jauge Familiale</div>
                     <label class="admin-label">Objectif XP à atteindre :</label>
                     <input type="number" id="admin-objectif-xp" class="admin-input" placeholder="Ex: 5000">
-                    
                     <label class="admin-label">Texte de la Super Récompense :</label>
                     <input type="text" id="admin-texte-recompense" class="admin-input" placeholder="Ex: Sortie au parc !">
                 </div>
 
                 <div class="admin-section">
-                    <div class="admin-title">🎮 Paramètres des Jeux</div>
-                    <label class="admin-label">XP quotidien requis pour débloquer le jeu de Code (Théo) :</label>
-                    <input type="number" id="admin-seuil-recre" class="admin-input" placeholder="Ex: 50">
+                    <div class="admin-title">🎮 Paramètres des Salles de Jeux</div>
+                    <div style="display:flex; gap:10px;">
+                        <div style="flex:1;">
+                            <label class="admin-label">XP Requis (Théo) :</label>
+                            <input type="number" id="admin-seuil-recre-theo" class="admin-input" placeholder="Ex: 50">
+                        </div>
+                        <div style="flex:1;">
+                            <label class="admin-label">XP Requis (Lola) :</label>
+                            <input type="number" id="admin-seuil-recre-lola" class="admin-input" placeholder="Ex: 50">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="admin-section">
@@ -308,13 +341,15 @@
         let xpGagnable = 0; let enfantEnQuete = ""; let compteurClicsSecrets = 0; 
         let parametresActuels = null;
 
+        // --- LECTURE CLOUD ---
         async function lireParametresCloud() {
             try {
                 let res = await fetch(`${FIREBASE_URL}scores/parent_settings.json`);
                 let data = await res.json();
                 if (data) return data;
             } catch(e) { console.error("Erreur de lecture Cloud"); }
-            return { objectifFamille: 5000, texteRecompense: "Sortie au Parc !", seuilRecreTheo: 50, limiteTheo: 30, limiteLola: 30 };
+            // Valeurs par défaut, incluant maintenant Lola
+            return { objectifFamille: 5000, texteRecompense: "Sortie au Parc !", seuilRecreTheo: 50, seuilRecreLola: 50, limiteTheo: 30, limiteLola: 30 };
         }
 
         function activerPorteDerobee() {
@@ -334,7 +369,7 @@
         }
 
         async function chargerJaugeFamiliale() {
-            parametresActuels = await lireParametresCloud(); 
+            if(!parametresActuels) parametresActuels = await lireParametresCloud();
 
             try {
                 let resTheo = await fetch(`${FIREBASE_URL}scores/theo.json`); let dataTheo = await resTheo.json() || {};
@@ -392,8 +427,17 @@
             localStorage.setItem('jeuEnCours', nomDuJeu); localStorage.setItem('enfantEnCours', nomEnfant); localStorage.setItem('heureDepartJeu', Date.now()); return true; 
         }
 
-        const matieresTheo = [ { id: "mathsV8", nom: "Mathématiques", icon: "🧮" }, { id: "motsSaveV3", nom: "Orthographe", icon: "📖" }, { id: "conjHero9", nom: "Conjugaison", icon: "✍️" }, { id: "histoireSaveV1", nom: "Histoire", icon: "⏳" }, { id: "geoSaveV1", nom: "Géographie", icon: "🌍" }, { id: "sciencesSaveV1", nom: "Sciences", icon: "🔬" } ];
-        const matieresLola = [ { id: "mathsLola", nom: "Mathématiques", icon: "🧮" }, { id: "francaisLola", nom: "Français", icon: "📚" }, { id: "geoLola", nom: "Découverte du Monde", icon: "🌍" }, { id: "anglaisLola", nom: "Anglais", icon: "🇬🇧" } ];
+        // Ajout des nouvelles matières de Théo et Lola pour l'algorithme
+        const matieresTheo = [ 
+            { id: "mathsV8", nom: "Mathématiques", icon: "🧮" }, { id: "motsSaveV3", nom: "Orthographe", icon: "📖" }, 
+            { id: "conjHero9", nom: "Conjugaison", icon: "✍️" }, { id: "grammaireV1", nom: "Grammaire", icon: "🔎" },
+            { id: "histoireSaveV1", nom: "Histoire", icon: "⏳" }, { id: "geoSaveV1", nom: "Géographie", icon: "🌍" }, 
+            { id: "sciencesSaveV1", nom: "Sciences", icon: "🔬" } 
+        ];
+        const matieresLola = [ 
+            { id: "mathsLola", nom: "Mathématiques", icon: "🧮" }, { id: "francaisLola", nom: "Français", icon: "📚" }, 
+            { id: "geoLola", nom: "Découverte du Monde", icon: "🌍" }, { id: "anglaisLola", nom: "Anglais", icon: "🇬🇧" } 
+        ];
 
         async function genererParcoursIntelligent(nomEnfant, matieresConfig, htmlElementId) {
             const dateDuJour = new Date().toLocaleDateString('fr-FR');
@@ -413,6 +457,7 @@
             } catch (error) { document.getElementById(htmlElementId).innerHTML = "<li>👉 Choisis librement tes matières !</li>"; }
         }
 
+        // --- GESTION DU DÉVERROUILLAGE QUOTIDIEN ---
         async function verifierRecreationTheo() {
             if(!parametresActuels) parametresActuels = await lireParametresCloud();
             try {
@@ -428,18 +473,48 @@
 
                 let xpGagneAujourdhui = Math.max(0, xpTotalActuel - xpDebutJournee);
                 const zoneRecre = document.getElementById('zone-recreation-theo'); const msg = document.getElementById('theo-unlock-msg');
+                let seuil = parametresActuels.seuilRecreTheo || 50;
 
-                if (xpGagneAujourdhui >= parametresActuels.seuilRecreTheo || localStorage.getItem('modeDev') === 'actif') {
+                if (xpGagneAujourdhui >= seuil || localStorage.getItem('modeDev') === 'actif') {
                     zoneRecre.classList.remove('verrouille'); zoneRecre.classList.add('deverrouille');
-                    msg.textContent = "✨ Objectif atteint ! Le jeu de Code est déverrouillé !";
+                    msg.textContent = "✨ Objectif atteint ! Salle de jeux déverrouillée !";
                 } else {
-                    let pourcentage = (xpGagneAujourdhui / parametresActuels.seuilRecreTheo) * 100;
+                    let pourcentage = (xpGagneAujourdhui / seuil) * 100;
                     document.getElementById('theo-unlock-bar').style.width = `${pourcentage}%`;
-                    msg.textContent = `Gagne encore ${parametresActuels.seuilRecreTheo - xpGagneAujourdhui} XP aujourd'hui pour débloquer !`;
+                    msg.textContent = `Gagne encore ${seuil - xpGagneAujourdhui} XP aujourd'hui pour débloquer !`;
                 }
             } catch(e) {}
         }
 
+        async function verifierRecreationLola() {
+            if(!parametresActuels) parametresActuels = await lireParametresCloud();
+            try {
+                let res = await fetch(`${FIREBASE_URL}scores/lola.json`); let data = await res.json() || {};
+                let xpTotalActuel = 0; for (const mat in data) { if(data[mat].xp && mat !== "boutiqueLola") xpTotalActuel += parseInt(data[mat].xp); }
+
+                const aujourdhui = new Date().toLocaleDateString('fr-FR');
+                let xpDebutJournee = parseInt(localStorage.getItem('lolaRecreStartXP'));
+
+                if (localStorage.getItem('lolaRecreDate') !== aujourdhui || isNaN(xpDebutJournee)) {
+                    localStorage.setItem('lolaRecreDate', aujourdhui); localStorage.setItem('lolaRecreStartXP', xpTotalActuel); xpDebutJournee = xpTotalActuel;
+                }
+
+                let xpGagneAujourdhui = Math.max(0, xpTotalActuel - xpDebutJournee);
+                const zoneRecre = document.getElementById('zone-recreation-lola'); const msg = document.getElementById('lola-unlock-msg');
+                let seuil = parametresActuels.seuilRecreLola || 50;
+
+                if (xpGagneAujourdhui >= seuil || localStorage.getItem('modeDev') === 'actif') {
+                    zoneRecre.classList.remove('verrouille'); zoneRecre.classList.add('deverrouille');
+                    msg.textContent = "✨ Objectif atteint ! Salle de jeux déverrouillée !";
+                } else {
+                    let pourcentage = (xpGagneAujourdhui / seuil) * 100;
+                    document.getElementById('lola-unlock-bar').style.width = `${pourcentage}%`;
+                    msg.textContent = `Gagne encore ${seuil - xpGagneAujourdhui} XP aujourd'hui pour débloquer !`;
+                }
+            } catch(e) {}
+        }
+
+        // --- MENU PARENT ---
         async function ouvrirMenuParents() {
             document.getElementById('overlay-parents').style.display = 'flex';
             document.getElementById('pin-parents').value = "";
@@ -457,7 +532,8 @@
                 
                 document.getElementById('admin-objectif-xp').value = parametresActuels.objectifFamille;
                 document.getElementById('admin-texte-recompense').value = parametresActuels.texteRecompense;
-                document.getElementById('admin-seuil-recre').value = parametresActuels.seuilRecreTheo;
+                document.getElementById('admin-seuil-recre-theo').value = parametresActuels.seuilRecreTheo || 50;
+                document.getElementById('admin-seuil-recre-lola').value = parametresActuels.seuilRecreLola || 50;
                 document.getElementById('admin-temps-theo').value = parametresActuels.limiteTheo;
                 document.getElementById('admin-temps-lola').value = parametresActuels.limiteLola;
             } else { document.getElementById('msg-parent-erreur').textContent = "Code PIN incorrect."; }
@@ -467,7 +543,8 @@
             let paramsCloud = {
                 objectifFamille: parseInt(document.getElementById('admin-objectif-xp').value) || 5000,
                 texteRecompense: document.getElementById('admin-texte-recompense').value || "Surprise !",
-                seuilRecreTheo: parseInt(document.getElementById('admin-seuil-recre').value) || 50,
+                seuilRecreTheo: parseInt(document.getElementById('admin-seuil-recre-theo').value) || 50,
+                seuilRecreLola: parseInt(document.getElementById('admin-seuil-recre-lola').value) || 50,
                 limiteTheo: parseInt(document.getElementById('admin-temps-theo').value) || 30,
                 limiteLola: parseInt(document.getElementById('admin-temps-lola').value) || 30
             };
@@ -478,7 +555,7 @@
                 parametresActuels = paramsCloud; 
             } catch (e) { alert("Erreur de sauvegarde réseau"); }
             
-            chargerJaugeFamiliale(); initTempsEcran(); verifierRecreationTheo(); fermerModals();
+            chargerJaugeFamiliale(); initTempsEcran(); verifierRecreationTheo(); verifierRecreationLola(); fermerModals();
         }
 
         async function donnerBonusManuel() {
@@ -510,7 +587,8 @@
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("niveau-lola").textContent = determinerNiveau(2025);
             document.getElementById("niveau-theo").textContent = determinerNiveau(2022);
-            chargerJaugeFamiliale(); initTempsEcran(); verifierRecreationTheo();
+            chargerJaugeFamiliale(); initTempsEcran(); 
+            verifierRecreationTheo(); verifierRecreationLola(); // On vérifie pour les deux enfants
             genererParcoursIntelligent("Théo", matieresTheo, "parcours-theo");
             genererParcoursIntelligent("Lola", matieresLola, "parcours-lola");
         });
