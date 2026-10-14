@@ -22,6 +22,7 @@
         .btn:active { transform: scale(0.98); }
         .btn-principal { background-color: #007bff; box-shadow: 0 4px #0056b3; }
         .btn-secondaire { background-color: #17a2b8; box-shadow: 0 4px #117a8b; }
+        .btn-violet { background-color: #9b59b6; box-shadow: 0 4px #8e44ad; }
         .btn-defi { background-color: #e74c3c; box-shadow: 0 4px #c0392b; }
         .btn-neutre { background-color: #95a5a6; box-shadow: 0 4px #7f8c8d; }
         .btn-vert { background-color: #28a745; box-shadow: 0 4px #218838; }
@@ -50,11 +51,21 @@
         #reponse:focus { border-color: #007bff; }
         #btn-valider { width: auto; margin: 0; padding: 0 25px; font-size: 1.2rem; }
         
-        /* Fractions */
+        /* Fractions Quiz */
         #reponses-fractions { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 15px;}
         .btn-reponse-frac { background: white; border: 3px solid #9b59b6; padding: 12px 20px; border-radius: 15px; font-size: 1.3rem; font-weight: bold; color: #9b59b6; cursor: pointer; box-shadow: 0 4px 0 #8e44ad; }
         .btn-reponse-frac.correcte { background: #2ecc71; color: white; border-color: #27ae60; box-shadow: 0 4px 0 #2196f3; }
         .btn-reponse-frac.erreur { background: #e74c3c; color: white; border-color: #c0392b; box-shadow: 0 4px 0 #c0392b; }
+        
+        /* NOUVEAU : Fractions Visuelles (Coloriage) */
+        #zone-fraction-interactive { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 25px 0; max-width: 400px; margin-left: auto; margin-right: auto;}
+        .part-fraction { 
+            width: 70px; height: 70px; background: #ecf0f1; border: 4px solid #bdc3c7; 
+            border-radius: 10px; cursor: pointer; transition: 0.2s; box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+        }
+        .part-fraction:hover { transform: scale(1.05); border-color: #95a5a6; }
+        .part-fraction.coloriee { background: #f39c12; border-color: #e67e22; box-shadow: inset 0 0 15px rgba(230,126,34,0.5); }
+        
         .fraction-display { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 8px; font-weight: 900; font-size: 1.5rem; line-height: 1.2;}
         .fraction-display span:first-child { border-bottom: 3px solid currentColor; padding: 0 5px; }
         .fraction-display span:last-child { padding: 0 5px; }
@@ -85,7 +96,7 @@
             <p>Choisis le domaine que tu veux travailler :</p>
             
             <button onclick="ouvrirSousMenu('tables')" class="btn btn-principal">✖️ 1. Multiplications & Divisions</button>
-            <button onclick="lancerFractions()" class="btn btn-secondaire">🍕 2. Fractions & Décimales</button>
+            <button onclick="ouvrirSousMenu('fractions')" class="btn btn-violet">🍕 2. Fractions & Décimales</button>
             <button onclick="ouvrirSousMenu('defi')" class="btn btn-defi">⏱️ 3. Défi 50 calculs (Pro)</button>
             
             <div style="margin-top: 20px; font-weight: bold; color:#777;">XP global Maths : <span id="hub-xp">...</span> ⭐</div>
@@ -118,6 +129,17 @@
             <button onclick="ouvrirSousMenu('hub')" class="btn btn-neutre" style="margin-top:15px;">Retour</button>
         </div>
 
+        <!-- NOUVEAU : SOUS-MENU FRACTIONS -->
+        <div id="ecran-sous-fractions" class="ecran">
+            <h2 style="color:#8e44ad;">Fractions & Décimales</h2>
+            <p>Comment veux-tu t'entraîner ?</p>
+            
+            <button onclick="lancerFractionsVisuelles()" class="btn btn-violet" style="padding: 20px; font-size: 1.2rem;">🎨 Dessin : Colorier les parts</button>
+            <button onclick="lancerFractionsQuiz()" class="btn btn-secondaire" style="padding: 20px; font-size: 1.2rem;">📝 Quiz : Décimales et Équivalences</button>
+            
+            <button onclick="ouvrirSousMenu('hub')" class="btn btn-neutre" style="margin-top:25px;">Retour</button>
+        </div>
+
         <!-- SOUS-MENU DEFI -->
         <div id="ecran-sous-defi" class="ecran">
             <h2 style="color:#c0392b;">Défi 50 Calculs - Mode CM2</h2>
@@ -139,11 +161,15 @@
                 <span id="ui-timer-defi" class="timer-defi" style="display:none;">05:00</span>
                 <span id="infos-progression-saisie">1 / 5</span>
             </div>
+            
             <div id="question">...</div>
+            
+            <!-- Zone interactive pour les fractions visuelles -->
+            <div id="zone-fraction-interactive" style="display:none;"></div>
+            <button id="btn-valider-fraction-visuelle" class="btn btn-violet" style="display:none; width: auto; padding: 10px 30px; margin: 0 auto; font-size: 1.3rem;" onclick="verifierReponseVisuelle()">Valider mon coloriage</button>
             
             <div id="zone-saisie">
                 <button id="btn-undo" class="btn-outil" onclick="undoQuestion()" style="display:none;" title="Corriger la dernière réponse">⬅️</button>
-                <!-- inputmode="decimal" permet d'afficher le clavier numérique avec virgule sur tablette -->
                 <input type="text" inputmode="decimal" id="reponse" autocomplete="off">
                 <button id="btn-valider" class="btn btn-principal" onclick="verifierReponseClavier()">Valider</button>
                 <button id="btn-passer" class="btn-outil" onclick="passerQuestion()" style="display:none;" title="Remettre à plus tard">Passer ⏭️</button>
@@ -248,7 +274,90 @@
             clearInterval(tour.interval);
             if(menu === 'hub') E('ecran-hub').style.display = 'block';
             else if(menu === 'tables') E('ecran-sous-tables').style.display = 'block';
+            else if(menu === 'fractions') E('ecran-sous-fractions').style.display = 'block';
             else if(menu === 'defi') E('ecran-sous-defi').style.display = 'block';
+        }
+
+        // --- NOUVEAU : ATELIER FRACTIONS VISUELLES ---
+        function lancerFractionsVisuelles() {
+            gameMode = 'fractions_visuelles'; 
+            session.indexQ = 0; session.totalQ = 5; session.score = 0; session.vies = 3; session.erreurs = [];
+            
+            E('barre-temps-conteneur').style.opacity = "0"; 
+            E('ui-timer-defi').style.display = 'none';
+            E('infos-vies-saisie').style.visibility = 'visible'; 
+            E('header-manche-saisie').textContent = "Atelier Coloriage";
+            
+            // On cache les autres modes de saisie
+            E('zone-saisie').style.display = 'none'; 
+            E('reponses-fractions').style.display = 'none';
+            E('btn-undo').style.display = 'none';
+            E('btn-passer').style.display = 'none';
+            
+            // On affiche notre nouvelle zone interactive
+            E('zone-fraction-interactive').style.display = 'flex';
+            E('btn-valider-fraction-visuelle').style.display = 'block';
+
+            montrerPlateauJeu();
+        }
+
+        function poserQuestionVisuelle() {
+            if(session.indexQ >= session.totalQ || session.vies <= 0) return terminerSession(session.vies > 0);
+            session.indexQ++; 
+            E('infos-progression-saisie').textContent = `${session.indexQ} / ${session.totalQ}`;
+            E('feedback').textContent = ''; 
+            
+            // Logique mathématique : Choisir un dénominateur et un numérateur
+            const denominateursPossibles = [3, 4, 5, 6, 8, 10];
+            let d = denominateursPossibles[Math.floor(Math.random() * denominateursPossibles.length)];
+            let n = Math.floor(Math.random() * (d - 1)) + 1; // De 1 à d-1
+            
+            tour.attendu = n; // On attend que Théo colorie "n" parts
+
+            const fracGen = (num,den) => `<div class="fraction-display"><span>${num}</span><span>${den}</span></div>`;
+            E('question').innerHTML = `Représente la fraction : ${fracGen(n, d)}`;
+
+            // Génération de la tablette de chocolat
+            const zoneInteractive = E('zone-fraction-interactive');
+            zoneInteractive.innerHTML = '';
+            
+            for(let i = 0; i < d; i++) {
+                let part = document.createElement('div');
+                part.className = 'part-fraction';
+                // Si Théo clique sur une part, ça ajoute ou retire la couleur
+                part.onclick = function() {
+                    if(isProcessing) return;
+                    this.classList.toggle('coloriee');
+                };
+                zoneInteractive.appendChild(part);
+            }
+            isProcessing = false;
+        }
+
+        function verifierReponseVisuelle() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            // On compte combien de blocs ont la classe 'coloriee'
+            let casesColoriees = document.querySelectorAll('.part-fraction.coloriee').length;
+
+            if (casesColoriees === tour.attendu) {
+                E('feedback').textContent = "Parfait ! ✨"; E('feedback').style.color = "green";
+                session.score += 10;
+                setTimeout(() => { poserQuestionVisuelle(); }, 1500);
+            } else {
+                session.vies--;
+                E('infos-vies-saisie').textContent = "❤️".repeat(session.vies) + "🖤".repeat(3-session.vies);
+                E('feedback').textContent = `Oups ! Tu as colorié ${casesColoriees} parts au lieu de ${tour.attendu}.`; 
+                E('feedback').style.color = "red";
+                
+                if (session.vies <= 0) {
+                    setTimeout(() => terminerSession(false), 2000);
+                } else {
+                    // On lui laisse retenter après 2 secondes de message d'erreur
+                    setTimeout(() => { isProcessing = false; E('feedback').textContent = ""; }, 2500);
+                }
+            }
         }
 
         // --- MULTIPLICATIONS & DIVISIONS ---
@@ -263,8 +372,12 @@
             E('barre-temps-conteneur').style.opacity = session.chronoActif ? "1" : "0";
             E('ui-timer-defi').style.display = 'none';
             E('infos-vies-saisie').style.visibility = 'visible'; 
+            
             E('zone-saisie').style.display = 'flex'; 
             E('reponses-fractions').style.display = 'none';
+            E('zone-fraction-interactive').style.display = 'none';
+            E('btn-valider-fraction-visuelle').style.display = 'none';
+            
             E('btn-undo').style.display = 'none';
             E('btn-passer').style.display = 'none';
             
@@ -296,7 +409,10 @@
         function montrerPlateauJeu() {
             document.querySelectorAll('.ecran').forEach(e => e.style.display = 'none');
             E('ecran-jeu-saisie').style.display = 'block';
-            poserQuestion();
+            
+            // Branchement pour lancer la bonne fonction de question
+            if (gameMode === 'fractions_visuelles') poserQuestionVisuelle();
+            else poserQuestion();
         }
 
         function poserQuestion(prefill = '') {
@@ -440,14 +556,19 @@
             } else { terminerSession(true); }
         }
 
-        // --- ATELIER FRACTIONS & DÉCIMALES CM2 ---
-        function lancerFractions() {
+        // --- ATELIER FRACTIONS & DÉCIMALES (QUIZ CM2) ---
+        function lancerFractionsQuiz() {
             gameMode = 'fractions'; session.indexQ = 0; session.totalQ = 10; session.score = 0; session.vies = 3; session.erreurs = [];
             E('barre-temps-conteneur').style.opacity = "0"; 
             E('ui-timer-defi').style.display = 'none';
             E('infos-vies-saisie').style.visibility = 'visible'; 
-            E('header-manche-saisie').textContent = "Fractions & Décimales";
-            E('zone-saisie').style.display = 'none'; E('reponses-fractions').style.display = 'flex';
+            E('header-manche-saisie').textContent = "Quiz Décimales";
+            
+            E('zone-saisie').style.display = 'none'; 
+            E('zone-fraction-interactive').style.display = 'none';
+            E('btn-valider-fraction-visuelle').style.display = 'none';
+            
+            E('reponses-fractions').style.display = 'flex';
             E('btn-undo').style.display = 'none';
             E('btn-passer').style.display = 'none';
             
@@ -489,7 +610,11 @@
             E('barre-temps-conteneur').style.opacity = "0";
             E('header-manche-saisie').textContent = "Le Défi CM2";
             E('infos-vies-saisie').style.visibility = 'hidden'; 
-            E('zone-saisie').style.display = 'flex'; E('reponses-fractions').style.display = 'none';
+            
+            E('zone-saisie').style.display = 'flex'; 
+            E('reponses-fractions').style.display = 'none';
+            E('zone-fraction-interactive').style.display = 'none';
+            E('btn-valider-fraction-visuelle').style.display = 'none';
             
             E('btn-undo').style.display = 'block';
             E('btn-passer').style.display = 'block';
@@ -551,7 +676,12 @@
             E('barre-temps-conteneur').style.opacity = "0";
             E('header-manche-saisie').textContent = "Training Erreurs";
             E('infos-vies-saisie').style.visibility = 'hidden'; 
-            E('zone-saisie').style.display = 'flex'; E('reponses-fractions').style.display = 'none';
+            
+            E('zone-saisie').style.display = 'flex'; 
+            E('reponses-fractions').style.display = 'none';
+            E('zone-fraction-interactive').style.display = 'none';
+            E('btn-valider-fraction-visuelle').style.display = 'none';
+            
             E('ui-timer-defi').style.display = 'none'; 
             
             E('btn-undo').style.display = 'block';
@@ -669,7 +799,7 @@
                 } else { E('p-temps-std').style.display = 'none'; }
 
                 let divErr = E('liste-erreurs-std'); divErr.innerHTML = '';
-                if(session.erreurs.length > 0) {
+                if(session.erreurs && session.erreurs.length > 0) {
                     E('bloc-erreurs-std').style.display = 'block';
                     [...new Set(session.erreurs)].forEach(err => { let d=document.createElement('div'); d.className='erreur-item'; d.textContent=err; divErr.appendChild(d); });
                 } else { E('bloc-erreurs-std').style.display = 'none'; }
