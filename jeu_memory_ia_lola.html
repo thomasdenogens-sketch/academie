@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Memory vs IA - Salle de Jeux Lola</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); 
+            color: #2c3e50; display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; padding: 20px; 
+        }
+        
+        #app-container { 
+            background: white; padding: 30px; border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-width: 800px; width: 100%; text-align: center; position: relative;
+        }
+        
+        h1 { color: #8e44ad; font-weight: 900; font-size: 2.2rem; margin-bottom: 5px; }
+        .sous-titre { color: #9b59b6; margin-bottom: 25px; font-weight: 700; font-size: 1.1rem;}
+        
+        /* Scores HUD */
+        .hud-scores { 
+            display: flex; justify-content: space-around; background: #f8f9fa; 
+            padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #ecf0f1;
+        }
+        .score-box { font-size: 1.4rem; font-weight: 900; padding: 10px 20px; border-radius: 12px; transition: 0.3s; }
+        .score-lola { color: #e91e63; border: 2px solid transparent; }
+        .score-ia { color: #3498db; border: 2px solid transparent; }
+        .tour-actif { transform: scale(1.1); box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-color: inherit; background: white;}
+
+        /* GRILLE DU MEMORY */
+        .grille-cartes {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;
+            max-width: 500px; margin-left: auto; margin-right: auto;
+        }
+
+        .carte { perspective: 1000px; height: 100px; cursor: pointer; }
+        .carte-inner { position: relative; width: 100%; height: 100%; transition: transform 0.5s; transform-style: preserve-3d; }
+        .carte.retournee .carte-inner, .carte.trouvee .carte-inner { transform: rotateY(180deg); }
+        
+        .carte-front, .carte-back {
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden; 
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+        }
+        .carte-front { background: #9b59b6; border: 3px solid #8e44ad; color: white; font-size: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .carte-back { background: white; border: 3px solid #f1c40f; transform: rotateY(180deg); font-size: 3rem; box-shadow: inset 0 0 10px rgba(241,196,15,0.2); }
+        
+        .carte.trouvee-lola .carte-back { border-color: #e91e63; background: #fce4ec; box-shadow: 0 0 15px rgba(233, 30, 99, 0.4); }
+        .carte.trouvee-ia .carte-back { border-color: #3498db; background: #ebf5fb; box-shadow: 0 0 15px rgba(52, 152, 219, 0.4); filter: grayscale(50%);}
+
+        .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s; margin-top: 10px;}
+        .btn-nav:hover { background: #7f8c8d; }
+        #feedback { font-size: 1.3rem; font-weight: 900; height: 35px; margin-bottom: 15px; color: #8e44ad;}
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <h1>Memory Magique 🧠</h1>
+        <p class="sous-titre">Joue contre l'Ordinateur (IA) !</p>
+        
+        <div class="hud-scores">
+            <div id="box-lola" class="score-box score-lola tour-actif">👧 Lola : <span id="pts-lola">0</span></div>
+            <div id="box-ia" class="score-box score-ia">🤖 Ordi : <span id="pts-ia">0</span></div>
+        </div>
+
+        <div class="grille-cartes" id="grille-memory"></div>
+        <div id="feedback">C'est à toi de jouer !</div>
+
+        <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+    </div>
+
+    <script>
+        const EMOJIS = ["🦄", "🍓", "🦋", "🌻", "🍎", "🌈"];
+        let cartesEnJeu = [];
+        let cartesDOM = [];
+        
+        // Variables d'état du jeu
+        let tourActuel = 'lola'; // 'lola' ou 'ia'
+        let ptsLola = 0;
+        let ptsIA = 0;
+        let pairesTrouvees = 0;
+        
+        let premiereCarteIndex = null;
+        let bloqueInterface = false;
+
+        // Le "Cerveau" de l'IA : Mémorise l'index des cartes vues
+        let memoireIA = {}; 
+
+        function initJeu() {
+            const grille = document.getElementById('grille-memory');
+            grille.innerHTML = "";
+            cartesEnJeu = [...EMOJIS, ...EMOJIS].sort(() => Math.random() - 0.5);
+            cartesDOM = [];
+            memoireIA = {};
+
+            cartesEnJeu.forEach((symbole, index) => {
+                let div = document.createElement('div');
+                div.className = "carte";
+                div.dataset.index = index;
+                div.innerHTML = `<div class="carte-inner"><div class="carte-front">❓</div><div class="carte-back">${symbole}</div></div>`;
+                div.onclick = () => cliquerCarteLola(index);
+                grille.appendChild(div);
+                cartesDOM.push(div);
+            });
+        }
+
+        function enregistrerMemoireIA(index, symbole) {
+            if (!memoireIA[symbole]) memoireIA[symbole] = [];
+            if (!memoireIA[symbole].includes(index)) memoireIA[symbole].push(index);
+        }
+
+        function cliquerCarteLola(index) {
+            if (bloqueInterface || tourActuel !== 'lola') return;
+            const carte = cartesDOM[index];
+            if (carte.classList.contains('retournee') || carte.classList.contains('trouvee')) return;
+
+            retournerCarte(index);
+        }
+
+        function retournerCarte(index) {
+            const carte = cartesDOM[index];
+            const symbole = cartesEnJeu[index];
+            
+            carte.classList.add('retournee');
+            enregistrerMemoireIA(index, symbole); // L'IA regarde même quand Lola joue !
+
+            if (premiereCarteIndex === null) {
+                premiereCarteIndex = index;
+            } else {
+                bloqueInterface = true;
+                verifierPaire(premiereCarteIndex, index);
+            }
+        }
+
+        function verifierPaire(idx1, idx2) {
+            const sym1 = cartesEnJeu[idx1];
+            const sym2 = cartesEnJeu[idx2];
+            const carte1 = cartesDOM[idx1];
+            const carte2 = cartesDOM[idx2];
+
+            if (sym1 === sym2) {
+                // PAIRE TROUVÉE
+                setTimeout(() => {
+                    carte1.classList.replace('retournee', 'trouvee');
+                    carte2.classList.replace('retournee', 'trouvee');
+                    
+                    let classeGagnant = tourActuel === 'lola' ? 'trouvee-lola' : 'trouvee-ia';
+                    carte1.classList.add(classeGagnant); carte2.classList.add(classeGagnant);
+                    
+                    if (tourActuel === 'lola') { ptsLola++; document.getElementById('pts-lola').textContent = ptsLola; }
+                    else { ptsIA++; document.getElementById('pts-ia').textContent = ptsIA; }
+                    
+                    pairesTrouvees++;
+                    premiereCarteIndex = null;
+                    
+                    if (pairesTrouvees === EMOJIS.length) terminerJeu();
+                    else {
+                        // Le joueur rejoue s'il trouve une paire !
+                        bloqueInterface = false;
+                        if (tourActuel === 'ia') setTimeout(jouerTourIA, 1000);
+                        else document.getElementById('feedback').textContent = "Bravo Lola ! Rejoue !";
+                    }
+                }, 800);
+            } else {
+                // ERREUR
+                setTimeout(() => {
+                    carte1.classList.remove('retournee');
+                    carte2.classList.remove('retournee');
+                    premiereCarteIndex = null;
+                    changerTour();
+                }, 1500);
+            }
+        }
+
+        function changerTour() {
+            tourActuel = tourActuel === 'lola' ? 'ia' : 'lola';
+            document.getElementById('box-lola').classList.toggle('tour-actif');
+            document.getElementById('box-ia').classList.toggle('tour-actif');
+            
+            if (tourActuel === 'ia') {
+                bloqueInterface = true;
+                document.getElementById('feedback').textContent = "L'ordinateur réfléchit...";
+                setTimeout(jouerTourIA, 1000);
+            } else {
+                bloqueInterface = false;
+                document.getElementById('feedback').textContent = "C'est à toi Lola !";
+            }
+        }
+
+        // --- L'ALGORITHME DE L'INTELLIGENCE ARTIFICIELLE ---
+        function jouerTourIA() {
+            let carteACliker1 = -1; let carteACliker2 = -1;
+
+            // 1. Chercher si l'IA connaît une paire complète dans sa mémoire
+            for (let symbole in memoireIA) {
+                let positions = memoireIA[symbole];
+                if (positions.length === 2) {
+                    if (!cartesDOM[positions[0]].classList.contains('trouvee')) {
+                        carteACliker1 = positions[0];
+                        carteACliker2 = positions[1];
+                        break;
+                    }
+                }
+            }
+
+            // 2. Si l'IA ne connaît pas de paire, elle choisit une carte inconnue au hasard
+            if (carteACliker1 === -1) {
+                let indexInconnus = [];
+                cartesDOM.forEach((c, idx) => {
+                    if (!c.classList.contains('trouvee') && !c.classList.contains('retournee')) {
+                        // Vérifier si cette carte n'est pas déjà dans la mémoire
+                        let estDansMemoire = false;
+                        for (let s in memoireIA) { if (memoireIA[s].includes(idx)) estDansMemoire = true; }
+                        if (!estDansMemoire) indexInconnus.push(idx);
+                    }
+                });
+                
+                if (indexInconnus.length > 0) {
+                    carteACliker1 = indexInconnus[Math.floor(Math.random() * indexInconnus.length)];
+                } else {
+                    // Repli de sécurité : clique sur la première carte non trouvée
+                    carteACliker1 = cartesDOM.findIndex(c => !c.classList.contains('trouvee'));
+                }
+            }
+
+            // L'IA retourne la première carte
+            retournerCarte(carteACliker1);
+
+            // L'IA attend un peu puis choisit sa deuxième carte
+            setTimeout(() => {
+                if (carteACliker2 !== -1) {
+                    retournerCarte(carteACliker2); // Elle connaît déjà la deuxième !
+                } else {
+                    // Elle a retourné une carte au hasard. Est-ce que cette nouvelle carte correspond à un symbole qu'elle a déjà vu ?
+                    let nouveauSymbole = cartesEnJeu[carteACliker1];
+                    let positionsVues = memoireIA[nouveauSymbole];
+                    
+                    if (positionsVues.length === 2) {
+                        // Oui ! Elle se souvient de l'autre !
+                        let autreIndex = positionsVues[0] === carteACliker1 ? positionsVues[1] : positionsVues[0];
+                        retournerCarte(autreIndex);
+                    } else {
+                        // Non, elle clique sur une autre carte au hasard
+                        let indexDispos = [];
+                        cartesDOM.forEach((c, idx) => {
+                            if (!c.classList.contains('trouvee') && idx !== carteACliker1) indexDispos.push(idx);
+                        });
+                        carteACliker2 = indexDispos[Math.floor(Math.random() * indexDispos.length)];
+                        retournerCarte(carteACliker2);
+                    }
+                }
+            }, 1000);
+        }
+
+        function terminerJeu() {
+            const fb = document.getElementById('feedback');
+            if (ptsLola > ptsIA) {
+                fb.textContent = "🏆 Lola gagne ! L'IA est battue !";
+                fb.style.color = "#27ae60";
+                // L'ajout des XP Firebase pourra être appelé ici via une fonction externe
+            } else if (ptsIA > ptsLola) {
+                fb.textContent = "🤖 L'ordinateur gagne cette fois !";
+                fb.style.color = "#e74c3c";
+            } else {
+                fb.textContent = "🤝 Égalité parfaite !";
+                fb.style.color = "#f39c12";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", initJeu);
+    </script>
+</body>
+</html>
