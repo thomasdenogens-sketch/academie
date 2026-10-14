@@ -98,7 +98,6 @@
         .section-bloquee .btn-monde-reel { display: block; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        /* Styles spécifiques au panneau d'administration Parent */
         .admin-section { background: #f8f9fa; border: 2px solid #ecf0f1; padding: 15px; border-radius: 15px; margin-bottom: 20px; text-align: left; }
         .admin-title { font-size: 1.1rem; color: #2980b9; font-weight: 900; border-bottom: 2px solid #3498db; padding-bottom: 5px; margin-bottom: 15px; }
         .admin-label { font-weight: bold; color: #34495e; font-size: 0.95rem; display: block; margin-bottom: 5px;}
@@ -140,7 +139,6 @@
 
                 <h3 style="font-size: 1rem; color: #7f8c8d; margin-bottom: 10px; text-transform: uppercase;">Tes Missions</h3>
                 <div class="games-list">
-                    <!-- LE KANBAN A ÉTÉ RETIRÉ DE L'ESPACE ENFANT -->
                     <a href="hub_maths_theo.html" class="game-btn" onclick="return enregistrerDepart('Maths', 'Théo')">
                         <span class="game-icon">🧮</span><span>Mathématiques</span>
                     </a>
@@ -210,10 +208,14 @@
                 </div>
 
                 <div class="zone-speciale boutique-lola">
-                    <div class="zone-titre">🦄 L'Album d'Autocollants</div>
+                    <div class="zone-titre">🦄 Les Récompenses</div>
                     <div class="games-list">
                         <a href="boutique_lola.html" class="game-btn" onclick="return enregistrerDepart('Boutique', 'Lola')">
-                            <span class="game-icon">✨</span><span>Voir mon Album</span>
+                            <span class="game-icon">✨</span><span>L'Album Magique</span>
+                        </a>
+                        <!-- NOUVEAU : Lien direct avec paramètre d'URL -->
+                        <a href="boutique_lola.html?onglet=dessin" class="game-btn" onclick="return enregistrerDepart('Dessin', 'Lola')">
+                            <span class="game-icon">🎨</span><span>L'Atelier Créatif</span>
                         </a>
                     </div>
                 </div>
@@ -244,7 +246,7 @@
         </div>
     </div>
 
-    <!-- OVERLAY PARENTS (Le Back-Office) -->
+    <!-- OVERLAY PARENTS -->
     <div id="overlay-parents" class="overlay">
         <div class="modal">
             <h2 style="color: #2c3e50; margin-bottom: 20px;">⚙️ Espace Parents</h2>
@@ -283,7 +285,6 @@
                 <div class="admin-section" style="border-color: #f39c12; background: #fff3cd;">
                     <div class="admin-title" style="color: #d35400; border-color: #f39c12;">⚡ Actions Rapides</div>
                     <button class="btn-valider" style="background: #e67e22;" onclick="donnerBonusManuel()">🎁 +100 XP Bonus à la famille</button>
-                    <!-- LE BOUTON D'ACCÈS AU KANBAN POUR LE PARENT EST ICI -->
                     <button class="btn-valider" style="background: #8e44ad; margin-top: 10px;" onclick="window.location.href='kanban_projet.html'">📋 Ouvrir le Kanban Développeur</button>
                 </div>
 
