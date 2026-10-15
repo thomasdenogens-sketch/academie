@@ -59,10 +59,21 @@
 
         /* L'ATELIER CRÉATIF */
         #ecran-dessin { display: none; }
-        .toolbar-dessin { display: flex; gap: 15px; margin-bottom: 15px; justify-content: center; align-items: center; background: #f1f8ff; padding: 15px; border-radius: 15px; border: 2px solid #3498db;}
-        .outil-btn { font-size: 1.5rem; background: white; border: 3px solid #bdc3c7; padding: 10px; border-radius: 10px; cursor: pointer; transition: 0.2s;}
-        .outil-btn.actif { border-color: #e91e63; background: #fce4ec; transform: scale(1.1);}
-        input[type="color"] { width: 50px; height: 50px; border: none; border-radius: 10px; cursor: pointer; }
+        
+        .toolbar-dessin { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px; justify-content: center; align-items: center; background: #f1f8ff; padding: 15px; border-radius: 15px; border: 2px solid #3498db;}
+        
+        .groupe-outils { display: flex; gap: 10px; align-items: center; border-right: 2px dashed #bdc3c7; padding-right: 15px;}
+        .groupe-outils:last-child { border-right: none; padding-right: 0;}
+
+        .outil-btn { font-size: 1.5rem; background: white; border: 3px solid #bdc3c7; padding: 10px; border-radius: 10px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center;}
+        .outil-btn:hover { border-color: #9b59b6; background: #f4ecf7;}
+        .outil-btn.actif { border-color: #e91e63; background: #fce4ec; transform: scale(1.1); box-shadow: 0 4px 10px rgba(233,30,99,0.3);}
+        
+        input[type="color"] { width: 45px; height: 45px; border: none; border-radius: 10px; cursor: pointer; background: transparent; padding: 0;}
+        
+        /* Curseur de taille (Épaisseur) */
+        .selecteur-taille { display: flex; flex-direction: column; align-items: center; gap: 5px; font-weight: bold; font-size: 0.9rem;}
+        input[type="range"] { width: 100px; accent-color: #e91e63; cursor: pointer;}
         
         .palette-tampons { display: flex; gap: 10px; overflow-x: auto; padding: 10px; background: #fff0f5; border-radius: 10px; border: 2px dashed #f48fb1; margin-bottom: 15px;}
         .tampon-item { font-size: 2rem; cursor: pointer; padding: 5px; border-radius: 10px; transition: 0.2s; border: 2px solid transparent; }
@@ -70,10 +81,14 @@
         .tampon-item.actif { border-color: #e91e63; background: white; }
         .msg-vide { font-size: 1rem; color: #e74c3c; font-weight: bold; }
 
-        canvas { border: 4px solid #34495e; border-radius: 15px; background: white; cursor: crosshair; touch-action: none; max-width: 100%;}
+        canvas { border: 4px solid #34495e; border-radius: 15px; background: white; cursor: crosshair; touch-action: none; max-width: 100%; box-shadow: inset 0 0 10px rgba(0,0,0,0.05);}
 
         .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s; margin-top: 20px;}
         .btn-nav:hover { background: #7f8c8d; }
+        
+        /* Bouton de sauvegarde */
+        .btn-sauvegarder { background: #27ae60; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; font-size: 1.2rem; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 0 #1e8449; transition: 0.1s;}
+        .btn-sauvegarder:active { transform: translateY(4px); box-shadow: none; }
 
         /* Animations */
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
@@ -109,16 +124,34 @@
             </div>
 
             <div id="zone-albums">
-                <!-- Les différents albums (Animaux, Magie, etc.) seront générés ici -->
+                <!-- Les différents albums seront générés ici -->
             </div>
         </div>
 
-        <!-- ECRAN 2 : ATELIER DE DESSIN -->
+        <!-- ECRAN 2 : ATELIER DE DESSIN ENRICHI -->
         <div id="ecran-dessin">
             <div class="toolbar-dessin">
-                <button class="outil-btn actif" id="btn-crayon" onclick="choisirOutil('crayon')" title="Crayon">✏️</button>
-                <input type="color" id="couleur-dessin" value="#2c3e50">
-                <button class="outil-btn" onclick="nettoyerCanvas()" title="Effacer tout">🗑️</button>
+                
+                <div class="groupe-outils">
+                    <button class="outil-btn actif" id="btn-crayon" onclick="choisirOutil('crayon')" title="Crayon (Trait net)">✏️</button>
+                    <button class="outil-btn" id="btn-pinceau" onclick="choisirOutil('pinceau')" title="Pinceau (Peinture douce)">🖌️</button>
+                    <button class="outil-btn" id="btn-bombe" onclick="choisirOutil('bombe')" title="Bombe (Aérosol)">💨</button>
+                </div>
+                
+                <div class="groupe-outils">
+                    <input type="color" id="couleur-dessin" value="#e91e63" title="Couleur">
+                    
+                    <div class="selecteur-taille">
+                        <label for="taille-trait">Épaisseur</label>
+                        <input type="range" id="taille-trait" min="2" max="50" value="8">
+                    </div>
+                </div>
+
+                <div class="groupe-outils">
+                    <button class="outil-btn" id="btn-gomme" onclick="choisirOutil('gomme')" title="Gomme">🧽</button>
+                    <button class="outil-btn" onclick="nettoyerCanvas()" title="Effacer tout la feuille">🗑️</button>
+                </div>
+
             </div>
 
             <div class="palette-tampons" id="palette-tampons">
@@ -126,8 +159,14 @@
             </div>
 
             <canvas id="canvas-dessin" width="700" height="450"></canvas>
+            
+            <br>
+            <!-- NOUVEAU BOUTON DE SAUVEGARDE -->
+            <button class="btn-sauvegarder" onclick="telechargerDessin()">💾 Sauvegarder mon dessin (Image)</button>
+
         </div>
 
+        <br>
         <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
     </div>
 
@@ -189,7 +228,6 @@
             actualiserInterfaceBoutique();
             genererAffichageAlbums();
 
-            // NOUVEAU : Lecture du paramètre d'URL pour le routage automatique
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('onglet') === 'dessin') {
                 changerOnglet('dessin');
@@ -286,14 +324,22 @@
             actualiserInterfaceBoutique(); genererAffichageAlbums(); isProcessing = false;
         }
 
+        // ==========================================
+        // LE MOTEUR DE DESSIN AVANCÉ (CANVAS)
+        // ==========================================
         const canvas = document.getElementById('canvas-dessin');
         const ctx = canvas.getContext('2d');
         let isDrawing = false;
         let modeOutil = 'crayon'; 
         let emojiTamponActuel = '';
+        let lastPos = {x: 0, y: 0};
 
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // Important pour la sauvegarde : peindre le fond en blanc (sinon il sera transparent)
+        function initCanvas() {
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        initCanvas();
 
         function genererPaletteTampons() {
             const palette = document.getElementById('palette-tampons');
@@ -319,24 +365,50 @@
 
         function choisirOutil(nouveauMode, emoji = null, elementDOM = null) {
             modeOutil = nouveauMode;
+            
+            // Retirer le statut "actif" partout
             document.getElementById('btn-crayon').classList.remove('actif');
+            document.getElementById('btn-pinceau').classList.remove('actif');
+            document.getElementById('btn-bombe').classList.remove('actif');
+            document.getElementById('btn-gomme').classList.remove('actif');
             document.querySelectorAll('.tampon-item').forEach(el => el.classList.remove('actif'));
 
-            if (modeOutil === 'crayon') {
-                document.getElementById('btn-crayon').classList.add('actif');
-            } else if (modeOutil === 'tampon') {
+            // Appliquer le statut "actif" sur l'outil sélectionné
+            if (modeOutil !== 'tampon') {
+                document.getElementById(`btn-${modeOutil}`).classList.add('actif');
+            } else {
                 emojiTamponActuel = emoji;
                 if(elementDOM) elementDOM.classList.add('actif');
             }
         }
 
         function nettoyerCanvas() {
-            if(confirm("Veux-tu tout effacer ?")) {
-                ctx.fillStyle = "#ffffff";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            if(confirm("Veux-tu tout effacer et recommencer à zéro ?")) {
+                initCanvas();
             }
         }
 
+        // ==========================================
+        // LA LOGIQUE DE SAUVEGARDE (TÉLÉCHARGEMENT)
+        // ==========================================
+        function telechargerDessin() {
+            // L'API Canvas permet de convertir la zone dessinée en Image (DataURL PNG)
+            const imageData = canvas.toDataURL("image/png");
+            
+            // On crée un lien <a> temporaire pour déclencher le téléchargement
+            const a = document.createElement('a');
+            a.href = imageData;
+            // On donne un nom personnalisé avec la date
+            a.download = `Le_Dessin_de_Lola_${new Date().toLocaleDateString('fr-FR').replace(/\//g, '-')}.png`;
+            
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // ==========================================
+        // LA GESTION DE LA SOURIS SUR LE CANVAS
+        // ==========================================
         function obtenirCoordsSouris(event) {
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
@@ -345,26 +417,77 @@
         }
 
         canvas.addEventListener('mousedown', (e) => {
-            const pos = obtenirCoordsSouris(e);
-            if (modeOutil === 'crayon') {
-                isDrawing = true; ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
-                ctx.strokeStyle = document.getElementById('couleur-dessin').value;
-                ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-            } 
-            else if (modeOutil === 'tampon' && emojiTamponActuel !== '') {
-                ctx.font = "40px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-                ctx.fillText(emojiTamponActuel, pos.x, pos.y);
+            isDrawing = true;
+            lastPos = obtenirCoordsSouris(e);
+            
+            if (modeOutil === 'tampon' && emojiTamponActuel !== '') {
+                let epaisseur = document.getElementById('taille-trait').value;
+                // La taille du tampon s'adapte aussi au curseur d'épaisseur ! (Multiplié par 3 pour être visible)
+                ctx.font = `${epaisseur * 3}px Arial`; 
+                ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                ctx.fillText(emojiTamponActuel, lastPos.x, lastPos.y);
+            } else {
+                // Initialiser le style selon l'outil
+                configurerPinceau();
+                ctx.beginPath();
+                ctx.moveTo(lastPos.x, lastPos.y);
+                ctx.lineTo(lastPos.x, lastPos.y); // Fait un point si on clique sans bouger
+                ctx.stroke();
             }
         });
 
         canvas.addEventListener('mousemove', (e) => {
-            if (isDrawing && modeOutil === 'crayon') {
-                const pos = obtenirCoordsSouris(e); ctx.lineTo(pos.x, pos.y); ctx.stroke();
+            if (!isDrawing) return;
+            const pos = obtenirCoordsSouris(e);
+
+            if (modeOutil === 'bombe') {
+                // Outil Aérosol : Dessine plein de petits points autour du curseur
+                let epaisseur = document.getElementById('taille-trait').value;
+                ctx.fillStyle = document.getElementById('couleur-dessin').value;
+                for (let i = 0; i < epaisseur * 2; i++) {
+                    // Les maths de l'éparpillement (Rayon + Angle aléatoire)
+                    let rayon = Math.random() * epaisseur;
+                    let angle = Math.random() * Math.PI * 2;
+                    let x = pos.x + rayon * Math.cos(angle);
+                    let y = pos.y + rayon * Math.sin(angle);
+                    ctx.fillRect(x, y, 2, 2);
+                }
+            } else if (modeOutil !== 'tampon') {
+                // Tracé continu (Crayon, Pinceau, Gomme)
+                configurerPinceau();
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
             }
+            
+            lastPos = pos;
         });
 
         canvas.addEventListener('mouseup', () => { isDrawing = false; });
         canvas.addEventListener('mouseleave', () => { isDrawing = false; });
+
+        function configurerPinceau() {
+            let epaisseur = document.getElementById('taille-trait').value;
+            let couleur = document.getElementById('couleur-dessin').value;
+            
+            ctx.lineWidth = epaisseur;
+            ctx.lineCap = 'round'; 
+            ctx.lineJoin = 'round';
+
+            if (modeOutil === 'gomme') {
+                ctx.strokeStyle = "#ffffff";
+                ctx.globalAlpha = 1.0;
+            } else if (modeOutil === 'pinceau') {
+                // Le pinceau utilise l'opacité globale pour faire un effet de peinture/aquarelle
+                ctx.strokeStyle = couleur;
+                ctx.globalAlpha = 0.15; 
+                // Un pinceau est souvent plus gros, on booste sa taille
+                ctx.lineWidth = epaisseur * 1.5; 
+            } else {
+                // Crayon normal
+                ctx.strokeStyle = couleur;
+                ctx.globalAlpha = 1.0;
+            }
+        }
 
         document.addEventListener("DOMContentLoaded", chargerDonnees);
     </script>
