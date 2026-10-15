@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Chasseur de Mots Pro - Objectif 6ème</title>
+    <title>Orthographe CM2 - Chasseur & Dictée</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
@@ -12,9 +12,9 @@
         .sous-titre { color: #8d99ae; margin-bottom: 20px; font-weight: 700; font-size: 1.1rem;}
         #hud { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; border: 2px solid #ecf0f1;}
         .xp-text { color: #00b4d8; font-weight: 900; }
-        #zone-jeu { display: flex; gap: 20px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
         
-        /* Grille de jeu */
+        /* Grille de jeu (Mots Mêlés) */
+        #zone-jeu { display: flex; gap: 20px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
         #grille-container { background: #fff; padding: 10px; border-radius: 15px; border: 4px solid #eee; width: 100%; max-width: 600px; margin: 0 auto; }
         .grille { display: grid; gap: 2px; }
         .lettre { width: 100%; aspect-ratio: 1; background: #f4f6f8; border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: clamp(12px, 3vw, 22px); font-weight: 900; color: #444; cursor: pointer; transition: background 0.2s, transform 0.1s; }
@@ -23,7 +23,6 @@
         .lettre.trouvee { background: #00b4d8; color: #fff; }
         .lettre.erreur { background: #ef233c; color: #fff; }
         
-        /* Liste des mots */
         #liste-mots-container { background: #f8f9fa; padding: 20px; border-radius: 15px; min-width: 250px; text-align: left; border: 2px solid #ecf0f1;}
         .mot-a-trouver { font-size: 1.1rem; font-weight: 700; color: #666; margin-bottom: 8px; padding: 8px; border-radius: 8px; }
         .mot-a-trouver.barre { text-decoration: line-through; color: #bbb; background: #e9ecef; cursor: pointer; }
@@ -36,6 +35,7 @@
         .btn-primaire { background: #00b4d8; box-shadow: 0 4px #0096c7; }
         .btn-secondaire { background: #8d99ae; box-shadow: 0 4px #6c757d; }
         .btn-supprimer { background: #ef233c; padding: 12px 15px; box-shadow: 0 4px #d90429; margin-left:10px;}
+        .btn-dictee { background: #9b59b6; box-shadow: 0 4px #8e44ad; width: 100%; font-size: 1.2rem; padding: 15px; margin-bottom: 20px;}
         
         /* Niveaux */
         .grille-niveaux { display: flex; flex-direction: column; gap: 10px; max-width: 500px; margin: 0 auto; }
@@ -47,6 +47,14 @@
         #zone-config { background: #fff3cd; padding: 25px; border-radius: 15px; margin-top: 20px; text-align: left; border: 2px dashed #f1c40f;}
         input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #dfe6e9; border-radius: 8px; font-family: 'Nunito', sans-serif; font-size:1.1rem;}
         
+        /* Mode Dictée */
+        .btn-ecouter { background: #f39c12; font-size: 1.5rem; padding: 15px 30px; border-radius: 50px; box-shadow: 0 5px 0 #d35400; margin-bottom: 20px; animation: pulse 2s infinite;}
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        #saisie-dictee { font-size: 1.3rem; line-height: 1.5; resize: none; user-select: text; border-color: #9b59b6;}
+        .correction-box { background: #f8f9fa; padding: 20px; border-radius: 15px; border: 2px solid #ecf0f1; margin-top: 20px; text-align: left; font-size: 1.2rem; display: none;}
+        .mot-erreur { color: #e74c3c; text-decoration: line-through; font-weight: bold; margin-right: 5px;}
+        .mot-corrige { color: #27ae60; font-weight: bold; margin-right: 5px;}
+
         .ecran { display: none; }
         .ecran.actif { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
@@ -56,17 +64,18 @@
     <div id="app-container">
         <!-- ECRAN D'ACCUEIL -->
         <div id="ecran-accueil" class="ecran actif">
-            <h1>Chasseur de Mots Pro 🕵️</h1>
-            <p class="sous-titre">Programme CM2 : Vocabulaire & Mots Invariables</p>
+            <h1>Orthographe CM2 🕵️</h1>
+            <p class="sous-titre">Mots Mêlés & Dictées Vocales</p>
             <div id="hud" style="justify-content: center;"><span class="xp-text">Mon XP : <span id="ui-xp-accueil">...</span> ⭐</span></div>
             
-            <h2 style="color:#2b2d42; margin-bottom:15px; text-align:left;">Le Chemin de l'Aventure :</h2>
+            <button class="btn btn-dictee" onclick="lancerMenuDictee()">🎙️ Entraînement : La Dictée Vocale</button>
+
+            <h2 style="color:#2b2d42; margin-bottom:15px; text-align:left;">Les Mots Mêlés (L'Aventure) :</h2>
             <div class="grille-niveaux" id="liste-niveaux-aventure"></div>
             
             <hr style="margin: 30px 0; border: 1px solid #eee;">
             
             <h2 style="color:#2b2d42; margin-bottom:5px; text-align:left;">Les Révisions de Théo :</h2>
-            <p style="font-size: 0.95rem; color: #888; margin-bottom: 15px; text-align:left;">Listes de dictées ou mots à revoir</p>
             <div id="liste-themes-custom" style="text-align:left;"></div>
             
             <button class="btn btn-secondaire" style="margin-top: 20px;" onclick="changerEcran('ecran-config')">⚙️ Espace Parents (Ajouter une liste)</button>
@@ -74,13 +83,12 @@
             <button class="btn btn-secondaire" style="margin-top: 15px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
-        <!-- ECRAN DE JEU -->
+        <!-- ECRAN DE JEU (MOTS MELES) -->
         <div id="ecran-jeu" class="ecran">
             <div id="hud">
                 <span id="ui-niveau-titre" style="color:#2b2d42;">Niveau ...</span>
                 <span class="xp-text">XP : <span id="ui-xp-jeu">0</span> ⭐</span>
             </div>
-            
             <div id="zone-jeu">
                 <div id="grille-container"><div id="grille" class="grille"></div></div>
                 <div id="liste-mots-container">
@@ -89,14 +97,34 @@
                     <div id="liste-mots"></div>
                 </div>
             </div>
-            
             <button class="btn btn-secondaire" style="margin-top: 25px;" onclick="retourAccueil()">Abandonner la mission</button>
+        </div>
+
+        <!-- ECRAN DICTEE -->
+        <div id="ecran-dictee" class="ecran">
+            <div id="hud">
+                <span style="color:#9b59b6;">Dictée Vocale</span>
+                <span class="xp-text">XP : <span id="ui-xp-dictee">0</span> ⭐</span>
+            </div>
+            
+            <p style="font-size: 1.2rem; font-weight: bold; margin-bottom: 20px;">Écoute bien la phrase et écris-la sans faire de fautes !</p>
+            
+            <button class="btn btn-ecouter" onclick="lirePhraseAudio()">🔊 Écouter la phrase</button>
+            
+            <textarea id="saisie-dictee" rows="4" placeholder="Tape la phrase ici... N'oublie pas les majuscules et la ponctuation !"></textarea>
+            
+            <button class="btn btn-dictee" id="btn-valider-dictee" style="width: auto; padding: 15px 40px;" onclick="validerDictee()">Valider ma dictée</button>
+            
+            <div id="correction-dictee" class="correction-box"></div>
+            
+            <br>
+            <button class="btn btn-primaire" id="btn-dictee-suivante" style="display: none; margin-top: 15px;" onclick="nouvellePhraseDictee()">Phrase suivante ➔</button>
+            <button class="btn btn-secondaire" style="margin-top: 15px;" onclick="retourAccueil()">Retour Menu</button>
         </div>
 
         <!-- ECRAN DE CONFIGURATION -->
         <div id="ecran-config" class="ecran">
             <h2 style="color: #00b4d8;">⚙️ Espace Parents</h2>
-            <p class="sous-titre">Créez une grille de révision pour ses dictées.</p>
             <div id="zone-config">
                 <label><strong>Nom de la liste :</strong></label>
                 <input type="text" id="input-nom-theme" placeholder="Ex: Dictée Semaine 4">
@@ -111,7 +139,6 @@
         <!-- ECRAN DE FIN -->
         <div id="ecran-fin" class="ecran">
             <h1 style="color:#00b4d8;">Mission Accomplie ! 🎉</h1>
-            <p class="sous-titre">La grille est entièrement nettoyée !</p>
             <div id="hud" style="justify-content: center; background:none; border:none;">
                 <span class="xp-text" style="font-size: 1.8rem; background:#e0fbfc; padding:10px 20px; border-radius:15px;">+<span id="gain-xp"></span> XP gagnés !</span>
             </div>
@@ -123,41 +150,50 @@
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
         const DB_URL = `${FIREBASE_URL}scores/theo/motsSaveV3.json`;
 
-        // PROGRAMME CM2 : Mots complexes, invariables, préfixes, suffixes
         const parcoursAventure = [
             { id: 1, nom: "Niveau 1 : Les Invariables", xpRequis: 0, taille: 12, mode: 'moyen', mots: ["TOUJOURS", "JAMAIS", "POURQUOI", "SOUDAIN", "CEPENDANT", "BIENTOT"] },
             { id: 2, nom: "Niveau 2 : Les Préfixes", xpRequis: 60, taille: 12, mode: 'moyen', mots: ["IMPOSSIBLE", "MALADROIT", "ILLEGAL", "PARAPLUIE", "DESORDRE", "INCONNU"] },
             { id: 3, nom: "Niveau 3 : Les Suffixes", xpRequis: 150, taille: 13, mode: 'moyen', mots: ["FEUILLAGE", "CHAUFFAGE", "LOURDEUR", "BLANCHEUR", "FILLETTE", "LAVAGE"] }, 
             { id: 4, nom: "Niveau 4 : Mots Composés", xpRequis: 300, taille: 14, mode: 'difficile', mots: ["PORTEMANTEAU", "CHOUFLEUR", "ARCENCIEL", "WAGONLIT", "TIREBOUCHON"] },
-            { id: 5, nom: "Niveau 5 : Éducation Civique", xpRequis: 500, taille: 15, mode: 'difficile', mots: ["CONSTITUTION", "REPUBLIQUE", "DEMOCRATIE", "PARLEMENT", "CITOYEN", "MAIRIE"] }, 
-            { id: 6, nom: "Niveau 6 : Le Maître", xpRequis: 750, taille: 16, mode: 'difficile', mots: ["HIPPOPOTAME", "RHINOCEROS", "CHRYSANTHEME", "ORTHOGRAPHE", "SYMETRIE", "XYLOPHONE"] }
+            { id: 5, nom: "Niveau 5 : Éducation Civique", xpRequis: 500, taille: 15, mode: 'difficile', mots: ["CONSTITUTION", "REPUBLIQUE", "DEMOCRATIE", "PARLEMENT", "CITOYEN", "MAIRIE"] }
+        ];
+
+        // Base de données des dictées (CM2 : Accords sujet/verbe, pluriels complexes, invariables)
+        const bddDictees = [
+            "Les chevaux sauvages galopent dans la grande prairie verte.",
+            "Soudain, une tempête violente a éclaté pendant la nuit.",
+            "Ils ont toujours aimé écouter les histoires effrayantes.",
+            "Ces vieux châteaux sont entourés de profonds fossés.",
+            "Pourquoi ne viens-tu jamais avec tes nouveaux amis ?"
         ];
 
         let customThemes = JSON.parse(localStorage.getItem('motsCustomV3')) || {};
         let profil = { xp: 0 };
+        
+        // Variables Mots Mêlés
         let difficultePartie = { taille: 10, mode: 'facile' }; let motsAFinir = []; let lettresGrille = []; let selection = null; let pointsGagnesCettePartie = 0;
+        
+        // Variables Dictée
+        let phraseDicteeActuelle = "";
 
-        // --- SAUVEGARDE CLOUD FIREBASE ---
         async function chargerProfilCloud() {
             try {
                 let res = await fetch(DB_URL);
                 let data = await res.json();
-                if (data && data.xp !== undefined) {
-                    profil.xp = parseInt(data.xp) || 0;
-                }
-            } catch(e) { console.error("Erreur Firebase", e); }
+                if (data && data.xp !== undefined) profil.xp = parseInt(data.xp) || 0;
+            } catch(e) {}
             majAccueil();
         }
 
         async function sauverProfilCloud() {
             try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
         }
-        // ---------------------------------
 
         function majAccueil() {
             document.getElementById('ui-xp-accueil').textContent = profil.xp;
+            document.getElementById('ui-xp-jeu').textContent = profil.xp;
+            document.getElementById('ui-xp-dictee').textContent = profil.xp;
             
-            // Génération des boutons Niveaux
             const conteneurAventure = document.getElementById('liste-niveaux-aventure'); 
             conteneurAventure.innerHTML = '';
             parcoursAventure.forEach(niv => {
@@ -169,49 +205,33 @@
                 conteneurAventure.appendChild(btn);
             });
 
-            // Génération des listes personnalisées Parents
             const conteneurCustom = document.getElementById('liste-themes-custom'); 
             conteneurCustom.innerHTML = '';
-            
             if (Object.keys(customThemes).length === 0) { 
                 conteneurCustom.innerHTML = "<p style='color:#bbb; font-style:italic;'>Aucune liste de révision pour l'instant.</p>"; 
             } else {
                 for (let id in customThemes) {
                     let div = document.createElement('div'); div.style.display = "inline-flex"; div.style.margin = "5px";
                     let btn = document.createElement('button'); btn.className = 'btn btn-secondaire'; btn.style.backgroundColor = '#2b2d42'; btn.textContent = customThemes[id].nom;
-                    
-                    // Ajuster dynamiquement la taille de la grille en fonction de la longueur des mots
                     let maxLen = Math.max(...customThemes[id].mots.map(m => m.length));
-                    let gridTaille = Math.max(12, maxLen + 2); // Minimum 12x12
-
+                    let gridTaille = Math.max(12, maxLen + 2);
                     btn.onclick = () => lancerPartie(customThemes[id].mots, customThemes[id].nom, gridTaille, 'moyen');
-                    
                     let btnDel = document.createElement('button'); btnDel.className = 'btn btn-supprimer'; btnDel.textContent = "X";
                     btnDel.onclick = () => { delete customThemes[id]; sauverCustom(); majAccueil(); };
-                    
                     div.appendChild(btn); div.appendChild(btnDel); conteneurCustom.appendChild(div);
                 }
             }
         }
 
-        function sauverProfil() { 
-            document.getElementById('ui-xp-accueil').textContent = profil.xp; 
-            document.getElementById('ui-xp-jeu').textContent = profil.xp; 
-            sauverProfilCloud(); 
-        }
-
+        function sauverProfil() { sauverProfilCloud(); majAccueil(); }
         function sauverCustom() { localStorage.setItem('motsCustomV3', JSON.stringify(customThemes)); }
-        
+
         function sauvegarderTheme() {
             let nom = document.getElementById('input-nom-theme').value.trim(); let motsBruts = document.getElementById('input-mots').value;
             if(!nom || !motsBruts) return alert("Remplissez les champs !");
-            
-            // Nettoyage complet (majuscules, pas d'accents, suppression des espaces, mots trop courts/longs)
             let motsPropres = motsBruts.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(',').map(m => m.replace(/[^A-Z]/g, '')).filter(m => m.length > 2 && m.length <= 15);
             if(motsPropres.length === 0) return alert("Aucun mot valide trouvé (ils doivent faire entre 3 et 15 lettres).");
-            
             customThemes['custom_' + Date.now()] = { nom: nom, mots: motsPropres }; sauverCustom();
-            
             document.getElementById('msg-config').textContent = "Liste sauvegardée avec succès !"; 
             document.getElementById('input-nom-theme').value = ""; document.getElementById('input-mots').value = "";
             setTimeout(() => document.getElementById('msg-config').textContent = "", 3000); majAccueil();
@@ -220,59 +240,112 @@
         function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); document.getElementById(id).classList.add('actif'); }
         function retourAccueil() { changerEcran('ecran-accueil'); majAccueil(); }
 
+        // ==========================================
+        // LE MOTEUR DE DICTÉE VOCALE (Nouveauté)
+        // ==========================================
+        function lancerMenuDictee() {
+            nouvellePhraseDictee();
+            changerEcran('ecran-dictee');
+        }
+
+        function nouvellePhraseDictee() {
+            phraseDicteeActuelle = bddDictees[Math.floor(Math.random() * bddDictees.length)];
+            document.getElementById('saisie-dictee').value = "";
+            document.getElementById('saisie-dictee').disabled = false;
+            document.getElementById('btn-valider-dictee').style.display = "inline-block";
+            document.getElementById('correction-dictee').style.display = "none";
+            document.getElementById('btn-dictee-suivante').style.display = "none";
+            lirePhraseAudio();
+        }
+
+        function lirePhraseAudio() {
+            if ('speechSynthesis' in window) {
+                // Annuler toute lecture en cours
+                window.speechSynthesis.cancel();
+                let msg = new SpeechSynthesisUtterance(phraseDicteeActuelle);
+                msg.lang = 'fr-FR';
+                msg.rate = 0.85; // Ralenti pour la dictée
+                window.speechSynthesis.speak(msg);
+            } else {
+                alert("Ton navigateur ne supporte pas la synthèse vocale.");
+            }
+        }
+
+        function validerDictee() {
+            let texteSaisi = document.getElementById('saisie-dictee').value.trim();
+            if (texteSaisi === "") return;
+
+            document.getElementById('saisie-dictee').disabled = true;
+            document.getElementById('btn-valider-dictee').style.display = "none";
+            document.getElementById('btn-dictee-suivante').style.display = "inline-block";
+
+            // Nettoyage avec Regex : on enlève la ponctuation et on met en minuscules pour comparer uniquement l'orthographe des mots
+            let nettoyageRegex = /[.,!?'"]/g;
+            let motsAttendus = phraseDicteeActuelle.toLowerCase().replace(nettoyageRegex, '').split(/\s+/);
+            let motsSaisis = texteSaisi.toLowerCase().replace(nettoyageRegex, '').split(/\s+/);
+
+            const boiteCorrection = document.getElementById('correction-dictee');
+            boiteCorrection.style.display = "block";
+            boiteCorrection.innerHTML = "<p style='margin-bottom: 10px;'><strong>Correction :</strong></p>";
+
+            let toutBon = true;
+            let htmlCorrection = "";
+
+            // Comparaison mot par mot
+            for (let i = 0; i < motsAttendus.length; i++) {
+                if (motsSaisis[i] === motsAttendus[i]) {
+                    htmlCorrection += `<span class="mot-corrige">${motsAttendus[i]}</span> `;
+                } else {
+                    toutBon = false;
+                    let motFaux = motsSaisis[i] || "___";
+                    htmlCorrection += `<span class="mot-erreur">${motFaux}</span><span class="mot-corrige">${motsAttendus[i]}</span> `;
+                }
+            }
+
+            boiteCorrection.innerHTML += htmlCorrection;
+
+            if (toutBon) {
+                profil.xp += 30; // Gros gain pour une dictée parfaite
+                sauverProfil();
+                boiteCorrection.innerHTML = "<p style='color: #27ae60; font-weight: bold;'>Parfait ! Zéro faute ! ✨ +30 XP</p>";
+                boiteCorrection.style.borderColor = "#27ae60";
+            } else {
+                profil.xp += 10; // Récompense l'effort
+                sauverProfil();
+                boiteCorrection.innerHTML += "<p style='color: #e74c3c; font-weight: bold; margin-top:10px;'>Attention aux fautes soulignées ! +10 XP pour l'effort.</p>";
+                boiteCorrection.style.borderColor = "#e74c3c";
+            }
+        }
+
+        // ==========================================
+        // MOTEUR MOTS MELES (Existant)
+        // ==========================================
         function lancerPartie(listeMots, titre, taille, mode) {
             document.getElementById('ui-niveau-titre').textContent = titre; document.getElementById('ui-xp-jeu').textContent = profil.xp;
             difficultePartie = { taille: taille, mode: mode }; motsAFinir = [...listeMots]; selection = null; pointsGagnesCettePartie = 0;
             genererGrille(motsAFinir); afficherListeMots(); changerEcran('ecran-jeu');
         }
 
-        // --- MOTEUR DE GÉNÉRATION DE LA GRILLE ---
         function genererGrille(liste) {
             let t = difficultePartie.taille; lettresGrille = Array(t).fill(null).map(() => Array(t).fill(''));
-            
-            // Directions : [dRow, dCol]
-            let directions = [[0, 1], [1, 0], [1, 1]]; // Droit, Bas, Diag-Bas-Droite
-            
-            if (difficultePartie.mode === 'moyen' || difficultePartie.mode === 'difficile') { 
-                directions.push([0, -1], [-1, 0]); // Ajout Gauche, Haut
-            }
-            if (difficultePartie.mode === 'difficile') { 
-                directions.push([-1, -1], [-1, 1], [1, -1]); // Ajout de toutes les autres diagonales
-            }
+            let directions = [[0, 1], [1, 0], [1, 1]]; 
+            if (difficultePartie.mode === 'moyen' || difficultePartie.mode === 'difficile') { directions.push([0, -1], [-1, 0]); }
+            if (difficultePartie.mode === 'difficile') { directions.push([-1, -1], [-1, 1], [1, -1]); }
 
             liste.forEach(mot => {
                 let place = false; let tentatives = 0;
                 while (!place && tentatives < 500) {
-                    tentatives++; 
-                    let dir = directions[Math.floor(Math.random() * directions.length)]; 
-                    let r = Math.floor(Math.random() * t); let c = Math.floor(Math.random() * t);
-                    
-                    if (peutPlacerMot(mot, r, c, dir[0], dir[1], t)) { 
-                        for (let i = 0; i < mot.length; i++) lettresGrille[r + i * dir[0]][c + i * dir[1]] = mot[i]; 
-                        place = true; 
-                    }
+                    tentatives++; let dir = directions[Math.floor(Math.random() * directions.length)]; let r = Math.floor(Math.random() * t); let c = Math.floor(Math.random() * t);
+                    if (peutPlacerMot(mot, r, c, dir[0], dir[1], t)) { for (let i = 0; i < mot.length; i++) lettresGrille[r + i * dir[0]][c + i * dir[1]] = mot[i]; place = true; }
                 }
-                
-                // Fallback de sécurité (Place le mot horizontalement s'il y a un souci après 500 essais)
                 if(!place) {
-                    for(let i=0; i<t; i++) {
-                        if(peutPlacerMot(mot, i, 0, 0, 1, t)) {
-                            for (let k = 0; k < mot.length; k++) lettresGrille[i][k] = mot[k];
-                            break;
-                        }
-                    }
+                    for(let i=0; i<t; i++) { if(peutPlacerMot(mot, i, 0, 0, 1, t)) { for (let k = 0; k < mot.length; k++) lettresGrille[i][k] = mot[k]; break; } }
                 }
             });
 
-            // Remplir les trous avec des lettres aléatoires
             const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            for (let r = 0; r < t; r++) { 
-                for (let c = 0; c < t; c++) { 
-                    if (lettresGrille[r][c] === '') lettresGrille[r][c] = alpha[Math.floor(Math.random() * alpha.length)]; 
-                } 
-            }
+            for (let r = 0; r < t; r++) { for (let c = 0; c < t; c++) { if (lettresGrille[r][c] === '') lettresGrille[r][c] = alpha[Math.floor(Math.random() * alpha.length)]; } }
 
-            // Génération de l'affichage HTML
             const grilleDiv = document.getElementById('grille'); grilleDiv.style.gridTemplateColumns = `repeat(${t}, 1fr)`; grilleDiv.innerHTML = '';
             for (let r = 0; r < t; r++) { 
                 for (let c = 0; c < t; c++) { 
@@ -284,51 +357,35 @@
         }
 
         function peutPlacerMot(mot, r, c, dr, dc, t) {
-            // Vérification des limites de la grille
             if (r + (mot.length - 1) * dr >= t || r + (mot.length - 1) * dr < 0) return false; 
             if (c + (mot.length - 1) * dc >= t || c + (mot.length - 1) * dc < 0) return false;
-            
-            // Vérification des collisions avec d'autres mots déjà placés
-            for (let i = 0; i < mot.length; i++) { 
-                let curr = lettresGrille[r + i * dr][c + i * dc]; 
-                if (curr !== '' && curr !== mot[i]) return false; 
-            } 
+            for (let i = 0; i < mot.length; i++) { let curr = lettresGrille[r + i * dr][c + i * dc]; if (curr !== '' && curr !== mot[i]) return false; } 
             return true;
         }
 
         function afficherListeMots() {
             const conteneur = document.getElementById('liste-mots'); conteneur.innerHTML = '';
-            motsAFinir.forEach(mot => { 
-                let div = document.createElement('div'); div.className = 'mot-a-trouver'; div.id = 'mot-' + mot; div.textContent = mot; 
-                conteneur.appendChild(div); 
-            });
+            motsAFinir.forEach(mot => { let div = document.createElement('div'); div.className = 'mot-a-trouver'; div.id = 'mot-' + mot; div.textContent = mot; conteneur.appendChild(div); });
         }
 
-        // --- GESTION DES CLICS SUR LA GRILLE ---
         function gererClic(el, r, c) {
             if (el.classList.contains('trouvee')) return;
-            
-            if (!selection) { 
-                selection = { el: el, r: r, c: c }; el.classList.add('selectionnee'); 
-            } else { 
+            if (!selection) { selection = { el: el, r: r, c: c }; el.classList.add('selectionnee'); } 
+            else { 
                 let r1 = selection.r, c1 = selection.c; selection.el.classList.remove('selectionnee'); selection = null; 
-                if (r1 === r && c1 === c) return; // Annule si on clique deux fois au même endroit
+                if (r1 === r && c1 === c) return; 
                 verifierLigne(r1, c1, r, c); 
             }
         }
 
         function verifierLigne(r1, c1, r2, c2) {
-            let dr = Math.sign(r2 - r1); let dc = Math.sign(c2 - c1); 
-            let distR = Math.abs(r2 - r1); let distC = Math.abs(c2 - c1);
-            
-            // Empêcher la sélection en mode "cavalier" (doit être droit ou en vraie diagonale)
+            let dr = Math.sign(r2 - r1); let dc = Math.sign(c2 - c1); let distR = Math.abs(r2 - r1); let distC = Math.abs(c2 - c1);
             if (dr !== 0 && dc !== 0 && distR !== distC) return erreur(r1, c1, r2, c2); 
             
             let motForme = ""; let elements = []; let longueur = Math.max(distR, distC) + 1;
             for (let i = 0; i < longueur; i++) { 
                 let row = r1 + i * dr; let col = c1 + i * dc; 
-                motForme += lettresGrille[row][col]; 
-                elements.push(document.querySelector(`.lettre[data-r="${row}"][data-c="${col}"]`)); 
+                motForme += lettresGrille[row][col]; elements.push(document.querySelector(`.lettre[data-r="${row}"][data-c="${col}"]`)); 
             }
             
             let inverse = motForme.split('').reverse().join('');
@@ -339,14 +396,10 @@
 
         function validerMot(mot, elements) {
             let motUI = document.getElementById('mot-' + mot); motUI.classList.add('barre'); 
-            // Lien Wiktionnaire si on clique sur un mot trouvé (super pour enrichir le vocabulaire)
             motUI.onclick = () => window.open(`https://fr.wiktionary.org/wiki/${mot.toLowerCase()}`, '_blank');
+            elements.forEach(el => el.classList.add('trouvee')); motsAFinir = motsAFinir.filter(m => m !== mot);
             
-            elements.forEach(el => el.classList.add('trouvee')); 
-            motsAFinir = motsAFinir.filter(m => m !== mot);
-            
-            let xpGagne = mot.length * 3; // +3 XP par lettre en CM2
-            profil.xp += xpGagne; pointsGagnesCettePartie += xpGagne; sauverProfil();
+            let xpGagne = mot.length * 3; profil.xp += xpGagne; pointsGagnesCettePartie += xpGagne; sauverProfil();
             
             if (motsAFinir.length === 0) { 
                 setTimeout(() => { 
