@@ -105,6 +105,35 @@
         .admin-title { font-size: 1.1rem; color: #2980b9; font-weight: 900; border-bottom: 2px solid #3498db; padding-bottom: 5px; margin-bottom: 15px; }
         .admin-label { font-weight: bold; color: #34495e; font-size: 0.95rem; display: block; margin-bottom: 5px;}
         .admin-input { width: 100%; padding: 8px; border: 2px solid #bdc3c7; border-radius: 8px; margin-bottom: 10px; font-family: 'Nunito', sans-serif;}
+        
+        /* --- Style du bouton Monde Réel --- */
+        .btn-monde-reel { 
+            display: none; /* Caché par défaut */
+            background: #e67e22; 
+            color: white; 
+            padding: 15px; 
+            border-radius: 15px; 
+            font-size: 1.2rem; 
+            font-weight: 900; 
+            text-align: center; 
+            cursor: pointer; 
+            border: none; 
+            width: 100%; 
+            margin-bottom: 20px; 
+            box-shadow: 0 4px 0 #d35400; 
+            animation: pulse 2s infinite; 
+        }
+
+        /* On l'affiche uniquement quand le temps d'écran est dépassé */
+        .section-bloquee .btn-monde-reel { display: block; }
+        .section-bloquee-libre .btn-monde-reel { display: block; }
+
+        /* Petite animation pour le faire respirer */
+        @keyframes pulse { 
+            0% { transform: scale(1); } 
+            50% { transform: scale(1.05); } 
+            100% { transform: scale(1); } 
+        }
     </style>
 </head>
 <body>
