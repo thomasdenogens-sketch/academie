@@ -329,14 +329,75 @@
     <button class="btn-parents" onclick="ouvrirMenuParents()">⚙️ Panneau d'Administration</button>
 
     <!-- OVERLAY PARENTS -->
+    <!-- OVERLAY PARENTS -->
     <div id="overlay-parents" class="overlay">
         <div class="modal">
             <h2 style="color: #2c3e50; margin-bottom: 20px;">⚙️ Espace Parents</h2>
             <div id="zone-auth-parent">
-                <input type="password" id="pin-parents" class="input-parent" placeholder="Code PIN (1234)">
+                <!-- L'indice (1234) a été retiré du placeholder -->
+                <input type="password" id="pin-parents" class="input-parent" placeholder="Saisissez le code PIN">
                 <button class="btn-valider" style="margin-bottom: 20px;" onclick="authentifierParent()">Déverrouiller</button>
                 <p id="msg-parent-erreur" style="color: red; font-weight: bold;"></p>
             </div>
+
+            <div id="parametres-parents" style="display: none;">
+                
+                <!-- NOUVEAU : Section Sécurité pour changer le code PIN -->
+                <div class="admin-section" style="border-color: #e74c3c; background: #fadbd8;">
+                    <div class="admin-title" style="color: #c0392b; border-color: #e74c3c;">🔒 Sécurité</div>
+                    <label class="admin-label">Nouveau Code PIN :</label>
+                    <input type="text" id="admin-pin-code" class="admin-input" placeholder="Laisse vide pour garder le code actuel">
+                </div>
+
+                <div class="admin-section">
+                    <div class="admin-title">🏆 La Jauge Familiale</div>
+                    <label class="admin-label">Objectif XP à atteindre :</label>
+                    <input type="number" id="admin-objectif-xp" class="admin-input">
+                    <label class="admin-label">Texte de la Super Récompense :</label>
+                    <input type="text" id="admin-texte-recompense" class="admin-input">
+                </div>
+
+                <div class="admin-section">
+                    <div class="admin-title">🎮 Paramètres des Salles de Jeux (Bonus)</div>
+                    <div style="display:flex; gap:10px;">
+                        <div style="flex:1;">
+                            <label class="admin-label">XP Requis (Théo) :</label>
+                            <input type="number" id="admin-seuil-recre-theo" class="admin-input">
+                        </div>
+                        <div style="flex:1;">
+                            <label class="admin-label">XP Requis (Lola) :</label>
+                            <input type="number" id="admin-seuil-recre-lola" class="admin-input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-section" style="border-color: #2ecc71; background: #fafffb;">
+                    <div class="admin-title" style="color: #27ae60;">🕹️ Temps Jeux Libres (Dames, Échecs...)</div>
+                    <div style="display:flex; gap:10px;">
+                        <div style="flex:1;"><label class="admin-label">Minutes (Théo) :</label><input type="number" id="admin-temps-libre-theo" class="admin-input"></div>
+                        <div style="flex:1;"><label class="admin-label">Minutes (Lola) :</label><input type="number" id="admin-temps-libre-lola" class="admin-input"></div>
+                    </div>
+                </div>
+
+                <div class="admin-section">
+                    <div class="admin-title">⏱️ Temps d'écran ÉCOLE (Missions)</div>
+                    <div style="display:flex; gap:10px;">
+                        <div style="flex:1;"><label class="admin-label">Minutes (Théo) :</label><input type="number" id="admin-temps-theo" class="admin-input"></div>
+                        <div style="flex:1;"><label class="admin-label">Minutes (Lola) :</label><input type="number" id="admin-temps-lola" class="admin-input"></div>
+                    </div>
+                </div>
+
+                <div class="admin-section" style="border-color: #f39c12; background: #fff3cd;">
+                    <div class="admin-title" style="color: #d35400; border-color: #f39c12;">⚡ Actions Rapides</div>
+                    <button class="btn-valider" style="background: #e67e22;" onclick="donnerBonusManuel()">🎁 +100 XP Bonus à la famille</button>
+                    <button class="btn-valider" style="background: #8e44ad; margin-top: 10px;" onclick="window.location.href='kanban_projet.html'">📋 Ouvrir le Kanban Développeur</button>
+                </div>
+
+                <button class="btn-valider" style="background: #2980b9;" onclick="sauvegarderParametres()">💾 Sauvegarder dans le Cloud</button>
+            </div>
+            <button class="btn-valider" style="background: #95a5a6; margin-top: 10px;" onclick="fermerModals()">Fermer</button>
+        </div>
+    </div>
 
             <div id="parametres-parents" style="display: none;">
                 
@@ -598,17 +659,29 @@
             if(!parametresActuels) parametresActuels = await lireParametresCloud();
         }
 
+       async function lireParametresCloud() {
+            try {
+                let res = await fetch(`${FIREBASE_URL}scores/parent_settings.json`);
+                let data = await res.json();
+                if (data) return data;
+            } catch(e) {}
+            // On ajoute le pinCode par défaut ("1234") si rien n'existe encore
+            return { pinCode: "1234", objectifFamille: 5000, texteRecompense: "Sortie au Parc !", limiteTheo: 30, limiteLola: 30, limiteLibreTheo: 30, limiteLibreLola: 30, seuilRecreTheo: 50, seuilRecreLola: 50 };
+        }
+
         function authentifierParent() {
-            if (document.getElementById('pin-parents').value === CODE_PIN_PARENT) {
+            // L'ordinateur vérifie le mot de passe stocké dans le cloud (ou 1234 par défaut)
+            let pinAttendu = parametresActuels.pinCode || "1234";
+            
+            if (document.getElementById('pin-parents').value === pinAttendu) {
                 document.getElementById('zone-auth-parent').style.display = 'none';
                 document.getElementById('parametres-parents').style.display = 'block';
                 
-                // C'est ici que l'on relie (Data-binding) les données Cloud vers les champs HTML !
+                document.getElementById('admin-pin-code').value = ""; // On laisse vide par défaut
                 document.getElementById('admin-objectif-xp').value = parametresActuels.objectifFamille;
                 document.getElementById('admin-texte-recompense').value = parametresActuels.texteRecompense;
                 document.getElementById('admin-seuil-recre-theo').value = parametresActuels.seuilRecreTheo || 50;
                 document.getElementById('admin-seuil-recre-lola').value = parametresActuels.seuilRecreLola || 50;
-                
                 document.getElementById('admin-temps-theo').value = parametresActuels.limiteTheo;
                 document.getElementById('admin-temps-lola').value = parametresActuels.limiteLola;
                 document.getElementById('admin-temps-libre-theo').value = parametresActuels.limiteLibreTheo || 30;
@@ -617,8 +690,12 @@
         }
 
         async function sauvegarderParametres() {
-            // C'est ici que l'on relie les champs HTML pour les renvoyer dans le Cloud
+            // Si le champ du nouveau PIN n'est pas vide, on le met à jour. Sinon on garde l'ancien.
+            let nouveauPinSaisi = document.getElementById('admin-pin-code').value.trim();
+            let pinASauvegarder = nouveauPinSaisi !== "" ? nouveauPinSaisi : (parametresActuels.pinCode || "1234");
+
             let paramsCloud = {
+                pinCode: pinASauvegarder,
                 objectifFamille: parseInt(document.getElementById('admin-objectif-xp').value) || 5000,
                 texteRecompense: document.getElementById('admin-texte-recompense').value || "Surprise !",
                 seuilRecreTheo: parseInt(document.getElementById('admin-seuil-recre-theo').value) || 50,
