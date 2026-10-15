@@ -10,99 +10,288 @@
             font-family: 'Nunito', sans-serif; background: #2c3e50; color: #ecf0f1; 
             display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 20px; 
             overflow: hidden; /* Empêche de scroller en déplaçant les pièces */
+            user-select: none;
         }
         
-        h1 { color: #2ecc71; font-weight: 900; margin-bottom: 5px; }
-        .sous-titre { color: #bdc3c7; margin-bottom: 20px; }
+        h1 { color: #2ecc71; font-weight: 900; margin-bottom: 5px; font-size: 2.5rem;}
+        .sous-titre { color: #bdc3c7; margin-bottom: 20px; font-size: 1.1rem; }
 
         /* Le plateau de jeu */
         #plateau-tangram {
             width: 600px; height: 500px; background: white; border-radius: 15px; border: 4px dashed #7f8c8d;
             position: relative; box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
         }
 
+        /* L'ombre chinoise et les indices */
+        #couche-modele {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;
+            display: flex; justify-content: center; align-items: center;
+        }
+        
+        #svg-modele {
+            width: 100%; height: 100%;
+        }
+
+        .forme-ombre { fill: #ecf0f1; stroke: #bdc3c7; stroke-width: 2; stroke-dasharray: 5,5;} /* L'ombre à remplir */
+        .indice-piece { fill: rgba(52, 152, 219, 0.2); stroke: #3498db; stroke-width: 2; opacity: 0; transition: opacity 0.5s ease;} /* Indice caché par défaut */
+        .indice-piece.visible { opacity: 1; }
+
         /* Les pièces du Tangram (SVG) */
-        .piece { position: absolute; cursor: grab; transition: transform 0.2s, filter 0.2s; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3));}
+        .piece { position: absolute; cursor: grab; transition: transform 0.2s, filter 0.2s; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); z-index: 10;}
         .piece:active { cursor: grabbing; z-index: 100 !important; filter: drop-shadow(5px 10px 15px rgba(0,0,0,0.5));}
 
         /* Menu latéral d'outils */
-        .toolbar { display: flex; gap: 15px; margin-bottom: 15px; }
-        .btn-outil { background: #34495e; color: white; border: 2px solid #bdc3c7; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 1.1rem;}
-        .btn-outil:hover { background: #2ecc71; border-color: #27ae60; }
+        .toolbar { display: flex; gap: 15px; margin-bottom: 15px; justify-content: center; align-items: center;}
+        
+        .btn { padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 1.1rem; border: none; font-family: 'Nunito', sans-serif;}
+        .btn:active { transform: scale(0.95); }
+        
+        .btn-outil { background: #34495e; color: white; border: 2px solid #bdc3c7;}
+        .btn-outil:hover { background: #2c3e50; }
+        
+        .btn-aide { background: #f39c12; color: white; box-shadow: 0 4px 0 #d35400;}
+        .btn-aide:hover { background: #f1c40f; }
 
-        .consigne { font-weight: bold; color: #f1c40f; margin-bottom: 10px;}
-        .btn-nav { background: #95a5a6; color: white; padding: 10px 20px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 20px;}
+        .btn-valider { background: #27ae60; color: white; box-shadow: 0 4px 0 #219a52; font-size: 1.2rem; padding: 12px 25px;}
+        .btn-valider:hover { background: #2ecc71; }
+
+        .consigne { font-weight: bold; color: #f1c40f; margin-bottom: 10px; background: rgba(0,0,0,0.3); padding: 10px 20px; border-radius: 10px;}
+        .btn-nav { background: #95a5a6; color: white; margin-top: 20px;}
+        
+        #hud-niveau { font-size: 1.5rem; font-weight: 900; color: #3498db; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px;}
+
     </style>
 </head>
 <body>
 
     <h1>Le Tangram 🔺</h1>
-    <p class="sous-titre">Reconstruis le carré parfait ou crée tes propres formes !</p>
+    <p class="sous-titre">Reproduis l'ombre chinoise !</p>
 
-    <div class="consigne">👉 Clique et glisse une pièce pour la bouger. Double-clique dessus pour la faire tourner !</div>
+    <div id="hud-niveau">Niveau 1 : Le Carré</div>
+
+    <div class="consigne">👉 Glisse une pièce pour la bouger. Double-clique dessus pour la tourner !</div>
 
     <div class="toolbar">
-        <button class="btn-outil" onclick="reinitialiserPieces()">🔄 Ranger les pièces</button>
+        <button class="btn btn-outil" onclick="reinitialiserPieces()">🔄 Ranger les pièces</button>
+        <button class="btn btn-aide" onclick="afficherIndice()">💡 Indice !</button>
     </div>
 
-    <!-- Le Plateau où l'on déplace les divs SVG -->
-    <div id="plateau-tangram"></div>
+    <!-- Le Plateau de jeu complet -->
+    <div id="plateau-tangram">
+        
+        <!-- Couche inférieure : Le modèle à remplir -->
+        <div id="couche-modele">
+            <svg id="svg-modele" viewBox="0 0 600 500">
+                <!-- Généré dynamiquement -->
+            </svg>
+        </div>
 
-    <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour</button>
+        <!-- Couche supérieure : Les pièces mobiles -->
+        <div id="couche-pieces">
+            <!-- Pièces ajoutées via JS -->
+        </div>
+
+    </div>
+
+    <button class="btn btn-valider" onclick="validerNiveau()">✅ J'ai réussi !</button>
+    <button class="btn btn-nav" onclick="window.location.href='index.html'">🏠 Retour</button>
 
     <script>
-        // Formes SVG pures pour les 7 pièces du Tangram classique
-        const piecesTangram = [
-            { id: "gros1", color: "#e74c3c", path: "M 0 0 L 200 0 L 100 100 Z", w: 200, h: 100, x: 50, y: 50, rot: 0 },
-            { id: "gros2", color: "#3498db", path: "M 0 0 L 0 200 L 100 100 Z", w: 100, h: 200, x: 50, y: 50, rot: 0 },
-            { id: "moyen", color: "#2ecc71", path: "M 100 0 L 200 100 L 100 200 Z", w: 200, h: 200, x: 250, y: 50, rot: 0 },
-            { id: "petit1", color: "#f1c40f", path: "M 0 0 L 100 0 L 50 50 Z", w: 100, h: 50, x: 50, y: 250, rot: 0 },
-            { id: "petit2", color: "#9b59b6", path: "M 0 0 L 100 100 L 0 100 Z", w: 100, h: 100, x: 150, y: 250, rot: 0 },
-            { id: "carre", color: "#e67e22", path: "M 50 0 L 100 50 L 50 100 L 0 50 Z", w: 100, h: 100, x: 250, y: 250, rot: 0 },
-            { id: "para", color: "#1abc9c", path: "M 50 0 L 150 0 L 100 50 L 0 50 Z", w: 150, h: 50, x: 50, y: 350, rot: 0 }
+        // --- BASE DE DONNÉES DU JEU ---
+        // Les 7 pièces classiques (avec des identifiants stricts pour l'aide)
+        // Les dimensions sont relatives (ex: le grand triangle fait 200x100)
+        const defPiecesTangram = [
+            { id: "gros1", color: "#e74c3c", path: "M 0 0 L 200 0 L 100 100 Z", w: 200, h: 100 },
+            { id: "gros2", color: "#3498db", path: "M 0 0 L 0 200 L 100 100 Z", w: 100, h: 200 },
+            { id: "moyen", color: "#2ecc71", path: "M 100 0 L 200 100 L 100 200 Z", w: 200, h: 200 },
+            { id: "petit1", color: "#f1c40f", path: "M 0 0 L 100 0 L 50 50 Z", w: 100, h: 50 },
+            { id: "petit2", color: "#9b59b6", path: "M 0 0 L 100 100 L 0 100 Z", w: 100, h: 100 },
+            { id: "carre", color: "#e67e22", path: "M 50 0 L 100 50 L 50 100 L 0 50 Z", w: 100, h: 100 },
+            { id: "para", color: "#1abc9c", path: "M 50 0 L 150 0 L 100 50 L 0 50 Z", w: 150, h: 50 }
         ];
 
+        // Les Niveaux : L'ombre globale et la solution (où devraient être les pièces) pour l'aide
+        const niveauxTangram = [
+            {
+                nom: "Le Carré",
+                // L'ombre globale que l'on veut dessiner (Le grand carré assemblé, x=150, y=100, w=300, h=300)
+                ombreGlobal: "M 150 100 L 450 100 L 450 400 L 150 400 Z",
+                
+                // La solution exacte (Où placer les pièces, avec quelle rotation). Servira pour le bouton Indice !
+                // Attention: Les X,Y sont calculés pour le viewBox du SVG de fond (600x500)
+                solution: [
+                    { id: "gros1",  x: 150, y: 100, rot: 0,   path: "M 0 0 L 200 0 L 100 100 Z" },     // En haut à gauche
+                    { id: "gros2",  x: 150, y: 100, rot: 0,   path: "M 0 0 L 0 200 L 100 100 Z" },     // À gauche en bas
+                    { id: "moyen",  x: 250, y: 300, rot: 180, path: "M 100 0 L 200 100 L 100 200 Z" }, // En bas à droite
+                    { id: "carre",  x: 250, y: 200, rot: 0,   path: "M 50 0 L 100 50 L 50 100 L 0 50 Z" }, // Au centre
+                    { id: "petit1", x: 250, y: 200, rot: 90,  path: "M 0 0 L 100 0 L 50 50 Z" },       // Côté droit du carré
+                    { id: "petit2", x: 300, y: 150, rot: 180, path: "M 0 0 L 100 100 L 0 100 Z" },     // Coin haut droit
+                    { id: "para",   x: 250, y: 350, rot: 0,   path: "M 50 0 L 150 0 L 100 50 L 0 50 Z" } // Bas centre
+                ]
+            },
+            {
+                nom: "Le Bateau",
+                // Un bateau schématique pour le niveau 2
+                ombreGlobal: "M 150 300 L 450 300 L 400 400 L 200 400 Z M 250 100 L 250 300 L 150 300 Z M 270 50 L 270 300 L 450 300 Z",
+                solution: [
+                    { id: "gros1",  x: 270, y: 100, rot: 90,  path: "M 0 0 L 200 0 L 100 100 Z" }, // Voile droite (Haut)
+                    { id: "gros2",  x: 150, y: 100, rot: 0,   path: "M 0 0 L 0 200 L 100 100 Z" }, // Voile gauche
+                    { id: "moyen",  x: 250, y: 300, rot: 135, path: "M 100 0 L 200 100 L 100 200 Z" }, // Coque centrale
+                    { id: "petit1", x: 250, y: 50,  rot: 0,   path: "M 0 0 L 100 0 L 50 50 Z" },   // Fanion en haut du mât
+                    { id: "petit2", x: 350, y: 300, rot: 180, path: "M 0 0 L 100 100 L 0 100 Z" }, // Arrière du bateau
+                    { id: "carre",  x: 200, y: 350, rot: 45,  path: "M 50 0 L 100 50 L 50 100 L 0 50 Z" }, // Avant du bateau (1/2)
+                    { id: "para",   x: 150, y: 300, rot: 0,   path: "M 50 0 L 150 0 L 100 50 L 0 50 Z" } // Avant du bateau (2/2)
+                ]
+            }
+        ];
+
+        let niveauActuelIdx = 0;
         let pieceEnMouvement = null;
         let decalageX = 0, decalageY = 0;
-        let indexZ = 1;
+        let indexZ = 10;
+        let niveauActuel = niveauxTangram[0];
 
-        function initialiserPlateau() {
-            const plateau = document.getElementById('plateau-tangram');
-            plateau.innerHTML = "";
+        // --- INITIALISATION DU JEU ---
+        function chargerNiveau() {
+            niveauActuel = niveauxTangram[niveauActuelIdx];
+            document.getElementById('hud-niveau').textContent = `Niveau ${niveauActuelIdx + 1} : ${niveauActuel.nom}`;
+            
+            dessinerOmbreModele();
+            genererPiecesMobiles();
+        }
 
-            piecesTangram.forEach(p => {
+        function dessinerOmbreModele() {
+            const svgModele = document.getElementById('svg-modele');
+            svgModele.innerHTML = ""; // On vide la couche
+
+            // 1. On dessine la grande ombre noire/grise à reproduire
+            let pathOmbre = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            pathOmbre.setAttribute("d", niveauActuel.ombreGlobal);
+            pathOmbre.setAttribute("class", "forme-ombre");
+            svgModele.appendChild(pathOmbre);
+
+            // 2. On prépare les tracés de la solution EXACTE, mais on les cache avec CSS (opacity: 0)
+            niveauActuel.solution.forEach(pieceSol => {
+                // On utilise un groupe <g> pour appliquer la position X,Y et la rotation demandée par la solution
+                let groupe = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                // La transformation combine translation (X,Y) et rotation (avec pivot au centre estimé de la pièce)
+                // Pour simplifier, on applique la rotation sur le SVG final, ou on translate le groupe.
+                
+                // Pour éviter des maths de rotation de SVG complexes ici, on triche :
+                // On utilise le "transform" CSS !
+                groupe.setAttribute("transform", `translate(${pieceSol.x}, ${pieceSol.y}) rotate(${pieceSol.rot})`);
+                // Comme l'origine de rotation par défaut d'un path est (0,0), on doit ajuster :
+                let pieceDef = defPiecesTangram.find(p => p.id === pieceSol.id);
+                groupe.style.transformOrigin = `${pieceDef.w / 2}px ${pieceDef.h / 2}px`;
+
+                let pathIndice = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                pathIndice.setAttribute("d", pieceSol.path);
+                pathIndice.setAttribute("class", `indice-piece indice-${pieceSol.id}`);
+                
+                groupe.appendChild(pathIndice);
+                svgModele.appendChild(groupe);
+            });
+        }
+
+        function genererPiecesMobiles() {
+            const couchePieces = document.getElementById('couche-pieces');
+            couchePieces.innerHTML = "";
+
+            // On dispose les pièces en vrac en bas ou sur les côtés
+            let positionsInitiales = [
+                {x: 10, y: 400}, {x: 220, y: 400}, {x: 440, y: 400},
+                {x: 10, y: 10}, {x: 440, y: 10}, {x: 10, y: 200}, {x: 440, y: 200}
+            ];
+
+            defPiecesTangram.forEach((p, index) => {
                 let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
                 svg.setAttribute("class", "piece");
-                svg.setAttribute("id", p.id);
+                svg.setAttribute("id", "mobile-" + p.id);
                 svg.setAttribute("width", p.w);
                 svg.setAttribute("height", p.h);
-                svg.style.left = p.x + "px";
-                svg.style.top = p.y + "px";
-                svg.dataset.rotation = p.rot;
+                
+                // Position en vrac
+                svg.style.left = positionsInitiales[index].x + "px";
+                svg.style.top = positionsInitiales[index].y + "px";
+                svg.dataset.rotation = 0;
 
                 let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
                 path.setAttribute("d", p.path);
                 path.setAttribute("fill", p.color);
                 svg.appendChild(path);
 
-                // Événements de souris
+                // Événements de souris pour déplacer et tourner
                 svg.addEventListener("mousedown", demarrerGlissement);
-                svg.addEventListener("dblclick", tournerPiece); // Le Double-clic pour tourner !
+                svg.addEventListener("dblclick", tournerPiece);
 
-                plateau.appendChild(svg);
+                couchePieces.appendChild(svg);
             });
         }
 
-        // --- MOTEUR DE DRAG & DROP MANUEL ---
+        // --- SYSTÈME D'AIDE ---
+        let indicesAffiches = 0;
+        function afficherIndice() {
+            // On trouve tous les tracés de solution (indices) qui sont encore cachés
+            let listeIndices = document.querySelectorAll('.indice-piece:not(.visible)');
+            
+            if (listeIndices.length > 0) {
+                // On prend un indice au hasard et on l'affiche !
+                let indiceHasard = listeIndices[Math.floor(Math.random() * listeIndices.length)];
+                indiceHasard.classList.add('visible');
+                indicesAffiches++;
+            } else {
+                alert("Tous les indices sont déjà affichés ! Superpose tes pièces sur les formes bleues.");
+            }
+        }
+
+        function reinitialiserPieces() {
+            // Remet les pièces sur les bords, avec 0 degré de rotation
+            const piecesMobiles = document.querySelectorAll('.piece');
+            let positionsInitiales = [
+                {x: 10, y: 400}, {x: 220, y: 400}, {x: 440, y: 400},
+                {x: 10, y: 10}, {x: 440, y: 10}, {x: 10, y: 200}, {x: 440, y: 200}
+            ];
+            
+            piecesMobiles.forEach((piece, index) => {
+                piece.style.left = positionsInitiales[index].x + "px";
+                piece.style.top = positionsInitiales[index].y + "px";
+                piece.style.transform = `rotate(0deg)`;
+                piece.dataset.rotation = 0;
+            });
+
+            // Cache les indices
+            document.querySelectorAll('.indice-piece.visible').forEach(ind => ind.classList.remove('visible'));
+            indicesAffiches = 0;
+        }
+
+        // --- VALIDATION DU NIVEAU ---
+        function validerNiveau() {
+            // Dans un jeu flash standard de Tangram, la détection pixel-perfect est complexe.
+            // On utilise souvent un système basé sur la bonne foi et un check de l'ordinateur simple.
+            // Ici, pour l'encouragement, on récompense l'effort :
+            
+            let gainXP = 50 - (indicesAffiches * 5); // 50XP, moins 5XP par indice demandé !
+            if (gainXP < 10) gainXP = 10; // Minimum syndical
+            
+            alert(`🎉 Super ! Tu as terminé le ${niveauActuel.nom} !\n\nRécompense : +${gainXP} XP (Tu as utilisé ${indicesAffiches} indices).`);
+            
+            // Passer au niveau suivant
+            niveauActuelIdx++;
+            if (niveauActuelIdx >= niveauxTangram.length) {
+                alert("🏆 Incroyable, tu as fini tous les niveaux du Tangram ! Le jeu recommence.");
+                niveauActuelIdx = 0;
+            }
+            chargerNiveau();
+        }
+
+        // --- MOTEUR DE DRAG & DROP ET ROTATION (inchangé) ---
         function demarrerGlissement(e) {
             pieceEnMouvement = e.currentTarget;
             indexZ++; 
-            pieceEnMouvement.style.zIndex = indexZ; // Passe au-dessus des autres
+            pieceEnMouvement.style.zIndex = indexZ;
 
             const rect = pieceEnMouvement.getBoundingClientRect();
-            const plateauRect = document.getElementById('plateau-tangram').getBoundingClientRect();
-
-            // On calcule où la souris a cliqué par rapport au coin de la pièce
             decalageX = e.clientX - rect.left;
             decalageY = e.clientY - rect.top;
 
@@ -127,27 +316,18 @@
             document.removeEventListener("mouseup", stopperGlissement);
         }
 
-        // --- MOTEUR DE ROTATION ---
         function tournerPiece(e) {
             let piece = e.currentTarget;
             let rotActuelle = parseInt(piece.dataset.rotation) || 0;
-            rotActuelle = (rotActuelle + 45) % 360; // Tourne de 45 degrés
+            rotActuelle = (rotActuelle + 45) % 360; 
             
             piece.dataset.rotation = rotActuelle;
             piece.style.transform = `rotate(${rotActuelle}deg)`;
         }
 
-        function reinitialiserPieces() {
-            piecesTangram.forEach(p => {
-                let piece = document.getElementById(p.id);
-                piece.style.left = p.x + "px";
-                piece.style.top = p.y + "px";
-                piece.style.transform = `rotate(0deg)`;
-                piece.dataset.rotation = 0;
-            });
-        }
+        // Lancement !
+        document.addEventListener("DOMContentLoaded", chargerNiveau);
 
-        document.addEventListener("DOMContentLoaded", initialiserPlateau);
     </script>
 </body>
 </html>
