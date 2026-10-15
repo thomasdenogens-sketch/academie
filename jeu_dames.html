@@ -119,6 +119,7 @@
                         if (valeur === 1 || valeur === 3) {
                             pionDiv.className = `pion ${enfant === 'Théo' ? 'pion-theo' : 'pion-lola'} ${valeur === 3 ? 'dame' : ''}`;
                             compteJoueur++;
+                            // C'est ici que le bug se manifestait : si tourActuel n'était pas encore remis à 1, le pion ne recevait pas le onclick.
                             if (tourActuel === 1) pionDiv.onclick = (e) => { e.stopPropagation(); selectionnerPion(x, y); };
                         } else {
                             pionDiv.className = `pion pion-ia ${valeur === 4 ? 'dame' : ''}`; compteIA++;
@@ -177,16 +178,20 @@
             if (typePion === 1 && mouv.toY === 0) plateau[mouv.toY][mouv.toX] = 3; 
             if (typePion === 2 && mouv.toY === 7) plateau[mouv.toY][mouv.toX] = 4;
 
-            pionSelectionne = null; mouvementsPossibles = []; dessinerPlateau();
+            pionSelectionne = null; mouvementsPossibles = []; 
 
+            // LA CORRECTION : On met d'abord à jour le tour, puis on redessine !
             if (tourActuel === 1) {
-                tourActuel = 2;
+                tourActuel = 2; // On bloque les actions du joueur
                 document.getElementById('box-joueur').classList.remove('tour-actif'); document.getElementById('box-ia').classList.add('tour-actif');
-                document.getElementById('feedback').textContent = "L'ordinateur réfléchit..."; setTimeout(jouerTourIA, 1000); 
+                document.getElementById('feedback').textContent = "L'ordinateur réfléchit..."; 
+                dessinerPlateau(); // Le plateau se dessine avec le tour 2 (le joueur ne peut plus cliquer)
+                setTimeout(jouerTourIA, 1000); 
             } else {
-                tourActuel = 1;
+                tourActuel = 1; // On rend la main au joueur
                 document.getElementById('box-ia').classList.remove('tour-actif'); document.getElementById('box-joueur').classList.add('tour-actif');
                 document.getElementById('feedback').textContent = "C'est à ton tour !";
+                dessinerPlateau(); // Le plateau se dessine avec le tour 1 (le joueur PEUT cliquer)
             }
         }
 
@@ -206,11 +211,9 @@
 
             // 2. DIFFICULTÉ DYNAMIQUE
             if (enfant === 'Lola') {
-                // Pour Lola (CE1) : L'ordinateur "oublie" de prendre une fois sur trois pour être plus clément
                 if (mouvementsPrise.length > 0 && Math.random() > 0.3) choix = mouvementsPrise[Math.floor(Math.random() * mouvementsPrise.length)];
                 else choix = tousMouvements[Math.floor(Math.random() * tousMouvements.length)];
             } else {
-                // Pour Théo (CM2) : L'ordinateur prend toujours s'il le peut
                 if (mouvementsPrise.length > 0) choix = mouvementsPrise[Math.floor(Math.random() * mouvementsPrise.length)];
                 else choix = tousMouvements[Math.floor(Math.random() * tousMouvements.length)];
             }
