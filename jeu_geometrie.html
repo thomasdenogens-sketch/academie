@@ -13,7 +13,7 @@
         .sous-titre { color: #7f8c8d; margin-bottom: 25px; font-weight: 700; font-size: 1.1rem;}
         .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
 
-        .grid-niveaux { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; text-align: left;}
+        .grid-niveaux { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 20px; text-align: left;}
         .btn-niveau { background: #fff; border: 3px solid #bdc3c7; padding: 15px; border-radius: 15px; font-size: 1.2rem; font-weight: bold; color: #2c3e50; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: space-between; }
         .btn-niveau:hover { background: #f8f9fa; border-color: #16a085; transform: translateX(5px); }
 
@@ -64,29 +64,30 @@
             <h1>Studio de Géométrie 📐</h1>
             <p class="sous-titre">Entraînement progressif pour le CM2</p>
 
-            <!-- LE NOUVEAU MODULE SYMÉTRIE -->
             <div class="titre-section symetrie">Le Dessin Vectoriel (Symétrie)</div>
             <div class="grid-niveaux">
                 <button class="btn-niveau" onclick="lancerJeu('symetrie', 1)" style="border-color: #2980b9;">
-                    <div><strong>L'Axe de Symétrie</strong><br><span style="font-size:0.9rem; color:#7f8c8d;">Trace la droite parfaite !</span></div>
-                    <span>▶️</span>
+                    <div><strong>Niv 1 : Formes Basiques</strong><br><span style="font-size:0.9rem; color:#7f8c8d;">Triangles, Carrés, Losanges</span></div><span>▶️</span>
+                </button>
+                <button class="btn-niveau" onclick="lancerJeu('symetrie', 2)" style="border-color: #2980b9;">
+                    <div><strong>Niv 2 : Objets du quotidien</strong><br><span style="font-size:0.9rem; color:#7f8c8d;">Lettres, Maisons, Flèches</span></div><span>▶️</span>
+                </button>
+                <button class="btn-niveau" onclick="lancerJeu('symetrie', 3)" style="border-color: #2980b9;">
+                    <div><strong>Niv 3 : Figures Complexes</strong><br><span style="font-size:0.9rem; color:#7f8c8d;">Étoiles, Couronnes, Sabliers</span></div><span>▶️</span>
                 </button>
             </div>
 
-            <!-- Les sections existantes -->
             <div class="titre-section iso3d">La Construction Spatiale (Volumes 3D)</div>
             <div class="grid-niveaux">
                 <button class="btn-niveau" onclick="lancerJeu('iso3d', 1)" style="border-color: #e74c3c;">
-                    <div><strong>Le Moteur Isométrique</strong><br><span style="font-size:0.9rem; color:#7f8c8d;">Construis des volumes en 3D !</span></div>
-                    <span>▶️</span>
+                    <div><strong>Le Moteur Isométrique</strong><br><span style="font-size:0.9rem; color:#7f8c8d;">Construis des volumes en 3D !</span></div><span>▶️</span>
                 </button>
             </div>
             
             <div class="titre-section geogebra">L'Atelier Interactif (GeoGebra)</div>
             <div class="grid-niveaux">
                 <button class="btn-niveau" onclick="lancerJeu('geoplan', 1)" style="border-color: #8e44ad;">
-                    <div><strong>Le Géoplan Dynamique</strong><br><span style="font-size:0.9rem; color:#7f8c8d;">Construis, étire et reproduis !</span></div>
-                    <span>▶️</span>
+                    <div><strong>Le Géoplan Dynamique</strong><br><span style="font-size:0.9rem; color:#7f8c8d;">Construis, étire et reproduis !</span></div><span>▶️</span>
                 </button>
             </div>
 
@@ -127,8 +128,8 @@
             <div id="zone-saisie"><input type="number" id="input-mesure" autocomplete="off"><button class="btn-valider" onclick="verifierSaisie()">Valider</button></div>
 
             <div id="zone-actions">
-                <button class="btn-action" style="background:#e74c3c;" onclick="effacerDessin()">Effacer</button>
-                <button class="btn-action" onclick="validerExercice()">Vérifier</button>
+                <button class="btn-action" style="background:#e74c3c;" onclick="effacerDessin()">Effacer la ligne</button>
+                <button class="btn-action" onclick="validerExercice()">Vérifier ma forme</button>
             </div>
 
             <div id="feedback"></div>
@@ -145,11 +146,45 @@
 
         let profil = { xp: 0 };
         let modeActuel = "", niveauActuel = 1, indexQuestion = 0, vies = 3;
-        const totalQuestions = 5;
+        const totalQuestions = 5; // Nombre de questions par série
         let reponseAttendue = null, isProcessing = false;
 
         const canvas = document.getElementById('canvas-geo');
         const ctx = canvas.getContext('2d');
+
+        // ==========================================
+        // BASE DE DONNÉES SYMÉTRIE (Structurée par niveaux)
+        // Les coordonnées s'inscrivent dans un cadre 400x400
+        // ==========================================
+        const bddSymetrie = {
+            niv1: [
+                [{x: 100, y: 100}, {x: 300, y: 100}, {x: 300, y: 300}, {x: 100, y: 300}], // Carré
+                [{x: 200, y: 50}, {x: 350, y: 350}, {x: 50, y: 350}], // Triangle isocèle vertical
+                [{x: 50, y: 200}, {x: 350, y: 50}, {x: 350, y: 350}], // Triangle isocèle horizontal
+                [{x: 200, y: 50}, {x: 350, y: 200}, {x: 200, y: 350}, {x: 50, y: 200}], // Losange
+                [{x: 100, y: 50}, {x: 300, y: 50}, {x: 300, y: 350}, {x: 100, y: 350}], // Rectangle vertical
+                [{x: 50, y: 100}, {x: 350, y: 100}, {x: 350, y: 300}, {x: 50, y: 300}], // Rectangle horizontal
+                [{x: 200, y: 50}, {x: 300, y: 150}, {x: 200, y: 350}, {x: 100, y: 150}], // Cerf-volant vertical
+                [{x: 50, y: 200}, {x: 150, y: 100}, {x: 350, y: 200}, {x: 150, y: 300}]  // Cerf-volant horizontal
+            ],
+            niv2: [
+                [{x: 100, y: 50}, {x: 300, y: 50}, {x: 300, y: 120}, {x: 230, y: 120}, {x: 230, y: 350}, {x: 170, y: 350}, {x: 170, y: 120}, {x: 100, y: 120}], // Lettre T
+                [{x: 200, y: 50}, {x: 300, y: 150}, {x: 300, y: 350}, {x: 100, y: 350}, {x: 100, y: 150}], // Maison 
+                [{x: 150, y: 50}, {x: 250, y: 50}, {x: 250, y: 150}, {x: 350, y: 150}, {x: 350, y: 250}, {x: 250, y: 250}, {x: 250, y: 350}, {x: 150, y: 350}, {x: 150, y: 250}, {x: 50, y: 250}, {x: 50, y: 150}, {x: 150, y: 150}], // Croix épaisse
+                [{x: 50, y: 150}, {x: 350, y: 150}, {x: 350, y: 250}, {x: 250, y: 250}, {x: 250, y: 350}, {x: 150, y: 350}, {x: 150, y: 250}, {x: 50, y: 250}], // T inversé
+                [{x: 150, y: 50}, {x: 250, y: 50}, {x: 250, y: 250}, {x: 350, y: 250}, {x: 350, y: 350}, {x: 50, y: 350}, {x: 50, y: 250}, {x: 150, y: 250}], // Forme U à l'envers
+                [{x: 150, y: 250}, {x: 150, y: 50}, {x: 250, y: 50}, {x: 250, y: 250}, {x: 350, y: 250}, {x: 200, y: 380}, {x: 50, y: 250}], // Flèche vers le bas
+                [{x: 250, y: 150}, {x: 350, y: 150}, {x: 350, y: 250}, {x: 250, y: 250}, {x: 250, y: 350}, {x: 120, y: 200}, {x: 250, y: 50}]  // Flèche vers la gauche
+            ],
+            niv3: [
+                [{x: 100, y: 50}, {x: 300, y: 50}, {x: 100, y: 350}, {x: 300, y: 350}], // Sablier croisé (Papillon)
+                [{x: 50, y: 50}, {x: 125, y: 150}, {x: 200, y: 50}, {x: 275, y: 150}, {x: 350, y: 50}, {x: 350, y: 350}, {x: 50, y: 350}], // Couronne
+                [{x: 200, y: 50}, {x: 230, y: 150}, {x: 350, y: 150}, {x: 250, y: 220}, {x: 300, y: 350}, {x: 200, y: 280}, {x: 100, y: 350}, {x: 150, y: 220}, {x: 50, y: 150}, {x: 170, y: 150}], // Étoile complexe
+                [{x: 150, y: 50}, {x: 250, y: 50}, {x: 350, y: 150}, {x: 350, y: 250}, {x: 250, y: 350}, {x: 150, y: 350}, {x: 50, y: 250}, {x: 50, y: 150}], // Octogone
+                [{x: 100, y: 50}, {x: 300, y: 50}, {x: 350, y: 200}, {x: 300, y: 350}, {x: 100, y: 350}, {x: 50, y: 200}], // Hexagone plat
+                [{x: 200, y: 50}, {x: 280, y: 150}, {x: 230, y: 150}, {x: 320, y: 280}, {x: 250, y: 280}, {x: 250, y: 350}, {x: 150, y: 350}, {x: 150, y: 280}, {x: 80, y: 280}, {x: 170, y: 150}, {x: 120, y: 150}] // Sapin
+            ]
+        };
 
         async function chargerProfilCloud() { try { let res = await fetch(DB_URL); let data = await res.json(); if (data && data.xp) profil.xp = parseInt(data.xp) || 0; } catch(e) {} document.getElementById('ui-xp-jeu').textContent = profil.xp; }
         async function sauverProfilCloud(xpGagne) { profil.xp += xpGagne; document.getElementById('ui-xp-jeu').textContent = profil.xp; try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {} }
@@ -157,9 +192,20 @@
         function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); document.getElementById(id).classList.add('actif'); }
         function retourAccueil() { changerEcran('ecran-hub'); }
 
+        let formesMelangees = [];
+
         function lancerJeu(mode, niveau) {
             modeActuel = mode; niveauActuel = niveau; indexQuestion = 0; vies = 3; isProcessing = false;
             document.getElementById('ui-vies').textContent = "❤️❤️❤️";
+            
+            // L'ALGORITHME DE PIOCHE : On mélange les formes du bon niveau
+            if (mode === 'symetrie') {
+                let cleNiveau = 'niv' + niveauActuel;
+                // Repli de sécurité si le niveau n'existe pas
+                let reserveFormes = bddSymetrie[cleNiveau] || bddSymetrie.niv1; 
+                formesMelangees = [...reserveFormes].sort(() => Math.random() - 0.5).slice(0, totalQuestions);
+            }
+
             changerEcran('ecran-jeu'); poserQuestion();
         }
 
@@ -167,7 +213,8 @@
             if (vies <= 0) { alert("Plus de vies ! Révise encore un peu et réessaie."); return retourAccueil(); }
             if (indexQuestion >= totalQuestions) {
                 alert(`Niveau ${niveauActuel} complété ! +${niveauActuel * 20} XP 🎉`);
-                sauverProfilCloud(niveauActuel * 20); niveauActuel++; indexQuestion = 0;
+                sauverProfilCloud(niveauActuel * 20); 
+                return retourAccueil();
             }
 
             isProcessing = false; indexQuestion++;
@@ -183,7 +230,6 @@
             document.getElementById('zone-boutons').style.display = 'none'; document.getElementById('zone-saisie').style.display = 'none'; document.getElementById('zone-actions').style.display = 'none';
             canvas.onmousedown = null; canvas.onmousemove = null; canvas.onmouseup = null; canvas.onmouseleave = null;
 
-            // Le Routeur
             if (modeActuel === 'symetrie') genererQuestionSymetrie();
             else if (modeActuel === 'geoplan') genererQuestionGeoplan();
             else if (modeActuel === 'iso3d') genererQuestionIso3D();
@@ -215,7 +261,7 @@
         }
 
         // ==========================================
-        // 0. LA SYMÉTRIE AXIALE (La Nouveauté CM2 !)
+        // 0. LA SYMÉTRIE AXIALE
         // ==========================================
         let formeASymetriser = [];
         let axeTraces = [];
@@ -226,25 +272,12 @@
             document.getElementById('question-texte').innerHTML = `Trace <strong>l'Axe de Symétrie</strong> de cette figure.`;
             document.getElementById('consigne-supp').textContent = "Clique pour placer le début de la ligne, glisse, et lâche pour placer la fin.";
 
-            // Quelques formes symétriques prédéfinies
-            const formes = [
-                // Carré (Axe vertical)
-                [{x: 100, y: 100}, {x: 300, y: 100}, {x: 300, y: 300}, {x: 100, y: 300}],
-                // Triangle isocèle (Axe vertical)
-                [{x: 200, y: 50}, {x: 350, y: 350}, {x: 50, y: 350}],
-                // Losange (Axe horizontal ou vertical)
-                [{x: 200, y: 50}, {x: 350, y: 200}, {x: 200, y: 350}, {x: 50, y: 200}],
-                // Étoile simplifiée / Papillon
-                [{x: 100, y: 100}, {x: 200, y: 200}, {x: 300, y: 100}, {x: 300, y: 300}, {x: 200, y: 200}, {x: 100, y: 300}]
-            ];
-
-            formeASymetriser = formes[Math.floor(Math.random() * formes.length)];
+            formeASymetriser = formesMelangees[indexQuestion - 1];
             axeTraces = [];
             dessinerEspaceSymetrie();
 
-            // Gestion de la souris pour tracer l'axe
             canvas.onmousedown = function(e) {
-                if (isProcessing || axeTraces.length === 2) return; // On limite à 1 seul axe (2 points)
+                if (isProcessing || axeTraces.length === 2) return; 
                 const rect = canvas.getBoundingClientRect();
                 let x = e.clientX - rect.left; let y = e.clientY - rect.top;
                 axeTraces.push({x: x, y: y});
@@ -256,7 +289,6 @@
                 const rect = canvas.getBoundingClientRect();
                 let x = e.clientX - rect.left; let y = e.clientY - rect.top;
                 
-                // Dessine la prévisualisation en temps réel
                 dessinerEspaceSymetrie();
                 ctx.beginPath();
                 ctx.moveTo(axeTraces[0].x, axeTraces[0].y);
@@ -268,16 +300,15 @@
                 if (!isDrawingAxe) return;
                 const rect = canvas.getBoundingClientRect();
                 let x = e.clientX - rect.left; let y = e.clientY - rect.top;
-                axeTraces.push({x: x, y: y}); // Sauvegarde du point final de l'axe
+                axeTraces.push({x: x, y: y}); 
                 isDrawingAxe = false;
-                dessinerEspaceSymetrie(); // Dessine l'axe final
+                dessinerEspaceSymetrie(); 
             };
         }
 
         function dessinerEspaceSymetrie() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Dessin de la forme
             ctx.beginPath();
             ctx.moveTo(formeASymetriser[0].x, formeASymetriser[0].y);
             for (let i = 1; i < formeASymetriser.length; i++) {
@@ -287,7 +318,6 @@
             ctx.fillStyle = "rgba(41, 128, 185, 0.3)"; ctx.fill();
             ctx.strokeStyle = "#2980b9"; ctx.lineWidth = 3; ctx.stroke();
 
-            // Dessin de l'axe si l'utilisateur l'a tracé
             if (axeTraces.length === 2) {
                 ctx.beginPath();
                 ctx.moveTo(axeTraces[0].x, axeTraces[0].y);
@@ -310,13 +340,11 @@
             }
             isProcessing = true;
 
-            // --- L'ALGORITHME DE VÉRIFICATION MATHÉMATIQUE ---
-            // L'équation de la droite (l'axe) : ax + by + c = 0
             let p1 = axeTraces[0]; let p2 = axeTraces[1];
             
-            // Si l'utilisateur clique juste sur place (ligne très courte), ce n'est pas un axe
             let distanceAxe = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
             if (distanceAxe < 50) {
+                effacerSymetrie(); 
                 reponseIncorrecte("Ton axe est trop court, étire bien la ligne !"); return;
             }
 
@@ -327,17 +355,13 @@
 
             let estSymetrique = true;
 
-            // Pour chaque sommet de la forme, on calcule son point de réflexion (symétrique)
             for (let pt of formeASymetriser) {
-                // Formule mathématique du projeté orthogonal puis du symétrique
                 let temp = -2 * (a * pt.x + b * pt.y + c) / diviseur;
                 let refX = pt.x + temp * a;
                 let refY = pt.y + temp * b;
 
-                // Est-ce que ce point réfléchi tombe sur un autre sommet de la figure ?
                 let correspond = false;
                 for (let cible of formeASymetriser) {
-                    // On accepte une marge d'erreur de 15 pixels (car c'est tracé à la souris !)
                     if (Math.abs(refX - cible.x) < 15 && Math.abs(refY - cible.y) < 15) {
                         correspond = true; break;
                     }
@@ -348,7 +372,7 @@
             if (estSymetrique) {
                 reponseCorrecte("Magnifique ! C'est un axe parfait ! 📏✨", 20);
             } else {
-                effacerSymetrie(); // On efface sa ligne fausse
+                effacerSymetrie(); 
                 reponseIncorrecte("Non, si tu plies sur cet axe, les bords ne se superposent pas !");
             }
         }
@@ -545,7 +569,7 @@
         }
 
         // ==========================================
-        // 4. MESURES
+        // 4. MESURES (Classique)
         // ==========================================
         function genererQuestionMesure() {
             document.getElementById('zone-saisie').style.display = 'flex'; let typeF = Math.random() > 0.5 ? 'carre' : 'rectangle'; let l, h;
