@@ -9,40 +9,27 @@
         body { 
             font-family: 'Nunito', sans-serif; background: #2c3e50; color: #ecf0f1; 
             display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 20px; 
-            overflow: hidden; /* Empêche de scroller en déplaçant les pièces */
-            user-select: none;
+            user-select: none; touch-action: none;
         }
         
         h1 { color: #2ecc71; font-weight: 900; margin-bottom: 5px; font-size: 2.5rem;}
         .sous-titre { color: #bdc3c7; margin-bottom: 20px; font-size: 1.1rem; }
 
-        /* Le plateau de jeu */
-        #plateau-tangram {
-            width: 600px; height: 500px; background: white; border-radius: 15px; border: 4px dashed #7f8c8d;
-            position: relative; box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+        /* Le plateau de jeu 100% SVG */
+        .plateau-container {
+            width: 100%; max-width: 800px; background: white; border-radius: 15px; 
+            border: 4px dashed #7f8c8d; box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px; overflow: hidden;
         }
 
-        /* L'ombre chinoise et les indices */
-        #couche-modele {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;
-            display: flex; justify-content: center; align-items: center;
-        }
-        
-        #svg-modele {
-            width: 100%; height: 100%;
+        #jeu-tangram {
+            width: 100%; height: auto; display: block;
         }
 
-        .forme-ombre { fill: #ecf0f1; stroke: #bdc3c7; stroke-width: 2; stroke-dasharray: 5,5;} /* L'ombre à remplir */
-        .indice-piece { fill: rgba(52, 152, 219, 0.2); stroke: #3498db; stroke-width: 2; opacity: 0; transition: opacity 0.5s ease;} /* Indice caché par défaut */
-        .indice-piece.visible { opacity: 1; }
+        .piece-mobile { cursor: grab; transition: filter 0.2s; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4)); }
+        .piece-mobile:active { cursor: grabbing; }
 
-        /* Les pièces du Tangram (SVG) */
-        .piece { position: absolute; cursor: grab; transition: transform 0.2s, filter 0.2s; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); z-index: 10;}
-        .piece:active { cursor: grabbing; z-index: 100 !important; filter: drop-shadow(5px 10px 15px rgba(0,0,0,0.5));}
-
-        /* Menu latéral d'outils */
-        .toolbar { display: flex; gap: 15px; margin-bottom: 15px; justify-content: center; align-items: center;}
+        .toolbar { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px; justify-content: center; align-items: center;}
         
         .btn { padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 1.1rem; border: none; font-family: 'Nunito', sans-serif;}
         .btn:active { transform: scale(0.95); }
@@ -56,227 +43,304 @@
         .btn-valider { background: #27ae60; color: white; box-shadow: 0 4px 0 #219a52; font-size: 1.2rem; padding: 12px 25px;}
         .btn-valider:hover { background: #2ecc71; }
 
-        .consigne { font-weight: bold; color: #f1c40f; margin-bottom: 10px; background: rgba(0,0,0,0.3); padding: 10px 20px; border-radius: 10px;}
+        .consigne { font-weight: bold; color: #f1c40f; margin-bottom: 10px; background: rgba(0,0,0,0.3); padding: 10px 20px; border-radius: 10px; text-align: center;}
         .btn-nav { background: #95a5a6; color: white; margin-top: 20px;}
         
         #hud-niveau { font-size: 1.5rem; font-weight: 900; color: #3498db; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px;}
-
+        
+        .indice-piece { opacity: 0; transition: opacity 0.5s ease; }
+        .indice-piece.visible { opacity: 1; }
     </style>
 </head>
 <body>
 
     <h1>Le Tangram 🔺</h1>
-    <p class="sous-titre">Reproduis l'ombre chinoise !</p>
+    <p class="sous-titre">Reproduis l'ombre chinoise exacte !</p>
 
     <div id="hud-niveau">Niveau 1 : Le Carré</div>
 
-    <div class="consigne">👉 Glisse une pièce pour la bouger. Double-clique dessus pour la tourner !</div>
+    <div class="consigne">
+        👉 <strong>Glisse</strong> une pièce pour la bouger. <br>
+        👉 <strong>Touche-la (clic court)</strong> pour la tourner. <br>
+        👉 Utilise le bouton <strong>Miroir</strong> pour retourner le parallélogramme !
+    </div>
 
     <div class="toolbar">
         <button class="btn btn-outil" onclick="reinitialiserPieces()">🔄 Ranger les pièces</button>
+        <button class="btn btn-outil" onclick="retournerPiece()" style="background: #8e44ad; border-color: #9b59b6;">🪞 Miroir (Pièce sélectionnée)</button>
         <button class="btn btn-aide" onclick="afficherIndice()">💡 Indice !</button>
     </div>
 
-    <!-- Le Plateau de jeu complet -->
-    <div id="plateau-tangram">
-        
-        <!-- Couche inférieure : Le modèle à remplir -->
-        <div id="couche-modele">
-            <svg id="svg-modele" viewBox="0 0 600 500">
-                <!-- Généré dynamiquement -->
-            </svg>
-        </div>
-
-        <!-- Couche supérieure : Les pièces mobiles -->
-        <div id="couche-pieces">
-            <!-- Pièces ajoutées via JS -->
-        </div>
-
+    <!-- NOUVEAU PLATEAU 100% MATHÉMATIQUE -->
+    <div class="plateau-container">
+        <svg id="jeu-tangram" viewBox="0 0 800 600">
+            <!-- 1. L'ombre grise générée automatiquement -->
+            <g id="couche-ombre"></g>
+            
+            <!-- 2. Les fantômes bleus (indices) -->
+            <g id="couche-indices"></g>
+            
+            <!-- 3. Les pièces interactives -->
+            <g id="couche-pieces"></g>
+        </svg>
     </div>
 
     <button class="btn btn-valider" onclick="validerNiveau()">✅ J'ai réussi !</button>
     <button class="btn btn-nav" onclick="window.location.href='index.html'">🏠 Retour</button>
 
     <script>
-        // --- BASE DE DONNÉES DU JEU ---
-        // Les 7 pièces classiques (avec des identifiants stricts pour l'aide)
-        // Les dimensions sont relatives (ex: le grand triangle fait 200x100)
+        // --- 1. DÉFINITION GÉOMÉTRIQUE PURE DU TANGRAM ---
+        // cx, cy représentent le centre mathématique pour tourner la pièce proprement
         const defPiecesTangram = [
-            { id: "gros1", color: "#e74c3c", path: "M 0 0 L 200 0 L 100 100 Z", w: 200, h: 100 },
-            { id: "gros2", color: "#3498db", path: "M 0 0 L 0 200 L 100 100 Z", w: 100, h: 200 },
-            { id: "moyen", color: "#2ecc71", path: "M 100 0 L 200 100 L 100 200 Z", w: 200, h: 200 },
-            { id: "petit1", color: "#f1c40f", path: "M 0 0 L 100 0 L 50 50 Z", w: 100, h: 50 },
-            { id: "petit2", color: "#9b59b6", path: "M 0 0 L 100 100 L 0 100 Z", w: 100, h: 100 },
-            { id: "carre", color: "#e67e22", path: "M 50 0 L 100 50 L 50 100 L 0 50 Z", w: 100, h: 100 },
-            { id: "para", color: "#1abc9c", path: "M 50 0 L 150 0 L 100 50 L 0 50 Z", w: 150, h: 50 }
+            { id: "gros1", color: "#e74c3c", path: "M 0 0 L 200 0 L 100 100 Z", cx: 100, cy: 50 },
+            { id: "gros2", color: "#3498db", path: "M 0 0 L 100 100 L 0 200 Z", cx: 50, cy: 100 },
+            { id: "moyen", color: "#2ecc71", path: "M 0 100 L 100 100 L 100 0 Z", cx: 50, cy: 50 }, 
+            { id: "carre", color: "#e67e22", path: "M 0 50 L 50 0 L 100 50 L 50 100 Z", cx: 50, cy: 50 },
+            { id: "petit1", color: "#f1c40f", path: "M 0 0 L 50 50 L 0 100 Z", cx: 25, cy: 50 },
+            { id: "petit2", color: "#9b59b6", path: "M 0 50 L 100 50 L 50 0 Z", cx: 50, cy: 25 },
+            { id: "para", color: "#1abc9c", path: "M 0 50 L 100 50 L 150 0 L 50 0 Z", cx: 75, cy: 25 }
         ];
 
-        // Les Niveaux : L'ombre globale et la solution (où devraient être les pièces) pour l'aide
+        // --- 2. LES NIVEAUX ET SOLUTIONS ---
         const niveauxTangram = [
             {
-                nom: "Le Carré",
-                // L'ombre globale que l'on veut dessiner (Le grand carré assemblé, x=150, y=100, w=300, h=300)
-                ombreGlobal: "M 150 100 L 450 100 L 450 400 L 150 400 Z",
-                
-                // La solution exacte (Où placer les pièces, avec quelle rotation). Servira pour le bouton Indice !
-                // Attention: Les X,Y sont calculés pour le viewBox du SVG de fond (600x500)
+                nom: "Le Grand Carré",
                 solution: [
-                    { id: "gros1",  x: 150, y: 100, rot: 0,   path: "M 0 0 L 200 0 L 100 100 Z" },     // En haut à gauche
-                    { id: "gros2",  x: 150, y: 100, rot: 0,   path: "M 0 0 L 0 200 L 100 100 Z" },     // À gauche en bas
-                    { id: "moyen",  x: 250, y: 300, rot: 180, path: "M 100 0 L 200 100 L 100 200 Z" }, // En bas à droite
-                    { id: "carre",  x: 250, y: 200, rot: 0,   path: "M 50 0 L 100 50 L 50 100 L 0 50 Z" }, // Au centre
-                    { id: "petit1", x: 250, y: 200, rot: 90,  path: "M 0 0 L 100 0 L 50 50 Z" },       // Côté droit du carré
-                    { id: "petit2", x: 300, y: 150, rot: 180, path: "M 0 0 L 100 100 L 0 100 Z" },     // Coin haut droit
-                    { id: "para",   x: 250, y: 350, rot: 0,   path: "M 50 0 L 150 0 L 100 50 L 0 50 Z" } // Bas centre
+                    { id: "gros1",  x: 300, y: 200, rot: 0, flip: 1 },
+                    { id: "gros2",  x: 300, y: 200, rot: 0, flip: 1 },
+                    { id: "moyen",  x: 400, y: 300, rot: 0, flip: 1 },
+                    { id: "carre",  x: 400, y: 250, rot: 0, flip: 1 },
+                    { id: "petit1", x: 400, y: 200, rot: 0, flip: 1 },
+                    { id: "petit2", x: 350, y: 300, rot: 0, flip: 1 },
+                    { id: "para",   x: 300, y: 350, rot: 0, flip: 1 }
                 ]
             },
             {
-                nom: "Le Bateau",
-                // Un bateau schématique pour le niveau 2
-                ombreGlobal: "M 150 300 L 450 300 L 400 400 L 200 400 Z M 250 100 L 250 300 L 150 300 Z M 270 50 L 270 300 L 450 300 Z",
+                nom: "Le Cygne",
                 solution: [
-                    { id: "gros1",  x: 270, y: 100, rot: 90,  path: "M 0 0 L 200 0 L 100 100 Z" }, // Voile droite (Haut)
-                    { id: "gros2",  x: 150, y: 100, rot: 0,   path: "M 0 0 L 0 200 L 100 100 Z" }, // Voile gauche
-                    { id: "moyen",  x: 250, y: 300, rot: 135, path: "M 100 0 L 200 100 L 100 200 Z" }, // Coque centrale
-                    { id: "petit1", x: 250, y: 50,  rot: 0,   path: "M 0 0 L 100 0 L 50 50 Z" },   // Fanion en haut du mât
-                    { id: "petit2", x: 350, y: 300, rot: 180, path: "M 0 0 L 100 100 L 0 100 Z" }, // Arrière du bateau
-                    { id: "carre",  x: 200, y: 350, rot: 45,  path: "M 50 0 L 100 50 L 50 100 L 0 50 Z" }, // Avant du bateau (1/2)
-                    { id: "para",   x: 150, y: 300, rot: 0,   path: "M 50 0 L 150 0 L 100 50 L 0 50 Z" } // Avant du bateau (2/2)
+                    { id: "gros1",  x: 350, y: 350, rot: 180, flip: 1 },
+                    { id: "gros2",  x: 250, y: 250, rot: -90, flip: 1 },
+                    { id: "moyen",  x: 450, y: 250, rot: 90, flip: 1 },
+                    { id: "carre",  x: 200, y: 200, rot: 0, flip: 1 },
+                    { id: "para",   x: 150, y: 150, rot: -45, flip: 1 },
+                    { id: "petit1", x: 100, y: 100, rot: 135, flip: 1 },
+                    { id: "petit2", x: 50,  y: 100, rot: 45, flip: 1 }
+                ]
+            },
+            {
+                nom: "La Fusée",
+                solution: [
+                    { id: "gros1",  x: 300, y: 200, rot: 90, flip: 1 },
+                    { id: "gros2",  x: 400, y: 200, rot: -90, flip: 1 },
+                    { id: "moyen",  x: 350, y: 100, rot: 45, flip: 1 }, 
+                    { id: "carre",  x: 350, y: 400, rot: 45, flip: 1 }, 
+                    { id: "para",   x: 350, y: 250, rot: 90, flip: 1 }, 
+                    { id: "petit1", x: 250, y: 400, rot: -45, flip: 1 }, 
+                    { id: "petit2", x: 450, y: 400, rot: 45, flip: 1 }
                 ]
             }
         ];
 
         let niveauActuelIdx = 0;
-        let pieceEnMouvement = null;
-        let decalageX = 0, decalageY = 0;
-        let indexZ = 10;
         let niveauActuel = niveauxTangram[0];
+        let indicesAffiches = 0;
 
-        // --- INITIALISATION DU JEU ---
+        // --- 3. GÉNÉRATION GRAPHIQUE ---
         function chargerNiveau() {
             niveauActuel = niveauxTangram[niveauActuelIdx];
             document.getElementById('hud-niveau').textContent = `Niveau ${niveauActuelIdx + 1} : ${niveauActuel.nom}`;
+            indicesAffiches = 0;
             
-            dessinerOmbreModele();
+            dessinerOmbreMagique();
+            dessinerIndices();
             genererPiecesMobiles();
         }
 
-        function dessinerOmbreModele() {
-            const svgModele = document.getElementById('svg-modele');
-            svgModele.innerHTML = ""; // On vide la couche
+        // C'est ici la magie : On dessine l'ombre en assemblant les pièces de la solution en gris !
+        // C'est donc mathématiquement impossible que ça ne corresponde pas.
+        function dessinerOmbreMagique() {
+            const couche = document.getElementById("couche-ombre");
+            couche.innerHTML = "";
+            niveauActuel.solution.forEach(sol => {
+                const def = defPiecesTangram.find(p => p.id === sol.id);
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute("d", def.path);
+                path.setAttribute("fill", "#bdc3c7");
+                path.setAttribute("stroke", "#bdc3c7");
+                path.setAttribute("stroke-width", "3");
+                path.setAttribute("stroke-linejoin", "round");
+                path.setAttribute("transform", `translate(${sol.x}, ${sol.y}) rotate(${sol.rot}, ${def.cx}, ${def.cy}) scale(${sol.flip}, 1)`);
+                couche.appendChild(path);
+            });
+        }
 
-            // 1. On dessine la grande ombre noire/grise à reproduire
-            let pathOmbre = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            pathOmbre.setAttribute("d", niveauActuel.ombreGlobal);
-            pathOmbre.setAttribute("class", "forme-ombre");
-            svgModele.appendChild(pathOmbre);
-
-            // 2. On prépare les tracés de la solution EXACTE, mais on les cache avec CSS (opacity: 0)
-            niveauActuel.solution.forEach(pieceSol => {
-                // On utilise un groupe <g> pour appliquer la position X,Y et la rotation demandée par la solution
-                let groupe = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                // La transformation combine translation (X,Y) et rotation (avec pivot au centre estimé de la pièce)
-                // Pour simplifier, on applique la rotation sur le SVG final, ou on translate le groupe.
-                
-                // Pour éviter des maths de rotation de SVG complexes ici, on triche :
-                // On utilise le "transform" CSS !
-                groupe.setAttribute("transform", `translate(${pieceSol.x}, ${pieceSol.y}) rotate(${pieceSol.rot})`);
-                // Comme l'origine de rotation par défaut d'un path est (0,0), on doit ajuster :
-                let pieceDef = defPiecesTangram.find(p => p.id === pieceSol.id);
-                groupe.style.transformOrigin = `${pieceDef.w / 2}px ${pieceDef.h / 2}px`;
-
-                let pathIndice = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                pathIndice.setAttribute("d", pieceSol.path);
-                pathIndice.setAttribute("class", `indice-piece indice-${pieceSol.id}`);
-                
-                groupe.appendChild(pathIndice);
-                svgModele.appendChild(groupe);
+        function dessinerIndices() {
+            const couche = document.getElementById("couche-indices");
+            couche.innerHTML = "";
+            niveauActuel.solution.forEach(sol => {
+                const def = defPiecesTangram.find(p => p.id === sol.id);
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute("d", def.path);
+                path.setAttribute("fill", "rgba(52, 152, 219, 0.4)");
+                path.setAttribute("stroke", "#2980b9");
+                path.setAttribute("stroke-width", "3");
+                path.setAttribute("class", "indice-piece");
+                path.setAttribute("transform", `translate(${sol.x}, ${sol.y}) rotate(${sol.rot}, ${def.cx}, ${def.cy}) scale(${sol.flip}, 1)`);
+                couche.appendChild(path);
             });
         }
 
         function genererPiecesMobiles() {
-            const couchePieces = document.getElementById('couche-pieces');
-            couchePieces.innerHTML = "";
-
-            // On dispose les pièces en vrac en bas ou sur les côtés
-            let positionsInitiales = [
-                {x: 10, y: 400}, {x: 220, y: 400}, {x: 440, y: 400},
-                {x: 10, y: 10}, {x: 440, y: 10}, {x: 10, y: 200}, {x: 440, y: 200}
+            const couche = document.getElementById("couche-pieces");
+            couche.innerHTML = "";
+            
+            // On les aligne proprement en bas
+            const posInit = [
+                {x: 50, y: 450}, {x: 200, y: 450}, {x: 350, y: 450},
+                {x: 450, y: 450}, {x: 550, y: 450}, {x: 650, y: 450}, {x: 50, y: 350}
             ];
 
-            defPiecesTangram.forEach((p, index) => {
-                let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                svg.setAttribute("class", "piece");
-                svg.setAttribute("id", "mobile-" + p.id);
-                svg.setAttribute("width", p.w);
-                svg.setAttribute("height", p.h);
-                
-                // Position en vrac
-                svg.style.left = positionsInitiales[index].x + "px";
-                svg.style.top = positionsInitiales[index].y + "px";
-                svg.dataset.rotation = 0;
+            defPiecesTangram.forEach((def, index) => {
+                const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                g.setAttribute("class", "piece-mobile");
+                g.dataset.id = def.id;
+                g.dataset.x = posInit[index].x;
+                g.dataset.y = posInit[index].y;
+                g.dataset.rot = 0;
+                g.dataset.flip = 1;
+                g.setAttribute("transform", `translate(${g.dataset.x}, ${g.dataset.y}) rotate(0, ${def.cx}, ${def.cy}) scale(1, 1)`);
 
-                let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                path.setAttribute("d", p.path);
-                path.setAttribute("fill", p.color);
-                svg.appendChild(path);
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute("d", def.path);
+                path.setAttribute("fill", def.color);
+                path.setAttribute("stroke", "rgba(0,0,0,0.2)");
+                path.setAttribute("stroke-width", "2");
 
-                // Événements de souris pour déplacer et tourner
-                svg.addEventListener("mousedown", demarrerGlissement);
-                svg.addEventListener("dblclick", tournerPiece);
+                g.appendChild(path);
+                couche.appendChild(g);
 
-                couchePieces.appendChild(svg);
+                g.addEventListener("mousedown", startDrag);
+                g.addEventListener("touchstart", startDrag, {passive: false});
             });
         }
 
-        // --- SYSTÈME D'AIDE ---
-        let indicesAffiches = 0;
-        function afficherIndice() {
-            // On trouve tous les tracés de solution (indices) qui sont encore cachés
-            let listeIndices = document.querySelectorAll('.indice-piece:not(.visible)');
+        // --- 4. LE MOTEUR UNIFIÉ DRAG & DROP SVG ---
+        let dragEl = null;
+        let lastSelectedPiece = null;
+        let offset = {x: 0, y: 0};
+        const svg = document.getElementById("jeu-tangram");
+        let aBouge = false;
+
+        // Convertit les pixels de l'écran en mathématiques SVG
+        function getMousePos(e) {
+            let pt = svg.createSVGPoint();
+            pt.x = e.clientX || (e.touches && e.touches[0].clientX);
+            pt.y = e.clientY || (e.touches && e.touches[0].clientY);
+            return pt.matrixTransform(svg.getScreenCTM().inverse());
+        }
+
+        function startDrag(e) {
+            if(e.type === "touchstart") e.preventDefault();
+            dragEl = e.currentTarget;
+            lastSelectedPiece = dragEl;
             
+            // Place la pièce au-dessus des autres visuellement
+            dragEl.parentNode.appendChild(dragEl);
+            
+            // Effet visuel de sélection
+            document.querySelectorAll('.piece-mobile').forEach(p => p.style.filter = "drop-shadow(2px 4px 6px rgba(0,0,0,0.4))");
+            dragEl.style.filter = "drop-shadow(0px 0px 15px rgba(241,196,15,0.8))";
+
+            let mousePos = getMousePos(e);
+            let x = parseFloat(dragEl.dataset.x);
+            let y = parseFloat(dragEl.dataset.y);
+            
+            offset.x = mousePos.x - x;
+            offset.y = mousePos.y - y;
+            aBouge = false;
+
+            document.addEventListener("mousemove", drag);
+            document.addEventListener("touchmove", drag, {passive: false});
+            document.addEventListener("mouseup", endDrag);
+            document.addEventListener("touchend", endDrag);
+        }
+
+        function drag(e) {
+            if (!dragEl) return;
+            e.preventDefault();
+            let mousePos = getMousePos(e);
+            let nx = mousePos.x - offset.x;
+            let ny = mousePos.y - offset.y;
+
+            // Détecter si on a bougé la souris (plus que 2 pixels)
+            let dx = nx - parseFloat(dragEl.dataset.x);
+            let dy = ny - parseFloat(dragEl.dataset.y);
+            if (Math.abs(dx) > 2 || Math.abs(dy) > 2) aBouge = true;
+
+            dragEl.dataset.x = nx;
+            dragEl.dataset.y = ny;
+            updateTransform(dragEl);
+        }
+
+        function endDrag(e) {
+            if (!dragEl) return;
+            
+            // Si on a relâché sans bouger, c'est un clic = on tourne !
+            if (!aBouge) {
+                let rot = parseInt(dragEl.dataset.rot);
+                dragEl.dataset.rot = (rot + 45) % 360;
+                updateTransform(dragEl);
+            }
+            
+            dragEl = null;
+            document.removeEventListener("mousemove", drag);
+            document.removeEventListener("touchmove", drag);
+            document.removeEventListener("mouseup", endDrag);
+            document.removeEventListener("touchend", endDrag);
+        }
+
+        function updateTransform(el) {
+            let id = el.dataset.id;
+            let def = defPiecesTangram.find(p => p.id === id);
+            // La commande mathématique SVG absolue !
+            el.setAttribute("transform", `translate(${el.dataset.x}, ${el.dataset.y}) rotate(${el.dataset.rot}, ${def.cx}, ${def.cy}) scale(${el.dataset.flip}, 1)`);
+        }
+
+        // --- 5. LES OUTILS ET BOUTONS ---
+        function retournerPiece() {
+            if (!lastSelectedPiece) {
+                alert("Touche d'abord la pièce que tu veux retourner !");
+                return;
+            }
+            let flip = parseInt(lastSelectedPiece.dataset.flip);
+            lastSelectedPiece.dataset.flip = flip * -1;
+            updateTransform(lastSelectedPiece);
+        }
+
+        function afficherIndice() {
+            let listeIndices = document.querySelectorAll('.indice-piece:not(.visible)');
             if (listeIndices.length > 0) {
-                // On prend un indice au hasard et on l'affiche !
                 let indiceHasard = listeIndices[Math.floor(Math.random() * listeIndices.length)];
                 indiceHasard.classList.add('visible');
                 indicesAffiches++;
             } else {
-                alert("Tous les indices sont déjà affichés ! Superpose tes pièces sur les formes bleues.");
+                alert("Tous les indices sont déjà affichés !");
             }
         }
 
         function reinitialiserPieces() {
-            // Remet les pièces sur les bords, avec 0 degré de rotation
-            const piecesMobiles = document.querySelectorAll('.piece');
-            let positionsInitiales = [
-                {x: 10, y: 400}, {x: 220, y: 400}, {x: 440, y: 400},
-                {x: 10, y: 10}, {x: 440, y: 10}, {x: 10, y: 200}, {x: 440, y: 200}
-            ];
-            
-            piecesMobiles.forEach((piece, index) => {
-                piece.style.left = positionsInitiales[index].x + "px";
-                piece.style.top = positionsInitiales[index].y + "px";
-                piece.style.transform = `rotate(0deg)`;
-                piece.dataset.rotation = 0;
-            });
-
-            // Cache les indices
+            genererPiecesMobiles();
             document.querySelectorAll('.indice-piece.visible').forEach(ind => ind.classList.remove('visible'));
             indicesAffiches = 0;
+            lastSelectedPiece = null;
         }
 
-        // --- VALIDATION DU NIVEAU ---
         function validerNiveau() {
-            // Dans un jeu flash standard de Tangram, la détection pixel-perfect est complexe.
-            // On utilise souvent un système basé sur la bonne foi et un check de l'ordinateur simple.
-            // Ici, pour l'encouragement, on récompense l'effort :
+            let gainXP = 50 - (indicesAffiches * 5); 
+            if (gainXP < 10) gainXP = 10; 
             
-            let gainXP = 50 - (indicesAffiches * 5); // 50XP, moins 5XP par indice demandé !
-            if (gainXP < 10) gainXP = 10; // Minimum syndical
+            alert(`🎉 Super ! Tu as terminé : ${niveauActuel.nom} !\n\nRécompense simulée : +${gainXP} XP (Tu as utilisé ${indicesAffiches} indices).`);
             
-            alert(`🎉 Super ! Tu as terminé le ${niveauActuel.nom} !\n\nRécompense : +${gainXP} XP (Tu as utilisé ${indicesAffiches} indices).`);
-            
-            // Passer au niveau suivant
             niveauActuelIdx++;
             if (niveauActuelIdx >= niveauxTangram.length) {
                 alert("🏆 Incroyable, tu as fini tous les niveaux du Tangram ! Le jeu recommence.");
@@ -285,49 +349,7 @@
             chargerNiveau();
         }
 
-        // --- MOTEUR DE DRAG & DROP ET ROTATION (inchangé) ---
-        function demarrerGlissement(e) {
-            pieceEnMouvement = e.currentTarget;
-            indexZ++; 
-            pieceEnMouvement.style.zIndex = indexZ;
-
-            const rect = pieceEnMouvement.getBoundingClientRect();
-            decalageX = e.clientX - rect.left;
-            decalageY = e.clientY - rect.top;
-
-            document.addEventListener("mousemove", glisserPiece);
-            document.addEventListener("mouseup", stopperGlissement);
-        }
-
-        function glisserPiece(e) {
-            if (!pieceEnMouvement) return;
-            const plateauRect = document.getElementById('plateau-tangram').getBoundingClientRect();
-            
-            let nouvX = e.clientX - plateauRect.left - decalageX;
-            let nouvY = e.clientY - plateauRect.top - decalageY;
-
-            pieceEnMouvement.style.left = nouvX + "px";
-            pieceEnMouvement.style.top = nouvY + "px";
-        }
-
-        function stopperGlissement() {
-            pieceEnMouvement = null;
-            document.removeEventListener("mousemove", glisserPiece);
-            document.removeEventListener("mouseup", stopperGlissement);
-        }
-
-        function tournerPiece(e) {
-            let piece = e.currentTarget;
-            let rotActuelle = parseInt(piece.dataset.rotation) || 0;
-            rotActuelle = (rotActuelle + 45) % 360; 
-            
-            piece.dataset.rotation = rotActuelle;
-            piece.style.transform = `rotate(${rotActuelle}deg)`;
-        }
-
-        // Lancement !
         document.addEventListener("DOMContentLoaded", chargerNiveau);
-
     </script>
 </body>
 </html>
