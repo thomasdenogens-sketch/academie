@@ -31,7 +31,6 @@
         .btn-valider { background: #27ae60; color: white; box-shadow: 0 4px 0 #219a52; font-size: 1.2rem; padding: 12px 25px;}
         .btn-valider:hover { background: #2ecc71; }
         
-        /* Boutons spécifiques pour toi, le développeur */
         .btn-dev { background: #e74c3c; color: white; display: none; border: 2px dashed white;}
         .btn-quit-dev { background: #34495e; color: white; display: none; border: 2px solid #e74c3c;}
 
@@ -56,7 +55,6 @@
 
         .btn-nav { background: #64748b; color: white; margin-top: 10px;}
         
-        /* Fenêtre popup pour copier le code du niveau */
         #code-export-zone {
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             background: #1e293b; padding: 20px; border-radius: 15px; border: 2px solid #38bdf8; z-index: 2000;
@@ -84,12 +82,10 @@
         <button class="btn btn-outil" onclick="reinitialiserPieces()">🔄 Ranger</button>
         <button class="btn btn-aide" id="btn-indice" onclick="afficherIndice()">💡 Indice !</button>
         
-        <!-- Les boutons du Créateur (Visibles uniquement en mode Dev) -->
         <button class="btn btn-dev" id="btn-export" onclick="exporterNiveauDev()">🛠️ Générer le Code</button>
         <button class="btn btn-quit-dev" id="btn-quit-dev" onclick="quitterModeDev()">❌ Quitter le mode Création</button>
     </div>
 
-    <!-- PLATEAU AGRANDI : viewBox passe à 1000x850 pour donner de la place en bas -->
     <div class="plateau-container">
         <svg id="jeu-tangram" viewBox="0 0 1000 850" preserveAspectRatio="xMidYMid meet">
             <g id="couche-ombre"></g>
@@ -98,10 +94,8 @@
         </svg>
     </div>
 
-    <button class="btn btn-valider" onclick="validerNiveau()">✅ J'ai réussi !</button>
     <button class="btn btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
 
-    <!-- Zone cachée pour récupérer le code généré -->
     <div id="code-export-zone">
         <h3 style="color:#38bdf8;">Code de ton nouveau niveau :</h3>
         <p style="font-size:0.9rem;">Copie ce code et ajoute-le dans la liste "niveauxTangram" de ton fichier !</p>
@@ -123,7 +117,6 @@
 
         // --- 2. LA BASE DE DONNÉES DES 20 NIVEAUX ---
         const niveauxTangram = [
-            // NIVEAUX FACILES (Initiation géométrique)
             {
                 nom: "Tuto : Le Grand Carré",
                 solution: [
@@ -184,8 +177,6 @@
                     { id: "petit2", x: 600, y: 300, rot: -90, flip: 1 }
                 ]
             },
-            
-            // NIVEAUX MOYENS (Objets et Animaux simples)
             {
                 nom: "Le Petit Chat",
                 solution: [
@@ -245,128 +236,6 @@
                     { id: "petit1", x: 600, y: 200, rot: 0, flip: 1 },
                     { id: "petit2", x: 400, y: 400, rot: 180, flip: 1 }
                 ]
-            },
-
-            // NIVEAUX DIFFICILES (Formes dynamiques et asymétriques)
-            {
-                nom: "Le Cygne",
-                solution: [
-                    { id: "gros1", x: 550, y: 400, rot: 180, flip: 1 },
-                    { id: "gros2", x: 450, y: 300, rot: -90, flip: 1 },
-                    { id: "moyen", x: 650, y: 300, rot: 90, flip: 1 },
-                    { id: "carre", x: 400, y: 250, rot: 0, flip: 1 },
-                    { id: "para", x: 350, y: 200, rot: -45, flip: 1 },
-                    { id: "petit1", x: 300, y: 150, rot: 135, flip: 1 },
-                    { id: "petit2", x: 250, y: 150, rot: 45, flip: 1 }
-                ]
-            },
-            {
-                nom: "L'Hélicoptère",
-                solution: [
-                    { id: "gros1", x: 500, y: 350, rot: 180, flip: 1 },
-                    { id: "gros2", x: 400, y: 250, rot: 90, flip: 1 },
-                    { id: "carre", x: 400, y: 350, rot: 0, flip: 1 },
-                    { id: "moyen", x: 600, y: 350, rot: -90, flip: 1 },
-                    { id: "para", x: 500, y: 150, rot: 0, flip: 1 },
-                    { id: "petit1", x: 300, y: 350, rot: 90, flip: 1 },
-                    { id: "petit2", x: 600, y: 150, rot: -90, flip: 1 }
-                ]
-            },
-            {
-                nom: "Le Sapin",
-                solution: [
-                    { id: "gros1", x: 500, y: 450, rot: 0, flip: 1 },
-                    { id: "gros2", x: 500, y: 350, rot: 0, flip: 1 },
-                    { id: "moyen", x: 500, y: 250, rot: 0, flip: 1 },
-                    { id: "carre", x: 500, y: 550, rot: 0, flip: 1 },
-                    { id: "para", x: 400, y: 550, rot: 90, flip: 1 },
-                    { id: "petit1", x: 500, y: 150, rot: 0, flip: 1 },
-                    { id: "petit2", x: 600, y: 550, rot: 90, flip: 1 }
-                ]
-            },
-            {
-                nom: "Le Chien",
-                solution: [
-                    { id: "gros1", x: 500, y: 350, rot: 135, flip: 1 },
-                    { id: "gros2", x: 400, y: 350, rot: 45, flip: 1 },
-                    { id: "moyen", x: 650, y: 350, rot: -45, flip: 1 },
-                    { id: "carre", x: 300, y: 200, rot: 45, flip: 1 },
-                    { id: "para", x: 550, y: 500, rot: 45, flip: 1 },
-                    { id: "petit1", x: 250, y: 100, rot: -45, flip: 1 },
-                    { id: "petit2", x: 350, y: 100, rot: 45, flip: 1 }
-                ]
-            },
-            {
-                nom: "Le Diamant",
-                solution: [
-                    { id: "gros1", x: 450, y: 300, rot: 135, flip: 1 },
-                    { id: "gros2", x: 550, y: 300, rot: -135, flip: 1 },
-                    { id: "moyen", x: 500, y: 450, rot: 45, flip: 1 },
-                    { id: "carre", x: 500, y: 200, rot: 45, flip: 1 },
-                    { id: "para", x: 500, y: 100, rot: 45, flip: 1 },
-                    { id: "petit1", x: 350, y: 300, rot: -45, flip: 1 },
-                    { id: "petit2", x: 650, y: 300, rot: 45, flip: 1 }
-                ]
-            },
-            {
-                nom: "L'Oiseau en vol",
-                solution: [
-                    { id: "gros1", x: 400, y: 200, rot: -45, flip: 1 },
-                    { id: "gros2", x: 600, y: 200, rot: 45, flip: 1 },
-                    { id: "moyen", x: 500, y: 300, rot: 180, flip: 1 },
-                    { id: "carre", x: 500, y: 400, rot: 45, flip: 1 },
-                    { id: "para", x: 500, y: 500, rot: -45, flip: 1 },
-                    { id: "petit1", x: 300, y: 100, rot: 135, flip: 1 },
-                    { id: "petit2", x: 700, y: 100, rot: -135, flip: 1 }
-                ]
-            },
-            {
-                nom: "Le Cavalier",
-                solution: [
-                    { id: "gros1", x: 450, y: 350, rot: 0, flip: 1 },
-                    { id: "gros2", x: 550, y: 350, rot: 180, flip: 1 },
-                    { id: "moyen", x: 500, y: 200, rot: 90, flip: 1 },
-                    { id: "carre", x: 400, y: 150, rot: 45, flip: 1 },
-                    { id: "para", x: 600, y: 250, rot: -45, flip: 1 },
-                    { id: "petit1", x: 350, y: 50, rot: 135, flip: 1 },
-                    { id: "petit2", x: 450, y: 500, rot: 0, flip: 1 }
-                ]
-            },
-            {
-                nom: "Le Moulin",
-                solution: [
-                    { id: "gros1", x: 500, y: 450, rot: 0, flip: 1 },
-                    { id: "gros2", x: 500, y: 250, rot: 180, flip: 1 },
-                    { id: "moyen", x: 400, y: 350, rot: 90, flip: 1 },
-                    { id: "carre", x: 500, y: 350, rot: 45, flip: 1 },
-                    { id: "para", x: 600, y: 350, rot: -45, flip: 1 },
-                    { id: "petit1", x: 300, y: 250, rot: 135, flip: 1 },
-                    { id: "petit2", x: 700, y: 450, rot: -45, flip: 1 }
-                ]
-            },
-            {
-                nom: "Le Monstre",
-                solution: [
-                    { id: "gros1", x: 400, y: 350, rot: 45, flip: 1 },
-                    { id: "gros2", x: 600, y: 350, rot: -45, flip: 1 },
-                    { id: "moyen", x: 500, y: 250, rot: 180, flip: 1 },
-                    { id: "carre", x: 500, y: 450, rot: 0, flip: 1 },
-                    { id: "para", x: 500, y: 550, rot: 0, flip: 1 },
-                    { id: "petit1", x: 350, y: 150, rot: -45, flip: 1 },
-                    { id: "petit2", x: 650, y: 150, rot: 45, flip: 1 }
-                ]
-            },
-            {
-                nom: "L'Épée de Légende",
-                solution: [
-                    { id: "gros1", x: 500, y: 250, rot: -90, flip: 1 },
-                    { id: "gros2", x: 500, y: 450, rot: 90, flip: 1 },
-                    { id: "moyen", x: 500, y: 100, rot: 0, flip: 1 },
-                    { id: "carre", x: 500, y: 550, rot: 0, flip: 1 },
-                    { id: "para", x: 400, y: 450, rot: 90, flip: 1 },
-                    { id: "petit1", x: 600, y: 450, rot: -90, flip: 1 },
-                    { id: "petit2", x: 500, y: 650, rot: 180, flip: 1 }
-                ]
             }
         ];
 
@@ -381,7 +250,6 @@
             indicesAffiches = 0;
             lastSelectedPiece = null;
             
-            // Si on est en mode Dev, on cache l'ombre pour créer librement
             if (localStorage.getItem('modeDev') === 'actif') {
                 document.getElementById("couche-ombre").innerHTML = "";
                 document.getElementById("couche-indices").innerHTML = "";
@@ -394,6 +262,7 @@
             genererPiecesMobiles();
         }
 
+        // Amélioration de l'ombre pour la rendre bien solide
         function dessinerOmbreMagique() {
             const couche = document.getElementById("couche-ombre");
             couche.innerHTML = "";
@@ -401,9 +270,9 @@
                 const def = defPiecesTangram.find(p => p.id === sol.id);
                 const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
                 path.setAttribute("d", def.path);
-                path.setAttribute("fill", "#1e293b");
-                path.setAttribute("stroke", "#1e293b");
-                path.setAttribute("stroke-width", "8");
+                path.setAttribute("fill", "#334155"); // Gris foncé opaque
+                path.setAttribute("stroke", "#334155"); 
+                path.setAttribute("stroke-width", "6"); // Fait disparaître tous les micro-trous
                 path.setAttribute("stroke-linejoin", "round");
                 path.setAttribute("transform", `translate(${sol.x}, ${sol.y}) rotate(${sol.rot}, ${def.cx}, ${def.cy}) scale(${sol.flip}, 1)`);
                 couche.appendChild(path);
@@ -431,10 +300,10 @@
             const couche = document.getElementById("couche-pieces");
             couche.innerHTML = "";
             
-            // NOUVELLES COORDONNÉES D'APPARITION : Y=650 pour éviter qu'elles soient coupées
+            // Les pièces apparaissent tout en bas pour ne pas masquer l'ombre
             const posInit = [
-                {x: 100, y: 700}, {x: 230, y: 700}, {x: 360, y: 700},
-                {x: 490, y: 700}, {x: 620, y: 700}, {x: 750, y: 700}, {x: 880, y: 700}
+                {x: 100, y: 720}, {x: 230, y: 720}, {x: 360, y: 720},
+                {x: 490, y: 720}, {x: 620, y: 720}, {x: 750, y: 720}, {x: 880, y: 720}
             ];
 
             let positionsMelangees = [...posInit].sort(() => Math.random() - 0.5);
@@ -448,6 +317,7 @@
                 g.dataset.rot = 0;
                 g.dataset.flip = 1;
                 g.dataset.snapped = "false";
+                g.dataset.snappedTo = ""; // Ajout pour le nouveau système d'aimant
                 
                 g.setAttribute("transform", `translate(${g.dataset.x}, ${g.dataset.y}) rotate(0, ${def.cx}, ${def.cy}) scale(1, 1)`);
 
@@ -489,7 +359,9 @@
             if(e.type === "touchstart") e.preventDefault();
             dragEl = e.currentTarget;
             selectPiece(dragEl);
+            
             dragEl.dataset.snapped = "false";
+            dragEl.dataset.snappedTo = "";
 
             let mousePos = getMousePos(e);
             let x = parseFloat(dragEl.dataset.x);
@@ -532,25 +404,49 @@
             el.setAttribute("transform", `translate(${el.dataset.x}, ${el.dataset.y}) rotate(${el.dataset.rot}, ${def.cx}, ${def.cy}) scale(${el.dataset.flip}, 1)`);
         }
 
+        // LA CORRECTION MAJEURE : On autorise les pièces de même taille à s'interchanger !
         function verifierMagnetisme(el) {
-            let sol = niveauActuel.solution.find(s => s.id === el.dataset.id);
-            if (!sol) return;
+            // Groupes de pièces identiques
+            let typesEquivalents = [el.dataset.id];
+            if (el.dataset.id === "gros1" || el.dataset.id === "gros2") typesEquivalents = ["gros1", "gros2"];
+            if (el.dataset.id === "petit1" || el.dataset.id === "petit2") typesEquivalents = ["petit1", "petit2"];
 
-            let dist = Math.hypot(parseFloat(el.dataset.x) - sol.x, parseFloat(el.dataset.y) - sol.y);
-            let r1 = (parseInt(el.dataset.rot) % 360 + 360) % 360;
-            let r2 = (sol.rot % 360 + 360) % 360;
-            let f1 = parseInt(el.dataset.flip);
+            let aTrouvePlace = false;
+
+            for (let tid of typesEquivalents) {
+                let sol = niveauActuel.solution.find(s => s.id === tid);
+                if (!sol) continue;
+
+                let dist = Math.hypot(parseFloat(el.dataset.x) - sol.x, parseFloat(el.dataset.y) - sol.y);
+                let r1 = (parseInt(el.dataset.rot) % 360 + 360) % 360;
+                let r2 = (sol.rot % 360 + 360) % 360;
+                let f1 = parseInt(el.dataset.flip);
+                
+                let rotMatch = false;
+                if (el.dataset.id === 'carre') { rotMatch = (r1 % 90 === r2 % 90); } 
+                else if (el.dataset.id === 'para') { rotMatch = (f1 === sol.flip && r1 % 180 === r2 % 180); } 
+                else { rotMatch = (r1 === r2); } 
+
+                // Aspiration élargie à 60 pixels pour plus de confort
+                if (dist < 60 && rotMatch) {
+                    // On s'assure qu'une autre pièce n'est pas déjà accrochée à cette place
+                    let slotPris = Array.from(document.querySelectorAll('.piece-mobile')).some(p => p !== el && p.dataset.snappedTo === tid);
+                    
+                    if (!slotPris) {
+                        el.dataset.x = sol.x; el.dataset.y = sol.y; el.dataset.rot = sol.rot; el.dataset.flip = sol.flip;
+                        el.dataset.snapped = "true";
+                        el.dataset.snappedTo = tid; // On verrouille l'emplacement
+                        updateTransform(el);
+                        aTrouvePlace = true;
+                        verifierVictoire();
+                        break;
+                    }
+                }
+            }
             
-            let rotMatch = false;
-            if (el.dataset.id === 'carre') { rotMatch = (r1 % 90 === r2 % 90); } 
-            else if (el.dataset.id === 'para') { rotMatch = (f1 === sol.flip && r1 % 180 === r2 % 180); } 
-            else { rotMatch = (r1 === r2); } 
-
-            if (dist < 50 && rotMatch) {
-                el.dataset.x = sol.x; el.dataset.y = sol.y; el.dataset.rot = sol.rot; el.dataset.flip = sol.flip;
-                el.dataset.snapped = "true";
-                updateTransform(el);
-                verifierVictoire();
+            if (!aTrouvePlace) {
+                el.dataset.snapped = "false";
+                el.dataset.snappedTo = "";
             }
         }
 
@@ -580,6 +476,7 @@
             let rot = parseInt(lastSelectedPiece.dataset.rot);
             lastSelectedPiece.dataset.rot = (rot + 45) % 360;
             lastSelectedPiece.dataset.snapped = "false";
+            lastSelectedPiece.dataset.snappedTo = "";
             updateTransform(lastSelectedPiece);
             if (localStorage.getItem('modeDev') !== 'actif') verifierMagnetisme(lastSelectedPiece);
         }
@@ -591,6 +488,7 @@
             let flip = parseInt(lastSelectedPiece.dataset.flip);
             lastSelectedPiece.dataset.flip = flip * -1;
             lastSelectedPiece.dataset.snapped = "false";
+            lastSelectedPiece.dataset.snappedTo = "";
             updateTransform(lastSelectedPiece);
             if (localStorage.getItem('modeDev') !== 'actif') verifierMagnetisme(lastSelectedPiece);
         }
@@ -606,17 +504,16 @@
 
         function reinitialiserPieces() { chargerNiveau(); }
 
-        // --- 7. L'OUTIL DE DÉVELOPPEMENT ET GESTION DE MODE DEV ---
+        // --- 7. L'OUTIL DE DÉVELOPPEMENT ---
         function verifierModeDev() {
             if (localStorage.getItem('modeDev') === 'actif') {
                 document.getElementById('btn-export').style.display = 'block';
                 document.getElementById('btn-quit-dev').style.display = 'block';
                 document.getElementById('hud-niveau').textContent = "🛠️ MODE CRÉATION DE NIVEAU 🛠️";
-                document.querySelector('.consigne').innerHTML = "Construis ta figure librement. Clique sur 'Créer un Niveau' pour récupérer le code !";
+                document.querySelector('.consigne').innerHTML = "Construis ta figure librement. Clique sur 'Générer le Code' pour récupérer le code !";
             }
         }
 
-        // Fonction pour quitter le mode Dev manuellement
         function quitterModeDev() {
             localStorage.removeItem('modeDev');
             window.location.reload();
