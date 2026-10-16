@@ -196,6 +196,10 @@
                     <a href="jeu_geometrie.html" class="game-btn" onclick="return enregistrerDepart('Géométrie', 'Théo')">
                         <span class="game-icon">📐</span><span>Géométrie</span>
                     </a>
+                    <!-- LE BOUTON D'ANGLAIS DE THÉO RÉINTÉGRÉ ICI -->
+                    <a href="jeu_anglais.html" class="game-btn" onclick="return enregistrerDepart('Anglais', 'Théo')">
+                        <span class="game-icon">🇬🇧</span><span>Anglais</span>
+                    </a>
                     <a href="dactylo_pro.html" class="game-btn" onclick="return enregistrerDepart('Dactylo', 'Théo')">
                         <span class="game-icon">⌨️</span><span>Dactylographie</span>
                     </a>
@@ -326,7 +330,7 @@
 
     <button class="btn-parents" onclick="ouvrirMenuParents()">⚙️ Panneau d'Administration</button>
 
-    <!-- OVERLAY PARENTS UNIQUE ET CORRIGÉ -->
+    <!-- OVERLAY PARENTS -->
     <div id="overlay-parents" class="overlay">
         <div class="modal">
             <h2 style="color: #2c3e50; margin-bottom: 20px;">⚙️ Espace Parents</h2>
@@ -386,7 +390,6 @@
                 <div class="admin-section" style="border-color: #f39c12; background: #fff3cd;">
                     <div class="admin-title" style="color: #d35400; border-color: #f39c12;">⚡ Actions Rapides</div>
                     <button class="btn-valider" style="background: #e67e22;" onclick="donnerBonusManuel()">🎁 +100 XP Bonus à la famille</button>
-                    <!-- LE LIEN DU KANBAN (CORRIGÉ ET ABSOLU) -->
                     <button class="btn-valider" style="background: #8e44ad; margin-top: 10px;" onclick="window.open('https://thomasdenogens-sketch.github.io/academie-pro/kanban_projet.html', '_blank')">📋 Ouvrir le Kanban Développeur</button>
                 </div>
 
@@ -403,7 +406,6 @@
         let xpGagnable = 0;
         let compteurClicsSecrets = 0; 
 
-        // --- LECTURE CLOUD ---
         async function lireParametresCloud() {
             try {
                 let res = await fetch(`${FIREBASE_URL}scores/parent_settings.json`);
@@ -505,11 +507,13 @@
             return true; 
         }
 
+        // On a ajouté le tag anglaisSaveV1 dans le tableau de Théo !
         const matieresTheo = [ 
             { id: "mathsV8", nom: "Mathématiques", icon: "🧮" }, { id: "motsSaveV3", nom: "Orthographe", icon: "📖" }, 
             { id: "conjHero9", nom: "Conjugaison", icon: "✍️" }, { id: "grammaireV1", nom: "Grammaire", icon: "🔎" },
             { id: "histoireSaveV1", nom: "Histoire", icon: "⏳" }, { id: "geoSaveV1", nom: "Géographie", icon: "🌍" }, 
-            { id: "sciencesSaveV1", nom: "Sciences", icon: "🔬" }, { id: "dactyloPro", nom: "Dactylo", icon: "⌨️" }, { id: "geometrieV1", nom: "Géométrie", icon: "📐" }
+            { id: "sciencesSaveV1", nom: "Sciences", icon: "🔬" }, { id: "dactyloPro", nom: "Dactylo", icon: "⌨️" }, 
+            { id: "geometrieV1", nom: "Géométrie", icon: "📐" }, { id: "anglaisSaveV1", nom: "Anglais", icon: "🇬🇧" }
         ];
         const matieresLola = [ 
             { id: "mathsLola", nom: "Mathématiques", icon: "🧮" }, { id: "francaisLola", nom: "Français", icon: "📚" }, 
@@ -676,7 +680,6 @@
             document.getElementById("niveau-lola").textContent = determinerNiveau(2025);
             document.getElementById("niveau-theo").textContent = determinerNiveau(2022);
             
-            // On charge d'abord les paramètres pour avoir accès au code PIN des quêtes Monde Réel
             parametresActuels = await lireParametresCloud();
             
             chargerJaugeFamiliale(); initTempsEcran(); 
