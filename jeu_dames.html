@@ -10,8 +10,15 @@
         
         #app-container { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-width: 700px; width: 100%; text-align: center; position: relative; }
         h1 { color: #8e44ad; font-weight: 900; font-size: 2.2rem; margin-bottom: 5px; }
-        .sous-titre { color: #9b59b6; margin-bottom: 25px; font-weight: 700; font-size: 1.1rem;}
+        .sous-titre { color: #9b59b6; margin-bottom: 15px; font-weight: 700; font-size: 1.1rem;}
         .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
+
+        /* --- BARRE D'OPTIONS ET STATS --- */
+        .barre-options { display: flex; justify-content: space-between; align-items: center; background: #fdf2f8; padding: 10px 20px; border-radius: 12px; margin-bottom: 20px; border: 2px dashed #f48fb1; }
+        .select-difficulte { font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: bold; padding: 8px 12px; border-radius: 8px; border: 2px solid #9b59b6; color: #8e44ad; outline: none; cursor: pointer; }
+        .stats-badge { font-size: 1.1rem; font-weight: bold; color: #2c3e50; }
+        .stat-v { color: #27ae60; font-weight: 900; }
+        .stat-d { color: #c0392b; font-weight: 900; }
 
         .hud-scores { display: flex; justify-content: space-around; background: #f8f9fa; padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #ecf0f1; }
         .score-box { font-size: 1.2rem; font-weight: 900; padding: 10px 20px; border-radius: 12px; transition: 0.3s; opacity: 0.5;}
@@ -35,6 +42,15 @@
         .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s;}
         .btn-nav:hover { background: #7f8c8d; }
         #feedback { font-size: 1.3rem; font-weight: 900; height: 35px; margin-bottom: 15px; color: #8e44ad;}
+
+        /* --- FENÊTRE DE FIN DE PARTIE --- */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: white; padding: 40px; border-radius: 25px; text-align: center; max-width: 400px; width: 90%; animation: popIn 0.3s ease-out;}
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-titre { font-size: 2rem; font-weight: 900; margin-bottom: 15px; }
+        .modal-msg { font-size: 1.2rem; color: #34495e; margin-bottom: 25px; font-weight: bold; }
+        .btn-rejouer { background: #2ecc71; color: white; padding: 15px 30px; border: none; border-radius: 15px; font-weight: 900; cursor: pointer; font-size: 1.3rem; box-shadow: 0 5px 0 #27ae60; width: 100%; margin-bottom: 15px; transition: 0.1s;}
+        .btn-rejouer:active { transform: translateY(5px); box-shadow: none; }
     </style>
 </head>
 <body>
@@ -44,6 +60,19 @@
         
         <h1 id="titre-jeu">Jeu de Dames 👑</h1>
         <p class="sous-titre">Règles Officielles : Prises obligatoires et Rafles !</p>
+
+        <!-- Nouvelle barre de statistiques et difficulté -->
+        <div class="barre-options">
+            <div>
+                <select id="difficulte-ia" class="select-difficulte">
+                    <option value="1">🟢 IA : Facile</option>
+                    <option value="2" selected>🔴 IA : Difficile</option>
+                </select>
+            </div>
+            <div class="stats-badge">
+                🏆 Victoires : <span id="ui-victoires" class="stat-v">0</span> | 💀 Défaites : <span id="ui-defaites" class="stat-d">0</span>
+            </div>
+        </div>
         
         <div class="hud-scores">
             <div id="box-joueur" class="score-box tour-actif"><span id="nom-joueur">Joueur</span> <br> Pions: <span id="pions-joueur">12</span></div>
@@ -56,18 +85,28 @@
         <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
     </div>
 
+    <!-- Modale de Fin de Partie -->
+    <div id="overlay-fin" class="overlay">
+        <div class="modal">
+            <div id="modal-titre" class="modal-titre">Fin de partie</div>
+            <div id="modal-msg" class="modal-msg">Message</div>
+            <button class="btn-rejouer" onclick="rejouerPartie()">🔄 Rejouer</button>
+            <button class="btn-nav" style="width: 100%;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+        </div>
+    </div>
+
     <script>
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
         const enfant = localStorage.getItem('enfantEnCours') || 'Lola';
         const enfantCle = enfant === 'Théo' ? 'theo' : 'lola';
         const DB_URL = `${FIREBASE_URL}scores/${enfantCle}/jeux.json`;
 
-        let xpGlobale = 0;
+        let dataGlobales = { xp: 0, dames_v: 0, dames_d: 0 };
         let plateau = [];
         let tourActuel = 1; 
         let pionSelectionne = null; 
         let mouvementsPossibles = []; 
-        let rafleEnCours = false; // Indique si on est au milieu d'une capture multiple
+        let rafleEnCours = false; 
 
         async function initPartage() {
             document.getElementById('nom-joueur').textContent = enfant === 'Lola' ? '👧 Lola' : '👦 Théo';
@@ -78,23 +117,49 @@
                 document.querySelector('h1').style.color = "#2980b9";
             }
 
-            try { let res = await fetch(DB_URL); let data = await res.json(); if (data && data.xp) xpGlobale = parseInt(data.xp) || 0; } catch(e) {}
-            document.getElementById('ui-xp').textContent = `XP: ${xpGlobale} ⭐`;
+            try { 
+                let res = await fetch(DB_URL); 
+                let data = await res.json(); 
+                if (data) {
+                    dataGlobales.xp = parseInt(data.xp) || 0;
+                    dataGlobales.dames_v = parseInt(data.dames_v) || 0;
+                    dataGlobales.dames_d = parseInt(data.dames_d) || 0;
+                }
+            } catch(e) {}
             
+            actualiserStatsUI();
             initialiserJeu();
         }
 
-        async function ajouterXP(p) {
-            xpGlobale += p; document.getElementById('ui-xp').textContent = `XP: ${xpGlobale} ⭐`;
-            try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: xpGlobale }) }); } catch(e) {}
+        function actualiserStatsUI() {
+            document.getElementById('ui-xp').textContent = `XP: ${dataGlobales.xp} ⭐`;
+            document.getElementById('ui-victoires').textContent = dataGlobales.dames_v;
+            document.getElementById('ui-defaites').textContent = dataGlobales.dames_d;
+        }
+
+        async function sauvegarderStats() {
+            actualiserStatsUI();
+            // Utilisation de PATCH pour mettre à jour uniquement ces variables sans écraser le reste
+            try { await fetch(DB_URL, { method: 'PATCH', body: JSON.stringify(dataGlobales) }); } catch(e) {}
         }
 
         function initialiserJeu() {
             plateau = Array(8).fill(0).map(() => Array(8).fill(0));
             for (let y = 0; y < 3; y++) { for (let x = 0; x < 8; x++) { if ((x + y) % 2 !== 0) plateau[y][x] = 2; } }
             for (let y = 5; y < 8; y++) { for (let x = 0; x < 8; x++) { if ((x + y) % 2 !== 0) plateau[y][x] = 1; } }
+            
             tourActuel = 1; pionSelectionne = null; mouvementsPossibles = []; rafleEnCours = false;
+            document.getElementById('box-ia').classList.remove('tour-actif'); 
+            document.getElementById('box-joueur').classList.add('tour-actif');
+            document.getElementById('feedback').textContent = "C'est à ton tour ! Touche un pion.";
+            document.getElementById('feedback').style.color = "#8e44ad";
+            
             dessinerPlateau();
+        }
+
+        function rejouerPartie() {
+            document.getElementById('overlay-fin').style.display = 'none';
+            initialiserJeu();
         }
 
         function dessinerPlateau() {
@@ -117,7 +182,6 @@
                         if (valeur === 1 || valeur === 3) {
                             pionDiv.className = `pion ${enfant === 'Théo' ? 'pion-theo' : 'pion-lola'} ${valeur === 3 ? 'dame' : ''}`;
                             compteJoueur++;
-                            // On désactive le clic sur les autres pions pendant une rafle
                             if (tourActuel === 1 && !rafleEnCours) pionDiv.onclick = (e) => { e.stopPropagation(); selectionnerPion(x, y); };
                         } else {
                             pionDiv.className = `pion pion-ia ${valeur === 4 ? 'dame' : ''}`; compteIA++;
@@ -130,8 +194,20 @@
             }
 
             document.getElementById('pions-joueur').textContent = compteJoueur; document.getElementById('pions-ia').textContent = compteIA;
-            if (compteJoueur === 0) finDePartie("L'ordinateur a gagné ! 🤖");
-            else if (compteIA === 0) finDePartie(`Bravo ${enfant} ! Tu as gagné ! 🏆`, 50);
+            
+            // Vérification des conditions de victoire après l'affichage complet
+            if (tourActuel !== 0) {
+                if (compteJoueur === 0) finDePartie(false, "Oh non, l'ordinateur a capturé tous tes pions !");
+                else if (compteIA === 0) finDePartie(true, "Exceptionnel ! Tu as capturé tous les pions !");
+                else {
+                    // Vérification de blocage total pour le joueur actuel
+                    let mouvDispo = obtenirTousMouvements(tourActuel);
+                    if (mouvDispo.length === 0) {
+                        if (tourActuel === 1) finDePartie(false, "Tu es bloqué et ne peux plus bouger.");
+                        else finDePartie(true, "L'ordinateur est bloqué. Tu as gagné !");
+                    }
+                }
+            }
         }
 
         function obtenirTousMouvements(joueur) {
@@ -150,7 +226,6 @@
         function selectionnerPion(x, y) {
             if (tourActuel !== 1 || rafleEnCours) return;
             
-            // PRISE OBLIGATOIRE : On vérifie si N'IMPORTE QUEL pion peut prendre
             let tousMouv = obtenirTousMouvements(1);
             let priseObligatoire = tousMouv.some(m => m.capture);
             let mesMouv = calculerMouvementsPossibles(x, y, plateau[y][x]);
@@ -158,8 +233,8 @@
             if (priseObligatoire) {
                 mesMouv = mesMouv.filter(m => m.capture);
                 if (mesMouv.length === 0) {
-                    document.getElementById('feedback').textContent = "Prise obligatoire ! ⚠️";
-                    return; // Interdit de sélectionner un pion qui ne peut pas capturer
+                    document.getElementById('feedback').textContent = "Prise obligatoire avec un autre pion ! ⚠️";
+                    return; 
                 }
             }
 
@@ -168,7 +243,6 @@
             dessinerPlateau();
         }
 
-        // Moteur de mouvement incluant les règles de la Dame
         function calculerMouvementsPossibles(x, y, typePion) {
             let mouvements = [];
             let estDame = (typePion === 3 || typePion === 4);
@@ -177,7 +251,6 @@
             if (!estDame) {
                 let dirYAvance = (typePion === 1) ? -1 : 1; 
                 
-                // Mouvements simples en avant
                 [-1, 1].forEach(dx => {
                     let nx = x + dx; let ny = y + dirYAvance;
                     if (estDansPlateau(nx, ny) && plateau[ny][nx] === 0) {
@@ -185,7 +258,6 @@
                     }
                 });
 
-                // Prises (Le pion peut prendre en arrière dans les règles françaises)
                 directionsCroisees.forEach(dir => {
                     let nx = x + dir[0]; let ny = y + dir[1];
                     let sautX = x + dir[0]*2; let sautY = y + dir[1]*2;
@@ -194,7 +266,6 @@
                     }
                 });
             } else {
-                // Règle de la Dame : Se déplace d'autant de cases qu'elle le souhaite
                 directionsCroisees.forEach(dir => {
                     let dist = 1;
                     let ennemiVu = null;
@@ -204,19 +275,12 @@
                         
                         let caseCible = plateau[ny][nx];
                         if (caseCible === 0) {
-                            if (ennemiVu) {
-                                // Atterrir après une prise
-                                mouvements.push({ fromX: x, fromY: y, toX: nx, toY: ny, capture: true, prisX: ennemiVu.x, prisY: ennemiVu.y });
-                            } else {
-                                // Mouvement simple
-                                mouvements.push({ fromX: x, fromY: y, toX: nx, toY: ny, capture: false });
-                            }
+                            if (ennemiVu) mouvements.push({ fromX: x, fromY: y, toX: nx, toY: ny, capture: true, prisX: ennemiVu.x, prisY: ennemiVu.y });
+                            else mouvements.push({ fromX: x, fromY: y, toX: nx, toY: ny, capture: false });
                         } else if (estAdversaire(caseCible, typePion)) {
-                            if (ennemiVu) break; // Bloqué par deux ennemis alignés
+                            if (ennemiVu) break; 
                             ennemiVu = {x: nx, y: ny};
-                        } else {
-                            break; // Bloqué par son propre pion
-                        }
+                        } else { break; }
                         dist++;
                     }
                 });
@@ -237,14 +301,10 @@
             plateau[mouv.toY][mouv.toX] = typePion; 
             plateau[mouv.fromY][mouv.fromX] = 0;
             
-            // La pièce est capturée et retirée du plateau
             if (mouv.capture) plateau[mouv.prisY][mouv.prisX] = 0;
 
-            // VÉRIFICATION DE LA RAFLE (Possibilité d'enchaîner une autre prise)
             let suiteRafle = [];
-            if (mouv.capture) {
-                suiteRafle = calculerMouvementsPossibles(mouv.toX, mouv.toY, typePion).filter(m => m.capture);
-            }
+            if (mouv.capture) { suiteRafle = calculerMouvementsPossibles(mouv.toX, mouv.toY, typePion).filter(m => m.capture); }
 
             if (suiteRafle.length > 0) {
                 rafleEnCours = true;
@@ -252,20 +312,15 @@
                 mouvementsPossibles = suiteRafle;
                 dessinerPlateau();
                 
-                if (tourActuel === 2) {
-                    setTimeout(jouerTourIA, 800); // L'IA enchaîne son saut
-                } else {
-                    document.getElementById('feedback').textContent = "Prise multiple ! Enchaîne le saut ! ⚔️";
-                }
-                return; // On interrompt la fonction ici : le tour ne change pas !
+                if (tourActuel === 2) setTimeout(jouerTourIA, 800); 
+                else document.getElementById('feedback').textContent = "Prise multiple ! Enchaîne le saut ! ⚔️";
+                return; 
             }
 
-            // --- FIN DU TOUR RÉEL ---
             rafleEnCours = false;
             pionSelectionne = null; 
             mouvementsPossibles = []; 
 
-            // Promotion en Dame uniquement à la FIN d'un déplacement complet
             if (typePion === 1 && mouv.toY === 0) plateau[mouv.toY][mouv.toX] = 3; 
             if (typePion === 2 && mouv.toY === 7) plateau[mouv.toY][mouv.toX] = 4;
 
@@ -284,29 +339,77 @@
         }
 
         function jouerTourIA() {
+            // Empêcher l'IA de jouer si la partie est terminée entre-temps
+            if (tourActuel === 0) return;
+
+            let difficulte = parseInt(document.getElementById('difficulte-ia').value);
             let choix;
             
-            // Si l'IA est au milieu d'une rafle, elle doit continuer avec la même pièce
             if (rafleEnCours) {
                 choix = mouvementsPossibles[Math.floor(Math.random() * mouvementsPossibles.length)];
             } else {
                 let tousMouvements = obtenirTousMouvements(2);
-                if (tousMouvements.length === 0) return finDePartie(`L'ordinateur est bloqué. Tu as gagné !`, 50);
+                if (tousMouvements.length === 0) return; // La détection de défaite est déjà gérée par dessinerPlateau()
 
                 let mouvementsPrise = tousMouvements.filter(m => m.capture);
 
                 if (mouvementsPrise.length > 0) {
-                    // L'IA est soumise à la prise obligatoire elle aussi !
                     choix = mouvementsPrise[Math.floor(Math.random() * mouvementsPrise.length)];
                 } else {
-                    choix = tousMouvements[Math.floor(Math.random() * tousMouvements.length)];
+                    if (difficulte === 1) {
+                        // Niveau FACILE : Mouvement totalement aléatoire
+                        choix = tousMouvements[Math.floor(Math.random() * tousMouvements.length)];
+                    } else {
+                        // Niveau DIFFICILE : L'IA préfère jouer sur les bords (cases latérales) pour être en sécurité, 
+                        // ou avancer vers la ligne de promotion (toY proche de 7).
+                        tousMouvements.sort((a, b) => {
+                            let scoreA = a.toY; // Plus on descend, mieux c'est
+                            if (a.toX === 0 || a.toX === 7) scoreA += 2; // Bonus pour les bords
+                            
+                            let scoreB = b.toY;
+                            if (b.toX === 0 || b.toX === 7) scoreB += 2;
+                            
+                            return scoreB - scoreA; // Tri décroissant (le meilleur score en premier)
+                        });
+                        
+                        // Prend l'un des 2 meilleurs coups possibles pour garder un peu de hasard
+                        let indexChoix = Math.random() > 0.5 && tousMouvements.length > 1 ? 1 : 0;
+                        choix = tousMouvements[indexChoix];
+                    }
                 }
             }
 
             executerMouvement(choix);
         }
 
-        function finDePartie(msg, xp = 0) { tourActuel = 0; document.getElementById('feedback').textContent = msg; if(xp>0) ajouterXP(xp); }
+        function finDePartie(joueurGagne, message) { 
+            tourActuel = 0; 
+            document.getElementById('feedback').textContent = "Partie terminée."; 
+            
+            let titreOverlay = document.getElementById('modal-titre');
+            let msgOverlay = document.getElementById('modal-msg');
+            
+            if (joueurGagne) {
+                dataGlobales.dames_v += 1;
+                dataGlobales.xp += 50;
+                titreOverlay.textContent = "🏆 Victoire !";
+                titreOverlay.style.color = "#27ae60";
+                msgOverlay.textContent = message + " (+50 XP)";
+            } else {
+                dataGlobales.dames_d += 1;
+                dataGlobales.xp += 10;
+                titreOverlay.textContent = "💀 Défaite...";
+                titreOverlay.style.color = "#c0392b";
+                msgOverlay.textContent = message + " (+10 XP d'effort)";
+            }
+
+            sauvegarderStats();
+
+            // Affiche la popup après une petite seconde pour laisser l'enfant comprendre
+            setTimeout(() => {
+                document.getElementById('overlay-fin').style.display = 'flex';
+            }, 1000);
+        }
 
         document.addEventListener("DOMContentLoaded", initPartage);
     </script>
