@@ -231,8 +231,8 @@
                     
                     if (grilleDynamique[y][x] === 1) div.classList.add('mur'); 
                     else if (grilleDynamique[y][x] === 2) { 
-                        // C'EST ICI QUE NOUS AVONS AJOUTÉ L'INDICATEUR VISUEL
-                        let deg = (directionRobot * 90) - 90; // Rotation par défaut pour aligner la direction
+                        // LA ROTATION EST CORRIGÉE ICI
+                        let deg = directionRobot * 90; 
                         div.innerHTML = `
                             <div style="transform: rotate(${deg}deg); display: flex; flex-direction: column; align-items: center; transition: 0.3s; width: 100%; height: 100%; position: relative; justify-content: center;">
                                 <div style="position: absolute; top: -5px; color: #e74c3c; font-size: 0.8rem; line-height: 1;">🔺</div>
@@ -290,7 +290,6 @@
             if (estEnExecution) return; document.getElementById('script-zone').innerHTML = ''; document.getElementById('feedback').textContent = ""; reinitialiserJeu();
         }
 
-        // LE COMPILATEUR (Correction ici)
         function compilerEtExecuter() {
             if (estEnExecution) return;
             
@@ -322,7 +321,6 @@
 
             if (pileHierarchie.length > 1) { document.getElementById('feedback').textContent = "Erreur : Tu as oublié de fermer un bloc !"; document.getElementById('feedback').style.color = "#c0392b"; return; }
 
-            // L'ORDRE EST CORRIGÉ ICI
             reinitialiserJeu(); 
             
             estEnExecution = true; 
