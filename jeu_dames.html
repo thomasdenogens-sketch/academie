@@ -23,9 +23,8 @@
         .case-claire { background: #f5deb3; } .case-sombre { background: #8b4513; }
         .case-possible { background: #2ecc71 !important; cursor: pointer; box-shadow: inset 0 0 15px rgba(0,0,0,0.5); }
         
-        .pion { width: 40px; height: 40px; border-radius: 50%; box-shadow: 0 4px 6px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.4); display: flex; justify-content: center; align-items: center; font-size: 1.2rem; font-weight: bold; color: white; transition: 0.2s; }
+        .pion { width: 40px; height: 40px; border-radius: 50%; box-shadow: 0 4px 6px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.4); display: flex; justify-content: center; align-items: center; font-size: 1.2rem; font-weight: bold; color: white; transition: 0.2s; z-index: 5; }
         
-        /* Couleurs dynamiques selon l'enfant */
         .pion-lola { background: radial-gradient(circle at 15px 15px, #ff4081, #c2185b); cursor: pointer; border: 2px solid #880e4f;}
         .pion-theo { background: radial-gradient(circle at 15px 15px, #4fc3f7, #0288d1); cursor: pointer; border: 2px solid #01579b;}
         .pion-ia { background: radial-gradient(circle at 15px 15px, #7f8c8d, #2c3e50); border: 2px solid #1a252f;}
@@ -44,7 +43,7 @@
         <div class="xp-badge" id="ui-xp">XP: ... ⭐</div>
         
         <h1 id="titre-jeu">Jeu de Dames 👑</h1>
-        <p class="sous-titre">Réfléchis bien pour capturer les pions de l'ordinateur !</p>
+        <p class="sous-titre">Règles Officielles : Prises obligatoires et Rafles !</p>
         
         <div class="hud-scores">
             <div id="box-joueur" class="score-box tour-actif"><span id="nom-joueur">Joueur</span> <br> Pions: <span id="pions-joueur">12</span></div>
@@ -59,8 +58,6 @@
 
     <script>
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
-        
-        // 1. LECTURE DU CONTEXTE (Est-ce Théo ou Lola ?)
         const enfant = localStorage.getItem('enfantEnCours') || 'Lola';
         const enfantCle = enfant === 'Théo' ? 'theo' : 'lola';
         const DB_URL = `${FIREBASE_URL}scores/${enfantCle}/jeux.json`;
@@ -70,12 +67,12 @@
         let tourActuel = 1; 
         let pionSelectionne = null; 
         let mouvementsPossibles = []; 
+        let rafleEnCours = false; // Indique si on est au milieu d'une capture multiple
 
         async function initPartage() {
             document.getElementById('nom-joueur').textContent = enfant === 'Lola' ? '👧 Lola' : '👦 Théo';
             document.getElementById('box-joueur').classList.add(enfant === 'Lola' ? 'score-lola' : 'score-theo');
             
-            // On adapte le fond d'écran selon l'enfant
             if(enfant === 'Théo') {
                 document.body.style.background = "linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)";
                 document.querySelector('h1').style.color = "#2980b9";
@@ -96,7 +93,8 @@
             plateau = Array(8).fill(0).map(() => Array(8).fill(0));
             for (let y = 0; y < 3; y++) { for (let x = 0; x < 8; x++) { if ((x + y) % 2 !== 0) plateau[y][x] = 2; } }
             for (let y = 5; y < 8; y++) { for (let x = 0; x < 8; x++) { if ((x + y) % 2 !== 0) plateau[y][x] = 1; } }
-            tourActuel = 1; pionSelectionne = null; mouvementsPossibles = []; dessinerPlateau();
+            tourActuel = 1; pionSelectionne = null; mouvementsPossibles = []; rafleEnCours = false;
+            dessinerPlateau();
         }
 
         function dessinerPlateau() {
@@ -119,8 +117,8 @@
                         if (valeur === 1 || valeur === 3) {
                             pionDiv.className = `pion ${enfant === 'Théo' ? 'pion-theo' : 'pion-lola'} ${valeur === 3 ? 'dame' : ''}`;
                             compteJoueur++;
-                            // C'est ici que le bug se manifestait : si tourActuel n'était pas encore remis à 1, le pion ne recevait pas le onclick.
-                            if (tourActuel === 1) pionDiv.onclick = (e) => { e.stopPropagation(); selectionnerPion(x, y); };
+                            // On désactive le clic sur les autres pions pendant une rafle
+                            if (tourActuel === 1 && !rafleEnCours) pionDiv.onclick = (e) => { e.stopPropagation(); selectionnerPion(x, y); };
                         } else {
                             pionDiv.className = `pion pion-ia ${valeur === 4 ? 'dame' : ''}`; compteIA++;
                         }
@@ -136,86 +134,173 @@
             else if (compteIA === 0) finDePartie(`Bravo ${enfant} ! Tu as gagné ! 🏆`, 50);
         }
 
+        function obtenirTousMouvements(joueur) {
+            let moves = [];
+            for (let y = 0; y < 8; y++) {
+                for (let x = 0; x < 8; x++) {
+                    let val = plateau[y][x];
+                    if (val !== 0 && ((joueur === 1 && (val === 1 || val === 3)) || (joueur === 2 && (val === 2 || val === 4)))) {
+                        moves = moves.concat(calculerMouvementsPossibles(x, y, val));
+                    }
+                }
+            }
+            return moves;
+        }
+
         function selectionnerPion(x, y) {
-            if (tourActuel !== 1) return;
+            if (tourActuel !== 1 || rafleEnCours) return;
+            
+            // PRISE OBLIGATOIRE : On vérifie si N'IMPORTE QUEL pion peut prendre
+            let tousMouv = obtenirTousMouvements(1);
+            let priseObligatoire = tousMouv.some(m => m.capture);
+            let mesMouv = calculerMouvementsPossibles(x, y, plateau[y][x]);
+            
+            if (priseObligatoire) {
+                mesMouv = mesMouv.filter(m => m.capture);
+                if (mesMouv.length === 0) {
+                    document.getElementById('feedback').textContent = "Prise obligatoire ! ⚠️";
+                    return; // Interdit de sélectionner un pion qui ne peut pas capturer
+                }
+            }
+
             pionSelectionne = {x: x, y: y};
-            mouvementsPossibles = calculerMouvementsPossibles(x, y, plateau[y][x]);
+            mouvementsPossibles = mesMouv;
             dessinerPlateau();
         }
 
+        // Moteur de mouvement incluant les règles de la Dame
         function calculerMouvementsPossibles(x, y, typePion) {
             let mouvements = [];
-            let directionsY = (typePion === 1) ? [-1] : (typePion === 2) ? [1] : [-1, 1];
-            let directionsX = [-1, 1];
+            let estDame = (typePion === 3 || typePion === 4);
+            let directionsCroisees = [[-1,-1], [-1,1], [1,-1], [1,1]];
 
-            directionsY.forEach(dy => {
-                directionsX.forEach(dx => {
-                    let nx = x + dx; let ny = y + dy;
-                    if (estDansPlateau(nx, ny) && plateau[ny][nx] === 0) mouvements.push({ fromX: x, fromY: y, toX: nx, toY: ny, capture: false });
-                    if (estDansPlateau(nx, ny) && estAdversaire(plateau[ny][nx], typePion)) {
-                        let sautX = nx + dx; let sautY = ny + dy;
-                        if (estDansPlateau(sautX, sautY) && plateau[sautY][sautX] === 0) mouvements.push({ fromX: x, fromY: y, toX: sautX, toY: sautY, capture: true, prisX: nx, prisY: ny });
+            if (!estDame) {
+                let dirYAvance = (typePion === 1) ? -1 : 1; 
+                
+                // Mouvements simples en avant
+                [-1, 1].forEach(dx => {
+                    let nx = x + dx; let ny = y + dirYAvance;
+                    if (estDansPlateau(nx, ny) && plateau[ny][nx] === 0) {
+                        mouvements.push({ fromX: x, fromY: y, toX: nx, toY: ny, capture: false });
                     }
                 });
-            });
 
-            let prises = mouvements.filter(m => m.capture);
-            if (prises.length > 0) return prises; return mouvements;
+                // Prises (Le pion peut prendre en arrière dans les règles françaises)
+                directionsCroisees.forEach(dir => {
+                    let nx = x + dir[0]; let ny = y + dir[1];
+                    let sautX = x + dir[0]*2; let sautY = y + dir[1]*2;
+                    if (estDansPlateau(sautX, sautY) && estAdversaire(plateau[ny][nx], typePion) && plateau[sautY][sautX] === 0) {
+                        mouvements.push({ fromX: x, fromY: y, toX: sautX, toY: sautY, capture: true, prisX: nx, prisY: ny });
+                    }
+                });
+            } else {
+                // Règle de la Dame : Se déplace d'autant de cases qu'elle le souhaite
+                directionsCroisees.forEach(dir => {
+                    let dist = 1;
+                    let ennemiVu = null;
+                    while (true) {
+                        let nx = x + dir[0] * dist; let ny = y + dir[1] * dist;
+                        if (!estDansPlateau(nx, ny)) break;
+                        
+                        let caseCible = plateau[ny][nx];
+                        if (caseCible === 0) {
+                            if (ennemiVu) {
+                                // Atterrir après une prise
+                                mouvements.push({ fromX: x, fromY: y, toX: nx, toY: ny, capture: true, prisX: ennemiVu.x, prisY: ennemiVu.y });
+                            } else {
+                                // Mouvement simple
+                                mouvements.push({ fromX: x, fromY: y, toX: nx, toY: ny, capture: false });
+                            }
+                        } else if (estAdversaire(caseCible, typePion)) {
+                            if (ennemiVu) break; // Bloqué par deux ennemis alignés
+                            ennemiVu = {x: nx, y: ny};
+                        } else {
+                            break; // Bloqué par son propre pion
+                        }
+                        dist++;
+                    }
+                });
+            }
+            return mouvements;
         }
 
         function estDansPlateau(x, y) { return x >= 0 && x < 8 && y >= 0 && y < 8; }
-        function estAdversaire(valeurCase, typePionJoueur) {
+        function estAdversaire(valeurCase, typePion) {
             if (valeurCase === 0) return false;
-            if (typePionJoueur === 1 || typePionJoueur === 3) return valeurCase === 2 || valeurCase === 4;
-            return valeurCase === 1 || valeurCase === 3;
+            let jeSuisBlanc = (typePion === 1 || typePion === 3);
+            let ilEstBlanc = (valeurCase === 1 || valeurCase === 3);
+            return jeSuisBlanc !== ilEstBlanc;
         }
 
         function executerMouvement(mouv) {
             let typePion = plateau[mouv.fromY][mouv.fromX];
-            plateau[mouv.toY][mouv.toX] = typePion; plateau[mouv.fromY][mouv.fromX] = 0;
+            plateau[mouv.toY][mouv.toX] = typePion; 
+            plateau[mouv.fromY][mouv.fromX] = 0;
+            
+            // La pièce est capturée et retirée du plateau
             if (mouv.capture) plateau[mouv.prisY][mouv.prisX] = 0;
 
+            // VÉRIFICATION DE LA RAFLE (Possibilité d'enchaîner une autre prise)
+            let suiteRafle = [];
+            if (mouv.capture) {
+                suiteRafle = calculerMouvementsPossibles(mouv.toX, mouv.toY, typePion).filter(m => m.capture);
+            }
+
+            if (suiteRafle.length > 0) {
+                rafleEnCours = true;
+                pionSelectionne = {x: mouv.toX, y: mouv.toY};
+                mouvementsPossibles = suiteRafle;
+                dessinerPlateau();
+                
+                if (tourActuel === 2) {
+                    setTimeout(jouerTourIA, 800); // L'IA enchaîne son saut
+                } else {
+                    document.getElementById('feedback').textContent = "Prise multiple ! Enchaîne le saut ! ⚔️";
+                }
+                return; // On interrompt la fonction ici : le tour ne change pas !
+            }
+
+            // --- FIN DU TOUR RÉEL ---
+            rafleEnCours = false;
+            pionSelectionne = null; 
+            mouvementsPossibles = []; 
+
+            // Promotion en Dame uniquement à la FIN d'un déplacement complet
             if (typePion === 1 && mouv.toY === 0) plateau[mouv.toY][mouv.toX] = 3; 
             if (typePion === 2 && mouv.toY === 7) plateau[mouv.toY][mouv.toX] = 4;
 
-            pionSelectionne = null; mouvementsPossibles = []; 
-
-            // LA CORRECTION : On met d'abord à jour le tour, puis on redessine !
             if (tourActuel === 1) {
-                tourActuel = 2; // On bloque les actions du joueur
+                tourActuel = 2; 
                 document.getElementById('box-joueur').classList.remove('tour-actif'); document.getElementById('box-ia').classList.add('tour-actif');
                 document.getElementById('feedback').textContent = "L'ordinateur réfléchit..."; 
-                dessinerPlateau(); // Le plateau se dessine avec le tour 2 (le joueur ne peut plus cliquer)
+                dessinerPlateau(); 
                 setTimeout(jouerTourIA, 1000); 
             } else {
-                tourActuel = 1; // On rend la main au joueur
+                tourActuel = 1; 
                 document.getElementById('box-ia').classList.remove('tour-actif'); document.getElementById('box-joueur').classList.add('tour-actif');
                 document.getElementById('feedback').textContent = "C'est à ton tour !";
-                dessinerPlateau(); // Le plateau se dessine avec le tour 1 (le joueur PEUT cliquer)
+                dessinerPlateau(); 
             }
         }
 
         function jouerTourIA() {
-            let tousMouvements = [];
-            for (let y = 0; y < 8; y++) {
-                for (let x = 0; x < 8; x++) {
-                    let val = plateau[y][x];
-                    if (val === 2 || val === 4) tousMouvements = tousMouvements.concat(calculerMouvementsPossibles(x, y, val));
-                }
-            }
-
-            if (tousMouvements.length === 0) return finDePartie(`L'ordinateur est bloqué. Tu as gagné !`, 50);
-
-            let mouvementsPrise = tousMouvements.filter(m => m.capture);
             let choix;
-
-            // 2. DIFFICULTÉ DYNAMIQUE
-            if (enfant === 'Lola') {
-                if (mouvementsPrise.length > 0 && Math.random() > 0.3) choix = mouvementsPrise[Math.floor(Math.random() * mouvementsPrise.length)];
-                else choix = tousMouvements[Math.floor(Math.random() * tousMouvements.length)];
+            
+            // Si l'IA est au milieu d'une rafle, elle doit continuer avec la même pièce
+            if (rafleEnCours) {
+                choix = mouvementsPossibles[Math.floor(Math.random() * mouvementsPossibles.length)];
             } else {
-                if (mouvementsPrise.length > 0) choix = mouvementsPrise[Math.floor(Math.random() * mouvementsPrise.length)];
-                else choix = tousMouvements[Math.floor(Math.random() * tousMouvements.length)];
+                let tousMouvements = obtenirTousMouvements(2);
+                if (tousMouvements.length === 0) return finDePartie(`L'ordinateur est bloqué. Tu as gagné !`, 50);
+
+                let mouvementsPrise = tousMouvements.filter(m => m.capture);
+
+                if (mouvementsPrise.length > 0) {
+                    // L'IA est soumise à la prise obligatoire elle aussi !
+                    choix = mouvementsPrise[Math.floor(Math.random() * mouvementsPrise.length)];
+                } else {
+                    choix = tousMouvements[Math.floor(Math.random() * tousMouvements.length)];
+                }
             }
 
             executerMouvement(choix);
