@@ -31,20 +31,21 @@
         .btn-valider { background: #27ae60; color: white; box-shadow: 0 4px 0 #219a52; font-size: 1.2rem; padding: 12px 25px;}
         .btn-valider:hover { background: #2ecc71; }
         
-        /* Bouton spécifique pour toi, le développeur */
+        /* Boutons spécifiques pour toi, le développeur */
         .btn-dev { background: #e74c3c; color: white; display: none; border: 2px dashed white;}
+        .btn-quit-dev { background: #34495e; color: white; display: none; border: 2px solid #e74c3c;}
 
         .consigne { font-weight: bold; color: #fcd34d; margin-bottom: 15px; background: rgba(255,255,255,0.1); padding: 12px 25px; border-radius: 12px; text-align: center;}
         
         #hud-niveau { font-size: 1.6rem; font-weight: 900; color: #2dd4bf; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px;}
 
         .plateau-container {
-            width: 100%; max-width: 900px; background: #f1f5f9; border-radius: 20px; 
+            width: 100%; max-width: 900px; height: 60vh; background: #f1f5f9; border-radius: 20px; 
             border: 6px solid #cbd5e1; box-shadow: inset 0 0 30px rgba(0,0,0,0.1), 0 15px 35px rgba(0,0,0,0.3);
             margin-bottom: 20px; overflow: hidden; position: relative;
         }
 
-        #jeu-tangram { width: 100%; height: auto; display: block; }
+        #jeu-tangram { width: 100%; height: 100%; display: block; }
 
         .piece-mobile { cursor: grab; transition: filter 0.2s; filter: drop-shadow(3px 6px 8px rgba(0,0,0,0.4)); }
         .piece-mobile:active { cursor: grabbing; filter: drop-shadow(6px 12px 16px rgba(0,0,0,0.5)); }
@@ -81,14 +82,16 @@
         <button class="btn btn-action" onclick="retournerPiece()">🪞 Miroir</button>
         <div style="width: 20px;"></div>
         <button class="btn btn-outil" onclick="reinitialiserPieces()">🔄 Ranger</button>
-        <button class="btn btn-aide" onclick="afficherIndice()">💡 Indice !</button>
+        <button class="btn btn-aide" id="btn-indice" onclick="afficherIndice()">💡 Indice !</button>
         
-        <!-- Le bouton magique du Créateur (Visible uniquement en mode Dev) -->
-        <button class="btn btn-dev" id="btn-export" onclick="exporterNiveauDev()">🛠️ Créer un Niveau</button>
+        <!-- Les boutons du Créateur (Visibles uniquement en mode Dev) -->
+        <button class="btn btn-dev" id="btn-export" onclick="exporterNiveauDev()">🛠️ Générer le Code</button>
+        <button class="btn btn-quit-dev" id="btn-quit-dev" onclick="quitterModeDev()">❌ Quitter le mode Création</button>
     </div>
 
+    <!-- PLATEAU AGRANDI : viewBox passe à 1000x850 pour donner de la place en bas -->
     <div class="plateau-container">
-        <svg id="jeu-tangram" viewBox="0 0 1000 700">
+        <svg id="jeu-tangram" viewBox="0 0 1000 850" preserveAspectRatio="xMidYMid meet">
             <g id="couche-ombre"></g>
             <g id="couche-indices"></g>
             <g id="couche-pieces"></g>
@@ -118,9 +121,7 @@
             { id: "para",   color: "#14b8a6", path: "M -150 50 L 50 50 L 150 -50 L -50 -50 Z", cx: 0, cy: 0 }
         ];
 
-        // --- 2. LA BASE DE DONNÉES DES NIVEAUX ---
-        // C'est ici que tu vas coller les niveaux générés par l'outil !
-        // Difficulté croissante : On commence par des figures géométriques, puis des objets/animaux.
+        // --- 2. LA BASE DE DONNÉES DES 20 NIVEAUX ---
         const niveauxTangram = [
             // NIVEAUX FACILES (Initiation géométrique)
             {
@@ -136,15 +137,15 @@
                 ]
             },
             {
-                nom: "La Maison",
+                nom: "La Montagne",
                 solution: [
-                    { id: "gros1", x: 500, y: 300, rot: 0, flip: 1 },
-                    { id: "gros2", x: 300, y: 400, rot: 0, flip: 1 },
-                    { id: "moyen", x: 700, y: 400, rot: 0, flip: 1 },
-                    { id: "carre", x: 500, y: 400, rot: 0, flip: 1 },
-                    { id: "petit1", x: 600, y: 100, rot: 0, flip: 1 },
-                    { id: "petit2", x: 400, y: 100, rot: 0, flip: 1 },
-                    { id: "para", x: 550, y: 550, rot: 0, flip: 1 }
+                    { id: "gros1", x: 400, y: 400, rot: -45, flip: 1 },
+                    { id: "gros2", x: 600, y: 400, rot: -135, flip: 1 },
+                    { id: "moyen", x: 500, y: 250, rot: 45, flip: 1 },
+                    { id: "carre", x: 500, y: 475, rot: 45, flip: 1 },
+                    { id: "petit1", x: 300, y: 450, rot: -45, flip: 1 },
+                    { id: "petit2", x: 700, y: 450, rot: -135, flip: 1 },
+                    { id: "para", x: 500, y: 550, rot: 0, flip: 1 }
                 ]
             },
             {
@@ -160,15 +161,15 @@
                 ]
             },
             {
-                nom: "La Montagne",
+                nom: "La Maison",
                 solution: [
-                    { id: "gros1", x: 400, y: 400, rot: -45, flip: 1 },
-                    { id: "gros2", x: 600, y: 400, rot: -135, flip: 1 },
-                    { id: "moyen", x: 500, y: 250, rot: 45, flip: 1 },
-                    { id: "carre", x: 500, y: 475, rot: 45, flip: 1 },
-                    { id: "petit1", x: 300, y: 450, rot: -45, flip: 1 },
-                    { id: "petit2", x: 700, y: 450, rot: -135, flip: 1 },
-                    { id: "para", x: 500, y: 550, rot: 0, flip: 1 }
+                    { id: "gros1", x: 500, y: 300, rot: 0, flip: 1 },
+                    { id: "gros2", x: 300, y: 400, rot: 0, flip: 1 },
+                    { id: "moyen", x: 700, y: 400, rot: 0, flip: 1 },
+                    { id: "carre", x: 500, y: 400, rot: 0, flip: 1 },
+                    { id: "petit1", x: 600, y: 100, rot: 0, flip: 1 },
+                    { id: "petit2", x: 400, y: 100, rot: 0, flip: 1 },
+                    { id: "para", x: 550, y: 550, rot: 0, flip: 1 }
                 ]
             },
             {
@@ -367,7 +368,6 @@
                     { id: "petit2", x: 500, y: 650, rot: 180, flip: 1 }
                 ]
             }
-            // AJOUTE TES NOUVEAUX NIVEAUX JUSTE ICI EN DESSOUS !
         ];
 
         let niveauActuelIdx = 0;
@@ -381,13 +381,15 @@
             indicesAffiches = 0;
             lastSelectedPiece = null;
             
-            // Si on est en mode Dev, on ne dessine pas l'ombre pour laisser l'écran clair
+            // Si on est en mode Dev, on cache l'ombre pour créer librement
             if (localStorage.getItem('modeDev') === 'actif') {
                 document.getElementById("couche-ombre").innerHTML = "";
                 document.getElementById("couche-indices").innerHTML = "";
+                document.getElementById("btn-indice").style.display = "none";
             } else {
                 dessinerOmbreMagique();
                 dessinerIndices();
+                document.getElementById("btn-indice").style.display = "flex";
             }
             genererPiecesMobiles();
         }
@@ -429,9 +431,10 @@
             const couche = document.getElementById("couche-pieces");
             couche.innerHTML = "";
             
+            // NOUVELLES COORDONNÉES D'APPARITION : Y=650 pour éviter qu'elles soient coupées
             const posInit = [
-                {x: 100, y: 600}, {x: 230, y: 600}, {x: 360, y: 600},
-                {x: 490, y: 600}, {x: 620, y: 600}, {x: 750, y: 600}, {x: 880, y: 600}
+                {x: 100, y: 700}, {x: 230, y: 700}, {x: 360, y: 700},
+                {x: 490, y: 700}, {x: 620, y: 700}, {x: 750, y: 700}, {x: 880, y: 700}
             ];
 
             let positionsMelangees = [...posInit].sort(() => Math.random() - 0.5);
@@ -513,7 +516,6 @@
         function endDrag(e) {
             if (!dragEl) return;
             
-            // Magnétisme activé uniquement en mode Jeu (Désactivé en mode Dev pour pouvoir créer librement)
             if (localStorage.getItem('modeDev') !== 'actif') {
                 verifierMagnetisme(dragEl);
             }
@@ -604,19 +606,25 @@
 
         function reinitialiserPieces() { chargerNiveau(); }
 
-        // --- 7. L'OUTIL DE DÉVELOPPEMENT (GÉNÉRATEUR DE NIVEAUX) ---
+        // --- 7. L'OUTIL DE DÉVELOPPEMENT ET GESTION DE MODE DEV ---
         function verifierModeDev() {
             if (localStorage.getItem('modeDev') === 'actif') {
                 document.getElementById('btn-export').style.display = 'block';
+                document.getElementById('btn-quit-dev').style.display = 'block';
                 document.getElementById('hud-niveau').textContent = "🛠️ MODE CRÉATION DE NIVEAU 🛠️";
                 document.querySelector('.consigne').innerHTML = "Construis ta figure librement. Clique sur 'Créer un Niveau' pour récupérer le code !";
             }
         }
 
+        // Fonction pour quitter le mode Dev manuellement
+        function quitterModeDev() {
+            localStorage.removeItem('modeDev');
+            window.location.reload();
+        }
+
         function exporterNiveauDev() {
             let code = `{\n  nom: "Nouveau Défi",\n  solution: [\n`;
             document.querySelectorAll('.piece-mobile').forEach(p => {
-                // Arrondi pour avoir des coordonnées propres (multiples de 50 ou 25)
                 let cleanX = Math.round(parseFloat(p.dataset.x) / 25) * 25;
                 let cleanY = Math.round(parseFloat(p.dataset.y) / 25) * 25;
                 code += `    { id: "${p.dataset.id}", x: ${cleanX}, y: ${cleanY}, rot: ${p.dataset.rot}, flip: ${p.dataset.flip} },\n`;
