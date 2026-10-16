@@ -12,38 +12,33 @@
             user-select: none; touch-action: none; overflow: hidden;
         }
         
-        h1 { color: #38bdf8; font-weight: 900; margin-bottom: 5px; font-size: 2.5rem;}
-        .sous-titre { color: #94a3b8; margin-bottom: 20px; font-size: 1.1rem; }
-
-        .toolbar { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px; justify-content: center; align-items: center;}
-        .btn { padding: 12px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 1.1rem; border: none; font-family: 'Nunito', sans-serif; display: flex; align-items: center; gap: 8px;}
-        .btn:active { transform: scale(0.95); }
+        /* En-tête et Navigation */
+        .top-nav { width: 100%; max-width: 900px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .btn-quit { background: #e74c3c; color: white; padding: 10px 20px; border-radius: 12px; font-weight: bold; text-decoration: none; box-shadow: 0 4px 0 #c0392b; transition: 0.1s; display: inline-flex; align-items: center; gap: 8px;}
+        .btn-quit:active { transform: translateY(4px); box-shadow: none; }
         
-        .btn-outil { background: #334155; color: white; border: 2px solid #475569;}
-        .btn-outil:hover { background: #475569; }
+        h1 { color: #38bdf8; font-weight: 900; margin: 0; font-size: 2.2rem;}
+        
+        #hud-niveau { font-size: 1.4rem; font-weight: 900; color: #2dd4bf; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 2px;}
+
+        /* Barre d'outils */
+        .toolbar { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 15px; justify-content: center; align-items: center;}
+        .btn { padding: 10px 18px; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.1s; font-size: 1rem; border: none; font-family: 'Nunito', sans-serif;}
+        .btn:active { transform: translateY(4px); box-shadow: none !important; }
         
         .btn-action { background: #8b5cf6; color: white; box-shadow: 0 4px 0 #7c3aed;}
-        .btn-action:hover { background: #a78bfa; }
-
+        .btn-outil { background: #334155; color: white; box-shadow: 0 4px 0 #1e293b;}
         .btn-aide { background: #f59e0b; color: white; box-shadow: 0 4px 0 #d97706;}
-        .btn-aide:hover { background: #fbbf24; }
+        .btn-menu { background: #2ecc71; color: white; box-shadow: 0 4px 0 #27ae60; font-size: 1.2rem;}
 
-        .btn-valider { background: #27ae60; color: white; box-shadow: 0 4px 0 #219a52; font-size: 1.2rem; padding: 12px 25px;}
-        .btn-valider:hover { background: #2ecc71; }
+        .consigne { font-weight: bold; color: #fcd34d; margin-bottom: 10px; background: rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 12px; text-align: center; font-size: 0.95rem;}
         
-        .btn-dev { background: #e74c3c; color: white; display: none; border: 2px dashed white;}
-        .btn-quit-dev { background: #34495e; color: white; display: none; border: 2px solid #e74c3c;}
-
-        .consigne { font-weight: bold; color: #fcd34d; margin-bottom: 15px; background: rgba(255,255,255,0.1); padding: 12px 25px; border-radius: 12px; text-align: center;}
-        
-        #hud-niveau { font-size: 1.6rem; font-weight: 900; color: #2dd4bf; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px;}
-
+        /* Le plateau de jeu SVG */
         .plateau-container {
-            width: 100%; max-width: 900px; height: 60vh; background: #f1f5f9; border-radius: 20px; 
+            width: 100%; max-width: 900px; height: 55vh; background: #f1f5f9; border-radius: 20px; 
             border: 6px solid #cbd5e1; box-shadow: inset 0 0 30px rgba(0,0,0,0.1), 0 15px 35px rgba(0,0,0,0.3);
             margin-bottom: 20px; overflow: hidden; position: relative;
         }
-
         #jeu-tangram { width: 100%; height: 100%; display: block; }
 
         .piece-mobile { cursor: grab; transition: filter 0.2s; filter: drop-shadow(3px 6px 8px rgba(0,0,0,0.4)); }
@@ -53,37 +48,38 @@
         .indice-piece { opacity: 0; transition: opacity 0.5s ease; }
         .indice-piece.visible { opacity: 1; }
 
-        .btn-nav { background: #64748b; color: white; margin-top: 10px;}
+        /* Le Menu des Niveaux (Modale) */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: #f8fafc; padding: 30px; border-radius: 20px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; text-align: center; }
+        .modal h2 { color: #0f172a; font-size: 2rem; margin-bottom: 20px; font-weight: 900;}
+        .grille-niveaux { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+        .btn-niveau { background: #38bdf8; color: white; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; border: none; box-shadow: 0 4px 0 #0284c7; transition: 0.1s;}
+        .btn-niveau:active { transform: translateY(4px); box-shadow: none; }
         
-        #code-export-zone {
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: #1e293b; padding: 20px; border-radius: 15px; border: 2px solid #38bdf8; z-index: 2000;
-            width: 80%; max-width: 600px; text-align: center;
-        }
-        #code-export-text { width: 100%; height: 200px; font-family: monospace; font-size: 0.9rem; margin-top: 10px; }
+        .btn-dev { background: #e74c3c; color: white; display: none; margin-top:10px; width:100%;}
     </style>
 </head>
 <body>
 
-    <h1>Le Tangram Magique 🔺</h1>
-    <p class="sous-titre">L'art des ombres chinoises parfaites</p>
+    <div class="top-nav">
+        <h1>Le Tangram 🔺</h1>
+        <a href="index.html" class="btn-quit">🏠 Quitter</a>
+    </div>
 
     <div id="hud-niveau">Niveau 1 : Le Grand Carré</div>
 
     <div class="consigne">
-        👉 <strong>Touche</strong> une pièce pour la sélectionner (elle s'illumine en jaune). <br>
-        👉 Utilise les boutons pour la <strong>tourner</strong> ou la <strong>retourner</strong>, puis glisse-la sur l'ombre !
+        👉 <strong>Touche</strong> une pièce pour la sélectionner (en jaune). <br>
+        👉 <strong>Tourne-la</strong> ou <strong>Retourne-la</strong>, puis glisse-la sur l'ombre !
     </div>
 
     <div class="toolbar">
+        <button class="btn btn-menu" onclick="ouvrirMenuNiveaux()">📋 Les Défis</button>
+        <div style="width: 10px;"></div>
         <button class="btn btn-action" onclick="tournerPiece()">↻ Tourner</button>
         <button class="btn btn-action" onclick="retournerPiece()">🪞 Miroir</button>
-        <div style="width: 20px;"></div>
         <button class="btn btn-outil" onclick="reinitialiserPieces()">🔄 Ranger</button>
-        <button class="btn btn-aide" id="btn-indice" onclick="afficherIndice()">💡 Indice !</button>
-        
-        <button class="btn btn-dev" id="btn-export" onclick="exporterNiveauDev()">🛠️ Générer le Code</button>
-        <button class="btn btn-quit-dev" id="btn-quit-dev" onclick="quitterModeDev()">❌ Quitter le mode Création</button>
+        <button class="btn btn-aide" id="btn-indice" onclick="afficherIndice()">💡 Indice</button>
     </div>
 
     <div class="plateau-container">
@@ -94,17 +90,28 @@
         </svg>
     </div>
 
-    <button class="btn btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+    <button class="btn btn-dev" id="btn-export" onclick="exporterNiveauDev()">🛠️ Générer le Code du Niveau Créé</button>
 
-    <div id="code-export-zone">
-        <h3 style="color:#38bdf8;">Code de ton nouveau niveau :</h3>
-        <p style="font-size:0.9rem;">Copie ce code et ajoute-le dans la liste "niveauxTangram" de ton fichier !</p>
-        <textarea id="code-export-text"></textarea>
-        <button class="btn btn-valider" style="margin-top:10px;" onclick="document.getElementById('code-export-zone').style.display='none'">Fermer</button>
+    <!-- Menu de sélection des niveaux -->
+    <div id="overlay-niveaux" class="overlay">
+        <div class="modal">
+            <h2>Choisis un Défi 🧩</h2>
+            <div class="grille-niveaux" id="liste-niveaux"></div>
+            <button class="btn btn-outil" style="margin-top: 25px; width: 100%;" onclick="fermerMenuNiveaux()">Retour au jeu</button>
+        </div>
+    </div>
+
+    <!-- Zone pour copier le code (Mode Dev) -->
+    <div id="code-export-zone" class="overlay">
+        <div class="modal">
+            <h3 style="color:#0284c7;">Code généré :</h3>
+            <textarea id="code-export-text" style="width: 100%; height: 200px; font-family: monospace;"></textarea>
+            <button class="btn btn-menu" style="margin-top:10px; width: 100%;" onclick="document.getElementById('code-export-zone').style.display='none'">Fermer</button>
+        </div>
     </div>
 
     <script>
-        // --- 1. DÉFINITION GÉOMÉTRIQUE PURE DU TANGRAM ---
+        // --- 1. DÉFINITION GÉOMÉTRIQUE PURE ---
         const defPiecesTangram = [
             { id: "gros1",  color: "#ef4444", path: "M -200 -100 L 200 -100 L 0 100 Z", cx: 0, cy: 0 },
             { id: "gros2",  color: "#3b82f6", path: "M -100 -200 L -100 200 L 100 0 Z", cx: 0, cy: 0 },
@@ -115,30 +122,18 @@
             { id: "para",   color: "#14b8a6", path: "M -150 50 L 50 50 L 150 -50 L -50 -50 Z", cx: 0, cy: 0 }
         ];
 
-        // --- 2. LA BASE DE DONNÉES DES 20 NIVEAUX ---
+        // --- 2. BASE DE DONNÉES CORRIGÉE ---
         const niveauxTangram = [
             {
-                nom: "Tuto : Le Grand Carré",
+                nom: "Le Grand Carré",
                 solution: [
-                    { id: "gros1", x: 500, y: 200, rot: 0, flip: 1 },
-                    { id: "gros2", x: 400, y: 300, rot: 0, flip: 1 },
-                    { id: "moyen", x: 600, y: 400, rot: 0, flip: 1 },
-                    { id: "carre", x: 600, y: 300, rot: 0, flip: 1 },
-                    { id: "petit1", x: 550, y: 400, rot: 0, flip: 1 },
+                    { id: "gros1",  x: 500, y: 200, rot: 0, flip: 1 },
+                    { id: "gros2",  x: 400, y: 300, rot: 0, flip: 1 },
+                    { id: "moyen",  x: 600, y: 400, rot: 0, flip: 1 },
+                    { id: "carre",  x: 600, y: 300, rot: 0, flip: 1 },
+                    { id: "petit1", x: 500, y: 350, rot: 270, flip: 1 }, // LA CORRECTION DU TROU BLANC EST ICI
                     { id: "petit2", x: 650, y: 200, rot: 0, flip: 1 },
-                    { id: "para", x: 450, y: 450, rot: 0, flip: 1 }
-                ]
-            },
-            {
-                nom: "La Montagne",
-                solution: [
-                    { id: "gros1", x: 400, y: 400, rot: -45, flip: 1 },
-                    { id: "gros2", x: 600, y: 400, rot: -135, flip: 1 },
-                    { id: "moyen", x: 500, y: 250, rot: 45, flip: 1 },
-                    { id: "carre", x: 500, y: 475, rot: 45, flip: 1 },
-                    { id: "petit1", x: 300, y: 450, rot: -45, flip: 1 },
-                    { id: "petit2", x: 700, y: 450, rot: -135, flip: 1 },
-                    { id: "para", x: 500, y: 550, rot: 0, flip: 1 }
+                    { id: "para",   x: 450, y: 450, rot: 0, flip: 1 }
                 ]
             },
             {
@@ -166,27 +161,15 @@
                 ]
             },
             {
-                nom: "Le Pont",
+                nom: "La Montagne",
                 solution: [
-                    { id: "gros1", x: 300, y: 400, rot: 0, flip: 1 },
-                    { id: "gros2", x: 700, y: 400, rot: 0, flip: 1 },
-                    { id: "carre", x: 500, y: 300, rot: 0, flip: 1 },
-                    { id: "moyen", x: 500, y: 200, rot: 180, flip: 1 },
-                    { id: "para", x: 500, y: 150, rot: 0, flip: 1 },
-                    { id: "petit1", x: 400, y: 300, rot: 90, flip: 1 },
-                    { id: "petit2", x: 600, y: 300, rot: -90, flip: 1 }
-                ]
-            },
-            {
-                nom: "Le Petit Chat",
-                solution: [
-                    { id: "gros1", x: 500, y: 400, rot: 135, flip: 1 },
-                    { id: "gros2", x: 500, y: 400, rot: 45, flip: 1 },
-                    { id: "moyen", x: 700, y: 500, rot: 45, flip: 1 },
-                    { id: "carre", x: 300, y: 250, rot: 45, flip: 1 },
-                    { id: "petit1", x: 250, y: 150, rot: 135, flip: 1 },
-                    { id: "petit2", x: 350, y: 150, rot: -45, flip: 1 },
-                    { id: "para", x: 650, y: 650, rot: 45, flip: 1 }
+                    { id: "gros1", x: 400, y: 400, rot: -45, flip: 1 },
+                    { id: "gros2", x: 600, y: 400, rot: -135, flip: 1 },
+                    { id: "moyen", x: 500, y: 250, rot: 45, flip: 1 },
+                    { id: "carre", x: 500, y: 475, rot: 45, flip: 1 },
+                    { id: "petit1", x: 300, y: 450, rot: -45, flip: 1 },
+                    { id: "petit2", x: 700, y: 450, rot: -135, flip: 1 },
+                    { id: "para", x: 500, y: 550, rot: 0, flip: 1 }
                 ]
             },
             {
@@ -202,39 +185,15 @@
                 ]
             },
             {
-                nom: "La Chaise",
+                nom: "Le Petit Chat",
                 solution: [
-                    { id: "gros1", x: 450, y: 450, rot: 90, flip: 1 },
-                    { id: "gros2", x: 350, y: 250, rot: 90, flip: 1 },
-                    { id: "carre", x: 550, y: 350, rot: 0, flip: 1 },
-                    { id: "moyen", x: 550, y: 250, rot: 180, flip: 1 },
-                    { id: "para", x: 350, y: 450, rot: 90, flip: 1 },
-                    { id: "petit1", x: 650, y: 450, rot: -90, flip: 1 },
-                    { id: "petit2", x: 550, y: 150, rot: 0, flip: 1 }
-                ]
-            },
-            {
-                nom: "La Fusée",
-                solution: [
-                    { id: "gros1", x: 500, y: 350, rot: 0, flip: 1 },
-                    { id: "gros2", x: 500, y: 250, rot: 180, flip: 1 },
-                    { id: "moyen", x: 500, y: 150, rot: 0, flip: 1 },
-                    { id: "carre", x: 500, y: 450, rot: 0, flip: 1 },
-                    { id: "para", x: 500, y: 550, rot: 0, flip: 1 },
-                    { id: "petit1", x: 400, y: 450, rot: -90, flip: 1 },
-                    { id: "petit2", x: 600, y: 450, rot: 90, flip: 1 }
-                ]
-            },
-            {
-                nom: "Le Sablier",
-                solution: [
-                    { id: "gros1", x: 500, y: 200, rot: 180, flip: 1 },
-                    { id: "gros2", x: 500, y: 400, rot: 0, flip: 1 },
-                    { id: "moyen", x: 500, y: 300, rot: 90, flip: 1 },
-                    { id: "carre", x: 400, y: 200, rot: 0, flip: 1 },
-                    { id: "para", x: 600, y: 400, rot: 0, flip: 1 },
-                    { id: "petit1", x: 600, y: 200, rot: 0, flip: 1 },
-                    { id: "petit2", x: 400, y: 400, rot: 180, flip: 1 }
+                    { id: "gros1", x: 500, y: 400, rot: 135, flip: 1 },
+                    { id: "gros2", x: 500, y: 400, rot: 45, flip: 1 },
+                    { id: "moyen", x: 700, y: 500, rot: 45, flip: 1 },
+                    { id: "carre", x: 300, y: 250, rot: 45, flip: 1 },
+                    { id: "petit1", x: 250, y: 150, rot: 135, flip: 1 },
+                    { id: "petit2", x: 350, y: 150, rot: -45, flip: 1 },
+                    { id: "para", x: 650, y: 650, rot: 45, flip: 1 }
                 ]
             }
         ];
@@ -243,10 +202,25 @@
         let niveauActuel = niveauxTangram[0];
         let indicesAffiches = 0;
 
-        // --- 3. GÉNÉRATION GRAPHIQUE ---
+        // --- 3. MENUS ET GÉNÉRATION GRAPHIQUE ---
+        function ouvrirMenuNiveaux() {
+            const liste = document.getElementById('liste-niveaux');
+            liste.innerHTML = "";
+            niveauxTangram.forEach((niv, index) => {
+                let btn = document.createElement('button');
+                btn.className = "btn-niveau";
+                btn.textContent = `${index + 1}. ${niv.nom}`;
+                btn.onclick = () => { niveauActuelIdx = index; fermerMenuNiveaux(); chargerNiveau(); };
+                liste.appendChild(btn);
+            });
+            document.getElementById('overlay-niveaux').style.display = 'flex';
+        }
+
+        function fermerMenuNiveaux() { document.getElementById('overlay-niveaux').style.display = 'none'; }
+
         function chargerNiveau() {
             niveauActuel = niveauxTangram[niveauActuelIdx];
-            document.getElementById('hud-niveau').textContent = `Niveau ${niveauActuelIdx + 1} : ${niveauActuel.nom}`;
+            document.getElementById('hud-niveau').textContent = `Défi ${niveauActuelIdx + 1} : ${niveauActuel.nom}`;
             indicesAffiches = 0;
             lastSelectedPiece = null;
             
@@ -257,12 +231,11 @@
             } else {
                 dessinerOmbreMagique();
                 dessinerIndices();
-                document.getElementById("btn-indice").style.display = "flex";
+                document.getElementById("btn-indice").style.display = "inline-flex";
             }
             genererPiecesMobiles();
         }
 
-        // Amélioration de l'ombre pour la rendre bien solide
         function dessinerOmbreMagique() {
             const couche = document.getElementById("couche-ombre");
             couche.innerHTML = "";
@@ -270,9 +243,9 @@
                 const def = defPiecesTangram.find(p => p.id === sol.id);
                 const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
                 path.setAttribute("d", def.path);
-                path.setAttribute("fill", "#334155"); // Gris foncé opaque
-                path.setAttribute("stroke", "#334155"); 
-                path.setAttribute("stroke-width", "6"); // Fait disparaître tous les micro-trous
+                path.setAttribute("fill", "#334155");
+                path.setAttribute("stroke", "#334155");
+                path.setAttribute("stroke-width", "8"); // Soude l'ombre pour la rendre solide
                 path.setAttribute("stroke-linejoin", "round");
                 path.setAttribute("transform", `translate(${sol.x}, ${sol.y}) rotate(${sol.rot}, ${def.cx}, ${def.cy}) scale(${sol.flip}, 1)`);
                 couche.appendChild(path);
@@ -300,12 +273,10 @@
             const couche = document.getElementById("couche-pieces");
             couche.innerHTML = "";
             
-            // Les pièces apparaissent tout en bas pour ne pas masquer l'ombre
             const posInit = [
                 {x: 100, y: 720}, {x: 230, y: 720}, {x: 360, y: 720},
                 {x: 490, y: 720}, {x: 620, y: 720}, {x: 750, y: 720}, {x: 880, y: 720}
             ];
-
             let positionsMelangees = [...posInit].sort(() => Math.random() - 0.5);
 
             defPiecesTangram.forEach((def, index) => {
@@ -317,7 +288,7 @@
                 g.dataset.rot = 0;
                 g.dataset.flip = 1;
                 g.dataset.snapped = "false";
-                g.dataset.snappedTo = ""; // Ajout pour le nouveau système d'aimant
+                g.dataset.snappedTo = "";
                 
                 g.setAttribute("transform", `translate(${g.dataset.x}, ${g.dataset.y}) rotate(0, ${def.cx}, ${def.cy}) scale(1, 1)`);
 
@@ -359,7 +330,6 @@
             if(e.type === "touchstart") e.preventDefault();
             dragEl = e.currentTarget;
             selectPiece(dragEl);
-            
             dragEl.dataset.snapped = "false";
             dragEl.dataset.snappedTo = "";
 
@@ -387,10 +357,7 @@
 
         function endDrag(e) {
             if (!dragEl) return;
-            
-            if (localStorage.getItem('modeDev') !== 'actif') {
-                verifierMagnetisme(dragEl);
-            }
+            if (localStorage.getItem('modeDev') !== 'actif') verifierMagnetisme(dragEl);
             
             dragEl = null;
             document.removeEventListener("mousemove", drag);
@@ -404,9 +371,9 @@
             el.setAttribute("transform", `translate(${el.dataset.x}, ${el.dataset.y}) rotate(${el.dataset.rot}, ${def.cx}, ${def.cy}) scale(${el.dataset.flip}, 1)`);
         }
 
-        // LA CORRECTION MAJEURE : On autorise les pièces de même taille à s'interchanger !
+        // --- 5. LOGIQUE D'INTERCHANGEABILITÉ ---
         function verifierMagnetisme(el) {
-            // Groupes de pièces identiques
+            // L'ordinateur sait maintenant que gros1 et gros2, ou petit1 et petit2 sont les mêmes formes !
             let typesEquivalents = [el.dataset.id];
             if (el.dataset.id === "gros1" || el.dataset.id === "gros2") typesEquivalents = ["gros1", "gros2"];
             if (el.dataset.id === "petit1" || el.dataset.id === "petit2") typesEquivalents = ["petit1", "petit2"];
@@ -422,20 +389,24 @@
                 let r2 = (sol.rot % 360 + 360) % 360;
                 let f1 = parseInt(el.dataset.flip);
                 
-                let rotMatch = false;
-                if (el.dataset.id === 'carre') { rotMatch = (r1 % 90 === r2 % 90); } 
-                else if (el.dataset.id === 'para') { rotMatch = (f1 === sol.flip && r1 % 180 === r2 % 180); } 
-                else { rotMatch = (r1 === r2); } 
+                // Calcul intelligent de la rotation si l'enfant a interverti des pièces
+                let r_expected = r2;
+                if (el.dataset.id === "gros2" && tid === "gros1") r_expected = (r2 + 90) % 360;
+                if (el.dataset.id === "gros1" && tid === "gros2") r_expected = (r2 + 270) % 360;
+                if (el.dataset.id === "petit2" && tid === "petit1") r_expected = (r2 + 180) % 360;
+                if (el.dataset.id === "petit1" && tid === "petit2") r_expected = (r2 + 180) % 360;
 
-                // Aspiration élargie à 60 pixels pour plus de confort
+                let rotMatch = false;
+                if (el.dataset.id === 'carre') { rotMatch = (r1 % 90 === r_expected % 90); } 
+                else if (el.dataset.id === 'para') { rotMatch = (f1 === sol.flip && r1 % 180 === r_expected % 180); } 
+                else { rotMatch = (r1 === r_expected); } 
+
                 if (dist < 60 && rotMatch) {
-                    // On s'assure qu'une autre pièce n'est pas déjà accrochée à cette place
                     let slotPris = Array.from(document.querySelectorAll('.piece-mobile')).some(p => p !== el && p.dataset.snappedTo === tid);
                     
                     if (!slotPris) {
-                        el.dataset.x = sol.x; el.dataset.y = sol.y; el.dataset.rot = sol.rot; el.dataset.flip = sol.flip;
-                        el.dataset.snapped = "true";
-                        el.dataset.snappedTo = tid; // On verrouille l'emplacement
+                        el.dataset.x = sol.x; el.dataset.y = sol.y; el.dataset.rot = r1; 
+                        el.dataset.flip = f1; el.dataset.snapped = "true"; el.dataset.snappedTo = tid;
                         updateTransform(el);
                         aTrouvePlace = true;
                         verifierVictoire();
@@ -443,11 +414,7 @@
                     }
                 }
             }
-            
-            if (!aTrouvePlace) {
-                el.dataset.snapped = "false";
-                el.dataset.snappedTo = "";
-            }
+            if (!aTrouvePlace) { el.dataset.snapped = "false"; el.dataset.snappedTo = ""; }
         }
 
         function verifierVictoire() {
@@ -460,12 +427,9 @@
                 if (gainXP < 10) gainXP = 10; 
                 
                 setTimeout(() => {
-                    alert(`🎉 Super ! L'ombre est parfaite !\n\nRécompense : +${gainXP} XP`);
+                    alert(`🎉 Super ! L'ombre est parfaite !\n\nRécompense simulée : +${gainXP} XP`);
                     niveauActuelIdx++;
-                    if (niveauActuelIdx >= niveauxTangram.length) {
-                        alert("🏆 Incroyable, tu as fini tous les niveaux ! Le jeu recommence.");
-                        niveauActuelIdx = 0;
-                    }
+                    if (niveauActuelIdx >= niveauxTangram.length) niveauActuelIdx = 0;
                     chargerNiveau();
                 }, 500); 
             }
@@ -475,8 +439,7 @@
             if (!lastSelectedPiece) return alert("Touche d'abord une pièce pour la sélectionner !");
             let rot = parseInt(lastSelectedPiece.dataset.rot);
             lastSelectedPiece.dataset.rot = (rot + 45) % 360;
-            lastSelectedPiece.dataset.snapped = "false";
-            lastSelectedPiece.dataset.snappedTo = "";
+            lastSelectedPiece.dataset.snapped = "false"; lastSelectedPiece.dataset.snappedTo = "";
             updateTransform(lastSelectedPiece);
             if (localStorage.getItem('modeDev') !== 'actif') verifierMagnetisme(lastSelectedPiece);
         }
@@ -487,8 +450,7 @@
             
             let flip = parseInt(lastSelectedPiece.dataset.flip);
             lastSelectedPiece.dataset.flip = flip * -1;
-            lastSelectedPiece.dataset.snapped = "false";
-            lastSelectedPiece.dataset.snappedTo = "";
+            lastSelectedPiece.dataset.snapped = "false"; lastSelectedPiece.dataset.snappedTo = "";
             updateTransform(lastSelectedPiece);
             if (localStorage.getItem('modeDev') !== 'actif') verifierMagnetisme(lastSelectedPiece);
         }
@@ -504,19 +466,12 @@
 
         function reinitialiserPieces() { chargerNiveau(); }
 
-        // --- 7. L'OUTIL DE DÉVELOPPEMENT ---
+        // --- 7. MODE CRÉATEUR DE NIVEAUX ---
         function verifierModeDev() {
             if (localStorage.getItem('modeDev') === 'actif') {
                 document.getElementById('btn-export').style.display = 'block';
-                document.getElementById('btn-quit-dev').style.display = 'block';
-                document.getElementById('hud-niveau').textContent = "🛠️ MODE CRÉATION DE NIVEAU 🛠️";
-                document.querySelector('.consigne').innerHTML = "Construis ta figure librement. Clique sur 'Générer le Code' pour récupérer le code !";
+                document.getElementById('hud-niveau').textContent = "🛠️ CRÉATION DE NIVEAU";
             }
-        }
-
-        function quitterModeDev() {
-            localStorage.removeItem('modeDev');
-            window.location.reload();
         }
 
         function exporterNiveauDev() {
@@ -527,9 +482,8 @@
                 code += `    { id: "${p.dataset.id}", x: ${cleanX}, y: ${cleanY}, rot: ${p.dataset.rot}, flip: ${p.dataset.flip} },\n`;
             });
             code += `  ]\n}`;
-            
             document.getElementById('code-export-text').value = code;
-            document.getElementById('code-export-zone').style.display = 'block';
+            document.getElementById('code-export-zone').style.display = 'flex';
         }
 
         document.addEventListener("DOMContentLoaded", () => {
