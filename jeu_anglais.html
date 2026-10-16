@@ -2,18 +2,19 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Anglais - Le Défi Bilingue Pro (CM2)</title>
+    <title>Anglais - Le Défi Bilingue Pro</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
         body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #74b9ff 0%, #a29bfe 100%); color: #333; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
         
-        #app-container { background: white; padding: 25px 35px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-width: 1000px; width: 100%; text-align: center; }
+        #app-container { background: white; padding: 25px 35px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-width: 1000px; width: 100%; text-align: center; position: relative;}
         h1 { color: #0984e3; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
         .sous-titre { color: #636e72; margin-bottom: 20px; font-weight: 700; font-size: 1.1rem;}
         
+        .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
+
         #hud { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; border: 2px solid #ecf0f1;}
-        .xp-text { color: #6c5ce7; font-weight: 900; background: #f3e5f5; padding: 5px 15px; border-radius: 15px;}
         .vies-text { letter-spacing: 5px; }
         
         /* Menu des Niveaux */
@@ -46,7 +47,7 @@
         .btn-audio { 
             background: #0984e3; color: white; border: none; width: 45px; height: 45px; 
             border-radius: 50%; font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 0 #076aba; transition: 0.1s;
-            display: flex; justify-content: center; align-items: center;
+            display: flex; justify-content: center; align-items: center; flex-shrink: 0;
         }
         .btn-audio:active { transform: translateY(4px); box-shadow: none; }
 
@@ -73,26 +74,26 @@
     <div id="app-container">
         <!-- ECRAN D'ACCUEIL -->
         <div id="ecran-accueil" class="ecran actif">
-            <h1>English Master 🇬🇧</h1>
-            <p class="sous-titre">Préparation Entrée en 6ème (Niveau CM2)</p>
-            <div id="hud" style="justify-content: center;"><span class="xp-text">XP Anglais : <span id="ui-xp-accueil">...</span> ⭐</span></div>
             
-            <h3 style="color:#2d3436; text-align:left; margin-bottom:10px;">📚 Programme CM2 :</h3>
-            <div class="grid-themes">
-                <button class="btn btn-primaire" onclick="lancerNiveau('questions', false)">❓ Questions / Réponses</button>
-                <button class="btn btn-primaire" style="background:#00b894; box-shadow:0 4px #009476;" onclick="lancerNiveau('routine', false)">⏰ Daily Routine</button>
-                <button class="btn btn-primaire" style="background:#8e44ad; box-shadow:0 4px #732d91;" onclick="lancerNiveau('descriptions', false)">👤 Descriptions</button>
-                <button class="btn btn-primaire" style="background:#e84393; box-shadow:0 4px #b83275;" onclick="lancerNiveau('lieux', false)">🏙️ Dans la ville</button>
-                <button class="btn btn-primaire" style="background:#d35400; box-shadow:0 4px #a04000;" onclick="lancerNiveau('verbes_irreguliers', false)">⚡ Verbes Irréguliers</button>
+            <div class="xp-badge">XP: <span id="ui-xp-accueil">...</span> ⭐</div>
+
+            <h1 id="titre-jeu">English Master 🇬🇧</h1>
+            <p class="sous-titre" id="sous-titre-jeu">Sélectionne une leçon à réviser</p>
+            
+            <h3 style="color:#2d3436; text-align:left; margin-bottom:10px;">📚 Programme Officiel :</h3>
+            <div class="grid-themes" id="grille-officielle">
+                <!-- Rempli par JavaScript -->
             </div>
 
             <hr style="border: 1px solid #eee; margin: 25px 0;">
             
-            <h3 style="color:#2d3436; text-align:left; margin-bottom:10px;">🛠️ Tes propres listes :</h3>
-            <div id="liste-themes-custom" style="text-align:left;"></div>
+            <h3 style="color:#2d3436; text-align:left; margin-bottom:10px;">🛠️ Les listes de la famille (Cloud) :</h3>
+            <div id="liste-themes-custom" style="text-align:left; margin-bottom: 20px;">
+                <span style="color:#7f8c8d; font-style: italic;">Chargement des listes...</span>
+            </div>
 
-            <div style="margin-top: 30px;">
-                <button class="btn btn-primaire" style="background: #2d3436; box-shadow: 0 4px #000;" onclick="changerEcran('ecran-config')">➕ Créer une nouvelle liste</button>
+            <div>
+                <button class="btn btn-primaire" style="background: #2c3e50; box-shadow: 0 4px #1a252f;" onclick="changerEcran('ecran-config')">➕ Créer une nouvelle liste</button>
                 <br><button class="btn btn-secondaire" style="margin-top: 15px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
             </div>
         </div>
@@ -102,7 +103,7 @@
             <div id="hud">
                 <span class="vies-text" id="ui-vies">❤️❤️❤️</span>
                 <span id="ui-theme-titre" style="color: #636e72;">Thème : ...</span>
-                <span class="xp-text">XP : <span id="ui-xp-jeu">0</span> ⭐</span>
+                <span style="color:#f39c12;">XP Joueur: <span id="ui-xp-jeu">0</span> ⭐</span>
             </div>
             
             <div id="plateau-jeu">
@@ -125,9 +126,9 @@
             <div id="zone-config">
                 <label><strong>Nom de la liste (ex: Chapitre 4) :</strong></label>
                 <input type="text" id="input-nom-theme" placeholder="Titre de la leçon...">
-                <label><strong>Les mots/phrases (1 par ligne, avec le signe = ) :</strong></label>
+                <label><strong>Les mots/phrases (1 par ligne, séparés par le signe = ) :</strong></label>
                 <textarea id="input-mots" rows="6" placeholder="Where is the station? = Où est la gare ?&#10;To eat = Manger"></textarea>
-                <button class="btn btn-primaire" style="background: #00b894; box-shadow: 0 4px #009476; width:100%; margin-top:10px;" onclick="sauvegarderTheme()">Sauvegarder ma liste</button>
+                <button class="btn btn-primaire" style="background: #00b894; box-shadow: 0 4px #009476; width:100%; margin-top:10px;" onclick="sauvegarderThemeCloud()">Sauvegarder ma liste sur le Cloud</button>
                 <p id="msg-config" style="color: #27ae60; font-weight: bold; margin-top: 10px; text-align:center;"></p>
             </div>
             <button class="btn btn-secondaire" style="margin-top: 20px;" onclick="retourAccueil()">Retour Menu</button>
@@ -136,9 +137,9 @@
         <!-- ECRAN DE FIN -->
         <div id="ecran-fin" class="ecran">
             <h1 style="color: #00b894;">Well Done ! 🎉</h1>
-            <p class="sous-titre">Tu as fait un sans-faute !</p>
+            <p class="sous-titre">Tu as fait un super travail !</p>
             <div id="hud" style="justify-content: center; background: none; border:none;">
-                <span class="xp-text" style="font-size: 1.8rem; background: #e7f3ff;">+<span id="gain-xp"></span> XP !</span>
+                <span style="font-size: 1.8rem; background: #e7f3ff; color: #0984e3; padding: 10px 25px; border-radius: 15px; font-weight: 900;">+<span id="gain-xp"></span> XP !</span>
             </div>
             <button class="btn btn-primaire" onclick="window.location.href='index.html'">Retour à l'Académie</button>
             <button class="btn btn-secondaire" onclick="retourAccueil()">Refaire un thème</button>
@@ -146,40 +147,48 @@
     </div>
 
     <script>
+        // --- GESTION DU CONTEXTE (Théo ou Lola) ---
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
-        const DB_URL = `${FIREBASE_URL}scores/theo/anglaisSaveV1.json`;
+        const enfant = localStorage.getItem('enfantEnCours') || 'Lola';
+        const enfantCle = enfant === 'Théo' ? 'theo' : 'lola';
+        
+        // Base de l'enfant pour sauver l'XP
+        const DB_SCORE_URL = `${FIREBASE_URL}scores/${enfantCle}/anglaisSaveV1.json`;
+        
+        // Base globale pour partager les listes customisées entre tous les appareils et enfants
+        const DB_CUSTOM_URL = `${FIREBASE_URL}scores/parent_settings/customEnglish.json`;
 
-        // BASE DE DONNÉES CM2
+        // BASE DE DONNÉES OFFICIELLE
         const vocabulaireBase = {
-            questions: { nom: "Questions & Réponses", mots: [
+            questions: { nom: "Questions & Réponses", color: "#0984e3", mots: [
                 { en: "What is your name?", fr: "Comment t'appelles-tu ?" }, 
                 { en: "How old are you?", fr: "Quel âge as-tu ?" }, 
                 { en: "Where do you live?", fr: "Où habites-tu ?" }, 
                 { en: "What time is it?", fr: "Quelle heure est-il ?" }, 
                 { en: "How are you today?", fr: "Comment vas-tu aujourd'hui ?" }
             ]},
-            routine: { nom: "La Routine", mots: [
+            routine: { nom: "La Routine", color: "#00b894", mots: [
                 { en: "I wake up at seven", fr: "Je me réveille à 7 heures" }, 
                 { en: "I eat my breakfast", fr: "Je mange mon petit-déjeuner" }, 
                 { en: "I go to school", fr: "Je vais à l'école" }, 
                 { en: "I do my homework", fr: "Je fais mes devoirs" }, 
                 { en: "I go to bed", fr: "Je vais me coucher" }
             ]},
-            descriptions: { nom: "Les Descriptions", mots: [
+            descriptions: { nom: "Les Descriptions", color: "#8e44ad", mots: [
                 { en: "He is tall and slim", fr: "Il est grand et mince" }, 
                 { en: "She has blue eyes", fr: "Elle a les yeux bleus" }, 
                 { en: "I wear a red T-shirt", fr: "Je porte un T-shirt rouge" }, 
                 { en: "They are very funny", fr: "Ils sont très drôles" },
                 { en: "He has short brown hair", fr: "Il a les cheveux bruns et courts" }
             ]},
-            lieux: { nom: "Dans la ville", mots: [
+            lieux: { nom: "Dans la ville", color: "#e84393", mots: [
                 { en: "Where is the bakery?", fr: "Où est la boulangerie ?" }, 
                 { en: "Go straight on", fr: "Allez tout droit" }, 
                 { en: "Turn left", fr: "Tournez à gauche" }, 
                 { en: "It is next to the park", fr: "C'est à côté du parc" }, 
                 { en: "The train station", fr: "La gare" }
             ]},
-            verbes_irreguliers: { nom: "Verbes Irréguliers (Bases)", mots: [
+            verbes_irreguliers: { nom: "Verbes Irréguliers", color: "#d35400", mots: [
                 { en: "To Be (I was)", fr: "Être (J'étais)" }, 
                 { en: "To Have (I had)", fr: "Avoir (J'avais)" }, 
                 { en: "To Go (I went)", fr: "Aller (Je suis allé)" }, 
@@ -189,54 +198,94 @@
         };
 
         let profil = { xp: 0 };
-        let customThemes = JSON.parse(localStorage.getItem('anglaisCustomV1')) || {};
+        let customThemes = {}; // Chargé depuis Firebase
+        
         let vies = 3; let pairesTrouvees = 0; let totalPaires = 0; let themeActuelId = ""; let isThemeCustom = false; let nomThemeActuel = "";
         let selectionEn = null; let selectionFr = null;
 
         // --- SAUVEGARDE CLOUD ---
-        async function chargerProfilCloud() {
+        async function initApp() {
+            document.getElementById('titre-jeu').textContent = `English Master 🇬🇧`;
+            document.getElementById('sous-titre-jeu').textContent = `Bienvenue ${enfant}, sélectionne ta leçon :`;
+
+            genererMenuOfficiel();
+
+            // 1. Charge l'XP du joueur
             try {
-                let res = await fetch(DB_URL);
-                let data = await res.json();
-                if (data && data.xp !== undefined) {
-                    profil.xp = parseInt(data.xp) || 0;
-                }
+                let resScore = await fetch(DB_SCORE_URL);
+                let dataScore = await resScore.json();
+                if (dataScore && dataScore.xp !== undefined) profil.xp = parseInt(dataScore.xp) || 0;
             } catch(e) {}
+            
+            // 2. Charge les listes custom depuis les paramètres parents
+            try {
+                let resCustom = await fetch(DB_CUSTOM_URL);
+                let dataCustom = await resCustom.json();
+                if (dataCustom) customThemes = dataCustom;
+            } catch(e) {}
+
             majAccueil();
         }
 
         async function sauverProfilCloud() {
-            try {
-                await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) });
-            } catch(e) {}
+            document.getElementById('ui-xp-accueil').textContent = profil.xp; 
+            document.getElementById('ui-xp-jeu').textContent = profil.xp; 
+            try { await fetch(DB_SCORE_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
+        }
+
+        function genererMenuOfficiel() {
+            const grille = document.getElementById('grille-officielle');
+            grille.innerHTML = "";
+            for (let id in vocabulaireBase) {
+                let btn = document.createElement('button');
+                btn.className = "btn btn-primaire";
+                btn.style.backgroundColor = vocabulaireBase[id].color;
+                btn.style.boxShadow = `0 4px rgba(0,0,0,0.2)`;
+                btn.textContent = vocabulaireBase[id].nom;
+                btn.onclick = () => lancerNiveau(id, false);
+                grille.appendChild(btn);
+            }
         }
 
         function majAccueil() {
             document.getElementById('ui-xp-accueil').textContent = profil.xp;
-            const conteneurCustom = document.getElementById('liste-themes-custom'); conteneurCustom.innerHTML = '';
+            const conteneurCustom = document.getElementById('liste-themes-custom'); 
+            conteneurCustom.innerHTML = '';
+            
             if (Object.keys(customThemes).length === 0) { 
-                conteneurCustom.innerHTML = "<p style='color:#bbb; font-style:italic;'>Tu n'as pas encore créé de liste personnelle.</p>"; 
+                conteneurCustom.innerHTML = "<p style='color:#bbb; font-style:italic;'>Il n'y a pas encore de listes créées par la famille.</p>"; 
             } else {
                 for (let id in customThemes) {
                     let div = document.createElement('div'); div.style.display = "inline-block"; div.style.margin = "5px";
-                    let btn = document.createElement('button'); btn.className = 'btn btn-primaire'; btn.style.backgroundColor = '#6c5ce7'; btn.style.boxShadow = '0 4px #4834d4'; btn.textContent = customThemes[id].nom; btn.onclick = () => lancerNiveau(id, true);
-                    let btnDel = document.createElement('button'); btnDel.className = 'btn btn-supprimer'; btnDel.textContent = "X"; btnDel.onclick = () => { delete customThemes[id]; sauverCustom(); majAccueil(); };
+                    
+                    let btn = document.createElement('button'); 
+                    btn.className = 'btn btn-primaire'; 
+                    btn.style.backgroundColor = '#6c5ce7'; btn.style.boxShadow = '0 4px #4834d4'; 
+                    btn.textContent = customThemes[id].nom; 
+                    btn.onclick = () => lancerNiveau(id, true);
+                    
+                    let btnDel = document.createElement('button'); 
+                    btnDel.className = 'btn btn-supprimer'; btnDel.textContent = "X"; 
+                    btnDel.onclick = async () => { 
+                        if(confirm("Supprimer cette liste pour tout le monde ?")) {
+                            delete customThemes[id]; 
+                            majAccueil();
+                            // Mise à jour sur Firebase
+                            try { await fetch(DB_CUSTOM_URL, { method: 'PUT', body: JSON.stringify(customThemes) }); } catch(e) {}
+                        }
+                    };
+                    
                     div.appendChild(btn); div.appendChild(btnDel); conteneurCustom.appendChild(div);
                 }
             }
         }
-
-        function sauverProfil() { 
-            document.getElementById('ui-xp-accueil').textContent = profil.xp; 
-            document.getElementById('ui-xp-jeu').textContent = profil.xp; 
-            sauverProfilCloud();
-        }
         
-        function sauverCustom() { localStorage.setItem('anglaisCustomV1', JSON.stringify(customThemes)); }
-        
-        function sauvegarderTheme() {
-            let nom = document.getElementById('input-nom-theme').value.trim(); let motsBruts = document.getElementById('input-mots').value;
+        async function sauvegarderThemeCloud() {
+            let nom = document.getElementById('input-nom-theme').value.trim(); 
+            let motsBruts = document.getElementById('input-mots').value;
+            
             if(!nom || !motsBruts) return alert("Remplis le titre et les mots !");
+            
             let lignes = motsBruts.split('\n'); let listeMotsPaires = [];
             for(let ligne of lignes) { 
                 if(ligne.includes('=')) { 
@@ -245,11 +294,21 @@
                     if(motEn.length > 0 && motFr.length > 0) { listeMotsPaires.push({ en: motEn, fr: motFr }); } 
                 } 
             }
+            
             if(listeMotsPaires.length < 2) return alert("Il faut au moins 2 paires (avec un signe = entre l'anglais et le français) !");
-            let id = 'custom_' + Date.now(); customThemes[id] = { nom: nom, mots: listeMotsPaires }; sauverCustom();
-            document.getElementById('msg-config').textContent = "Liste sauvegardée avec succès !"; 
-            document.getElementById('input-nom-theme').value = ""; document.getElementById('input-mots').value = "";
-            setTimeout(() => document.getElementById('msg-config').textContent = "", 3000); majAccueil();
+            
+            let id = 'custom_' + Date.now(); 
+            customThemes[id] = { nom: nom, mots: listeMotsPaires }; 
+            
+            try { 
+                await fetch(DB_CUSTOM_URL, { method: 'PUT', body: JSON.stringify(customThemes) }); 
+                document.getElementById('msg-config').textContent = "Liste sauvegardée sur le Cloud avec succès !"; 
+                document.getElementById('input-nom-theme').value = ""; document.getElementById('input-mots').value = "";
+                setTimeout(() => document.getElementById('msg-config').textContent = "", 3000); 
+                majAccueil();
+            } catch(e) {
+                alert("Erreur de sauvegarde réseau !");
+            }
         }
 
         function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); document.getElementById(id).classList.add('actif'); }
@@ -257,17 +316,23 @@
 
         // --- PRONONCIATION AUDIO ---
         function prononcer(texte) {
-            const utterance = new SpeechSynthesisUtterance(texte);
-            utterance.lang = 'en-GB'; // Accent britannique (mieux pour l'école)
-            utterance.rate = 0.9; // Légèrement plus lent
-            window.speechSynthesis.speak(utterance);
+            if ('speechSynthesis' in window) {
+                // Annuler ce qui était en train d'être dit
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(texte);
+                utterance.lang = 'en-GB'; 
+                utterance.rate = 0.85; // Légèrement ralenti pour mieux comprendre
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("Désolé, ton navigateur ne supporte pas la synthèse vocale !");
+            }
         }
 
         function lancerNiveau(idTheme, isCustom) {
             vies = 3; pairesTrouvees = 0; selectionEn = null; selectionFr = null; themeActuelId = idTheme; isThemeCustom = isCustom;
             let themeData = isCustom ? customThemes[idTheme] : vocabulaireBase[idTheme]; 
             
-            // On limite à 5 paires maximum par partie pour que ça tienne bien à l'écran
+            // On limite à 5 paires maximum par partie (on mélange le grand tableau et on en prend 5)
             let motsMelanges = [...themeData.mots].sort(() => Math.random() - 0.5).slice(0, 5);
             
             totalPaires = motsMelanges.length; 
@@ -324,7 +389,8 @@
                 if (selectionEn) selectionEn.element.classList.remove('selectionnee'); 
                 if (selectionEn && selectionEn.element === element) { selectionEn = null; return; } 
                 selectionEn = { element: element, texte: motTexte, associe: motAssocie }; 
-                element.classList.add('selectionnee'); 
+                element.classList.add('selectionnee');
+                prononcer(motTexte); // Petite aide auditive au clic de l'anglais
             } else { 
                 if (selectionFr) selectionFr.element.classList.remove('selectionnee'); 
                 if (selectionFr && selectionFr.element === element) { selectionFr = null; return; } 
@@ -345,10 +411,10 @@
                 let elEnContainer = selectionEn.element.parentElement; 
                 let elFr = selectionFr.element; 
                 
-                setTimeout(() => { elEnContainer.classList.add('trouvee'); elFr.classList.add('trouvee'); }, 500);
+                setTimeout(() => { elEnContainer.classList.add('trouvee'); elFr.classList.add('trouvee'); fb.textContent = ""; }, 800);
                 
-                profil.xp += 10; sauverProfil(); pairesTrouvees++; 
-                if (pairesTrouvees === totalPaires) setTimeout(gagnerNiveau, 1000);
+                profil.xp += 10; sauverProfilCloud(); pairesTrouvees++; 
+                if (pairesTrouvees === totalPaires) setTimeout(gagnerNiveau, 1200);
             } else {
                 fb.textContent = "Oops! Try again... 🔴"; fb.style.color = "#d63031"; 
                 vies--; document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3 - vies);
@@ -365,12 +431,12 @@
         function gagnerNiveau() { 
             let bonus = vies * 10; 
             profil.xp += 50 + bonus; 
-            sauverProfil(); 
+            sauverProfilCloud(); 
             document.getElementById('gain-xp').textContent = 50 + bonus + (totalPaires * 10); 
             changerEcran('ecran-fin'); 
         }
         
-        chargerProfilCloud();
+        document.addEventListener("DOMContentLoaded", initApp);
     </script>
 </body>
 </html>
