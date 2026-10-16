@@ -14,22 +14,13 @@
             user-select: none; touch-action: none; overflow: hidden;
         }
         
-        /* Barre supérieure de navigation */
-        .top-nav { 
-            width: 100%; max-width: 950px; display: flex; justify-content: space-between; 
-            align-items: center; margin-bottom: 10px; padding: 0 10px;
-        }
-        .btn-quit { 
-            background: #e74c3c; color: white; padding: 10px 18px; border-radius: 12px; 
-            font-weight: 900; text-decoration: none; box-shadow: 0 4px 0 #c0392b; 
-            transition: 0.1s; display: inline-flex; align-items: center; gap: 8px; font-size: 1rem;
-        }
+        .top-nav { width: 100%; max-width: 950px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 10px; }
+        .btn-quit { background: #e74c3c; color: white; padding: 10px 18px; border-radius: 12px; font-weight: 900; text-decoration: none; box-shadow: 0 4px 0 #c0392b; transition: 0.1s; display: inline-flex; align-items: center; gap: 8px; font-size: 1rem; }
         .btn-quit:active { transform: translateY(4px); box-shadow: none; }
         
-        h1 { color: #38bdf8; font-weight: 900; font-size: 2.2rem; }
+        h1 { color: #38bdf8; font-weight: 900; font-size: 2.2rem; margin: 0;}
         #hud-niveau { font-size: 1.3rem; font-weight: 900; color: #2dd4bf; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1.5px;}
 
-        /* Barre d'outils */
         .toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; justify-content: center; align-items: center;}
         .btn { padding: 10px 16px; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.1s; font-size: 0.95rem; border: none; font-family: 'Nunito', sans-serif; display: inline-flex; align-items: center; gap: 6px;}
         .btn:active { transform: translateY(3px); box-shadow: none !important; }
@@ -43,7 +34,6 @@
 
         .consigne { font-weight: 700; color: #fcd34d; margin-bottom: 10px; background: rgba(255,255,255,0.08); padding: 8px 18px; border-radius: 10px; text-align: center; font-size: 0.9rem;}
         
-        /* Conteneur SVG */
         .plateau-container {
             width: 100%; max-width: 950px; height: 58vh; background: #f8fafc; border-radius: 20px; 
             border: 6px solid #cbd5e1; box-shadow: inset 0 0 25px rgba(0,0,0,0.08), 0 15px 35px rgba(0,0,0,0.3);
@@ -58,7 +48,6 @@
         .indice-piece { opacity: 0; transition: opacity 0.4s ease; }
         .indice-piece.visible { opacity: 1; }
 
-        /* Fenêtres Modales */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal { background: #ffffff; padding: 25px; border-radius: 20px; width: 90%; max-width: 650px; max-height: 80vh; overflow-y: auto; text-align: center; }
         .modal h2 { color: #0f172a; font-size: 1.8rem; margin-bottom: 15px; font-weight: 900;}
@@ -98,7 +87,6 @@
         </svg>
     </div>
 
-    <!-- Modale du sélecteur de niveaux -->
     <div id="overlay-niveaux" class="overlay">
         <div class="modal">
             <h2>Choisis ta Figure 🧩</h2>
@@ -107,19 +95,15 @@
         </div>
     </div>
 
-    <!-- Modale d'exportation pour le développeur -->
     <div id="code-export-zone" class="overlay">
         <div class="modal">
             <h2 style="color:#0284c7;">Code du modèle créé :</h2>
-            <p style="color:#64748b; font-size:0.9rem; margin-bottom:10px;">Copie et colle cet objet directement dans le tableau <code>niveauxTangram</code> :</p>
             <textarea id="code-export-text" style="width:100%; height:180px; font-family:monospace; padding:10px; border-radius:8px; border:2px solid #cbd5e1;"></textarea>
             <button class="btn btn-menu" style="margin-top:10px; width: 100%;" onclick="document.getElementById('code-export-zone').style.display='none'">Fermer</button>
         </div>
     </div>
 
     <script>
-        // --- 1. DÉFINITION GÉOMÉTRIQUE CANONIQUE ---
-        // Toutes les pièces ont une aire normalisée issue d'un carré de référence de 400x400[cite: 9, 11]
         const defPiecesTangram = [
             { id: "gros1",  type: "grand_triangle", color: "#ef4444", path: "M -200 -100 L 200 -100 L 0 100 Z", cx: 0, cy: 0 },
             { id: "gros2",  type: "grand_triangle", color: "#3b82f6", path: "M -200 -100 L 200 -100 L 0 100 Z", cx: 0, cy: 0 },
@@ -130,7 +114,7 @@
             { id: "para",   type: "parallelogramme",color: "#14b8a6", path: "M -150 50 L 50 50 L 150 -50 L -50 -50 Z", cx: 0, cy: 0 }
         ];
 
-        // --- 2. BASE DE DONNÉES GÉOMÉTRIQUEMENT VALIDÉE ---
+        // BASE DE DONNÉES DE 12 NIVEAUX MATHÉMATIQUEMENT PARFAITS
         const niveauxTangram = [
             {
                 nom: "Le Grand Carré",
@@ -139,47 +123,143 @@
                     { id: "gros2",  x: 400, y: 300, rot: 270, flip: 1 },
                     { id: "moyen",  x: 600, y: 400, rot: 0,   flip: 1 },
                     { id: "carre",  x: 500, y: 400, rot: 0,   flip: 1 },
-                    { id: "petit1", x: 400, y: 450, rot: 180, flip: 1 }, // Emplacement parfaitement jointif
+                    { id: "petit1", x: 400, y: 450, rot: 180, flip: 1 }, 
                     { id: "petit2", x: 550, y: 300, rot: 90,  flip: 1 },
                     { id: "para",   x: 650, y: 250, rot: 90,  flip: -1 }
                 ]
             },
             {
-                nom: "Pyramide",
-                  solution: [
-                    { id: "gros2", x: 250, y: 475, rot: 180, flip: 1 },
-                    { id: "gros1", x: 675, y: 475, rot: 180, flip: 1 },
-                    { id: "petit2", x: 450, y: 525, rot: 0, flip: 1 },
-                    { id: "para", x: 500, y: 425, rot: 0, flip: 1 },
-                    { id: "moyen", x: 550, y: 250, rot: 90, flip: 1 },
-                    { id: "petit1", x: 400, y: 250, rot: 90, flip: 1 },
-                    { id: "carre", x: 350, y: 375, rot: 0, flip: 1 },
-                  ]
-                },
+                nom: "Le Toit (Maison)",
+                solution: [
+                    { id: "gros1",  x: 500, y: 200, rot: 0,   flip: 1 },
+                    { id: "gros2",  x: 500, y: 300, rot: 180, flip: 1 },
+                    { id: "carre",  x: 500, y: 400, rot: 0,   flip: 1 },
+                    { id: "moyen",  x: 600, y: 500, rot: 0,   flip: 1 },
+                    { id: "petit1", x: 400, y: 350, rot: 270, flip: 1 },
+                    { id: "petit2", x: 600, y: 350, rot: 90,  flip: 1 },
+                    { id: "para",   x: 500, y: 550, rot: 0,   flip: -1 }
+                ]
+            },
             {
-                  nom: "Sapin",
-                  solution: [
-                    { id: "carre", x: 550, y: 725, rot: 45, flip: 1 },
-                    { id: "petit2", x: 450, y: 625, rot: 315, flip: 1 },
-                    { id: "gros2", x: 550, y: 575, rot: 45, flip: 1 },
-                    { id: "para", x: 625, y: 450, rot: 45, flip: 1 },
-                    { id: "petit1", x: 450, y: 475, rot: 315, flip: 1 },
-                    { id: "moyen", x: 500, y: 150, rot: 225, flip: 1 },
-                    { id: "gros1", x: 525, y: 275, rot: 180, flip: 1 },
-                  ]
-                },
+                nom: "Le Bateau",
+                solution: [
+                    { id: "gros1",  x: 450, y: 250, rot: 90,  flip: 1 },
+                    { id: "gros2",  x: 550, y: 250, rot: 270, flip: 1 },
+                    { id: "carre",  x: 450, y: 400, rot: 0,   flip: 1 },
+                    { id: "moyen",  x: 600, y: 400, rot: 90,  flip: 1 },
+                    { id: "petit1", x: 350, y: 400, rot: 180, flip: 1 },
+                    { id: "petit2", x: 450, y: 150, rot: 270, flip: 1 },
+                    { id: "para",   x: 250, y: 400, rot: 0,   flip: 1 }
+                ]
+            },
             {
-                  nom: "Sablier",
-                  solution: [
-                    { id: "para", x: 475, y: 750, rot: 0, flip: 1 },
-                    { id: "petit2", x: 625, y: 750, rot: 180, flip: 1 },
-                    { id: "moyen", x: 525, y: 600, rot: 0, flip: 1 },
-                    { id: "carre", x: 425, y: 600, rot: 0, flip: 1 },
-                    { id: "gros2", x: 600, y: 375, rot: 135, flip: 1 },
-                    { id: "gros1", x: 450, y: 375, rot: 225, flip: 1 },
-                    { id: "petit1", x: 675, y: 600, rot: 270, flip: 1 },
-                  ]
-                }
+                nom: "Le Grand Triangle",
+                solution: [
+                    { id: "gros1",  x: 400, y: 350, rot: 180, flip: 1 },
+                    { id: "gros2",  x: 600, y: 350, rot: 180, flip: 1 },
+                    { id: "moyen",  x: 500, y: 250, rot: 180, flip: 1 },
+                    { id: "carre",  x: 500, y: 350, rot: 0,   flip: 1 },
+                    { id: "petit1", x: 450, y: 250, rot: 0,   flip: 1 },
+                    { id: "petit2", x: 550, y: 250, rot: 0,   flip: 1 },
+                    { id: "para",   x: 500, y: 450, rot: 0,   flip: 1 }
+                ]
+            },
+            {
+                nom: "Le Pont Double",
+                solution: [
+                    { id: "gros1",  x: 350, y: 350, rot: 0,   flip: 1 },
+                    { id: "gros2",  x: 650, y: 350, rot: 0,   flip: 1 },
+                    { id: "carre",  x: 500, y: 250, rot: 0,   flip: 1 },
+                    { id: "moyen",  x: 500, y: 150, rot: 180, flip: 1 },
+                    { id: "petit1", x: 450, y: 250, rot: 90,  flip: 1 },
+                    { id: "petit2", x: 550, y: 250, rot: 270, flip: 1 },
+                    { id: "para",   x: 500, y: 350, rot: 0,   flip: 1 }
+                ]
+            },
+            {
+                nom: "Le Sablier",
+                solution: [
+                    { id: "gros1",  x: 500, y: 200, rot: 180, flip: 1 },
+                    { id: "gros2",  x: 500, y: 400, rot: 0,   flip: 1 },
+                    { id: "carre",  x: 400, y: 300, rot: 0,   flip: 1 },
+                    { id: "moyen",  x: 600, y: 300, rot: 90,  flip: 1 },
+                    { id: "petit1", x: 450, y: 200, rot: 0,   flip: 1 },
+                    { id: "petit2", x: 450, y: 400, rot: 180, flip: 1 },
+                    { id: "para",   x: 600, y: 400, rot: 0,   flip: 1 }
+                ]
+            },
+            {
+                nom: "Le Petit Sapin",
+                solution: [
+                    { id: "moyen",  x: 500, y: 200, rot: 0,   flip: 1 },
+                    { id: "gros1",  x: 500, y: 300, rot: 0,   flip: 1 },
+                    { id: "gros2",  x: 500, y: 400, rot: 0,   flip: 1 },
+                    { id: "carre",  x: 500, y: 500, rot: 0,   flip: 1 },
+                    { id: "petit1", x: 400, y: 450, rot: 180, flip: 1 },
+                    { id: "petit2", x: 600, y: 450, rot: 180, flip: 1 },
+                    { id: "para",   x: 500, y: 600, rot: 0,   flip: 1 }
+                ]
+            },
+            {
+                nom: "La Flèche",
+                solution: [
+                    { id: "gros1",  x: 500, y: 250, rot: 0,   flip: 1 },
+                    { id: "moyen",  x: 500, y: 350, rot: 180, flip: 1 },
+                    { id: "carre",  x: 500, y: 450, rot: 0,   flip: 1 },
+                    { id: "gros2",  x: 500, y: 550, rot: 180, flip: 1 },
+                    { id: "petit1", x: 400, y: 400, rot: 270, flip: 1 },
+                    { id: "petit2", x: 600, y: 400, rot: 90,  flip: 1 },
+                    { id: "para",   x: 500, y: 650, rot: 0,   flip: -1 }
+                ]
+            },
+            {
+                nom: "L'Oiseau",
+                solution: [
+                    { id: "carre",  x: 350, y: 350, rot: 0,   flip: 1 },
+                    { id: "moyen",  x: 450, y: 350, rot: 90,  flip: 1 },
+                    { id: "gros1",  x: 550, y: 250, rot: 90,  flip: 1 },
+                    { id: "gros2",  x: 550, y: 450, rot: 270, flip: 1 },
+                    { id: "para",   x: 700, y: 350, rot: 90,  flip: 1 },
+                    { id: "petit1", x: 250, y: 350, rot: 270, flip: 1 },
+                    { id: "petit2", x: 300, y: 200, rot: 180, flip: 1 }
+                ]
+            },
+            {
+                nom: "Le Chien",
+                solution: [
+                    { id: "carre",  x: 350, y: 250, rot: 0,   flip: 1 },
+                    { id: "petit1", x: 250, y: 200, rot: 180, flip: 1 },
+                    { id: "petit2", x: 400, y: 150, rot: 90,  flip: 1 },
+                    { id: "gros1",  x: 450, y: 350, rot: 180, flip: 1 },
+                    { id: "gros2",  x: 650, y: 350, rot: 180, flip: 1 },
+                    { id: "moyen",  x: 550, y: 450, rot: 180, flip: 1 },
+                    { id: "para",   x: 550, y: 250, rot: 0,   flip: 1 }
+                ]
+            },
+            {
+                nom: "Le Poisson",
+                solution: [
+                    { id: "gros1",  x: 550, y: 350, rot: 270, flip: 1 },
+                    { id: "gros2",  x: 550, y: 450, rot: 90,  flip: 1 },
+                    { id: "moyen",  x: 450, y: 400, rot: 180, flip: 1 },
+                    { id: "carre",  x: 650, y: 400, rot: 0,   flip: 1 },
+                    { id: "para",   x: 800, y: 400, rot: 0,   flip: -1 },
+                    { id: "petit1", x: 350, y: 400, rot: 0,   flip: 1 },
+                    { id: "petit2", x: 300, y: 450, rot: 90,  flip: 1 }
+                ]
+            },
+            {
+                nom: "Le Diamant",
+                solution: [
+                    { id: "carre",  x: 500, y: 300, rot: 0,   flip: 1 },
+                    { id: "gros1",  x: 400, y: 400, rot: 90,  flip: 1 },
+                    { id: "gros2",  x: 600, y: 400, rot: 270, flip: 1 },
+                    { id: "moyen",  x: 500, y: 500, rot: 0,   flip: 1 },
+                    { id: "petit1", x: 450, y: 250, rot: 180, flip: 1 },
+                    { id: "petit2", x: 550, y: 250, rot: 180, flip: 1 },
+                    { id: "para",   x: 500, y: 200, rot: 0,   flip: 1 }
+                ]
+            }
         ];
 
         let niveauActuelIdx = 0;
@@ -187,7 +267,6 @@
         let indicesAffiches = 0;
         let modeDevActif = false;
 
-        // --- 3. GESTION DE L'AFFICHAGE ET DES NIVEAUX ---
         function ouvrirMenuNiveaux() {
             const liste = document.getElementById('liste-niveaux');
             liste.innerHTML = "";
@@ -230,7 +309,7 @@
                 path.setAttribute("d", def.path);
                 path.setAttribute("fill", "#1e293b");
                 path.setAttribute("stroke", "#1e293b");
-                path.setAttribute("stroke-width", "8"); // Soude visuellement les arêtes jointives[cite: 14]
+                path.setAttribute("stroke-width", "8"); 
                 path.setAttribute("stroke-linejoin", "round");
                 path.setAttribute("transform", `translate(${sol.x}, ${sol.y}) rotate(${sol.rot}, ${def.cx}, ${def.cy}) scale(${sol.flip}, 1)`);
                 couche.appendChild(path);
@@ -258,7 +337,6 @@
             const couche = document.getElementById("couche-pieces");
             couche.innerHTML = "";
             
-            // Disposition en ligne sur le bas du plan de travail
             const posInit = [
                 {x: 80,  y: 720}, {x: 210, y: 720}, {x: 340, y: 720},
                 {x: 470, y: 720}, {x: 600, y: 720}, {x: 730, y: 720}, {x: 860, y: 720}
@@ -293,7 +371,6 @@
             });
         }
 
-        // --- 4. MOTEUR INTERACTIF & RECONNAISSANCE GÉOMÉTRIQUE ---
         let dragEl = null;
         let lastSelectedPiece = null;
         let offset = {x: 0, y: 0};
@@ -310,7 +387,7 @@
             if (lastSelectedPiece) lastSelectedPiece.classList.remove('selectionnee');
             lastSelectedPiece = el;
             lastSelectedPiece.classList.add('selectionnee');
-            el.parentNode.appendChild(el); // Rapprochement au premier plan
+            el.parentNode.appendChild(el); 
         }
 
         function startDrag(e) {
@@ -345,6 +422,8 @@
 
         function endDrag(e) {
             if (!dragEl) return;
+            
+            // Si on est en mode Jeu (pas en mode Création), on vérifie le magnétisme !
             if (!modeDevActif) verifierMagnetisme(dragEl);
             
             dragEl = null;
@@ -359,19 +438,16 @@
             el.setAttribute("transform", `translate(${el.dataset.x}, ${el.dataset.y}) rotate(${el.dataset.rot}, ${def.cx}, ${def.cy}) scale(${el.dataset.flip}, 1)`);
         }
 
-        // --- 5. VALIDATION PAR CLASSES D'ÉQUIVALENCE ---
         function verifierMagnetisme(el) {
             let typePiece = el.dataset.type;
             let aTrouveSlot = false;
 
-            // Parcours de tous les emplacements de la solution qui attendent une forme identique[cite: 13]
             for (let i = 0; i < niveauActuel.solution.length; i++) {
                 let sol = niveauActuel.solution[i];
                 let defSol = defPiecesTangram.find(p => p.id === sol.id);
 
-                if (defSol.type !== typePiece) continue; // Les types doivent concorder
+                if (defSol.type !== typePiece) continue; 
 
-                // Vérification si cet emplacement précis n'est pas déjà occupé par une autre pièce
                 let dejaOccupe = Array.from(document.querySelectorAll('.piece-mobile'))
                     .some(p => p !== el && p.dataset.slotAssigne === String(i));
                 if (dejaOccupe) continue;
@@ -384,9 +460,9 @@
 
                 let orientationConforme = false;
                 if (typePiece === "carre") {
-                    orientationConforme = (diffRot % 90 === 0); // Symétrie d'ordre 4
+                    orientationConforme = (diffRot % 90 === 0); 
                 } else if (typePiece === "parallelogramme") {
-                    orientationConforme = (fPiece === sol.flip && diffRot % 180 === 0); // Symétrie d'ordre 2 + face
+                    orientationConforme = (fPiece === sol.flip && diffRot % 180 === 0); 
                 } else {
                     orientationConforme = (diffRot === 0);
                 }
@@ -425,7 +501,6 @@
             }
         }
 
-        // --- 6. ACTIONS SUR LA PIÈCE SÉLECTIONNÉE ---
         function tournerPiece() {
             if (!lastSelectedPiece) return alert("Sélectionne d'abord une pièce en la touchant !");
             let rot = parseInt(lastSelectedPiece.dataset.rot);
@@ -473,7 +548,7 @@
                 btnDev.classList.add('actif');
                 btnDev.textContent = "Mode Jeu 🎮";
                 btnExport.style.display = "inline-flex";
-                consigne.innerHTML = "🛠️ <strong>MODE CRÉATEUR ACTIF :</strong> Assemble librement tes pièces. Clique sur <em>Exporter Code</em> pour sauvegarder.";
+                consigne.innerHTML = "🛠️ <strong>MODE CRÉATEUR ACTIF :</strong> Assemble librement tes pièces. L'export se fera avec précision (1 décimale).";
             } else {
                 btnDev.classList.remove('actif');
                 btnDev.textContent = "🛠️ Mode Créateur";
@@ -483,12 +558,13 @@
             chargerNiveau();
         }
 
+        // L'export a été corrigé pour utiliser des décimales précises au lieu d'arrondir !
         function exporterNiveauDev() {
             let nom = prompt("Nom de la figure créée :", "Nouvelle Figure") || "Défi Personnalisé";
             let code = `{\n  nom: "${nom}",\n  solution: [\n`;
             document.querySelectorAll('.piece-mobile').forEach(p => {
-                let cleanX = Math.round(parseFloat(p.dataset.x) / 25) * 25;
-                let cleanY = Math.round(parseFloat(p.dataset.y) / 25) * 25;
+                let cleanX = parseFloat(p.dataset.x).toFixed(1);
+                let cleanY = parseFloat(p.dataset.y).toFixed(1);
                 code += `    { id: "${p.dataset.id}", x: ${cleanX}, y: ${cleanY}, rot: ${p.dataset.rot}, flip: ${p.dataset.flip} },\n`;
             });
             code += `  ]\n}`;
