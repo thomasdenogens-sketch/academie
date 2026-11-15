@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Vocabulaire CE1 - L'Académie de Lola</title>
+    <title>Vocabulaire CE1 - Le Jeu des Mots</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
         
@@ -10,73 +10,82 @@
         
         body { 
             font-family: 'Nunito', sans-serif; 
-            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); 
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); 
             color: #2c3e50; display: flex; flex-direction: column; align-items: center; 
             min-height: 100vh; padding: 20px; 
         }
         
         #app-container { 
-            background: white; padding: 30px; border-radius: 20px; 
+            background: white; padding: 30px; border-radius: 25px; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-width: 800px; width: 100%; text-align: center; position: relative;
         }
         
         h1 { color: #8e44ad; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
-        .sous-titre { color: #9b59b6; margin-bottom: 25px; font-weight: 700; font-size: 1.2rem;}
+        .subtitle { color: #9b59b6; font-weight: bold; font-size: 1.1rem; margin-bottom: 30px; }
         
         .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
 
-        /* Menu Principal */
-        .grid-niveaux { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .btn-menu {
-            background: #fdf2f8; border: 3px solid #f48fb1; padding: 20px; border-radius: 15px;
-            font-size: 1.2rem; font-weight: bold; color: #8e44ad; cursor: pointer; transition: 0.2s;
+        /* --- MENU PRINCIPAL --- */
+        .menu-modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;}
+        
+        .btn-mode {
+            background: white; padding: 25px 15px; border-radius: 20px;
+            font-size: 1.3rem; font-weight: 900; cursor: pointer; transition: 0.2s;
             display: flex; flex-direction: column; align-items: center; gap: 10px;
-            box-shadow: 0 5px 0 #f48fb1;
         }
-        .btn-menu:active { transform: translateY(5px); box-shadow: none; }
-        .menu-icon { font-size: 3rem; }
-
-        /* HUD Jeu */
-        #hud { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; border: 2px solid #ecf0f1; color: #8e44ad;}
+        .btn-mode:active { transform: translateY(5px); box-shadow: none !important; }
+        .btn-mode p { font-size: 0.9rem; font-weight: bold; color: #7f8c8d; margin-top: 5px;}
         
-        /* LA GRILLE DU MEMORY */
-        .grille-cartes {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px;
-            max-width: 600px; margin-left: auto; margin-right: auto;
-        }
+        .mode-synonymes { border: 3px solid #ff7675; color: #d63031; box-shadow: 0 6px 0 #ff7675; }
+        .mode-contraires { border: 3px solid #74b9ff; color: #0984e3; box-shadow: 0 6px 0 #74b9ff; }
+        .mode-memory { border: 3px solid #55efc4; color: #00b894; box-shadow: 0 6px 0 #55efc4; }
+        
+        .mode-icon { font-size: 3rem; background: #f8f9fa; width: 80px; height: 80px; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 10px;}
 
-        /* L'Animation 3D des Cartes */
+        /* --- ÉCRAN DE JEU (QCM SYNONYMES / CONTRAIRES) --- */
+        #hud { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 25px; font-weight: bold; font-size: 1.2rem; border: 2px solid #ecf0f1;}
+        #ui-titre-mode { color: #8e44ad; font-weight: 900; }
+        
+        #mot-cible-container { background: #fdf2e9; border: 3px dashed #e67e22; border-radius: 20px; padding: 30px; margin-bottom: 30px;}
+        #mot-consigne { font-size: 1.2rem; color: #e67e22; font-weight: bold; margin-bottom: 10px;}
+        #mot-cible { font-size: 3rem; font-weight: 900; color: #d35400; animation: pop 0.4s ease-out;}
+        @keyframes pop { 0% { transform: scale(0.5); opacity: 0;} 100% { transform: scale(1); opacity: 1;} }
+
+        .zone-reponses { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;}
+        .btn-rep { background: white; border: 3px solid #bdc3c7; padding: 20px; border-radius: 15px; font-size: 1.4rem; font-weight: bold; color: #2c3e50; cursor: pointer; transition: 0.1s; box-shadow: 0 5px 0 #bdc3c7;}
+        .btn-rep:active { transform: translateY(5px); box-shadow: none; }
+        .btn-rep.correct { background: #2ecc71; color: white; border-color: #27ae60; box-shadow: 0 5px 0 #27ae60; }
+        .btn-rep.erreur { background: #e74c3c; color: white; border-color: #c0392b; box-shadow: 0 5px 0 #c0392b; }
+
+        /* --- ÉCRAN DE JEU (MEMORY) --- */
+        .grille-cartes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 500px; margin: 0 auto 20px auto; }
         .carte { perspective: 1000px; height: 100px; cursor: pointer; }
-        .carte-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
-        
+        .carte-inner { position: relative; width: 100%; height: 100%; transition: transform 0.5s; transform-style: preserve-3d; }
         .carte.retournee .carte-inner, .carte.trouvee .carte-inner { transform: rotateY(180deg); }
-        
-        .carte-front, .carte-back {
-            position: absolute; width: 100%; height: 100%; backface-visibility: hidden; 
-            border-radius: 15px; display: flex; align-items: center; justify-content: center;
-        }
-        
-        /* Face cachée (Le dos de la carte) */
+        .carte-front, .carte-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
         .carte-front { background: #9b59b6; border: 3px solid #8e44ad; color: white; font-size: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        
-        /* Face visible (Le mot) */
-        .carte-back { 
-            background: white; border: 3px solid #3498db; color: #2c3e50; 
-            transform: rotateY(180deg); font-weight: 900; font-size: 1.2rem;
-            box-shadow: inset 0 0 10px rgba(52,152,219,0.2);
-        }
+        .carte-back { background: white; border: 3px solid #f1c40f; transform: rotateY(180deg); font-size: 1.5rem; font-weight: 900; color: #2c3e50; padding: 5px; text-align: center;}
+        .carte.trouvee .carte-back { border-color: #2ecc71; background: #eafaf1; }
 
-        .carte.trouvee .carte-back { border-color: #2ecc71; background: #eafaf1; color: #27ae60; box-shadow: 0 0 15px rgba(46,204,113,0.5); }
-        .carte.erreur .carte-back { border-color: #e74c3c; background: #fadbd8; color: #c0392b; }
-
-        .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s; margin-top: 10px;}
+        /* Boutons d'interface */
+        .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s; display: inline-block; text-decoration: none;}
         .btn-nav:hover { background: #7f8c8d; }
-
-        #feedback { font-size: 1.5rem; font-weight: 900; height: 35px; margin-bottom: 15px; color: #e91e63;}
-
+        .btn-primaire { background: #8e44ad; box-shadow: 0 4px #732d91; }
+        
+        #feedback { font-size: 1.5rem; font-weight: 900; height: 40px; margin: 15px 0; color: #8e44ad;}
+        
         .ecran { display: none; }
         .ecran.actif { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+        /* Configuration et Modales */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;}
+        
+        .zone-config { background: #fff3cd; padding: 25px; border-radius: 15px; margin-top: 20px; border: 2px dashed #f1c40f; text-align: left; }
+        .input-texte { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #dfe6e9; border-radius: 8px; font-family: 'Nunito', sans-serif; font-size: 1rem; }
+        .select-mode { width: 100%; padding: 10px; border-radius: 8px; font-size: 1.1rem; margin-bottom: 10px; border: 2px solid #bdc3c7;}
+        .btn-valider { background: #27ae60; color: white; font-size: 1.1rem; font-weight: bold; padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; margin-top: 10px; width: 100%; transition: 0.2s;}
     </style>
 </head>
 <body>
@@ -87,215 +96,456 @@
         <!-- ECRAN D'ACCUEIL -->
         <div id="ecran-accueil" class="ecran actif">
             <h1>Le Jeu des Mots 🧩</h1>
-            <p class="sous-titre">Enrichis ton vocabulaire de CE1 !</p>
+            <p class="subtitle">Enrichis ton vocabulaire de CE1 !</p>
             
-            <div class="grid-niveaux">
-                <button class="btn-menu" onclick="lancerJeu('synonymes', 'Les Synonymes')">
-                    <span class="menu-icon">🤝</span>
-                    <span>Les Synonymes</span>
-                    <span style="font-size:0.9rem; color:#7f8c8d; font-weight:normal;">Mots qui veulent dire la même chose</span>
+            <div class="menu-modes">
+                <button class="btn-mode mode-synonymes" onclick="lancerMode('synonymes')">
+                    <div class="mode-icon">🤝</div>
+                    Les Synonymes
+                    <p>Mots qui veulent dire la même chose</p>
                 </button>
-                <button class="btn-menu" style="border-color: #3498db; box-shadow: 0 5px 0 #3498db;" onclick="lancerJeu('contraires', 'Les Contraires')">
-                    <span class="menu-icon">↔️</span>
-                    <span style="color:#2980b9;">Les Contraires</span>
-                    <span style="font-size:0.9rem; color:#7f8c8d; font-weight:normal;">Mots de sens opposé</span>
+                
+                <button class="btn-mode mode-contraires" onclick="lancerMode('contraires')">
+                    <div class="mode-icon">↔️</div>
+                    Les Contraires
+                    <p>Mots de sens opposé</p>
+                </button>
+                
+                <button class="btn-mode mode-memory" onclick="lancerMode('memory')">
+                    <div class="mode-icon">🖼️</div>
+                    Memory des Mots
+                    <p>Associe l'image à son mot</p>
                 </button>
             </div>
+            
+            <!-- LISTES CUSTOM -->
+            <div id="zone-custom" style="display:none; border-top: 2px solid #eee; padding-top: 20px; margin-top: 10px;">
+                <h3 style="color:#8e44ad; margin-bottom: 15px;">🟣 Tes Listes Spéciales</h3>
+                <div class="menu-modes" id="grid-custom" style="grid-template-columns: 1fr 1fr;"></div>
+            </div>
 
-            <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+            <button class="btn-nav btn-primaire" style="margin-top:20px;" onclick="ouvrirAuthParent()">⚙️ Créer une Leçon</button>
+            <br>
+            <button class="btn-nav" style="margin-top:15px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
-        <!-- ECRAN DE JEU -->
-        <div id="ecran-jeu" class="ecran">
+        <!-- ECRAN DE JEU : QCM (Synonymes / Contraires) -->
+        <div id="ecran-qcm" class="ecran">
             <div id="hud">
-                <span id="ui-titre-niveau">Thème...</span>
-                <span style="color:#e74c3c;">Essais : <span id="ui-essais">0</span></span>
+                <span id="ui-vies-qcm" style="letter-spacing: 5px;">❤️❤️❤️</span>
+                <span id="ui-titre-mode">Mode</span>
+                <span id="ui-progression-qcm" style="color: #7f8c8d;">1 / 5</span>
+            </div>
+            
+            <div id="mot-cible-container">
+                <div id="mot-consigne">Trouve le contraire de :</div>
+                <div id="mot-cible">GRAND</div>
             </div>
 
-            <div class="grille-cartes" id="grille-memory">
-                <!-- Les cartes seront générées ici par JavaScript -->
+            <div class="zone-reponses" id="boutons-reponses"></div>
+            <div id="feedback-qcm"></div>
+            <button class="btn-nav" onclick="retourAccueil()">⬅️ Changer de mode</button>
+        </div>
+
+        <!-- ECRAN DE JEU : MEMORY -->
+        <div id="ecran-memory" class="ecran">
+            <div id="hud">
+                <span id="ui-vies-mem" style="letter-spacing: 5px;">❤️❤️❤️</span>
+                <span style="color:#00b894; font-weight:900;">Memory</span>
+                <span id="ui-paires-mem" style="color: #7f8c8d;">0 / 4 Paires</span>
             </div>
+            
+            <div class="grille-cartes" id="grille-memory"></div>
+            <div id="feedback-mem"></div>
+            <button class="btn-nav" onclick="retourAccueil()">⬅️ Changer de mode</button>
+        </div>
+    </div>
 
-            <div id="feedback">Trouve les paires !</div>
+    <!-- MODAL AUTH PARENTS -->
+    <div id="overlay-auth" class="overlay">
+        <div class="modal">
+            <h2 style="color: #2c3e50;">⚙️ Espace Parents</h2>
+            <input type="password" id="pin-parents" class="input-texte" placeholder="Saisissez le code PIN" style="text-align:center;">
+            <button class="btn-valider" onclick="verifierPinParent()">Déverrouiller</button>
+            <p id="msg-auth-erreur" style="color: #e74c3c; font-weight: bold; margin-top:10px;"></p>
+            <button class="btn-nav" style="width:100%; margin-top:20px;" onclick="document.getElementById('overlay-auth').style.display='none'">Fermer</button>
+        </div>
+    </div>
 
-            <button class="btn-nav" onclick="retourAccueil()">⬅️ Quitter l'exercice</button>
+    <!-- MODAL CRÉATION -->
+    <div id="overlay-creation" class="overlay">
+        <div class="modal">
+            <h2 style="color: #8e44ad;">✍️ Créer une Liste de Vocabulaire</h2>
+            
+            <div class="zone-config">
+                <label><strong>Titre de la leçon :</strong></label>
+                <input type="text" id="input-nom-theme" class="input-texte" placeholder="Ex: Les mots invariables">
+                
+                <label><strong>Type de jeu :</strong></label>
+                <select id="input-type" class="select-mode">
+                    <option value="synonymes">Jeu des Synonymes (QCM)</option>
+                    <option value="contraires">Jeu des Contraires (QCM)</option>
+                    <option value="memory">Memory (Association Mot/Mot ou Image/Mot)</option>
+                </select>
+
+                <label><strong>Contenu :</strong></label>
+                <p id="aide-saisie" style="font-size:0.85rem; color:#e67e22; margin-bottom:5px;">Format : Mot | Bonne Rép | Fausse1, Fausse2</p>
+                <textarea id="input-mots" class="input-texte" rows="6" placeholder="Grand | Immense | Petit, Minuscule&#10;Beau | Joli | Laid, Moche"></textarea>
+                
+                <button class="btn-valider" style="background: #8e44ad;" onclick="sauvegarderThemeCloud()">Sauvegarder dans le Cloud</button>
+                <p id="msg-config" style="color: #27ae60; font-weight: bold; margin-top: 10px; text-align:center;"></p>
+            </div>
+            <button class="btn-nav" style="width:100%; margin-top:20px;" onclick="document.getElementById('overlay-creation').style.display='none'">Fermer l'éditeur</button>
         </div>
     </div>
 
     <script>
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
-        const DB_URL = `${FIREBASE_URL}scores/lola/francaisLola.json`;
+        const DB_URL_XP = `${FIREBASE_URL}scores/lola/vocabulaireLola.json`;
+        const DB_CUSTOM_URL = `${FIREBASE_URL}scores/parent_settings/customVocabulaire.json`;
+        const DB_SETTINGS_URL = `${FIREBASE_URL}scores/parent_settings.json`;
 
-        // ==========================================
-        // LA BASE DE DONNÉES DES PAIRES
-        // ==========================================
-        const baseDeMots = {
+        // BDD OFFICIELLE DU JEU
+        const bdd = {
             synonymes: [
-                { id: 1, mots: ["Beau", "Joli"] },
-                { id: 2, mots: ["Heureux", "Joyeux"] },
-                { id: 3, mots: ["Rapide", "Vite"] },
-                { id: 4, mots: ["Triste", "Chagriné"] },
-                { id: 5, mots: ["Maison", "Habitation"] },
-                { id: 6, mots: ["Casser", "Briser"] },
-                { id: 7, mots: ["Gros", "Énorme"] },
-                { id: 8, mots: ["Finir", "Terminer"] }
+                { q: "Beau", rep: "Joli", faux: ["Laid", "Moche", "Sale"] },
+                { q: "Grand", rep: "Immense", faux: ["Petit", "Minuscule", "Court"] },
+                { q: "Rapide", rep: "Vite", faux: ["Lent", "Doucement", "Long"] },
+                { q: "Heureux", rep: "Joyeux", faux: ["Triste", "Fâché", "Méchant"] },
+                { q: "Tranquille", rep: "Calme", faux: ["Bruyant", "Agité", "Peur"] },
+                { q: "Drôle", rep: "Amusant", faux: ["Ennuyeux", "Triste", "Méchant"] },
+                { q: "Erreur", rep: "Faute", faux: ["Réussite", "Bonheur", "Cadeau"] },
+                { q: "Casser", rep: "Briser", faux: ["Réparer", "Construire", "Coller"] }
             ],
             contraires: [
-                { id: 1, mots: ["Grand", "Petit"] },
-                { id: 2, mots: ["Chaud", "Froid"] },
-                { id: 3, mots: ["Jour", "Nuit"] },
-                { id: 4, mots: ["Vrai", "Faux"] },
-                { id: 5, mots: ["Monter", "Descendre"] },
-                { id: 6, mots: ["Lourd", "Léger"] },
-                { id: 7, mots: ["Mince", "Gros"] },
-                { id: 8, mots: ["Jeune", "Vieux"] }
+                { q: "Grand", rep: "Petit", faux: ["Immense", "Gros", "Long"] },
+                { q: "Chaud", rep: "Froid", faux: ["Tiède", "Brûlant", "Feu"] },
+                { q: "Rapide", rep: "Lent", faux: ["Vite", "Pressé", "Fort"] },
+                { q: "Heureux", rep: "Triste", faux: ["Joyeux", "Content", "Souriant"] },
+                { q: "Léger", rep: "Lourd", faux: ["Doux", "Plume", "Vide"] },
+                { q: "Jour", rep: "Nuit", faux: ["Soleil", "Matin", "Lumière"] },
+                { q: "Riche", rep: "Pauvre", faux: ["Fort", "Beau", "Roi"] },
+                { q: "Ouvrir", rep: "Fermer", faux: ["Casser", "Cacher", "Regarder"] }
+            ],
+            memory: [
+                { a: "🐶", b: "Chien" }, { a: "🐱", b: "Chat" }, 
+                { a: "🏠", b: "Maison" }, { a: "🚗", b: "Voiture" },
+                { a: "🌳", b: "Arbre" }, { a: "☀️", b: "Soleil" },
+                { a: "🌧️", b: "Pluie" }, { a: "❄️", b: "Neige" },
+                { a: "Heureux", b: "Joyeux" }, { a: "Triste", b: "Malheureux" }
             ]
         };
 
         let profil = { xp: 0 };
+        let customThemes = {};
+        let pinParental = "1234";
+
+        let modeActuel = "";
+        let isCustomMode = false;
+        
+        // Variables QCM
+        let listeQuestionsQCM = [];
+        let indexQCM = 0;
+        let vies = 3;
+        let bloque = false;
+
+        // Variables Memory
         let cartesEnJeu = [];
-        let premiereCarte = null;
-        let deuxiemeCarte = null;
-        let bloqueInterface = false;
+        let cartesDOM = [];
         let pairesTrouvees = 0;
-        let nbEssais = 0;
-        const PAIRES_A_TROUVER = 4; // On joue avec 8 cartes (4 paires) pour que ce soit adapté au CE1
+        let totalPaires = 0;
+        let indexPremiereCarte = null;
 
-        async function chargerProfilCloud() {
-            try { let res = await fetch(DB_URL); let data = await res.json(); if (data && data.xp) profil.xp = parseInt(data.xp) || 0; } catch(e) {}
-            document.getElementById('ui-xp').textContent = `XP: ${profil.xp} ⭐`;
+        const E = (id) => document.getElementById(id);
+
+        async function initApp() {
+            try {
+                let res = await fetch(DB_URL_XP);
+                let data = await res.json();
+                if (data && data.xp !== undefined) profil.xp = parseInt(data.xp);
+            } catch(e) {}
+            
+            try {
+                let resCustom = await fetch(DB_CUSTOM_URL);
+                let dataCustom = await resCustom.json();
+                if (dataCustom) customThemes = dataCustom;
+            } catch(e) {}
+            
+            try {
+                let resSet = await fetch(DB_SETTINGS_URL);
+                let dataSet = await resSet.json();
+                if (dataSet && dataSet.pinCode) pinParental = dataSet.pinCode;
+            } catch(e) {}
+
+            majXP();
+            afficherThemesCustom();
+
+            // Gère l'affichage dynamique de l'aide de création
+            E('input-type').addEventListener('change', (e) => {
+                const aide = E('aide-saisie');
+                if (e.target.value === 'memory') aide.textContent = "Format pour Memory : Élément 1 | Élément 2 (ex: 🍎 | Pomme)";
+                else aide.textContent = "Format QCM : Mot | Bonne Rép | Fausse1, Fausse2";
+            });
         }
 
-        async function sauverProfilCloud(xpGagne) {
-            profil.xp += xpGagne; document.getElementById('ui-xp').textContent = `XP: ${profil.xp} ⭐`;
-            try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
+        async function sauverProfilCloud() {
+            try { await fetch(DB_URL_XP, { method: 'PUT', body: JSON.stringify(profil) }); } catch(e) {}
         }
 
-        function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); document.getElementById(id).classList.add('actif'); }
+        function majXP() { E('ui-xp').textContent = `XP: ${profil.xp} ⭐`; }
+        function ajouterXP(pts) { profil.xp += pts; majXP(); sauverProfilCloud(); }
+        function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); E(id).classList.add('actif'); }
         function retourAccueil() { changerEcran('ecran-accueil'); }
 
-        function lancerJeu(mode, titre) {
-            document.getElementById('ui-titre-niveau').textContent = titre;
-            nbEssais = 0; pairesTrouvees = 0;
-            premiereCarte = null; deuxiemeCarte = null; bloqueInterface = false;
+        // --- GESTION DU MENU CUSTOM ---
+        function afficherThemesCustom() {
+            const conteneur = E('grid-custom');
+            const section = E('zone-custom');
+            conteneur.innerHTML = '';
             
-            document.getElementById('ui-essais').textContent = nbEssais;
-            document.getElementById('feedback').textContent = "Trouve les paires !";
-            document.getElementById('feedback').style.color = "#8e44ad";
-            
-            changerEcran('ecran-jeu');
-            genererGrille(mode);
+            if (Object.keys(customThemes).length > 0) {
+                section.style.display = "block";
+                for (let id in customThemes) {
+                    const t = customThemes[id];
+                    let btn = document.createElement('button');
+                    btn.className = "btn-mode";
+                    btn.style.border = "3px solid #8e44ad"; btn.style.color = "#8e44ad"; btn.style.boxShadow = "0 6px 0 #8e44ad";
+                    
+                    let icon = t.type === 'memory' ? '🖼️' : (t.type === 'synonymes' ? '🤝' : '↔️');
+                    let modeNom = t.type === 'memory' ? 'Memory' : (t.type === 'synonymes' ? 'Synonymes' : 'Contraires');
+
+                    btn.innerHTML = `
+                        <div class="mode-icon">${icon}</div>
+                        ${t.nom}
+                        <p>Mode : ${modeNom}</p>
+                        <span class="btn-nav" style="background:#e74c3c; font-size:0.8rem; padding:8px 12px; margin-top:5px;" onclick="supprimerThemeCustom(event, '${id}')">Supprimer</span>
+                    `;
+                    btn.onclick = () => lancerMode(t.type, id);
+                    conteneur.appendChild(btn);
+                }
+            } else {
+                section.style.display = "none";
+            }
         }
 
-        // ==========================================
-        // LE GÉNÉRATEUR DE GRILLE (Algorithme de Mélange)
-        // ==========================================
-        function genererGrille(mode) {
-            const grille = document.getElementById('grille-memory');
-            grille.innerHTML = "";
-            cartesEnJeu = [];
+        // --- GESTION PARENTS ---
+        function ouvrirAuthParent() {
+            E('pin-parents').value = ""; E('msg-auth-erreur').textContent = "";
+            E('overlay-auth').style.display = 'flex';
+        }
 
-            // 1. On pioche 4 paires au hasard dans la base de données
-            let dictionnaire = [...baseDeMots[mode]].sort(() => Math.random() - 0.5).slice(0, PAIRES_A_TROUVER);
+        function verifierPinParent() {
+            if (E('pin-parents').value === pinParental) {
+                E('overlay-auth').style.display = 'none';
+                E('overlay-creation').style.display = 'flex';
+            } else { E('msg-auth-erreur').textContent = "Code PIN incorrect."; }
+        }
 
-            // 2. On "découpe" les paires pour en faire des cartes individuelles
-            dictionnaire.forEach(paire => {
-                cartesEnJeu.push({ id_paire: paire.id, texte: paire.mots[0] });
-                cartesEnJeu.push({ id_paire: paire.id, texte: paire.mots[1] });
+        async function sauvegarderThemeCloud() {
+            let nom = E('input-nom-theme').value.trim(); 
+            let type = E('input-type').value;
+            let motsBruts = E('input-mots').value;
+            
+            if(!nom || !motsBruts) return alert("Remplis le titre et le contenu !");
+            
+            let lignes = motsBruts.split('\n'); let contenu = [];
+            
+            for(let ligne of lignes) { 
+                if(ligne.includes('|')) { 
+                    let parties = ligne.split('|');
+                    if (type === 'memory' && parties.length >= 2) {
+                        contenu.push({ a: parties[0].trim(), b: parties[1].trim() });
+                    } else if (parties.length >= 3) {
+                        let faux = parties[2].split(',').map(s => s.trim());
+                        contenu.push({ q: parties[0].trim(), rep: parties[1].trim(), faux: faux });
+                    }
+                } 
+            }
+            
+            if(contenu.length < 4) return alert("Il faut au minimum 4 mots pour créer un jeu !");
+            
+            let id = 'custom_' + Date.now(); 
+            customThemes[id] = { nom: nom, type: type, contenu: contenu }; 
+            
+            try { 
+                await fetch(DB_CUSTOM_URL, { method: 'PUT', body: JSON.stringify(customThemes) }); 
+                E('msg-config').textContent = "Liste sauvegardée avec succès !"; 
+                E('input-nom-theme').value = ""; E('input-mots').value = "";
+                setTimeout(() => { E('msg-config').textContent = ""; E('overlay-creation').style.display = 'none'; }, 2000); 
+                afficherThemesCustom();
+            } catch(e) { alert("Erreur réseau"); }
+        }
+
+        async function supprimerThemeCustom(e, id) {
+            e.stopPropagation();
+            if(confirm("Supprimer définitivement cette liste ?")) {
+                delete customThemes[id];
+                afficherThemesCustom();
+                try { await fetch(DB_CUSTOM_URL, { method: 'PUT', body: JSON.stringify(customThemes) }); } catch(err) {}
+            }
+        }
+
+        // --- LANCEMENT DES MODES ---
+        function lancerMode(mode, customId = null) {
+            modeActuel = mode;
+            isCustomMode = customId !== null;
+            vies = 3;
+            
+            let dataSource = isCustomMode ? customThemes[customId].contenu : bdd[mode];
+
+            if (mode === 'memory') {
+                // Initialisation du Memory
+                totalPaires = Math.min(6, dataSource.length); // Max 6 paires pour ne pas saturer l'écran
+                let pairesChoisies = [...dataSource].sort(() => Math.random() - 0.5).slice(0, totalPaires);
+                genererGrilleMemory(pairesChoisies);
+                pairesTrouvees = 0; indexPremiereCarte = null; bloque = false;
+                
+                E('ui-vies-mem').textContent = "❤️❤️❤️";
+                E('ui-paires-mem').textContent = `0 / ${totalPaires} Paires`;
+                E('feedback-mem').textContent = "Trouve les bonnes paires !";
+                changerEcran('ecran-memory');
+            } 
+            else {
+                // Initialisation QCM (Synonymes/Contraires)
+                listeQuestionsQCM = [...dataSource].sort(() => Math.random() - 0.5).slice(0, 5);
+                indexQCM = 0; bloque = false;
+                
+                let titreUI = isCustomMode ? customThemes[customId].nom : (mode === 'synonymes' ? "Les Synonymes" : "Les Contraires");
+                E('ui-titre-mode').textContent = titreUI;
+                E('mot-consigne').textContent = mode === 'synonymes' ? "Trouve le synonyme de :" : "Trouve le contraire de :";
+                
+                E('ui-vies-qcm').textContent = "❤️❤️❤️";
+                E('feedback-qcm').textContent = "";
+                
+                changerEcran('ecran-qcm');
+                poserQuestionQCM();
+            }
+        }
+
+        // --- MOTEUR QCM ---
+        function poserQuestionQCM() {
+            if (vies <= 0) { alert("Plus de vies ! Réfléchis bien et réessaie."); return retourAccueil(); }
+            if (indexQCM >= listeQuestionsQCM.length) { alert("🎉 Excellent travail Lola ! +15 XP"); ajouterXP(15); return retourAccueil(); }
+
+            bloque = false;
+            E('ui-progression-qcm').textContent = `${indexQCM + 1} / ${listeQuestionsQCM.length}`; 
+            E('feedback-qcm').textContent = "";
+            
+            let qData = listeQuestionsQCM[indexQCM];
+            E('mot-cible').textContent = qData.q;
+            
+            // Animation du mot
+            E('mot-cible').style.animation = 'none';
+            setTimeout(() => { E('mot-cible').style.animation = ''; }, 10);
+
+            let options = [qData.rep, ...qData.faux].sort(() => Math.random() - 0.5);
+            const boxBoutons = E('boutons-reponses'); 
+            boxBoutons.innerHTML = '';
+            
+            options.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = "btn-rep";
+                btn.textContent = opt;
+                btn.onclick = () => validerReponseQCM(btn, opt === qData.rep);
+                boxBoutons.appendChild(btn);
             });
+        }
 
-            // 3. On mélange toutes les cartes (Algorithme de Fisher-Yates simplifié)
+        function validerReponseQCM(btn, isCorrect) {
+            if (bloque) return;
+            bloque = true;
+            const fb = E('feedback-qcm');
+            document.querySelectorAll('.btn-rep').forEach(b => b.onclick = null);
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                fb.textContent = "Super ! ✨"; fb.style.color = "#27ae60"; ajouterXP(5);
+                setTimeout(() => { indexQCM++; poserQuestionQCM(); }, 1200);
+            } else {
+                btn.classList.add('erreur');
+                fb.textContent = "Aïe... Regarde la bonne réponse."; fb.style.color = "#c0392b";
+                
+                document.querySelectorAll('.btn-rep').forEach(b => {
+                    if (b.textContent === listeQuestionsQCM[indexQCM].rep) b.classList.add('correct');
+                });
+
+                vies--; E('ui-vies-qcm').textContent = "❤️".repeat(vies) + "🖤".repeat(3 - vies);
+                setTimeout(() => { indexQCM++; poserQuestionQCM(); }, 3000);
+            }
+        }
+
+        // --- MOTEUR MEMORY ---
+        function genererGrilleMemory(paires) {
+            const grille = E('grille-memory');
+            grille.innerHTML = "";
+            
+            cartesEnJeu = [];
+            paires.forEach((paire, idx) => {
+                cartesEnJeu.push({ content: paire.a, id_paire: idx });
+                cartesEnJeu.push({ content: paire.b, id_paire: idx });
+            });
             cartesEnJeu.sort(() => Math.random() - 0.5);
 
-            // 4. On génère le code HTML de chaque carte
-            cartesEnJeu.forEach((carte, index) => {
-                let divCarte = document.createElement('div');
-                divCarte.className = "carte";
-                divCarte.dataset.idPaire = carte.id_paire; // La donnée secrète !
-                divCarte.dataset.index = index;
-                
-                divCarte.innerHTML = `
-                    <div class="carte-inner">
-                        <div class="carte-front">❓</div>
-                        <div class="carte-back">${carte.texte}</div>
-                    </div>
-                `;
-                
-                divCarte.onclick = () => retournerCarte(divCarte);
-                grille.appendChild(divCarte);
+            cartesDOM = [];
+            cartesEnJeu.forEach((carteData, index) => {
+                let div = document.createElement('div');
+                div.className = "carte";
+                let fSize = carteData.content.length > 6 ? "1rem" : "1.5rem";
+                div.innerHTML = `<div class="carte-inner"><div class="carte-front">🧩</div><div class="carte-back" style="font-size:${fSize}">${carteData.content}</div></div>`;
+                div.onclick = () => retournerCarteMemory(index);
+                grille.appendChild(div);
+                cartesDOM.push(div);
             });
         }
 
-        // ==========================================
-        // LA MACHINE À ÉTATS DU JEU
-        // ==========================================
-        function retournerCarte(carteDiv) {
-            // Sécurité : On bloque si le jeu analyse déjà deux cartes, si on clique sur une carte déjà trouvée, ou sur la même carte deux fois
-            if (bloqueInterface) return;
-            if (carteDiv.classList.contains('retournee') || carteDiv.classList.contains('trouvee')) return;
+        function retournerCarteMemory(index) {
+            if (bloque || cartesDOM[index].classList.contains('retournee') || cartesDOM[index].classList.contains('trouvee')) return;
 
-            // On retourne visuellement la carte
-            carteDiv.classList.add('retournee');
+            cartesDOM[index].classList.add('retournee');
 
-            if (premiereCarte === null) {
-                // ÉTAT 1 : C'est la première carte cliquée
-                premiereCarte = carteDiv;
+            if (indexPremiereCarte === null) {
+                indexPremiereCarte = index;
             } else {
-                // ÉTAT 2 : C'est la deuxième carte cliquée, on vérifie !
-                deuxiemeCarte = carteDiv;
-                bloqueInterface = true; // On bloque les autres clics
-                nbEssais++;
-                document.getElementById('ui-essais').textContent = nbEssais;
-
-                verifierCorrespondance();
+                bloque = true;
+                verifierPaireMemory(indexPremiereCarte, index);
             }
         }
 
-        function verifierCorrespondance() {
-            let id1 = premiereCarte.dataset.idPaire;
-            let id2 = deuxiemeCarte.dataset.idPaire;
-
-            if (id1 === id2) {
-                // VICTOIRE : Les cartes correspondent
+        function verifierPaireMemory(idx1, idx2) {
+            if (cartesEnJeu[idx1].id_paire === cartesEnJeu[idx2].id_paire) {
                 setTimeout(() => {
-                    premiereCarte.classList.add('trouvee');
-                    deuxiemeCarte.classList.add('trouvee');
-                    reinitialiserTour();
-                    pairesTrouvees++;
+                    cartesDOM[idx1].classList.replace('retournee', 'trouvee');
+                    cartesDOM[idx2].classList.replace('retournee', 'trouvee');
                     
-                    if (pairesTrouvees === PAIRES_A_TROUVER) {
-                        finDePartie();
+                    pairesTrouvees++;
+                    E('ui-paires-mem').textContent = `${pairesTrouvees} / ${totalPaires} Paires`;
+                    ajouterXP(5);
+                    
+                    indexPremiereCarte = null;
+                    bloque = false;
+                    
+                    if (pairesTrouvees === totalPaires) {
+                        alert("🎉 Superbe Mémoire Lola ! Tu as tout trouvé.");
+                        retourAccueil();
                     }
-                }, 500); // Petit délai pour laisser Lola voir sa victoire
+                }, 600);
             } else {
-                // DÉFAITE : Les cartes ne correspondent pas
-                premiereCarte.classList.add('erreur');
-                deuxiemeCarte.classList.add('erreur');
-                
+                vies--; E('ui-vies-mem').textContent = "❤️".repeat(vies) + "🖤".repeat(3 - vies);
                 setTimeout(() => {
-                    premiereCarte.classList.remove('retournee', 'erreur');
-                    deuxiemeCarte.classList.remove('retournee', 'erreur');
-                    reinitialiserTour();
-                }, 1500); // Laisse 1.5 secondes à Lola pour mémoriser les cartes !
+                    cartesDOM[idx1].classList.remove('retournee');
+                    cartesDOM[idx2].classList.remove('retournee');
+                    indexPremiereCarte = null;
+                    bloque = false;
+                    
+                    if (vies <= 0) {
+                        alert("Plus de vies ! Retente ta chance.");
+                        retourAccueil();
+                    }
+                }, 1500);
             }
         }
 
-        function reinitialiserTour() {
-            premiereCarte = null;
-            deuxiemeCarte = null;
-            bloqueInterface = false;
-        }
-
-        function finDePartie() {
-            const fb = document.getElementById('feedback');
-            fb.textContent = `Gagné en ${nbEssais} essais ! 🎉 +20 XP !`;
-            fb.style.color = "#27ae60";
-            sauverProfilCloud(20);
-
-            setTimeout(retourAccueil, 3000);
-        }
-
-        document.addEventListener("DOMContentLoaded", chargerProfilCloud);
+        document.addEventListener("DOMContentLoaded", initApp);
     </script>
 </body>
 </html>
