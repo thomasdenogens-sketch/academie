@@ -42,17 +42,16 @@
         .btn-mode.custom-list:hover { background: #f5eef8; }
 
         /* --- ÉCRAN ENTRAÎNEMENT --- */
-        #consigne-frappe { font-size: 1.2rem; color: #7f8c8d; font-weight: bold; margin-bottom: 15px; text-transform: uppercase;}
+        #consigne-frappe { font-size: 1.1rem; color: #7f8c8d; font-weight: bold; margin-bottom: 10px; text-transform: uppercase;}
 
         #zone-jeu {
-            margin: 10px 0 30px 0;
-            display: flex; justify-content: center; align-items: center; gap: 10px;
+            margin: 10px 0 20px 0;
+            display: flex; justify-content: center; align-items: center; gap: 8px;
         }
         
-        /* Style inspiré d'EdClub (Cases séparées) */
         .case-lettre { 
-            font-family: 'Fira Code', monospace; font-size: 2.5rem; font-weight: 700; color: #2c3e50;
-            width: 60px; height: 75px; background: white; border: 3px solid #bdc3c7; border-radius: 10px;
+            font-family: 'Fira Code', monospace; font-size: 2.2rem; font-weight: 700; color: #2c3e50;
+            width: 50px; height: 65px; background: white; border: 3px solid #bdc3c7; border-radius: 10px;
             display: flex; justify-content: center; align-items: center; transition: 0.1s;
         }
         .case-lettre.active { border-color: #3498db; border-bottom: 8px solid #3498db; color: #2980b9; transform: translateY(-5px); }
@@ -62,31 +61,40 @@
         @keyframes secousse { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 
         /* --- CLAVIER & MAINS FANTÔMES --- */
-        .environnement-clavier { position: relative; width: 650px; margin: 0 auto 20px auto; }
+        .environnement-clavier { position: relative; width: 100%; max-width: 680px; margin: 0 auto 15px auto; }
         
         .clavier-container { 
-            background: #f1f2f6; padding: 25px 15px 15px 15px; border-radius: 15px; border: 2px solid #dfe4ea; 
+            background: #f8f9fa; padding: 20px 10px 10px 10px; border-radius: 15px; border: 2px solid #dfe4ea; 
             display: flex; flex-direction: column; gap: 8px; position: relative; z-index: 1;
         }
-        .clavier-ligne { display: flex; justify-content: center; gap: 8px; }
+        .clavier-ligne { display: flex; justify-content: center; gap: 8px; position: relative; z-index: 2;}
         .touche { 
             width: 45px; height: 45px; background: white; border: 2px solid #bdc3c7; border-radius: 8px; 
             display: flex; justify-content: center; align-items: center; font-weight: bold; font-family: 'Nunito', sans-serif;
-            color: #7f8c8d; box-shadow: 0 3px 0 #bdc3c7; transition: all 0.1s;
+            color: #7f8c8d; box-shadow: 0 3px 0 #bdc3c7; transition: all 0.2s; position: relative; z-index: 3;
         }
-        /* Marqueurs tactiles F et J */
-        .touche.repere { border-bottom: 4px solid #95a5a6; }
         
-        /* Touche active type EdClub (Bleue) */
+        /* Marqueurs tactiles F et J */
+        .touche.repere { border-bottom: 4px solid #7f8c8d; }
+        
+        /* Touche Cible Active */
         .touche.suggeree { 
             background: #3498db; color: white; border-color: #2980b9; box-shadow: 0 3px 0 #2980b9; 
-            transform: translateY(2px); 
+            transform: translateY(2px); z-index: 5;
+        }
+        .touche.suggeree-erreur { background: #e74c3c; border-color: #c0392b; color: white; }
+
+        /* Calque vectoriel : Mains transparentes et animations de mouvement */
+        #calque-vectoriel {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none;
         }
 
-        /* Le calque SVG des mains transparentes (z-index supérieur) */
-        #calque-mains {
-            position: absolute; top: -10px; left: 0; width: 100%; height: 120%; z-index: 5; pointer-events: none;
+        /* Animation du doigt qui s'étire */
+        #ligne-mouvement {
+            stroke-dasharray: 200; stroke-dashoffset: 200;
+            animation: drawLine 0.4s ease-out forwards;
         }
+        @keyframes drawLine { to { stroke-dashoffset: 0; } }
 
         /* Barre de progression */
         .progression-container { width: 100%; background: #f8bbd0; height: 15px; border-radius: 10px; margin-bottom: 20px; overflow: hidden; border: 2px solid #f06292;}
@@ -96,12 +104,11 @@
         .btn-nav:hover { background: #7f8c8d; }
         .btn-primaire { background: #8e44ad; }
         
-        #feedback { font-size: 1.5rem; font-weight: 900; height: 40px; margin: 10px 0; color: #e91e63;}
+        #feedback { font-size: 1.3rem; font-weight: 900; height: 30px; margin: 10px 0; color: #e91e63;}
         
-        /* Configuration et Modales */
+        /* Modales */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;}
-        
         .zone-config { background: #fff3cd; padding: 25px; border-radius: 15px; margin-top: 20px; border: 2px dashed #f1c40f; text-align: left; }
         .input-texte { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #dfe6e9; border-radius: 8px; font-family: 'Nunito', sans-serif; font-size: 1rem; }
         .btn-valider { background: #27ae60; color: white; font-size: 1.1rem; font-weight: bold; padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; margin-top: 10px; width: 100%; transition: 0.2s;}
@@ -140,7 +147,6 @@
                 </button>
             </div>
 
-            <!-- LISTES CUSTOM -->
             <div id="zone-custom" style="display:none; border-top: 2px solid #eee; padding-top: 20px; margin-top: 10px;">
                 <h3 style="color:#8e44ad; margin-bottom: 15px;">🟣 Tes Dictées d'École</h3>
                 <div class="menu-grid" id="grid-custom"></div>
@@ -158,18 +164,12 @@
                 <span style="color:#e74c3c;">Vies : <span id="ui-vies">❤️❤️❤️</span></span>
             </div>
 
-            <div class="progression-container">
-                <div id="barre-progression"></div>
-            </div>
-
-            <div id="consigne-frappe">APPUIE SUR LA TOUCHE [ F ] AVEC TON INDEX GAUCHE</div>
+            <div class="progression-container"><div id="barre-progression"></div></div>
+            <div id="consigne-frappe">PLACE TES MAINS SUR LE CLAVIER</div>
+            <div id="zone-jeu"></div>
             
-            <div id="zone-jeu">
-                <!-- Les cases lettres seront générées ici -->
-            </div>
-            
-            <!-- ENVIRONNEMENT CLAVIER + MAINS SVG -->
-            <div class="environnement-clavier">
+            <!-- ENVIRONNEMENT CLAVIER + ANIMATIONS -->
+            <div class="environnement-clavier" id="zone-globale-clavier">
                 <div class="clavier-container" id="clavier-visuel">
                     <div class="clavier-ligne">
                         <div class="touche" id="key-a">A</div><div class="touche" id="key-z">Z</div><div class="touche" id="key-e">E</div><div class="touche" id="key-r">R</div><div class="touche" id="key-t">T</div><div class="touche" id="key-y">Y</div><div class="touche" id="key-u">U</div><div class="touche" id="key-i">I</div><div class="touche" id="key-o">O</div><div class="touche" id="key-p">P</div>
@@ -178,48 +178,41 @@
                         <div class="touche" id="key-q">Q</div><div class="touche" id="key-s">S</div><div class="touche" id="key-d">D</div><div class="touche repere" id="key-f">F</div><div class="touche" id="key-g">G</div><div class="touche" id="key-h">H</div><div class="touche repere" id="key-j">J</div><div class="touche" id="key-k">K</div><div class="touche" id="key-l">L</div><div class="touche" id="key-m">M</div>
                     </div>
                     <div class="clavier-ligne" style="margin-left: 40px;">
-                        <div class="touche" id="key-w">W</div><div class="touche" id="key-x">X</div><div class="touche" id="key-c">C</div><div class="touche" id="key-v">V</div><div class="touche" id="key-b">B</div><div class="touche" id="key-n">N</div>
+                        <div class="touche" id="key-w">W</div><div class="touche" id="key-x">X</div><div class="touche" id="key-c">C</div><div class="touche" id="key-v">V</div><div class="touche" id="key-b">B</div><div class="touche" id="key-n">N</div><div class="touche" id="key-,">,</div>
                     </div>
                     <div class="clavier-ligne">
-                        <div class="touche" id="key- " style="width: 250px;">Espace</div>
+                        <div class="touche" id="key-espace" style="width: 250px;">Espace</div>
                     </div>
                 </div>
                 
-                <!-- Calque vectoriel des mains -->
-                <svg id="calque-mains" viewBox="0 0 650 250">
-                    <!-- Les mains transparentes (contours) -->
-                    <!-- Main Gauche -->
-                    <path d="M120,250 C120,170 140,110 160,80 C170,65 190,65 190,80 C190,95 185,120 185,120 C185,120 200,60 215,50 C230,40 240,50 240,70 C240,90 230,130 230,130 C230,130 260,60 270,60 C280,60 290,75 285,95 C280,115 270,140 270,140 C270,140 310,75 320,80 C330,85 325,105 315,125 C300,155 280,200 280,250" fill="none" stroke="#7f8c8d" stroke-width="2" opacity="0.4" stroke-linecap="round"/>
-                    <path d="M280,250 C290,210 320,180 340,170 C360,160 375,180 365,195 C350,215 320,250 320,250" fill="none" stroke="#7f8c8d" stroke-width="2" opacity="0.4" stroke-linecap="round"/>
+                <!-- Calque SVG dynamique pour les mains et le mouvement des doigts -->
+                <svg id="calque-vectoriel" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Les mains transparentes posées sur la ligne Q S D F / J K L M -->
+                    <!-- Main Gauche (Filigrane) -->
+                    <path d="M120,250 C120,170 140,110 160,80 C170,65 190,65 190,80 C190,95 185,120 185,120 C185,120 200,60 215,50 C230,40 240,50 240,70 C240,90 230,130 230,130 C230,130 260,60 270,60 C280,60 290,75 285,95 C280,115 270,140 270,140 C270,140 310,75 320,80 C330,85 325,105 315,125 C300,155 280,200 280,250" fill="rgba(255,255,255,0.4)" stroke="#95a5a6" stroke-width="2" stroke-linecap="round"/>
                     
-                    <!-- Main Droite -->
-                    <path d="M530,250 C530,170 510,110 490,80 C480,65 460,65 460,80 C460,95 465,120 465,120 C465,120 450,60 435,50 C420,40 410,50 410,70 C410,90 420,130 420,130 C420,130 390,60 380,60 C370,60 360,75 365,95 C370,115 380,140 380,140 C380,140 340,75 330,80 C320,85 325,105 335,125 C350,155 370,200 370,250" fill="none" stroke="#7f8c8d" stroke-width="2" opacity="0.4" stroke-linecap="round"/>
-                    <path d="M370,250 C360,210 330,180 310,170 C290,160 275,180 285,195 C300,215 330,250 330,250" fill="none" stroke="#7f8c8d" stroke-width="2" opacity="0.4" stroke-linecap="round"/>
+                    <!-- Main Droite (Filigrane) -->
+                    <path d="M530,250 C530,170 510,110 490,80 C480,65 460,65 460,80 C460,95 465,120 465,120 C465,120 450,60 435,50 C420,40 410,50 410,70 C410,90 420,130 420,130 C420,130 390,60 380,60 C370,60 360,75 365,95 C370,115 380,140 380,140 C380,140 340,75 330,80 C320,85 325,105 335,125 C350,155 370,200 370,250" fill="rgba(255,255,255,0.4)" stroke="#95a5a6" stroke-width="2" stroke-linecap="round"/>
 
-                    <!-- Traits lumineux des doigts (Cachés par défaut) -->
-                    <!-- Doigts Main Gauche -->
-                    <path id="doigt-auriculaire-g" d="M160,80 C170,95 185,120 185,120" fill="none" stroke="#3498db" stroke-width="4" opacity="0" stroke-linecap="round"/>
-                    <path id="doigt-annulaire-g" d="M215,50 C240,70 230,130 230,130" fill="none" stroke="#3498db" stroke-width="4" opacity="0" stroke-linecap="round"/>
-                    <path id="doigt-majeur-g" d="M270,60 C285,95 270,140 270,140" fill="none" stroke="#3498db" stroke-width="4" opacity="0" stroke-linecap="round"/>
-                    <path id="doigt-index-g" d="M320,80 C325,105 315,125 315,125" fill="none" stroke="#3498db" stroke-width="4" opacity="0" stroke-linecap="round"/>
-                    <path id="doigt-pouce-g" d="M340,170 C365,195 350,215 350,215" fill="none" stroke="#3498db" stroke-width="4" opacity="0" stroke-linecap="round"/>
-                    
-                    <!-- Doigts Main Droite -->
-                    <path id="doigt-index-d" d="M330,80 C325,105 335,125 335,125" fill="none" stroke="#3498db" stroke-width="4" opacity="0" stroke-linecap="round"/>
-                    <path id="doigt-majeur-d" d="M380,60 C365,95 380,140 380,140" fill="none" stroke="#3498db" stroke-width="4" opacity="0" stroke-linecap="round"/>
-                    <path id="doigt-annulaire-d" d="M435,50 C410,70 420,130 420,130" fill="none" stroke="#3498db" stroke-width="4" opacity="0" stroke-linecap="round"/>
-                    <path id="doigt-auriculaire-d" d="M490,80 C480,95 465,120 465,120" fill="none" stroke="#3498db" stroke-width="4" opacity="0" stroke-linecap="round"/>
-                    <path id="doigt-pouce-d" d="M310,170 C285,195 300,215 300,215" fill="none" stroke="#3498db" stroke-width="4" opacity="0" stroke-linecap="round"/>
+                    <!-- Animation dynamique calculée en Javascript -->
+                    <g id="groupe-animation" style="opacity: 0;">
+                        <!-- Trait de mouvement -->
+                        <line id="ligne-mouvement" x1="0" y1="0" x2="0" y2="0" stroke="#3498db" stroke-width="12" stroke-linecap="round" opacity="0.6"/>
+                        <!-- Pulpe du doigt sur la touche -->
+                        <circle id="pointe-doigt" cx="0" cy="0" r="16" fill="#3498db" opacity="0.8"/>
+                        <circle id="halo-doigt" cx="0" cy="0" r="22" fill="none" stroke="#2980b9" stroke-width="3" opacity="0.5"/>
+                    </g>
                 </svg>
             </div>
 
-            <div id="feedback">Concentre-toi sur l'écran !</div>
+            <div id="feedback">Repère le trait en relief sur le F et le J !</div>
             <button class="btn-nav" onclick="quitterJeu()">⬅️ Changer de niveau</button>
         </div>
     </div>
 
     <!-- MODAL AUTH PARENTS -->
     <div id="overlay-auth" class="overlay">
+        <!-- Reste identique (Caché pour clarté, présent dans le code) -->
         <div class="modal">
             <h2 style="color: #2c3e50;">⚙️ Espace Parents</h2>
             <input type="password" id="pin-parents" class="input-texte" placeholder="Saisissez le code PIN" style="text-align:center;">
@@ -231,17 +224,15 @@
 
     <!-- MODAL CRÉATION DE LEÇON -->
     <div id="overlay-creation" class="overlay">
+        <!-- Reste identique -->
         <div class="modal">
             <h2 style="color: #8e44ad;">✍️ Créer une Liste de Mots</h2>
             <p style="color: #7f8c8d; font-size: 0.9rem;">Idéal pour apprendre l'orthographe des mots de la dictée.</p>
-            
             <div class="zone-config">
                 <label><strong>Titre de la leçon :</strong></label>
                 <input type="text" id="input-nom-theme" class="input-texte" placeholder="Ex: Mots en -ette">
-                
                 <label><strong>Les mots (séparés par des virgules) :</strong></label>
                 <textarea id="input-mots" class="input-texte" rows="4" placeholder="maison, fleur, soleil, oiseau"></textarea>
-                
                 <button class="btn-valider" style="background: #8e44ad;" onclick="sauvegarderThemeCloud()">Sauvegarder dans le Cloud</button>
                 <p id="msg-config" style="color: #27ae60; font-weight: bold; margin-top: 10px; text-align:center;"></p>
             </div>
@@ -255,39 +246,34 @@
         const DB_CUSTOM_URL = `${FIREBASE_URL}scores/parent_settings/customDactylo.json`;
         const DB_SETTINGS_URL = `${FIREBASE_URL}scores/parent_settings.json`;
 
-        // BANQUE DE MOTS D'APPRENTISSAGE
+        // BANQUE DE MOTS D'APPRENTISSAGE (Séquences type EdClub)
         const banqueMots = [
-            ["f", "j", "f", "j", "ff", "jj", "fj", "jf"], // Niveau 1 : Uniquement les index repères
-            ["d", "k", "df", "jk", "fd", "kj", "fjd", "kdf"], // Niveau 2 : Majeur + Index
-            ["la", "le", "de", "sa", "ma", "ta", "sac", "lac", "fée", "chat", "papa"] // Niveau 3 : Mots de la ligne de repos
+            ["f f f j j j", "f j f j f j", "f f j j f j", "j j f f j f"], // Niveau 1 : Index repères (avec espaces)
+            ["d d k k", "d f k j", "f d j k", "d d f f k k j j"], // Niveau 2 : Majeur + Index
+            ["la", "le", "de", "sa", "ma", "ta", "sac", "lac", "fée", "chat", "papa"] // Niveau 3 : Mots complets
         ];
 
-        // Mappage des touches (lettre) au doigt qui doit la frapper
-        const doigtMap = {
-            'a':'auriculaire-g', 'q':'auriculaire-g', 'w':'auriculaire-g',
-            'z':'annulaire-g', 's':'annulaire-g', 'x':'annulaire-g',
-            'e':'majeur-g', 'd':'majeur-g', 'c':'majeur-g',
-            'r':'index-g', 't':'index-g', 'f':'index-g', 'g':'index-g', 'v':'index-g', 'b':'index-g',
-            'y':'index-d', 'u':'index-d', 'h':'index-d', 'j':'index-d', 'n':'index-d',
-            'i':'majeur-d', 'k':'majeur-d',
-            'o':'annulaire-d', 'l':'annulaire-d',
-            'p':'auriculaire-d', 'm':'auriculaire-d',
-            ' ':'pouce-g' // On peut utiliser l'un ou l'autre pouce, on force le gauche pour l'exemple
+        // MAPPAGE INTELLIGENT DES DOIGTS
+        // Touche attendue -> Touche de "repos" sur laquelle le doigt est censé être posé avant de bouger
+        const toucheBaseMap = {
+            'a':'q', 'q':'q', 'w':'q', // Auriculaire Gauche
+            'z':'s', 's':'s', 'x':'s', // Annulaire Gauche
+            'e':'d', 'd':'d', 'c':'d', // Majeur Gauche
+            'r':'f', 't':'f', 'f':'f', 'g':'f', 'v':'f', 'b':'f', // Index Gauche
+            'y':'j', 'u':'j', 'h':'j', 'j':'j', 'n':'j', // Index Droit
+            'i':'k', 'k':'k', ',':'k', // Majeur Droit
+            'o':'l', 'l':'l', // Annulaire Droit
+            'p':'m', 'm':'m', // Auriculaire Droit
+            ' ':'espace' // Pouce (Généralement gauche ou droit, on centralise sur espace)
         };
 
-        const doigtNoms = {
-            'auriculaire-g': 'ton auriculaire gauche (petit doigt)',
-            'annulaire-g': 'ton annulaire gauche',
-            'majeur-g': 'ton majeur gauche',
-            'index-g': 'ton index gauche',
-            'pouce-g': 'ton pouce',
-            'index-d': 'ton index droit',
-            'majeur-d': 'ton majeur droit',
-            'annulaire-d': 'ton annulaire droit',
-            'auriculaire-d': 'ton auriculaire droit (petit doigt)'
+        const nomDoigtMap = {
+            'q': 'ton petit doigt gauche', 's': 'ton annulaire gauche', 'd': 'ton majeur gauche', 'f': 'ton index gauche',
+            'j': 'ton index droit', 'k': 'ton majeur droit', 'l': 'ton annulaire droit', 'm': 'ton petit doigt droit',
+            'espace': 'ton pouce'
         };
 
-        const MOTS_POUR_MONTER_NIVEAU = 7; // Un peu plus long pour s'entraîner
+        const MOTS_POUR_MONTER_NIVEAU = 5;
 
         let profil = { xp: 0 };
         let customThemes = {};
@@ -302,26 +288,11 @@
         let isCustomMode = false;
 
         async function initApp() {
-            try {
-                let res = await fetch(DB_URL);
-                let data = await res.json();
-                if (data && data.xp !== undefined) profil.xp = parseInt(data.xp) || 0;
-            } catch(e) {}
-            
-            try {
-                let resCustom = await fetch(DB_CUSTOM_URL);
-                let dataCustom = await resCustom.json();
-                if (dataCustom) customThemes = dataCustom;
-            } catch(e) {}
-            
-            try {
-                let resSet = await fetch(DB_SETTINGS_URL);
-                let dataSet = await resSet.json();
-                if (dataSet && dataSet.pinCode) pinParental = dataSet.pinCode;
-            } catch(e) {}
+            try { let res = await fetch(DB_URL); let data = await res.json(); if (data && data.xp) profil.xp = parseInt(data.xp) || 0; } catch(e) {}
+            try { let resCustom = await fetch(DB_CUSTOM_URL); let dataCustom = await resCustom.json(); if (dataCustom) customThemes = dataCustom; } catch(e) {}
+            try { let resSet = await fetch(DB_SETTINGS_URL); let dataSet = await resSet.json(); if (dataSet && dataSet.pinCode) pinParental = dataSet.pinCode; } catch(e) {}
 
-            majXP();
-            afficherThemesCustom();
+            majXP(); afficherThemesCustom();
         }
 
         async function sauverProfilCloud(xpGagne) {
@@ -331,114 +302,64 @@
 
         function majXP() { document.getElementById('ui-xp').textContent = profil.xp; }
         
-        function changerEcran(id) { 
-            document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); 
-            document.getElementById(id).classList.add('actif'); 
-        }
+        function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); document.getElementById(id).classList.add('actif'); }
 
         // --- GESTION DES LISTES CUSTOM ---
         function afficherThemesCustom() {
             const conteneur = document.getElementById('grid-custom');
             const section = document.getElementById('zone-custom');
             conteneur.innerHTML = '';
-            
             if (Object.keys(customThemes).length > 0) {
                 section.style.display = "block";
                 for (let id in customThemes) {
-                    let btn = document.createElement('button');
-                    btn.className = "btn-mode custom-list";
-                    btn.innerHTML = `
-                        <div style="font-size: 1.1rem; color:#8e44ad;">${customThemes[id].nom}</div>
-                        <div style="font-size:0.85rem; color:#7f8c8d; font-weight:normal;">${customThemes[id].mots.length} mots</div>
-                        <span class="btn-supprimer" onclick="supprimerThemeCustom(event, '${id}')">Supprimer</span>
-                    `;
-                    btn.onclick = () => lancerEntrainement(id, true, customThemes[id].nom);
-                    conteneur.appendChild(btn);
+                    let btn = document.createElement('button'); btn.className = "btn-mode custom-list";
+                    btn.innerHTML = `<div style="font-size: 1.1rem; color:#8e44ad;">${customThemes[id].nom}</div><div style="font-size:0.85rem; color:#7f8c8d; font-weight:normal;">${customThemes[id].mots.length} séquences</div><span class="btn-supprimer" onclick="supprimerThemeCustom(event, '${id}')">Supprimer</span>`;
+                    btn.onclick = () => lancerEntrainement(id, true, customThemes[id].nom); conteneur.appendChild(btn);
                 }
-            } else {
-                section.style.display = "none";
-            }
+            } else { section.style.display = "none"; }
         }
 
-        function ouvrirAuthParent() {
-            document.getElementById('pin-parents').value = ""; document.getElementById('msg-auth-erreur').textContent = "";
-            document.getElementById('overlay-auth').style.display = 'flex';
-        }
-
+        function ouvrirAuthParent() { document.getElementById('pin-parents').value = ""; document.getElementById('msg-auth-erreur').textContent = ""; document.getElementById('overlay-auth').style.display = 'flex'; }
         function verifierPinParent() {
-            if (document.getElementById('pin-parents').value === pinParental) {
-                document.getElementById('overlay-auth').style.display = 'none';
-                document.getElementById('overlay-creation').style.display = 'flex';
+            if (document.getElementById('pin-parents').value === pinParental) { document.getElementById('overlay-auth').style.display = 'none'; document.getElementById('overlay-creation').style.display = 'flex';
             } else { document.getElementById('msg-auth-erreur').textContent = "Code PIN incorrect."; }
         }
 
         async function sauvegarderThemeCloud() {
-            let nom = document.getElementById('input-nom-theme').value.trim(); 
-            let motsBruts = document.getElementById('input-mots').value;
-            
+            let nom = document.getElementById('input-nom-theme').value.trim(); let motsBruts = document.getElementById('input-mots').value;
             if(!nom || !motsBruts) return alert("Remplis le titre et les mots !");
-            
             let liste = motsBruts.split(',').map(m => m.trim().toLowerCase()).filter(m => m.length > 0);
             if(liste.length < 3) return alert("Il faut au minimum 3 mots !");
-            
-            let id = 'custom_' + Date.now(); 
-            customThemes[id] = { nom: nom, mots: liste }; 
-            
+            let id = 'custom_' + Date.now(); customThemes[id] = { nom: nom, mots: liste }; 
             try { 
-                await fetch(DB_CUSTOM_URL, { method: 'PUT', body: JSON.stringify(customThemes) }); 
-                document.getElementById('msg-config').textContent = "Liste sauvegardée sur le Cloud !"; 
-                document.getElementById('input-nom-theme').value = ""; document.getElementById('input-mots').value = "";
-                setTimeout(() => { document.getElementById('msg-config').textContent = ""; document.getElementById('overlay-creation').style.display = 'none'; }, 2000); 
-                afficherThemesCustom();
+                await fetch(DB_CUSTOM_URL, { method: 'PUT', body: JSON.stringify(customThemes) }); document.getElementById('msg-config').textContent = "Liste sauvegardée sur le Cloud !"; document.getElementById('input-nom-theme').value = ""; document.getElementById('input-mots').value = "";
+                setTimeout(() => { document.getElementById('msg-config').textContent = ""; document.getElementById('overlay-creation').style.display = 'none'; }, 2000); afficherThemesCustom();
             } catch(e) { alert("Erreur réseau"); }
         }
 
         async function supprimerThemeCustom(e, id) {
-            e.stopPropagation();
-            if(confirm("Supprimer cette liste ?")) {
-                delete customThemes[id];
-                afficherThemesCustom();
-                try { await fetch(DB_CUSTOM_URL, { method: 'PUT', body: JSON.stringify(customThemes) }); } catch(err) {}
-            }
+            e.stopPropagation(); if(confirm("Supprimer cette liste ?")) { delete customThemes[id]; afficherThemesCustom(); try { await fetch(DB_CUSTOM_URL, { method: 'PUT', body: JSON.stringify(customThemes) }); } catch(err) {} }
         }
 
         // --- MOTEUR DE JEU DACTYLO ---
         function lancerEntrainement(niveauOuId, isCustom = false, nomNiveau = "") {
-            isCustomMode = isCustom;
-            vies = 3;
-            motsReussisNiveau = 0;
-            
-            if(isCustom) {
-                listeMotsActuelle = customThemes[niveauOuId].mots;
-                document.getElementById('ui-titre-niveau').textContent = nomNiveau;
-            } else {
-                listeMotsActuelle = banqueMots[niveauOuId];
-                document.getElementById('ui-titre-niveau').textContent = `Niveau ${niveauOuId + 1}`;
-            }
+            isCustomMode = isCustom; vies = 3; motsReussisNiveau = 0;
+            if(isCustom) { listeMotsActuelle = customThemes[niveauOuId].mots; document.getElementById('ui-titre-niveau').textContent = nomNiveau; } 
+            else { listeMotsActuelle = banqueMots[niveauOuId]; document.getElementById('ui-titre-niveau').textContent = `Niveau ${niveauOuId + 1}`; }
 
             changerEcran('ecran-entrainement');
             document.addEventListener('keydown', gestionFrappe);
             demarrerNouveauMot();
         }
 
-        function quitterJeu() {
-            document.removeEventListener('keydown', gestionFrappe);
-            changerEcran('ecran-menu');
-        }
+        function quitterJeu() { document.removeEventListener('keydown', gestionFrappe); changerEcran('ecran-menu'); }
 
         function demarrerNouveauMot() {
-            if (vies <= 0) {
-                document.removeEventListener('keydown', gestionFrappe);
-                alert("Plus de vies ! Réessaie pour y arriver. 💪");
-                return quitterJeu();
-            }
+            if (vies <= 0) { document.removeEventListener('keydown', gestionFrappe); alert("Plus de vies ! Réessaie pour y arriver. 💪"); return quitterJeu(); }
 
-            estBloque = false;
-            indexLettreActuelle = 0;
-            
+            estBloque = false; indexLettreActuelle = 0;
             motEnCours = listeMotsActuelle[Math.floor(Math.random() * listeMotsActuelle.length)];
 
-            // Génération de l'affichage HTML (Format EdClub : cases séparées)
             const conteneurTexte = document.getElementById('zone-jeu');
             conteneurTexte.innerHTML = "";
             
@@ -454,33 +375,65 @@
             actualiserInterface();
         }
 
-        function effacerAidesVisuelles() {
-            document.querySelectorAll('.touche.suggeree').forEach(t => t.classList.remove('suggeree'));
-            document.querySelectorAll('path[id^="doigt-"]').forEach(p => p.style.opacity = "0");
-        }
-
+        // LE CŒUR DE L'ANIMATION (CALCUL GÉOMÉTRIQUE)
         function activerLettreSuivante() {
+            // Activer la case du haut
             document.getElementById('lettre-' + indexLettreActuelle).classList.add('active');
             
-            effacerAidesVisuelles();
+            // Nettoyer les anciens états
+            document.querySelectorAll('.touche.suggeree, .touche.suggeree-erreur').forEach(t => t.classList.remove('suggeree', 'suggeree-erreur'));
+            document.getElementById('groupe-animation').style.opacity = "0"; // Cacher l'ancien trait
             
             let charAttendu = motEnCours[indexLettreActuelle].toLowerCase();
-            let keyId = charAttendu === " " ? "key- " : `key-${charAttendu}`;
-            let toucheHtml = document.getElementById(keyId);
+            let baseId = toucheBaseMap[charAttendu]; // Ex: si char = 'r', base = 'f'
             
-            // Si la touche existe sur notre clavier visuel, on l'illumine !
-            if (toucheHtml) {
-                toucheHtml.classList.add('suggeree');
+            let idToucheCible = charAttendu === " " ? "key-espace" : `key-${charAttendu}`;
+            let idToucheBase = baseId === "espace" ? "key-espace" : `key-${baseId}`;
+            
+            let toucheCible = document.getElementById(idToucheCible);
+            let toucheBase = document.getElementById(idToucheBase);
+            let zoneClavier = document.getElementById('zone-globale-clavier');
+            
+            if (toucheCible && toucheBase) {
+                // Allume la touche à presser en bleu
+                toucheCible.classList.add('suggeree');
                 
-                // On met à jour la phrase de consigne type EdClub
-                let nomDoigt = doigtNoms[doigtMap[charAttendu]] || "le bon doigt";
-                let lettreAffich = charAttendu === " " ? "ESPACE" : charAttendu.toUpperCase();
-                document.getElementById('consigne-frappe').textContent = `APPUIE SUR [ ${lettreAffich} ] AVEC ${nomDoigt.toUpperCase()}`;
+                // Calcul des coordonnées relatives (Top/Left) pour tracer la ligne SVG
+                let clavierRect = zoneClavier.getBoundingClientRect();
+                let cibleRect = toucheCible.getBoundingClientRect();
+                let baseRect = toucheBase.getBoundingClientRect();
+                
+                // Point d'arrivée (Centre de la touche à frapper)
+                let finX = (cibleRect.left - clavierRect.left) + (cibleRect.width / 2);
+                let finY = (cibleRect.top - clavierRect.top) + (cibleRect.height / 2);
+                
+                // Point de départ (Légèrement en dessous du centre de la touche de repos, là où se trouve l'articulation du doigt)
+                let departX = (baseRect.left - clavierRect.left) + (baseRect.width / 2);
+                let departY = (baseRect.top - clavierRect.top) + (baseRect.height / 2) + 15; 
+                
+                // On met à jour les coordonnées des éléments SVG
+                let ligneSvg = document.getElementById('ligne-mouvement');
+                ligneSvg.setAttribute('x1', departX);
+                ligneSvg.setAttribute('y1', departY);
+                ligneSvg.setAttribute('x2', finX);
+                ligneSvg.setAttribute('y2', finY);
+                
+                document.getElementById('pointe-doigt').setAttribute('cx', finX);
+                document.getElementById('pointe-doigt').setAttribute('cy', finY);
+                document.getElementById('halo-doigt').setAttribute('cx', finX);
+                document.getElementById('halo-doigt').setAttribute('cy', finY);
+                
+                // Relance l'animation du trait (Astuce CSS : retirer puis remettre l'animation)
+                ligneSvg.style.animation = 'none';
+                setTimeout(() => { ligneSvg.style.animation = 'drawLine 0.4s ease-out forwards'; }, 10);
+                
+                // On affiche le groupe SVG
+                document.getElementById('groupe-animation').style.opacity = "1";
 
-                // On allume le tracé du bon doigt sur le SVG !
-                let doigtID = `doigt-${doigtMap[charAttendu]}`;
-                let pathDoigt = document.getElementById(doigtID);
-                if(pathDoigt) pathDoigt.style.opacity = "1";
+                // Mise à jour de la consigne texte (Ex: "APPUIE SUR F AVEC TON INDEX GAUCHE")
+                let nomDoigt = nomDoigtMap[baseId] || "le bon doigt";
+                let lettreAffich = charAttendu === " " ? "ESPACE" : charAttendu.toUpperCase();
+                document.getElementById('consigne-frappe').textContent = `Appuie sur [ ${lettreAffich} ] avec ${nomDoigt}`;
             }
         }
 
@@ -492,9 +445,8 @@
 
         function gestionFrappe(event) {
             if (estBloque) return;
-            if (event.key.length > 1 && event.key !== " ") return; // Ignorer Shift, Ctrl, etc.
-            
-            if(event.key === " ") event.preventDefault();
+            if (event.key.length > 1 && event.key !== " ") return; // Ignorer Shift, Ctrl
+            if (event.key === " ") event.preventDefault();
 
             let toucheFrappee = event.key.toLowerCase();
             let caractereAttendu = motEnCours[indexLettreActuelle].toLowerCase();
@@ -503,49 +455,48 @@
             if (toucheFrappee === caractereAttendu) {
                 divActuel.classList.remove('active', 'erreur');
                 divActuel.classList.add('correct');
-                
                 indexLettreActuelle++;
                 
-                if (indexLettreActuelle >= motEnCours.length) {
-                    motReussi();
-                } else {
-                    activerLettreSuivante();
-                }
+                if (indexLettreActuelle >= motEnCours.length) { motReussi(); } 
+                else { activerLettreSuivante(); }
             } else {
                 vies--;
                 divActuel.classList.add('erreur');
+                
+                // Petit effet visuel rouge sur le clavier pour la touche ratée
+                let fausseTouche = document.getElementById(toucheFrappee === " " ? "key-espace" : `key-${toucheFrappee}`);
+                if (fausseTouche) {
+                    fausseTouche.classList.add('suggeree-erreur');
+                    setTimeout(() => fausseTouche.classList.remove('suggeree-erreur'), 400);
+                }
+
                 actualiserInterface();
-                document.getElementById('feedback').textContent = "Oups ! Regarde les mains ! 🙈";
+                document.getElementById('feedback').textContent = "Oups ! Recommence le mot ! 🙈";
                 
                 estBloque = true;
                 setTimeout(() => {
-                    document.getElementById('feedback').textContent = "Concentre-toi sur l'écran !";
+                    document.getElementById('feedback').textContent = "Repère bien les traits sur F et J !";
                     demarrerNouveauMot(); 
                 }, 1500);
             }
         }
 
         function motReussi() {
-            estBloque = true;
-            motsReussisNiveau++;
+            estBloque = true; motsReussisNiveau++;
             document.getElementById('feedback').textContent = "Bravo Lola ! ✨";
             
-            effacerAidesVisuelles();
+            document.querySelectorAll('.touche.suggeree').forEach(t => t.classList.remove('suggeree'));
+            document.getElementById('groupe-animation').style.opacity = "0";
             document.getElementById('consigne-frappe').textContent = "BIEN JOUÉ !";
             
-            sauverProfilCloud(2); 
-            actualiserInterface();
+            sauverProfilCloud(2); actualiserInterface();
 
             if (motsReussisNiveau >= MOTS_POUR_MONTER_NIVEAU) {
                 sauverProfilCloud(15); 
                 alert("Série terminée avec brio ! Tu as gagné un max d'XP ! 🚀");
                 return quitterJeu();
             }
-
-            setTimeout(() => {
-                document.getElementById('feedback').textContent = "Concentre-toi sur l'écran !";
-                demarrerNouveauMot();
-            }, 1000);
+            setTimeout(() => { document.getElementById('feedback').textContent = "Continue !"; demarrerNouveauMot(); }, 1000);
         }
 
         document.addEventListener("DOMContentLoaded", initApp);
