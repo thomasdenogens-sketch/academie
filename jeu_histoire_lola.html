@@ -25,6 +25,19 @@
         
         .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
 
+        /* Menu des thèmes avec Niveaux */
+        .theme-container { border: 2px solid #ecf0f1; border-radius: 15px; padding: 15px; margin-bottom: 20px; text-align: left; }
+        .theme-header { font-size: 1.4rem; font-weight: 900; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        
+        .grid-niveaux { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .btn-menu-niv {
+            background: #f8f9fa; border: 3px solid #e2e8f0; padding: 12px; border-radius: 12px;
+            font-size: 1.1rem; font-weight: bold; color: #2c3e50; cursor: pointer; transition: 0.2s;
+            display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center;
+        }
+        .btn-menu-niv:hover { transform: translateY(-4px); box-shadow: 0 5px 10px rgba(0,0,0,0.1); border-color: #d35400; background: #fdf2e9;}
+        .theme-custom .btn-menu-niv:hover { border-color: #8e44ad; background: #f5eef8; }
+
         /* HUD Jeu */
         #hud { display: flex; justify-content: space-between; background: #fdf2e9; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.2rem; border: 2px solid #fdebd0; color: #d35400;}
 
@@ -52,8 +65,15 @@
         .btn:active { transform: translateY(4px); }
         .btn-primaire { background: #27ae60; box-shadow: 0 4px #219a52; }
         .btn-secondaire { background: #95a5a6; box-shadow: 0 4px #7f8c8d; }
+        .btn-supprimer { background: #e74c3c; color: white; border: none; border-radius: 8px; padding: 8px 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #c0392b; margin-top: 5px; font-size: 0.9rem;}
 
         #feedback { font-size: 1.5rem; font-weight: 900; height: 40px; margin: 15px 0; }
+        
+        /* Fenêtres Modales pour l'Espace Création */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;}
+        .zone-config { background: #fff3cd; padding: 25px; border-radius: 15px; margin-top: 20px; border: 2px dashed #f1c40f; text-align: left; }
+        .input-texte { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #dfe6e9; border-radius: 8px; font-family: 'Nunito', sans-serif; font-size: 1rem; }
         
         .ecran { display: none; }
         .ecran.actif { display: block; animation: fadeIn 0.4s; }
@@ -70,17 +90,28 @@
             <h1>Histoire & Temps 🕰️</h1>
             <p class="sous-titre">Remonte le temps et classe les événements !</p>
             
-            <button class="btn btn-primaire" style="font-size: 1.5rem; padding: 20px 40px; margin-top: 30px;" onclick="lancerNiveau()">
-                ▶️ Jouer à la Frise Chronologique
-            </button>
+            <div class="theme-container">
+                <div class="theme-header" style="color: #d35400;">⏳ Les Défis Chronologiques</div>
+                <div class="grid-niveaux" id="grid-officiel">
+                    <!-- Rempli par JavaScript -->
+                </div>
+            </div>
+
+            <!-- SECTION CUSTOM -->
+            <div class="theme-container theme-custom" id="container-custom" style="display:none;">
+                <div class="theme-header" style="color: #8e44ad;">🟣 Tes Frises (Créées par Papa/Maman)</div>
+                <div class="grid-niveaux" id="grid-custom"></div>
+            </div>
+            
+            <button class="btn btn-secondaire" style="background:#2c3e50; box-shadow: 0 4px 0 #1a252f; margin-top:10px;" onclick="ouvrirAuthParent()">⚙️ Créer une Frise</button>
             <br>
-            <button class="btn btn-secondaire" style="margin-top: 30px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+            <button class="btn btn-secondaire" style="margin-top: 20px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
         <!-- ECRAN DE JEU -->
         <div id="ecran-jeu" class="ecran">
             <div id="hud">
-                <span id="ui-niveau">Niveau 1</span>
+                <span id="ui-niveau">Titre du Niveau</span>
                 <span style="color:#e74c3c;">Vies : <span id="ui-vies">❤️❤️❤️</span></span>
             </div>
             
@@ -106,55 +137,242 @@
         </div>
     </div>
 
+    <!-- MODAL AUTHENTIFICATION PARENTS -->
+    <div id="overlay-auth" class="overlay">
+        <div class="modal">
+            <h2 style="color: #2c3e50;">⚙️ Espace Parents</h2>
+            <input type="password" id="pin-parents" class="input-texte" placeholder="Saisissez le code PIN" style="text-align:center;">
+            <button class="btn btn-primaire" style="width:100%;" onclick="verifierPinParent()">Déverrouiller</button>
+            <p id="msg-auth-erreur" style="color: #e74c3c; font-weight: bold; margin-top:10px;"></p>
+            <button class="btn btn-secondaire" style="width:100%; margin-top:20px;" onclick="document.getElementById('overlay-auth').style.display='none'">Fermer</button>
+        </div>
+    </div>
+
+    <!-- MODAL CRÉATION DE FRISES -->
+    <div id="overlay-creation" class="overlay">
+        <div class="modal">
+            <h2 style="color: #8e44ad;">✍️ Créer une Frise</h2>
+            <p style="color: #7f8c8d; font-size: 0.9rem;">Idéal pour réviser l'ordre des leçons d'Histoire.</p>
+            
+            <div class="zone-config">
+                <label><strong>Titre de la frise :</strong></label>
+                <input type="text" id="input-nom-theme" class="input-texte" placeholder="Ex: L'Évolution des Transports">
+                
+                <label><strong>Les Cartes (du plus ancien au plus récent) :</strong></label>
+                <p style="font-size:0.85rem; color:#e67e22; margin-bottom:5px;">Format : L'évènement | 🚀 (emoji)</p>
+                <textarea id="input-mots" class="input-texte" rows="6" placeholder="À pied | 🚶‍♂️&#10;À cheval | 🐎&#10;La voiture | 🚗&#10;L'avion | ✈️"></textarea>
+                
+                <button class="btn btn-primaire" style="background: #8e44ad; width:100%;" onclick="sauvegarderThemeCloud()">Sauvegarder dans le Cloud</button>
+                <p id="msg-config" style="color: #27ae60; font-weight: bold; margin-top: 10px; text-align:center;"></p>
+            </div>
+            <button class="btn btn-secondaire" style="width:100%; margin-top:20px;" onclick="document.getElementById('overlay-creation').style.display='none'">Fermer l'éditeur</button>
+        </div>
+    </div>
+
     <script>
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
         const DB_URL = `${FIREBASE_URL}scores/lola/histoireLola.json`;
+        const DB_CUSTOM_URL = `${FIREBASE_URL}scores/parent_settings/customHistoire.json`;
+        const DB_SETTINGS_URL = `${FIREBASE_URL}scores/parent_settings.json`;
 
-        // BASE DE DONNÉES CHRONOLOGIQUE
-        // L'ordre 'chronologie' définit l'ordre exact attendu (1, 2, 3, 4)
+        // BASE DE DONNÉES ENRICHIE POUR LA REJOUABILITÉ
         const bddHistoire = [
-            [
-                { id: "h1", icon: "🦕", nom: "Les Dinosaures", chronologie: 1 },
-                { id: "h2", icon: "🦴", nom: "Les Hommes Préhistoriques", chronologie: 2 },
-                { id: "h3", icon: "🏰", nom: "Le Moyen-Âge (Chevaliers)", chronologie: 3 },
-                { id: "h4", icon: "🚀", nom: "La Conquête de l'Espace", chronologie: 4 }
-            ],
-            [
-                { id: "t1", icon: "👶", nom: "Bébé", chronologie: 1 },
-                { id: "t2", icon: "👧", nom: "Enfant (École)", chronologie: 2 },
-                { id: "t3", icon: "👩‍💼", nom: "Adulte (Travail)", chronologie: 3 },
-                { id: "t4", icon: "👵", nom: "Grand-parent", chronologie: 4 }
-            ]
+            {
+                nom: "Les Grandes Périodes",
+                cartes: [
+                    { id: "h1", icon: "🦕", nom: "Les Dinosaures", chronologie: 1 },
+                    { id: "h2", icon: "🦴", nom: "Préhistoire", chronologie: 2 },
+                    { id: "h3", icon: "🏰", nom: "Moyen-Âge", chronologie: 3 },
+                    { id: "h4", icon: "🚀", nom: "La Conquête Spatiale", chronologie: 4 }
+                ]
+            },
+            {
+                nom: "Les Âges de la Vie",
+                cartes: [
+                    { id: "t1", icon: "👶", nom: "Bébé", chronologie: 1 },
+                    { id: "t2", icon: "👧", nom: "Enfant", chronologie: 2 },
+                    { id: "t3", icon: "👩‍💼", nom: "Adulte", chronologie: 3 },
+                    { id: "t4", icon: "👵", nom: "Grand-parent", chronologie: 4 }
+                ]
+            },
+            {
+                nom: "L'Évolution de la Communication",
+                cartes: [
+                    { id: "c1", icon: "📜", nom: "Parchemins & Lettres", chronologie: 1 },
+                    { id: "c2", icon: "📰", nom: "Le Journal Imprimé", chronologie: 2 },
+                    { id: "c3", icon: "☎️", nom: "Le Téléphone", chronologie: 3 },
+                    { id: "c4", icon: "📱", nom: "Le Smartphone & Internet", chronologie: 4 }
+                ]
+            },
+            {
+                nom: "La Transformation du Blé",
+                cartes: [
+                    { id: "b1", icon: "🌾", nom: "Récolte dans les champs", chronologie: 1 },
+                    { id: "b2", icon: "⚙️", nom: "Broyage au Moulin", chronologie: 2 },
+                    { id: "b3", icon: "🧑‍🍳", nom: "Pétrissage par le Boulanger", chronologie: 3 },
+                    { id: "b4", icon: "🥖", nom: "Le Pain Cuit", chronologie: 4 }
+                ]
+            }
         ];
 
         let profil = { xp: 0 };
+        let customThemes = {};
+        let pinParental = "1234";
+        
         let vies = 3; 
-        let niveauActuel = 0;
         let isProcessing = false;
+        let friseEnCours = [];
 
-        async function chargerProfilCloud() {
-            try { let res = await fetch(DB_URL); let data = await res.json(); if (data && data.xp) profil.xp = parseInt(data.xp) || 0; } catch(e) {}
-            document.getElementById('ui-xp').textContent = `XP: ${profil.xp} ⭐`;
+        async function initApp() {
+            // Initialisation des données depuis Firebase
+            try {
+                let res = await fetch(DB_URL);
+                let data = await res.json();
+                if (data && data.xp !== undefined) profil.xp = parseInt(data.xp) || 0;
+            } catch(e) {}
+            
+            try {
+                let resCustom = await fetch(DB_CUSTOM_URL);
+                let dataCustom = await resCustom.json();
+                if (dataCustom) customThemes = dataCustom;
+            } catch(e) {}
+            
+            try {
+                let resSet = await fetch(DB_SETTINGS_URL);
+                let dataSet = await resSet.json();
+                if (dataSet && dataSet.pinCode) pinParental = dataSet.pinCode;
+            } catch(e) {}
+
+            majXP();
+            genererMenuOfficiel();
+            afficherThemesCustom();
         }
+
         async function sauverProfilCloud(xpGagne) {
-            profil.xp += xpGagne; document.getElementById('ui-xp').textContent = `XP: ${profil.xp} ⭐`;
+            profil.xp += xpGagne; 
+            majXP();
             try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
         }
+
+        function majXP() { document.getElementById('ui-xp').textContent = `XP: ${profil.xp} ⭐`; }
 
         function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); document.getElementById(id).classList.add('actif'); }
         function retourAccueil() { changerEcran('ecran-accueil'); }
 
-        function lancerNiveau() {
-            vies = 3; niveauActuel = 0; isProcessing = false;
+        // --- GÉNÉRATION DES MENUS ---
+        function genererMenuOfficiel() {
+            const grid = document.getElementById('grid-officiel');
+            grid.innerHTML = "";
+            bddHistoire.forEach((frise, index) => {
+                let btn = document.createElement('button');
+                btn.className = "btn-menu-niv";
+                btn.innerHTML = `<span style="font-size: 1.5rem;">${frise.cartes[3].icon}</span><span>Niv ${index + 1} : ${frise.nom}</span>`;
+                btn.onclick = () => lancerNiveau(index, false);
+                grid.appendChild(btn);
+            });
+        }
+
+        function afficherThemesCustom() {
+            const conteneur = document.getElementById('grid-custom');
+            const section = document.getElementById('container-custom');
+            conteneur.innerHTML = '';
+            
+            if (Object.keys(customThemes).length > 0) {
+                section.style.display = "block";
+                for (let id in customThemes) {
+                    let btn = document.createElement('button');
+                    btn.className = "btn-menu-niv";
+                    btn.innerHTML = `
+                        <div style="font-size: 1.1rem; color:#8e44ad;">${customThemes[id].nom}</div>
+                        <span class="btn-supprimer" onclick="supprimerThemeCustom(event, '${id}')">Supprimer</span>
+                    `;
+                    btn.onclick = () => lancerNiveau(id, true);
+                    conteneur.appendChild(btn);
+                }
+            } else {
+                section.style.display = "none";
+            }
+        }
+
+        // --- GESTION PARENTS & CUSTOM ---
+        function ouvrirAuthParent() {
+            document.getElementById('pin-parents').value = "";
+            document.getElementById('msg-auth-erreur').textContent = "";
+            document.getElementById('overlay-auth').style.display = 'flex';
+        }
+
+        function verifierPinParent() {
+            if (document.getElementById('pin-parents').value === pinParental) {
+                document.getElementById('overlay-auth').style.display = 'none';
+                document.getElementById('overlay-creation').style.display = 'flex';
+            } else {
+                document.getElementById('msg-auth-erreur').textContent = "Code PIN incorrect.";
+            }
+        }
+
+        async function sauvegarderThemeCloud() {
+            let nom = document.getElementById('input-nom-theme').value.trim(); 
+            let motsBruts = document.getElementById('input-mots').value;
+            
+            if(!nom || !motsBruts) return alert("Remplis le titre et les cartes !");
+            
+            let lignes = motsBruts.split('\n'); let cartesCustom = [];
+            let chronoIndex = 1;
+            
+            for(let ligne of lignes) { 
+                if(ligne.includes('|')) { 
+                    let parties = ligne.split('|');
+                    if(parties.length >= 2) {
+                        let texte = parties[0].trim();
+                        let icone = parties[1].trim();
+                        cartesCustom.push({ id: `c_${Date.now()}_${chronoIndex}`, icon: icone, nom: texte, chronologie: chronoIndex });
+                        chronoIndex++;
+                    }
+                } 
+            }
+            
+            if(cartesCustom.length !== 4) return alert("Il faut obligatoirement 4 évènements pour créer la frise !");
+            
+            let id = 'custom_' + Date.now(); 
+            customThemes[id] = { nom: nom, cartes: cartesCustom }; 
+            
+            try { 
+                await fetch(DB_CUSTOM_URL, { method: 'PUT', body: JSON.stringify(customThemes) }); 
+                document.getElementById('msg-config').textContent = "Frise sauvegardée sur le Cloud !"; 
+                document.getElementById('input-nom-theme').value = ""; document.getElementById('input-mots').value = "";
+                setTimeout(() => { document.getElementById('msg-config').textContent = ""; document.getElementById('overlay-creation').style.display = 'none'; }, 2000); 
+                afficherThemesCustom();
+            } catch(e) { alert("Erreur réseau"); }
+        }
+        
+        async function supprimerThemeCustom(e, id) {
+            e.stopPropagation();
+            if(confirm("Supprimer cette frise de l'Académie ?")) {
+                delete customThemes[id];
+                afficherThemesCustom();
+                try { await fetch(DB_CUSTOM_URL, { method: 'PUT', body: JSON.stringify(customThemes) }); } catch(err) {}
+            }
+        }
+
+        // --- MOTEUR DE JEU (LA FRISE) ---
+        function lancerNiveau(idNiveau, isCustom) {
+            vies = 3; isProcessing = false;
+            
+            if(isCustom) {
+                friseEnCours = customThemes[idNiveau].cartes;
+                document.getElementById('ui-niveau').textContent = `Défi : ${customThemes[idNiveau].nom}`;
+            } else {
+                friseEnCours = bddHistoire[idNiveau].cartes;
+                document.getElementById('ui-niveau').textContent = `Niveau : ${bddHistoire[idNiveau].nom}`;
+            }
+            
             changerEcran('ecran-jeu');
             preparerFrise();
         }
 
         function preparerFrise() {
             if (vies <= 0) { alert("Plus de vies ! Réessaie plus tard."); return retourAccueil(); }
-            if (niveauActuel >= bddHistoire.length) { alert("Tu as terminé tous les défis chronologiques ! +20 XP ! 🎉"); sauverProfilCloud(20); return retourAccueil(); }
 
-            document.getElementById('ui-niveau').textContent = `Niveau ${niveauActuel + 1}`;
             document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3 - vies);
             document.getElementById('feedback').textContent = "";
             
@@ -164,15 +382,15 @@
             const reserve = document.getElementById('reserve');
             reserve.innerHTML = "";
 
-            // Copier et mélanger les cartes du niveau
-            let cartesMelangees = [...bddHistoire[niveauActuel]].sort(() => Math.random() - 0.5);
+            // Copier et mélanger les cartes
+            let cartesMelangees = [...friseEnCours].sort(() => Math.random() - 0.5);
 
             cartesMelangees.forEach(carte => {
                 let div = document.createElement('div');
                 div.className = "carte-histoire";
                 div.draggable = true;
                 div.id = carte.id;
-                div.dataset.ordre = carte.chronologie; // On cache la réponse dans l'attribut HTML !
+                div.dataset.ordre = carte.chronologie; // On cache la réponse
                 div.ondragstart = attraperCarte;
                 
                 div.innerHTML = `
@@ -193,18 +411,13 @@
             event.preventDefault();
             if (event.target.classList.contains('slot')) {
                 event.target.classList.remove('survol');
-                
-                // Si le slot a déjà une carte, on ne peut pas déposer par-dessus
-                if (event.target.children.length > 0) return;
-
+                if (event.target.children.length > 0) return; // Si la case est occupée, on bloque
                 let idCarte = event.dataTransfer.getData("text");
-                let carte = document.getElementById(idCarte);
-                event.target.appendChild(carte);
+                event.target.appendChild(document.getElementById(idCarte));
             } 
             else if (event.target.id === 'reserve') {
                 let idCarte = event.dataTransfer.getData("text");
-                let carte = document.getElementById(idCarte);
-                event.target.appendChild(carte);
+                event.target.appendChild(document.getElementById(idCarte));
             }
         }
 
@@ -215,7 +428,6 @@
             const slots = document.querySelectorAll('.slot');
             const reserve = document.getElementById('reserve');
             
-            // Vérifier si toutes les cartes ont été placées
             if (reserve.children.length > 0) {
                 document.getElementById('feedback').textContent = "Tu dois placer toutes les cartes sur la frise !";
                 document.getElementById('feedback').style.color = "#d35400";
@@ -225,10 +437,9 @@
             isProcessing = true;
             let estCorrect = true;
 
-            // L'ALGORITHME DE VÉRIFICATION : On lit les cases de 1 à 4
             slots.forEach((slot, index) => {
                 let carte = slot.children[0];
-                let ordreAttendu = index + 1; // Le premier slot (index 0) attend l'ordre 1
+                let ordreAttendu = index + 1; 
                 
                 if (parseInt(carte.dataset.ordre) !== ordreAttendu) {
                     estCorrect = false;
@@ -241,25 +452,29 @@
                 fb.textContent = "C'est exact ! Bravo ! ✨";
                 fb.style.color = "#27ae60";
                 sauverProfilCloud(15);
-                setTimeout(() => { niveauActuel++; isProcessing = false; preparerFrise(); }, 2000);
+                setTimeout(() => { 
+                    alert("Tu as complété cette chronologie ! +15 XP 🎉");
+                    retourAccueil(); 
+                }, 1500);
             } else {
                 vies--;
                 document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3 - vies);
                 fb.textContent = "Aïe... L'ordre n'est pas bon. Réessaie !";
                 fb.style.color = "#c0392b";
                 
-                // On remet toutes les cartes dans la réserve pour qu'elle recommence
+                // On replace toutes les cartes dans la réserve
                 setTimeout(() => {
                     slots.forEach(slot => {
                         if (slot.children.length > 0) reserve.appendChild(slot.children[0]);
                     });
                     isProcessing = false;
                     fb.textContent = "";
+                    if(vies <= 0) preparerFrise(); // Force l'alerte Game Over via la fonction
                 }, 2000);
             }
         }
 
-        document.addEventListener("DOMContentLoaded", chargerProfilCloud);
+        document.addEventListener("DOMContentLoaded", initApp);
     </script>
 </body>
 </html>
