@@ -18,7 +18,7 @@
         #app { 
             background: white; padding: 30px; border-radius: 20px; 
             box-shadow: 0 10px 30px rgba(233, 30, 99, 0.2); 
-            max-width: 700px; width: 100%; text-align: center; position: relative; 
+            max-width: 800px; width: 100%; text-align: center; position: relative; 
         }
         
         h1 { color: #e91e63; font-weight: 900; font-size: 2.2rem; margin-bottom: 5px; }
@@ -39,9 +39,10 @@
         }
         .btn-theme:active { transform: translateY(4px); box-shadow: none; }
         
-        /* Couleur spécifique au niveau 3 (Audio Blind Test) */
         .btn-theme.niveau-audio { border-color: #9b59b6; color: #8e44ad; box-shadow: 0 4px 0 #9b59b6; }
+        .btn-theme.custom-theme { border-color: #f39c12; color: #d35400; box-shadow: 0 4px 0 #f39c12; }
         .theme-icon { font-size: 2rem; }
+        .btn-supprimer { background: #e74c3c; color: white; border: none; border-radius: 8px; padding: 5px 10px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #c0392b; margin-top: 5px; font-size: 0.8rem;}
 
         /* HUD Jeu */
         #hud-jeu { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; border: 2px solid #ecf0f1;}
@@ -54,7 +55,6 @@
         }
         #mot-anglais { font-size: 3rem; font-weight: 900; color: #34495e; }
         
-        /* Animation spéciale quand l'audio est masqué */
         .mot-cache { color: #bdc3c7 !important; font-style: italic; letter-spacing: 10px; }
 
         .btn-audio { 
@@ -75,14 +75,24 @@
         .btn-opt.correct { background: #2ecc71; color: white; border-color: #27ae60; box-shadow: 0 4px 0 #2196f3;}
         .btn-opt.erreur { background: #e74c3c; color: white; border-color: #c0392b; box-shadow: 0 4px 0 #c0392b;}
 
-        .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; text-decoration: none; display: inline-block; transition: 0.2s; margin-top: 15px;}
+        /* Boutons d'interface */
+        .btn-nav { font-family: 'Nunito', sans-serif; background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; text-decoration: none; display: inline-block; transition: 0.2s; margin-top: 15px;}
         .btn-nav:hover { background: #7f8c8d; }
+        .btn-primaire { background: #8e44ad; box-shadow: 0 4px #732d91; }
+        
+        #feedback { font-size: 1.5rem; font-weight: 900; height: 35px; margin-bottom: 15px; }
+
+        /* Configuration et Modales */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;}
+        
+        .zone-config { background: #fff3cd; padding: 25px; border-radius: 15px; margin-top: 20px; border: 2px dashed #f1c40f; text-align: left; }
+        .input-texte { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #dfe6e9; border-radius: 8px; font-family: 'Nunito', sans-serif; font-size: 1rem; }
+        .btn-valider { background: #27ae60; color: white; font-size: 1.1rem; font-weight: bold; padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; margin-top: 10px; width: 100%; transition: 0.2s;}
         
         .ecran { display: none; }
         .ecran.actif { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-        
-        #feedback { font-size: 1.5rem; font-weight: 900; height: 35px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
@@ -122,15 +132,30 @@
                     <button class="btn-theme" style="border-color: #81d4fa; color: #0277bd; box-shadow: 0 4px 0 #81d4fa;" onclick="lancerTheme('actions', '🏃‍♀️ Les Actions (Verbes)')">
                         <span class="theme-icon">🏃‍♀️</span><span>Les Actions</span>
                     </button>
+                    <button class="btn-theme" style="border-color: #81d4fa; color: #0277bd; box-shadow: 0 4px 0 #81d4fa;" onclick="lancerTheme('vetements', '👗 Les Vêtements')">
+                        <span class="theme-icon">👗</span><span>Les Vêtements</span>
+                    </button>
+                    <button class="btn-theme" style="border-color: #81d4fa; color: #0277bd; box-shadow: 0 4px 0 #81d4fa;" onclick="lancerTheme('nourriture', '🍎 La Nourriture')">
+                        <span class="theme-icon">🍎</span><span>La Nourriture</span>
+                    </button>
+                    <button class="btn-theme" style="border-color: #81d4fa; color: #0277bd; box-shadow: 0 4px 0 #81d4fa;" onclick="lancerTheme('emotions', '😊 Les Émotions')">
+                        <span class="theme-icon">😊</span><span>Les Émotions</span>
+                    </button>
                     <button class="btn-theme" style="border-color: #81d4fa; color: #0277bd; box-shadow: 0 4px 0 #81d4fa;" onclick="lancerTheme('phrases', '💬 Petites Phrases')">
                         <span class="theme-icon">💬</span><span>Petites Phrases</span>
                     </button>
                 </div>
             </div>
+            
+            <!-- SECTION CUSTOM -->
+            <div class="niveau-section" id="container-custom" style="display:none; background:#fef9e7; border-color:#fcf3cf;">
+                <div class="niveau-titre" style="color: #f39c12;">🟠 Étape 3 : Tes Listes Personnalisées</div>
+                <div class="grid-menu" id="grid-custom"></div>
+            </div>
 
             <!-- NOUVEAUTÉ : Le Mode "Blind Test" (Écoute Active) -->
             <div class="niveau-section" style="background: #f4ecf7; border-color: #e8daef;">
-                <div class="niveau-titre" style="color: #8e44ad;">🟣 Étape 3 : Challenge Écoute (Blind Test)</div>
+                <div class="niveau-titre" style="color: #8e44ad;">🟣 Étape 4 : Challenge Écoute (Blind Test)</div>
                 <div class="grid-menu" style="grid-template-columns: 1fr;">
                     <button class="btn-theme niveau-audio" onclick="lancerTheme('ecoute_mix', '🎧 Mix Écoute Seule', true)">
                         <span class="theme-icon">🎧</span>
@@ -139,6 +164,8 @@
                 </div>
             </div>
 
+            <button class="btn-nav btn-primaire" onclick="ouvrirAuthParent()">⚙️ Créer une Leçon d'Anglais</button>
+            <br>
             <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
@@ -162,19 +189,54 @@
         </div>
     </div>
 
+    <!-- MODAL AUTH PARENTS -->
+    <div id="overlay-auth" class="overlay">
+        <div class="modal">
+            <h2 style="color: #2c3e50;">⚙️ Espace Parents</h2>
+            <input type="password" id="pin-parents" class="input-texte" placeholder="Saisissez le code PIN" style="text-align:center;">
+            <button class="btn-valider" onclick="verifierPinParent()">Déverrouiller</button>
+            <p id="msg-auth-erreur" style="color: #e74c3c; font-weight: bold; margin-top:10px;"></p>
+            <button class="btn-nav" style="width:100%; margin-top:20px;" onclick="document.getElementById('overlay-auth').style.display='none'">Fermer</button>
+        </div>
+    </div>
+
+    <!-- MODAL CRÉATION -->
+    <div id="overlay-creation" class="overlay">
+        <div class="modal">
+            <h2 style="color: #8e44ad;">✍️ Créer une Liste d'Anglais</h2>
+            
+            <div class="zone-config">
+                <label><strong>Titre de la liste (ex: À l'école) :</strong></label>
+                <input type="text" id="input-nom-theme" class="input-texte" placeholder="Titre de la liste...">
+
+                <label><strong>Mots à traduire (Anglais = Français) :</strong></label>
+                <p style="font-size:0.85rem; color:#e67e22; margin-bottom:5px;">L'application génèrera automatiquement les faux choix !</p>
+                <textarea id="input-mots" class="input-texte" rows="6" placeholder="Pencil = Crayon&#10;Teacher = Professeur&#10;Book = Livre"></textarea>
+                
+                <button class="btn-valider" style="background: #8e44ad;" onclick="sauvegarderThemeCloud()">Sauvegarder dans le Cloud</button>
+                <p id="msg-config" style="color: #27ae60; font-weight: bold; margin-top: 10px; text-align:center;"></p>
+            </div>
+            <button class="btn-nav" style="width:100%; margin-top:20px;" onclick="document.getElementById('overlay-creation').style.display='none'">Fermer l'éditeur</button>
+        </div>
+    </div>
+
     <script>
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
         const DB_URL = `${FIREBASE_URL}scores/lola/anglaisLola.json`;
+        const DB_CUSTOM_URL = `${FIREBASE_URL}scores/parent_settings/customAnglais.json`;
+        const DB_SETTINGS_URL = `${FIREBASE_URL}scores/parent_settings.json`;
         
         let xpGlobale = 0;
+        let customThemes = {};
+        let pinParental = "1234";
+
         let themeActuel = null;
+        let isCustomMode = false;
         let questionActuelle = null;
         let bloque = false;
         let vies = 3;
         let numQuestion = 0;
         const totalQuestions = 5;
-        
-        // Variable pour le nouveau mode Audio
         let modeAudioSeul = false;
 
         let sacsVocabulaire = {};
@@ -190,7 +252,7 @@
             couleurs: [
                 { en: "Red", fr: "Rouge" }, { en: "Blue", fr: "Bleu" }, { en: "Yellow", fr: "Jaune" }, 
                 { en: "Green", fr: "Vert" }, { en: "Black", fr: "Noir" }, { en: "White", fr: "Blanc" },
-                { en: "Pink", fr: "Rose" }, { en: "Orange", fr: "Orange" }
+                { en: "Pink", fr: "Rose" }, { en: "Orange", fr: "Orange" }, { en: "Purple", fr: "Violet" }
             ],
             famille: [
                 { en: "Mother", fr: "Maman (Mère)" }, { en: "Father", fr: "Papa (Père)" }, 
@@ -205,15 +267,29 @@
             animaux: [
                 { en: "Dog", fr: "Chien" }, { en: "Cat", fr: "Chat" }, { en: "Bird", fr: "Oiseau" }, 
                 { en: "Fish", fr: "Poisson" }, { en: "Mouse", fr: "Souris" }, { en: "Horse", fr: "Cheval" },
-                { en: "Rabbit", fr: "Lapin" }, { en: "Cow", fr: "Vache" }, { en: "Lion", fr: "Lion" }
+                { en: "Rabbit", fr: "Lapin" }, { en: "Cow", fr: "Vache" }, { en: "Lion", fr: "Lion" },
+                { en: "Pig", fr: "Cochon" }, { en: "Duck", fr: "Canard" }
             ],
-            // NOUVEAU : Les Verbes d'action
             actions: [
                 { en: "Jump", fr: "Sauter" }, { en: "Run", fr: "Courir" }, { en: "Walk", fr: "Marcher" },
                 { en: "Swim", fr: "Nager" }, { en: "Eat", fr: "Manger" }, { en: "Drink", fr: "Boire" },
-                { en: "Sleep", fr: "Dormir" }, { en: "Play", fr: "Jouer" }, { en: "Sing", fr: "Chanter" }
+                { en: "Sleep", fr: "Dormir" }, { en: "Play", fr: "Jouer" }, { en: "Sing", fr: "Chanter" },
+                { en: "Read", fr: "Lire" }, { en: "Write", fr: "Écrire" }
             ],
-            // NOUVEAU : Construction de phrases
+            vetements: [
+                { en: "T-shirt", fr: "T-shirt" }, { en: "Trousers", fr: "Pantalon" }, { en: "Shoes", fr: "Chaussures" },
+                { en: "Dress", fr: "Robe" }, { en: "Skirt", fr: "Jupe" }, { en: "Socks", fr: "Chaussettes" },
+                { en: "Hat", fr: "Chapeau" }, { en: "Coat", fr: "Manteau" }
+            ],
+            nourriture: [
+                { en: "Apple", fr: "Pomme" }, { en: "Banana", fr: "Banane" }, { en: "Bread", fr: "Pain" },
+                { en: "Cheese", fr: "Fromage" }, { en: "Water", fr: "Eau" }, { en: "Milk", fr: "Lait" },
+                { en: "Cake", fr: "Gâteau" }, { en: "Chocolate", fr: "Chocolat" }
+            ],
+            emotions: [
+                { en: "Happy", fr: "Heureux / Joyeux" }, { en: "Sad", fr: "Triste" }, { en: "Angry", fr: "En colère" },
+                { en: "Scared", fr: "Effrayé / Peur" }, { en: "Tired", fr: "Fatigué" }, { en: "Hungry", fr: "Affamé" }
+            ],
             phrases: [
                 { en: "Hello!", fr: "Bonjour !" }, { en: "Goodbye!", fr: "Au revoir !" },
                 { en: "How are you?", fr: "Comment ça va ?" }, { en: "I am fine.", fr: "Je vais bien." },
@@ -223,7 +299,7 @@
             ]
         };
 
-        // Création du super-tableau pour le test d'écoute aléatoire
+        // Création du super-tableau pour le test d'écoute
         vocabulaire.ecoute_mix = [];
         for (let categorie in vocabulaire) {
             if (categorie !== 'ecoute_mix') {
@@ -233,13 +309,27 @@
 
         const E = (id) => document.getElementById(id);
 
-        async function chargerXP() {
+        async function initApp() {
             try {
                 let res = await fetch(DB_URL);
                 let data = await res.json();
                 if (data && data.xp !== undefined) xpGlobale = parseInt(data.xp) || 0;
                 E('hud-xp').textContent = `XP: ${xpGlobale} ⭐`;
             } catch(e) {}
+            
+            try {
+                let resCustom = await fetch(DB_CUSTOM_URL);
+                let dataCustom = await resCustom.json();
+                if (dataCustom) customThemes = dataCustom;
+            } catch(e) {}
+            
+            try {
+                let resSet = await fetch(DB_SETTINGS_URL);
+                let dataSet = await resSet.json();
+                if (dataSet && dataSet.pinCode) pinParental = dataSet.pinCode;
+            } catch(e) {}
+
+            afficherThemesCustom();
         }
 
         async function ajouterXP(p) {
@@ -251,10 +341,85 @@
         function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); E(id).classList.add('actif'); }
         function retourMenu() { changerEcran('ecran-menu'); themeActuel = null; modeAudioSeul = false; }
 
-        // Moteur de lancement (Modifié pour accepter le flag "estAudio")
-        function lancerTheme(themeKey, titre, estAudio = false) {
+        // --- GESTION DES LISTES CUSTOM ---
+        function afficherThemesCustom() {
+            const conteneur = E('grid-custom');
+            const section = E('container-custom');
+            conteneur.innerHTML = '';
+            
+            if (Object.keys(customThemes).length > 0) {
+                section.style.display = "block";
+                for (let id in customThemes) {
+                    let btn = document.createElement('button');
+                    btn.className = "btn-theme custom-theme";
+                    btn.innerHTML = `
+                        <div style="font-size: 1.1rem; color:#d35400;">${customThemes[id].nom}</div>
+                        <div style="font-size:0.85rem; color:#7f8c8d;">${customThemes[id].mots.length} mots</div>
+                        <span class="btn-supprimer" onclick="supprimerThemeCustom(event, '${id}')">Supprimer</span>
+                    `;
+                    btn.onclick = () => lancerTheme(id, customThemes[id].nom, false, true);
+                    conteneur.appendChild(btn);
+                }
+            } else {
+                section.style.display = "none";
+            }
+        }
+
+        function ouvrirAuthParent() {
+            E('pin-parents').value = ""; E('msg-auth-erreur').textContent = "";
+            E('overlay-auth').style.display = 'flex';
+        }
+
+        function verifierPinParent() {
+            if (E('pin-parents').value === pinParental) {
+                E('overlay-auth').style.display = 'none';
+                E('overlay-creation').style.display = 'flex';
+            } else { E('msg-auth-erreur').textContent = "Code PIN incorrect."; }
+        }
+
+        async function sauvegarderThemeCloud() {
+            let nom = E('input-nom-theme').value.trim(); 
+            let motsBruts = E('input-mots').value;
+            
+            if(!nom || !motsBruts) return alert("Remplis le titre et les mots !");
+            
+            let lignes = motsBruts.split('\n'); let pairesFormatees = [];
+            for(let ligne of lignes) { 
+                if(ligne.includes('=')) { 
+                    let parties = ligne.split('=');
+                    let mEn = parties[0].trim(); let mFr = parties[1].trim();
+                    if (mEn.length > 0 && mFr.length > 0) pairesFormatees.push({ en: mEn, fr: mFr });
+                } 
+            }
+            
+            if(pairesFormatees.length < 4) return alert("Il faut au minimum 4 paires (Anglais=Français) pour jouer !");
+            
+            let id = 'custom_' + Date.now(); 
+            customThemes[id] = { nom: nom, mots: pairesFormatees }; 
+            
+            try { 
+                await fetch(DB_CUSTOM_URL, { method: 'PUT', body: JSON.stringify(customThemes) }); 
+                E('msg-config').textContent = "Liste d'anglais sauvegardée !"; 
+                E('input-nom-theme').value = ""; E('input-mots').value = "";
+                setTimeout(() => { E('msg-config').textContent = ""; E('overlay-creation').style.display = 'none'; }, 2000); 
+                afficherThemesCustom();
+            } catch(e) { alert("Erreur réseau"); }
+        }
+
+        async function supprimerThemeCustom(e, id) {
+            e.stopPropagation();
+            if(confirm("Supprimer définitivement cette liste ?")) {
+                delete customThemes[id];
+                afficherThemesCustom();
+                try { await fetch(DB_CUSTOM_URL, { method: 'PUT', body: JSON.stringify(customThemes) }); } catch(err) {}
+            }
+        }
+
+        // --- MOTEUR DE JEU ---
+        function lancerTheme(themeKey, titre, estAudio = false, isCustom = false) {
             themeActuel = themeKey;
             modeAudioSeul = estAudio;
+            isCustomMode = isCustom;
             vies = 3;
             numQuestion = 1;
             
@@ -279,7 +444,7 @@
             E('ui-progression').textContent = `${numQuestion} / ${totalQuestions}`;
             E('feedback').textContent = "";
             
-            const dictionnaire = vocabulaire[themeActuel];
+            let dictionnaire = isCustomMode ? customThemes[themeActuel].mots : vocabulaire[themeActuel];
             
             if (!sacsVocabulaire[themeActuel] || sacsVocabulaire[themeActuel].length === 0) {
                 sacsVocabulaire[themeActuel] = [...dictionnaire].sort(() => Math.random() - 0.5);
@@ -287,19 +452,18 @@
             
             questionActuelle = sacsVocabulaire[themeActuel].pop();
             
-            // L'INTERFACE CHANGE SI ON EST EN MODE AUDIO
             const btnAudio = E('btn-audio-player');
             const motHTML = E('mot-anglais');
             
             if (modeAudioSeul) {
                 motHTML.textContent = "?????";
                 motHTML.classList.add('mot-cache');
-                btnAudio.classList.add('pulse'); // Le bouton clignote pour attirer l'attention
+                btnAudio.classList.add('pulse');
             } else {
                 motHTML.textContent = questionActuelle.en;
                 motHTML.classList.remove('mot-cache');
                 btnAudio.classList.remove('pulse');
-                ecouterMot(); // Lecture automatique classique
+                ecouterMot(); 
             }
 
             let mauvaisesReponses = [];
@@ -328,7 +492,6 @@
             bloque = true; 
 
             const fb = E('feedback');
-            // Si on était en mode audio, on dévoile le mot une fois répondu
             E('mot-anglais').textContent = questionActuelle.en;
             E('mot-anglais').classList.remove('mot-cache');
             E('btn-audio-player').classList.remove('pulse');
@@ -354,13 +517,16 @@
 
         function ecouterMot() {
             if (!questionActuelle) return;
-            const utterance = new SpeechSynthesisUtterance(questionActuelle.en);
-            utterance.lang = 'en-GB'; 
-            utterance.rate = 0.85; 
-            window.speechSynthesis.speak(utterance);
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(questionActuelle.en);
+                utterance.lang = 'en-GB'; 
+                utterance.rate = 0.85; 
+                window.speechSynthesis.speak(utterance);
+            }
         }
 
-        chargerXP();
+        document.addEventListener("DOMContentLoaded", initApp);
     </script>
 </body>
 </html>
