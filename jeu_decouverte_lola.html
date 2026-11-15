@@ -17,7 +17,7 @@
         
         #app-container { 
             background: white; padding: 30px; border-radius: 20px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2); max-width: 750px; width: 100%; text-align: center; position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); max-width: 800px; width: 100%; text-align: center; position: relative;
         }
         
         h1 { color: #27ae60; font-weight: 900; font-size: 2.2rem; margin-bottom: 5px; }
@@ -31,8 +31,9 @@
         .theme-espace .theme-header { color: #3498db; }
         .theme-temps .theme-header { color: #e67e22; }
         .theme-vivant .theme-header { color: #27ae60; }
+        .theme-custom .theme-header { color: #8e44ad; }
 
-        .grid-niveaux { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .grid-niveaux { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
         .btn-menu-niv {
             background: #f8f9fa; border: 3px solid #e2e8f0; padding: 12px; border-radius: 12px;
             font-size: 1.1rem; font-weight: bold; color: #2c3e50; cursor: pointer; transition: 0.2s;
@@ -42,6 +43,7 @@
         .theme-espace .btn-menu-niv:hover { border-color: #3498db; background: #ebf5fb; }
         .theme-temps .btn-menu-niv:hover { border-color: #e67e22; background: #fdf2e9; }
         .theme-vivant .btn-menu-niv:hover { border-color: #27ae60; background: #eafaf1; }
+        .theme-custom .btn-menu-niv:hover { border-color: #8e44ad; background: #f5eef8; }
 
         /* HUD Jeu */
         #hud { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; border: 2px solid #ecf0f1;}
@@ -49,7 +51,7 @@
 
         /* Zone de la question enrichie */
         #question-box { background: #f1f8ff; padding: 20px; border-radius: 15px; border: 3px dashed #3498db; margin-bottom: 25px; }
-        #question-image { font-size: 4rem; margin-bottom: 10px; animation: pop 0.3s ease-out; }
+        #question-image { font-size: 4.5rem; margin-bottom: 10px; animation: pop 0.3s ease-out; }
         #question-texte { font-size: 1.4rem; font-weight: 900; color: #2c3e50; line-height: 1.4; }
         
         @keyframes pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
@@ -61,8 +63,18 @@
         .btn-rep.erreur { background: #e74c3c; color: white; border-color: #c0392b; box-shadow: 0 4px 0 #c0392b; }
 
         /* Boutons Généraux */
-        .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; text-decoration: none; display: inline-block; transition: 0.2s; }
+        .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; text-decoration: none; display: inline-block; transition: 0.2s; margin-top: 10px;}
         .btn-nav:hover { background: #7f8c8d; }
+        
+        /* Configuration et Modales */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;}
+        
+        .zone-config { background: #fff3cd; padding: 25px; border-radius: 15px; margin-top: 20px; border: 2px dashed #f1c40f; text-align: left; }
+        .input-texte { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #dfe6e9; border-radius: 8px; font-family: 'Nunito', sans-serif; font-size: 1rem; }
+        .btn-valider { background: #27ae60; color: white; font-size: 1.1rem; font-weight: bold; padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; margin-top: 10px; width: 100%; transition: 0.2s;}
+        
+        .btn-supprimer { background: #e74c3c; color: white; border: none; border-radius: 8px; padding: 8px 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #c0392b; margin-top: 5px; font-size: 0.9rem;}
         
         .ecran { display: none; }
         .ecran.actif { display: block; animation: fadeIn 0.4s; }
@@ -99,7 +111,7 @@
                 <div class="theme-header">⏳ Le Temps qui passe</div>
                 <div class="grid-niveaux">
                     <button class="btn-menu-niv" onclick="lancerNiveau('temps_1', 'Les Jours et Saisons')">
-                        <span style="font-size: 1.5rem;">📅</span><span>Niv 1 : Les Jours et Saisons</span>
+                        <span style="font-size: 1.5rem;">📅</span><span>Niv 1 : Jours et Saisons</span>
                     </button>
                     <button class="btn-menu-niv" onclick="lancerNiveau('temps_2', 'Passé, Présent, Futur')">
                         <span style="font-size: 1.5rem;">🕰️</span><span>Niv 2 : Passé, Présent, Futur</span>
@@ -115,12 +127,20 @@
                         <span style="font-size: 1.5rem;">🦊</span><span>Niv 1 : Animaux et Plantes</span>
                     </button>
                     <button class="btn-menu-niv" onclick="lancerNiveau('vivant_2', 'Vivant ou Non-Vivant ?')">
-                        <span style="font-size: 1.5rem;">🪨</span><span>Niv 2 : Vivant ou Non-Vivant ?</span>
+                        <span style="font-size: 1.5rem;">🪨</span><span>Niv 2 : Vivant / Non-Vivant</span>
                     </button>
                 </div>
             </div>
+
+            <!-- SECTION CUSTOM -->
+            <div class="theme-container theme-custom" id="container-custom" style="display:none;">
+                <div class="theme-header">🟣 Tes Leçons (Créées par Papa/Maman)</div>
+                <div class="grid-niveaux" id="grid-custom"></div>
+            </div>
             
-            <button class="btn-nav" style="margin-top: 10px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+            <button class="btn-nav" style="background:#2c3e50; margin-top:10px;" onclick="ouvrirAuthParent()">⚙️ Créer un Quiz</button>
+            <br>
+            <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
         <!-- ECRAN DE JEU -->
@@ -143,72 +163,135 @@
         </div>
     </div>
 
+    <!-- MODAL AUTHENTIFICATION PARENTS -->
+    <div id="overlay-auth" class="overlay">
+        <div class="modal">
+            <h2 style="color: #2c3e50;">⚙️ Espace Parents</h2>
+            <input type="password" id="pin-parents" class="input-texte" placeholder="Saisissez le code PIN" style="text-align:center;">
+            <button class="btn-valider" onclick="verifierPinParent()">Déverrouiller</button>
+            <p id="msg-auth-erreur" style="color: #e74c3c; font-weight: bold; margin-top:10px;"></p>
+            <button class="btn-nav" style="width:100%; margin-top:20px;" onclick="document.getElementById('overlay-auth').style.display='none'">Fermer</button>
+        </div>
+    </div>
+
+    <!-- MODAL CRÉATION DE LEÇON -->
+    <div id="overlay-creation" class="overlay">
+        <div class="modal">
+            <h2 style="color: #8e44ad;">✍️ Créer un Quiz de Géo/Sciences</h2>
+            <p style="color: #7f8c8d; font-size: 0.9rem;">Idéal pour réviser la matière vue en classe.</p>
+            
+            <div class="zone-config">
+                <label><strong>Titre de la leçon (ex: Les Océans) :</strong></label>
+                <input type="text" id="input-nom-theme" class="input-texte" placeholder="Titre de la leçon...">
+                
+                <label><strong>Format des questions :</strong></label>
+                <p style="font-size:0.85rem; color:#e67e22; margin-bottom:5px;">La question | 🏞️(emoji) | BonneRep | Faux1, Faux2</p>
+                <textarea id="input-mots" class="input-texte" rows="6" placeholder="Quel est le plus grand océan ? | 🌊 | L'océan Pacifique | L'océan Indien, La Mer Méditerranée&#10;Où fait-il le plus froid ? | 🧊 | Au pôle Nord | Dans le désert, Dans la forêt"></textarea>
+                
+                <button class="btn-valider" style="background: #8e44ad;" onclick="sauvegarderThemeCloud()">Sauvegarder dans le Cloud</button>
+                <p id="msg-config" style="color: #27ae60; font-weight: bold; margin-top: 10px; text-align:center;"></p>
+            </div>
+            <button class="btn-nav" style="width:100%; margin-top:20px;" onclick="document.getElementById('overlay-creation').style.display='none'">Fermer l'éditeur</button>
+        </div>
+    </div>
+
     <script>
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
         const DB_URL = `${FIREBASE_URL}scores/lola/geoLola.json`;
+        const DB_CUSTOM_URL = `${FIREBASE_URL}scores/parent_settings/customGeo.json`;
+        const DB_SETTINGS_URL = `${FIREBASE_URL}scores/parent_settings.json`;
 
-        // BASE DE DONNÉES ENRICHIE AVEC DES EMOJIS VISUELS
+        // BASE DE DONNÉES ENRICHIE POUR LA REJOUABILITÉ
         const bdd = {
             espace_1: [
                 { img: "🌍", q: "Sur quel continent habitons-nous ?", rep: "En Europe", faux: ["En Asie", "En Afrique", "En Amérique"] },
                 { img: "🌊", q: "Comment s'appelle une très grande étendue d'eau salée ?", rep: "Un océan", faux: ["Une rivière", "Un lac", "Un fleuve"] },
-                { img: "🏝️", q: "Qu'est-ce qu'une île ?", rep: "Une terre entourée d'eau", faux: ["Une grande montagne", "Une forêt très dense", "Un désert de sable"] },
+                { img: "🏝️", q: "Qu'est-ce qu'une île ?", rep: "Une terre entourée d'eau", faux: ["Une grande montagne", "Une forêt", "Un désert"] },
                 { img: "🇫🇷", q: "Quelle est la capitale de la France ?", rep: "Paris", faux: ["Lyon", "Marseille", "Londres"] },
-                { img: "🌐", q: "Comment s'appelle l'objet rond qui représente la Terre ?", rep: "Un globe terrestre", faux: ["Une boussole", "Une longue-vue", "Une carte"] }
+                { img: "🌐", q: "Comment s'appelle l'objet rond qui représente la Terre ?", rep: "Un globe terrestre", faux: ["Une boussole", "Une longue-vue", "Une carte"] },
+                { img: "💧", q: "Où trouve-t-on de l'eau douce ?", rep: "Dans les rivières", faux: ["Dans la mer", "Dans l'océan", "Sur la plage"] },
+                { img: "🧭", q: "Quels sont les 4 points cardinaux ?", rep: "Nord, Sud, Est, Ouest", faux: ["Haut, Bas, Gauche, Droite", "Avant, Arrière", "Terre, Mer"] },
+                { img: "🇫🇷", q: "La France a une forme qui ressemble à...", rep: "Un hexagone (6 côtés)", faux: ["Un carré", "Un triangle", "Un cercle"] }
             ],
             espace_2: [
                 { img: "🏖️", q: "Quel est le paysage où l'on trouve du sable et la mer ?", rep: "Le littoral (la côte)", faux: ["La montagne", "La campagne", "La forêt"] },
-                { img: "🏙️", q: "Où trouve-t-on beaucoup de grands immeubles et de routes ?", rep: "En ville", faux: ["À la campagne", "À la montagne", "Dans la forêt"] },
+                { img: "🏙️", q: "Où trouve-t-on beaucoup de grands immeubles et de routes ?", rep: "En ville", faux: ["À la campagne", "À la montagne", "En forêt"] },
                 { img: "🚜", q: "Où trouve-t-on des champs cultivés et des fermes ?", rep: "À la campagne", faux: ["En ville", "Au pôle nord", "Dans le désert"] },
-                { img: "⛷️", q: "Dans quel paysage peut-on voir des vallées et des sommets ?", rep: "À la montagne", faux: ["Sur le littoral", "En pleine ville", "Dans l'océan"] },
-                { img: "🧭", q: "Quel outil utilise-t-on pour s'orienter et trouver le Nord ?", rep: "Une boussole", faux: ["Un thermomètre", "Une montre", "Une balance"] }
+                { img: "⛷️", q: "Dans quel paysage peut-on voir des vallées et des sommets ?", rep: "À la montagne", faux: ["Sur le littoral", "En ville", "Dans l'océan"] },
+                { img: "🌵", q: "Qu'est-ce qu'un désert ?", rep: "Un endroit très sec sans arbre", faux: ["Une forêt de sapins", "Une grande ville", "Une rivière"] },
+                { img: "🌋", q: "Comment appelle-t-on une montagne qui crache de la lave ?", rep: "Un volcan", faux: ["Une colline", "Une dune", "Un pic"] },
+                { img: "🛣️", q: "Comment appelle-t-on les constructions faites par les hommes ?", rep: "Aménagements humains", faux: ["La nature", "Les animaux", "Les forêts"] }
             ],
             temps_1: [
                 { img: "📆", q: "Combien y a-t-il de mois dans une année entière ?", rep: "12 mois", faux: ["10 mois", "7 mois", "24 mois"] },
                 { img: "🌸", q: "Quelle saison vient juste après l'hiver ?", rep: "Le printemps", faux: ["L'été", "L'automne", "La saison des pluies"] },
                 { img: "🏫", q: "Quel mois marque la rentrée des classes en France ?", rep: "Septembre", faux: ["Juillet", "Octobre", "Décembre"] },
                 { img: "🍂", q: "Dans quelle saison les feuilles tombent-elles des arbres ?", rep: "L'automne", faux: ["Le printemps", "L'été", "L'hiver"] },
-                { img: "🌞", q: "Quelle est la saison la plus chaude de l'année ?", rep: "L'été", faux: ["L'hiver", "L'automne", "Le printemps"] }
+                { img: "🌞", q: "Quelle est la saison la plus chaude de l'année ?", rep: "L'été", faux: ["L'hiver", "L'automne", "Le printemps"] },
+                { img: "🗓️", q: "Combien y a-t-il de jours dans une semaine ?", rep: "7 jours", faux: ["5 jours", "10 jours", "30 jours"] },
+                { img: "⛄", q: "Pendant quelle saison les journées sont-elles les plus courtes ?", rep: "L'hiver", faux: ["L'été", "Le printemps", "L'automne"] }
             ],
             temps_2: [
                 { img: "⌚", q: "Combien y a-t-il d'heures dans une journée complète ?", rep: "24 heures", faux: ["12 heures", "60 heures", "7 heures"] },
                 { img: "🦕", q: "Le temps des dinosaures, c'est...", rep: "Le passé", faux: ["Le présent", "Le futur", "Demain"] },
                 { img: "🚀", q: "Quand tu seras grande et que tu travailleras, ce sera...", rep: "Le futur", faux: ["Le passé", "Le présent", "Hier"] },
-                { img: "🎮", q: "Ce que tu es en train de faire en ce moment même, c'est...", rep: "Le présent", faux: ["Le passé", "Le futur", "L'année prochaine"] },
-                { img: "⏰", q: "S'il est 8h00, c'est...", rep: "Le matin", faux: ["L'après-midi", "Le soir", "La nuit"] }
+                { img: "🎮", q: "Ce que tu es en train de faire en ce moment même, c'est...", rep: "Le présent", faux: ["Le passé", "Le futur", "L'an prochain"] },
+                { img: "⏰", q: "S'il est 8h00, c'est...", rep: "Le matin", faux: ["L'après-midi", "Le soir", "La nuit"] },
+                { img: "⏳", q: "Combien y a-t-il de minutes dans une heure ?", rep: "60 minutes", faux: ["10 minutes", "100 minutes", "24 minutes"] }
             ],
             vivant_1: [
-                { img: "🌱", q: "Que faut-il à une plante pour grandir ?", rep: "De l'eau et de la lumière", faux: ["Seulement de la terre", "Du vent et du sable", "Rien du tout"] },
+                { img: "🌱", q: "Que faut-il à une plante pour grandir ?", rep: "Eau et lumière", faux: ["Seulement de la terre", "Du vent", "Du sucre"] },
                 { img: "🐱", q: "Lequel de ces animaux est un mammifère (il allaite ses petits) ?", rep: "Le chat", faux: ["La poule", "Le crocodile", "Le requin"] },
                 { img: "🧊", q: "Sous quelle forme est l'eau quand elle est transformée en glace ?", rep: "Solide", faux: ["Liquide", "Gazeuse", "Chaude"] },
                 { img: "🐝", q: "Quel insecte butine les fleurs pour fabriquer du miel ?", rep: "L'abeille", faux: ["La fourmi", "Le moustique", "Le papillon"] },
-                { img: "🐣", q: "Comment appelle-t-on un animal qui naît dans un œuf ?", rep: "Un ovipare", faux: ["Un mammifère", "Un herbivore", "Un dinosaure"] }
+                { img: "🐣", q: "Comment appelle-t-on un animal qui naît dans un œuf ?", rep: "Un ovipare", faux: ["Un mammifère", "Un herbivore", "Un dinosaure"] },
+                { img: "🐸", q: "Quel animal subit une métamorphose en grandissant ?", rep: "La grenouille (têtard)", faux: ["Le chat", "L'oiseau", "Le poisson"] },
+                { img: "💧", q: "Quelle est la forme de l'eau dans une rivière ?", rep: "Liquide", faux: ["Solide", "Gazeuse", "Glace"] }
             ],
             vivant_2: [
                 { img: "🪨", q: "Lequel de ces éléments est NON-VIVANT ?", rep: "Un caillou", faux: ["Un arbre", "Une fourmi", "Un champignon"] },
                 { img: "🦁", q: "Comment appelle-t-on les animaux qui mangent de la viande ?", rep: "Les carnivores", faux: ["Les herbivores", "Les végétariens", "Les omnivores"] },
                 { img: "🐄", q: "La vache mange de l'herbe. Elle est donc...", rep: "Herbivore", faux: ["Carnivore", "Insectivore", "Omnivore"] },
                 { img: "🧍‍♀️", q: "Les humains mangent de tout (viande, plantes). Ils sont...", rep: "Omnivores", faux: ["Herbivores", "Carnivores", "Granivores"] },
-                { img: "🌳", q: "Un arbre grandit, se nourrit et meurt. Est-il vivant ?", rep: "Oui, c'est un être vivant", faux: ["Non, c'est comme un caillou", "Non, car il ne bouge pas", "Non, car il ne parle pas"] }
+                { img: "🌳", q: "Un arbre grandit, se nourrit et meurt. Est-il vivant ?", rep: "Oui, c'est un être vivant", faux: ["Non, c'est comme un caillou", "Non, car il ne bouge pas"] },
+                { img: "🚗", q: "Une voiture bouge et a besoin d'essence. Est-elle vivante ?", rep: "Non, c'est une machine", faux: ["Oui, car elle bouge", "Oui, car elle boit de l'essence"] }
             ]
         };
 
         let profil = { xp: 0 };
+        let customThemes = {};
+        let pinParental = "1234";
+        
         let vies = 3; 
         let indexQuestion = 0; 
         let listeQuestions = []; 
         let bloque = false;
         let questionActuelle = null;
+        let sacsQuestions = {}; // Pour ne jamais avoir la même question de suite
 
         const E = (id) => document.getElementById(id);
 
-        async function chargerProfilCloud() {
+        async function initApp() {
             try {
                 let res = await fetch(DB_URL);
                 let data = await res.json();
                 if (data && data.xp !== undefined) profil.xp = parseInt(data.xp) || 0;
             } catch(e) {}
+            
+            try {
+                let resCustom = await fetch(DB_CUSTOM_URL);
+                let dataCustom = await resCustom.json();
+                if (dataCustom) customThemes = dataCustom;
+            } catch(e) {}
+            
+            try {
+                let resSet = await fetch(DB_SETTINGS_URL);
+                let dataSet = await resSet.json();
+                if (dataSet && dataSet.pinCode) pinParental = dataSet.pinCode;
+            } catch(e) {}
+
             majXP();
+            afficherThemesCustom();
         }
 
         async function sauverProfilCloud() {
@@ -221,13 +304,107 @@
         function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); E(id).classList.add('actif'); }
         function retourAccueil() { changerEcran('ecran-accueil'); }
 
-        function lancerNiveau(mode, titreNiveau) {
+        // --- GESTION DES LISTES CUSTOM ---
+        function afficherThemesCustom() {
+            const conteneur = E('grid-custom');
+            const section = E('container-custom');
+            conteneur.innerHTML = '';
+            
+            if (Object.keys(customThemes).length > 0) {
+                section.style.display = "block";
+                for (let id in customThemes) {
+                    let btn = document.createElement('button');
+                    btn.className = "btn-menu-niv";
+                    btn.innerHTML = `
+                        <div style="font-size: 1.1rem; color:#8e44ad;">${customThemes[id].nom}</div>
+                        <div style="font-size:0.85rem; color:#7f8c8d;">${customThemes[id].questions.length} questions</div>
+                        <span class="btn-supprimer" onclick="supprimerThemeCustom(event, '${id}')">Supprimer</span>
+                    `;
+                    btn.onclick = () => lancerNiveau(id, customThemes[id].nom, true);
+                    conteneur.appendChild(btn);
+                }
+            } else {
+                section.style.display = "none";
+            }
+        }
+
+        function ouvrirAuthParent() {
+            E('pin-parents').value = "";
+            E('msg-auth-erreur').textContent = "";
+            E('overlay-auth').style.display = 'flex';
+        }
+
+        function verifierPinParent() {
+            if (E('pin-parents').value === pinParental) {
+                E('overlay-auth').style.display = 'none';
+                E('overlay-creation').style.display = 'flex';
+            } else {
+                E('msg-auth-erreur').textContent = "Code PIN incorrect.";
+            }
+        }
+
+        async function sauvegarderThemeCloud() {
+            let nom = E('input-nom-theme').value.trim(); 
+            let motsBruts = E('input-mots').value;
+            
+            if(!nom || !motsBruts) return alert("Remplis le titre et les questions !");
+            
+            let lignes = motsBruts.split('\n'); let questionsQCM = [];
+            for(let ligne of lignes) { 
+                if(ligne.includes('|')) { 
+                    let parties = ligne.split('|');
+                    if(parties.length >= 4) {
+                        let phrase = parties[0].trim();
+                        let img = parties[1].trim();
+                        let rep = parties[2].trim();
+                        let faux = parties[3].split(',').map(s => s.trim());
+                        questionsQCM.push({ q: phrase, img: img, rep: rep, faux: faux });
+                    }
+                } 
+            }
+            
+            if(questionsQCM.length === 0) return alert("Le format n'est pas respecté (utilise les barres | ) !");
+            
+            let id = 'custom_' + Date.now(); 
+            customThemes[id] = { nom: nom, questions: questionsQCM }; 
+            
+            try { 
+                await fetch(DB_CUSTOM_URL, { method: 'PUT', body: JSON.stringify(customThemes) }); 
+                E('msg-config').textContent = "Leçon sauvegardée sur le Cloud !"; 
+                E('input-nom-theme').value = ""; E('input-mots').value = "";
+                setTimeout(() => { E('msg-config').textContent = ""; E('overlay-creation').style.display = 'none'; }, 2000); 
+                afficherThemesCustom();
+            } catch(e) { alert("Erreur réseau"); }
+        }
+        
+        async function supprimerThemeCustom(e, id) {
+            e.stopPropagation();
+            if(confirm("Supprimer cette leçon pour de bon ?")) {
+                delete customThemes[id];
+                afficherThemesCustom();
+                try { await fetch(DB_CUSTOM_URL, { method: 'PUT', body: JSON.stringify(customThemes) }); } catch(err) {}
+            }
+        }
+
+        // --- MOTEUR DE JEU (AVEC PIOCHE INTELLIGENTE) ---
+        function piocherQuestions(categorie, nombre, isCustom) {
+            let dataSource = isCustom ? customThemes[categorie].questions : bdd[categorie];
+            
+            if (!sacsQuestions[categorie] || sacsQuestions[categorie].length < Math.min(nombre, dataSource.length)) {
+                sacsQuestions[categorie] = [...dataSource].sort(() => Math.random() - 0.5);
+            }
+            
+            return sacsQuestions[categorie].splice(0, Math.min(nombre, sacsQuestions[categorie].length));
+        }
+
+        function lancerNiveau(mode, titreNiveau, isCustom = false) {
             vies = 3; 
             indexQuestion = 0; 
             E('ui-titre-niveau').textContent = titreNiveau;
             
-            // Si la base contient plus de 5 questions à l'avenir, ça en piochera 5 aléatoirement !
-            listeQuestions = [...bdd[mode]].sort(() => Math.random() - 0.5).slice(0, 5); 
+            listeQuestions = piocherQuestions(mode, 5, isCustom); 
+            
+            if(listeQuestions.length === 0) return alert("Erreur : aucune question disponible.");
             
             E('ui-vies').textContent = "❤️❤️❤️"; 
             E('feedback').textContent = ""; 
@@ -242,7 +419,7 @@
                 return retourAccueil();
             }
             if (indexQuestion >= listeQuestions.length) {
-                alert("Niveau terminé ! Bien joué Lola ! +15 XP 🎉");
+                alert("🎉 Série terminée ! Bien joué Lola ! Tu as gagné de l'XP.");
                 ajouterXP(15);
                 return retourAccueil();
             }
@@ -253,13 +430,14 @@
             
             questionActuelle = listeQuestions[indexQuestion];
             E('question-texte').textContent = questionActuelle.q;
-            E('question-image').textContent = questionActuelle.img; // Affiche l'emoji
+            E('question-image').textContent = questionActuelle.img; 
             
-            // Retire l'animation et la remet pour qu'elle s'exécute à chaque question
             E('question-image').style.animation = 'none';
             setTimeout(() => { E('question-image').style.animation = ''; }, 10);
 
-            let options = [questionActuelle.rep, ...questionActuelle.faux];
+            // On ne garde que la bonne réponse + 3 mauvaises au maximum pour l'interface
+            let optionsFaux = [...questionActuelle.faux].sort(() => Math.random() - 0.5).slice(0, 3);
+            let options = [questionActuelle.rep, ...optionsFaux];
             options.sort(() => Math.random() - 0.5);
 
             const boxBoutons = E('boutons-reponses'); 
@@ -298,7 +476,7 @@
             }
         }
 
-        document.addEventListener("DOMContentLoaded", chargerProfilCloud);
+        document.addEventListener("DOMContentLoaded", initApp);
     </script>
 </body>
 </html>
