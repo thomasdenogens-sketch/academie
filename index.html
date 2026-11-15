@@ -82,7 +82,6 @@
         .boutique-lola { border-color: #f368e0; background: #fff0f5; }
         .boutique-lola .zone-titre { color: #f368e0; }
         
-        /* Les zones libres utilisent une couleur verte pour se différencier */
         .zone-libre.deverrouille { border-color: #2ecc71; background: #fafffb; }
         .zone-libre.deverrouille .zone-titre { color: #27ae60; }
 
@@ -202,31 +201,31 @@
                     </a>
                 </div>
 
-                <!-- ZONE JEUX LIBRES VERROUILLÉE PAR DÉFAUT -->
+                <!-- ZONE JEUX LIBRES THÉO -->
                 <div id="zone-libre-theo" class="zone-speciale zone-libre verrouille">
                     <div class="zone-titre">🕹️ Jeux de Réflexion (Temps Libre)</div>
                     <div class="unlock-progress-container"><div id="theo-libre-bar" class="unlock-progress-bar" style="background: #27ae60;"></div></div>
                     <div id="theo-libre-msg" class="unlock-message" style="color: #27ae60;">Gagne de l'XP à l'école pour débloquer !</div>
                     <div class="games-list">
-                        <a href="jeu_echecs.html" class="game-btn libre-btn" onclick="return enregistrerDepartLibre('Échecs', 'Théo')">
+                        <a href="jeu_echecs.html" class="game-btn libre-btn" onclick="return enregistrerDepartLibre('Échecs', 'Théo', false)">
                             <span class="game-icon">♟️</span><span>Jeu d'Échecs</span>
                         </a>
-                        <a href="jeu_tangram.html" class="game-btn libre-btn" onclick="return enregistrerDepartLibre('Tangram', 'Théo')">
+                        <a href="jeu_tangram.html" class="game-btn libre-btn" onclick="return enregistrerDepartLibre('Tangram', 'Théo', false)">
                             <span class="game-icon">🔺</span><span>Le Tangram</span>
                         </a>
-                        <a href="jeu_dames.html" class="game-btn libre-btn" onclick="return enregistrerDepartLibre('Dames', 'Théo')">
+                        <a href="jeu_dames.html" class="game-btn libre-btn" onclick="return enregistrerDepartLibre('Dames', 'Théo', false)">
                             <span class="game-icon">👑</span><span>Jeu de Dames vs Ordi</span>
                         </a>
                     </div>
                 </div>
 
-                <!-- ZONE RÉCRÉATION VERROUILLÉE PAR DÉFAUT -->
+                <!-- ZONE RÉCRÉATION THÉO -->
                 <div id="zone-recreation-theo" class="zone-speciale verrouille">
                     <div class="zone-titre">🔓 Le Bonus du Codeur</div>
                     <div class="unlock-progress-container"><div id="theo-unlock-bar" class="unlock-progress-bar"></div></div>
                     <div id="theo-unlock-msg" class="unlock-message">Gagne de l'XP aujourd'hui pour débloquer !</div>
                     <div class="games-list">
-                        <a href="jeu_code.html" class="game-btn" onclick="return enregistrerDepartLibre('Code', 'Théo')">
+                        <a href="jeu_code.html" class="game-btn" onclick="return enregistrerDepartLibre('Code', 'Théo', true)">
                             <span class="game-icon">🤖</span><span>Code & Logique</span>
                         </a>
                     </div>
@@ -271,16 +270,16 @@
                     </a>
                 </div>
 
-                <!-- ZONE JEUX LIBRES VERROUILLÉE PAR DÉFAUT -->
+                <!-- ZONE JEUX LIBRES LOLA -->
                 <div id="zone-libre-lola" class="zone-speciale zone-libre verrouille">
                     <div class="zone-titre">🕹️ Jeux de Réflexion (Temps Libre)</div>
                     <div class="unlock-progress-container"><div id="lola-libre-bar" class="unlock-progress-bar" style="background: #27ae60;"></div></div>
                     <div id="lola-libre-msg" class="unlock-message" style="color: #27ae60;">Gagne de l'XP à l'école pour débloquer !</div>
                     <div class="games-list">
-                        <a href="jeu_dames.html" class="game-btn libre-btn" onclick="return enregistrerDepartLibre('Dames', 'Lola')">
+                        <a href="jeu_dames.html" class="game-btn libre-btn" onclick="return enregistrerDepartLibre('Dames', 'Lola', false)">
                             <span class="game-icon">👑</span><span>Jeu de Dames vs Ordi</span>
                         </a>
-                        <a href="jeu_tangram.html" class="game-btn libre-btn" onclick="return enregistrerDepartLibre('Tangram', 'Lola')">
+                        <a href="jeu_tangram.html" class="game-btn libre-btn" onclick="return enregistrerDepartLibre('Tangram', 'Lola', false)">
                             <span class="game-icon">🔺</span><span>Le Tangram</span>
                         </a>
                     </div>
@@ -289,22 +288,22 @@
                 <div class="zone-speciale boutique-lola">
                     <div class="zone-titre">🦄 Les Récompenses</div>
                     <div class="games-list">
-                        <a href="boutique_lola.html" class="game-btn" onclick="return enregistrerDepartLibre('Boutique', 'Lola')">
+                        <a href="boutique_lola.html" class="game-btn" onclick="return enregistrerDepartLibre('Boutique', 'Lola', true)">
                             <span class="game-icon">✨</span><span>L'Album Magique</span>
                         </a>
-                        <a href="boutique_lola.html?onglet=dessin" class="game-btn" onclick="return enregistrerDepartLibre('Dessin', 'Lola')">
+                        <a href="boutique_lola.html?onglet=dessin" class="game-btn" onclick="return enregistrerDepartLibre('Dessin', 'Lola', true)">
                             <span class="game-icon">🎨</span><span>L'Atelier Créatif</span>
                         </a>
                     </div>
                 </div>
 
-                <!-- ZONE RÉCRÉATION VERROUILLÉE PAR DÉFAUT -->
+                <!-- ZONE RÉCRÉATION LOLA -->
                 <div id="zone-recreation-lola" class="zone-speciale verrouille">
                     <div class="zone-titre" style="color: #8e44ad;">🔓 La Salle Bonus</div>
                     <div class="unlock-progress-container"><div id="lola-unlock-bar" class="unlock-progress-bar" style="background: #9b59b6;"></div></div>
                     <div id="lola-unlock-msg" class="unlock-message" style="color: #8e44ad;">Gagne de l'XP aujourd'hui pour débloquer !</div>
                     <div class="games-list">
-                        <a href="jeu_memory_ia_lola.html" class="game-btn" onclick="return enregistrerDepartLibre('Memory IA', 'Lola')">
+                        <a href="jeu_memory_ia_lola.html" class="game-btn" onclick="return enregistrerDepartLibre('Memory IA', 'Lola', true)">
                             <span class="game-icon">🧠</span><span>Memory vs Ordi</span>
                         </a>
                     </div>
@@ -427,16 +426,16 @@
                 let data = await res.json();
                 if (data) return data;
             } catch(e) {}
-            // Paramètres par défaut
             return { pinCode: "1234", objectifFamille: 5000, texteRecompense: "Sortie au Parc !", limiteTheo: 30, limiteLola: 30, limiteLibreTheo: 30, limiteLibreLola: 30, seuilRecreTheo: 50, seuilRecreLola: 50, seuilLibreTheo: 30, seuilLibreLola: 30 };
         }
 
         function activerPorteDerobee() {
             compteurClicsSecrets++;
             if (compteurClicsSecrets >= 5) {
-                localStorage.setItem('modeDev', 'actif'); localStorage.setItem('tempsJoue_Théo', 0); localStorage.setItem('tempsJoue_Lola', 0);
+                localStorage.setItem('modeDev', 'actif'); 
+                localStorage.setItem('tempsJoue_Théo', 0); localStorage.setItem('tempsJoue_Lola', 0);
                 localStorage.setItem('tempsLibre_Théo', 0); localStorage.setItem('tempsLibre_Lola', 0);
-                alert("🛠️ MODE DÉVELOPPEUR ACTIVÉ !\n\n- Les temps de jeu ont été réinitialisés à 0.\n- Les jeux bloqués sont déverrouillés.\n- Fini de tester ? Recharge la page.");
+                alert("🛠️ MODE DÉVELOPPEUR ACTIVÉ !\n\n- Les temps de jeu ont été réinitialisés à 0.\n- Les jeux bloqués sont déverrouillés.\n- Fini de tester ? Recharge la page ou ferme le navigateur.");
                 window.location.reload();
             }
         }
@@ -512,11 +511,29 @@
             return true; 
         }
 
-        function enregistrerDepartLibre(nomDuJeu, nomEnfant) {
+        // --- CORRECTION ET SÉCURISATION DU DÉPART JEUX LIBRES ---
+        function enregistrerDepartLibre(nomDuJeu, nomEnfant, isBonus = false) {
+            let idZone = isBonus 
+                ? (nomEnfant === 'Théo' ? 'zone-recreation-theo' : 'zone-recreation-lola')
+                : (nomEnfant === 'Théo' ? 'zone-libre-theo' : 'zone-libre-lola');
+            
+            let zone = document.getElementById(idZone);
+            
+            // 1. On vérifie d'abord si la zone est toujours verrouillée
+            if (zone && zone.classList.contains('verrouille') && localStorage.getItem('modeDev') !== 'actif') {
+                alert(`🔒 ${nomDuJeu} est verrouillé !\nGagne d'abord de l'XP dans tes missions d'école pour le débloquer.`);
+                return false; // Stoppe le clic physiquement
+            }
+
+            // 2. Si c'est déverrouillé, on vérifie le temps écoulé
             let limite = nomEnfant === 'Théo' ? (parametresActuels.limiteLibreTheo || 30) : (parametresActuels.limiteLibreLola || 30);
             let tempsJoue = parseInt(localStorage.getItem(`tempsLibre_${nomEnfant}`)) || 0;
-            if (tempsJoue >= limite && localStorage.getItem('modeDev') !== 'actif') { alert(`Ton temps de Jeux Libres est écoulé !`); return false; }
+            if (tempsJoue >= limite && localStorage.getItem('modeDev') !== 'actif') { 
+                alert(`⏱️ Ton temps de Jeux Libres est écoulé pour aujourd'hui !`); 
+                return false; 
+            }
 
+            // Tout est bon, on enregistre le départ
             localStorage.setItem('typeJeuCours', 'libre');
             localStorage.setItem('enfantEnCours', nomEnfant); 
             localStorage.setItem('heureDepartJeu', Date.now()); 
@@ -554,7 +571,6 @@
             } catch (error) { document.getElementById(htmlElementId).innerHTML = "<li>👉 Choisis librement tes matières !</li>"; }
         }
 
-        // Nouvelle fonction unifiée pour gérer le déblocage des zones libres et des zones bonus
         async function verifierDeblocagesTheo() {
             if(!parametresActuels) parametresActuels = await lireParametresCloud();
             try {
@@ -570,7 +586,6 @@
 
                 let xpGagneAujourdhui = Math.max(0, xpTotalActuel - xpDebutJournee);
                 
-                // 1. Déblocage Jeux Libres
                 const zoneLibre = document.getElementById('zone-libre-theo'); 
                 const msgLibre = document.getElementById('theo-libre-msg');
                 let seuilLibre = parametresActuels.seuilLibreTheo || 30;
@@ -584,7 +599,6 @@
                     msgLibre.textContent = `Gagne encore ${seuilLibre - xpGagneAujourdhui} XP à l'école pour débloquer !`;
                 }
 
-                // 2. Déblocage Salle Bonus
                 const zoneRecre = document.getElementById('zone-recreation-theo'); 
                 const msgBonus = document.getElementById('theo-unlock-msg');
                 let seuilBonus = parametresActuels.seuilRecreTheo || 50;
@@ -615,7 +629,6 @@
 
                 let xpGagneAujourdhui = Math.max(0, xpTotalActuel - xpDebutJournee);
                 
-                // 1. Déblocage Jeux Libres
                 const zoneLibre = document.getElementById('zone-libre-lola'); 
                 const msgLibre = document.getElementById('lola-libre-msg');
                 let seuilLibre = parametresActuels.seuilLibreLola || 30;
@@ -629,7 +642,6 @@
                     msgLibre.textContent = `Gagne encore ${seuilLibre - xpGagneAujourdhui} XP à l'école pour débloquer !`;
                 }
 
-                // 2. Déblocage Salle Bonus
                 const zoneRecre = document.getElementById('zone-recreation-lola'); 
                 const msgBonus = document.getElementById('lola-unlock-msg');
                 let seuilBonus = parametresActuels.seuilRecreLola || 50;
