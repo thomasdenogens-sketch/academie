@@ -73,7 +73,7 @@
         .unlock-progress-bar { background: #f39c12; height: 100%; width: 0%; transition: width 1s ease-in-out; }
         .unlock-message { font-size: 0.9rem; color: #e67e22; font-weight: bold; text-align: center; margin-bottom: 15px;}
         
-        .verrouille .game-btn { opacity: 0.5; filter: grayscale(100%); pointer-events: none; background: #ecf0f1; border-color: #bdc3c7; }
+        .verrouille .game-btn { opacity: 0.5; filter: grayscale(100%); background: #ecf0f1; border-color: #bdc3c7; }
         .deverrouille { border-color: #2ecc71; background: #f0fdf4; }
         .deverrouille .zone-titre { color: #27ae60; }
         .deverrouille .unlock-progress-container { display: none; }
@@ -82,6 +82,7 @@
         .boutique-lola { border-color: #f368e0; background: #fff0f5; }
         .boutique-lola .zone-titre { color: #f368e0; }
         
+        /* Les zones libres utilisent une couleur verte pour se différencier */
         .zone-libre.deverrouille { border-color: #2ecc71; background: #fafffb; }
         .zone-libre.deverrouille .zone-titre { color: #27ae60; }
 
@@ -95,7 +96,7 @@
         .btn-parents:hover { opacity: 1; transform: translateY(-3px);}
         
         .input-parent { font-size: 1.2rem; padding: 10px; width: 100%; margin-bottom: 15px; border: 2px solid #bdc3c7; border-radius: 10px; text-align: center;}
-        .btn-valider { background: #27ae60; color: white; font-size: 1.2rem; font-weight: bold; padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; margin-top: 10px; width: 100%; transition: 0.2s;}
+        .btn-valider { background: #27ae60; color: white; font-size: 1.2rem; font-weight: bold; padding: 12px 20px; border: none; border-radius: 10px; cursor: margin-top: 10px; width: 100%; transition: 0.2s;}
         .btn-valider:hover { filter: brightness(1.1); }
         
         .section-bloquee .games-list:not(.zone-libre .games-list) { opacity: 0.3; pointer-events: none; filter: grayscale(100%); }
@@ -435,7 +436,7 @@
                 localStorage.setItem('modeDev', 'actif'); 
                 localStorage.setItem('tempsJoue_Théo', 0); localStorage.setItem('tempsJoue_Lola', 0);
                 localStorage.setItem('tempsLibre_Théo', 0); localStorage.setItem('tempsLibre_Lola', 0);
-                alert("🛠️ MODE DÉVELOPPEUR ACTIVÉ !\n\n- Les temps de jeu ont été réinitialisés à 0.\n- Les jeux bloqués sont déverrouillés.\n- Fini de tester ? Recharge la page ou ferme le navigateur.");
+                alert("🛠️ MODE DÉVELOPPEUR ACTIVÉ !\n\n- Les temps de jeu ont été réinitialisés à 0.\n- Les jeux bloqués sont déverrouillés.\n- Fini de tester ? Recharge la page.");
                 window.location.reload();
             }
         }
@@ -511,21 +512,22 @@
             return true; 
         }
 
-        // --- CORRECTION ET SÉCURISATION DU DÉPART JEUX LIBRES ---
+        // --- LA SÉCURITÉ JAVASCRIPT CORRIGÉE ---
         function enregistrerDepartLibre(nomDuJeu, nomEnfant, isBonus = false) {
+            // Identifier la zone cliquée (Libre ou Récréation)
             let idZone = isBonus 
                 ? (nomEnfant === 'Théo' ? 'zone-recreation-theo' : 'zone-recreation-lola')
                 : (nomEnfant === 'Théo' ? 'zone-libre-theo' : 'zone-libre-lola');
             
             let zone = document.getElementById(idZone);
             
-            // 1. On vérifie d'abord si la zone est toujours verrouillée
+            // 1. HARD LOCK : Bloque la redirection si la classe .verrouille est présente
             if (zone && zone.classList.contains('verrouille') && localStorage.getItem('modeDev') !== 'actif') {
-                alert(`🔒 ${nomDuJeu} est verrouillé !\nGagne d'abord de l'XP dans tes missions d'école pour le débloquer.`);
-                return false; // Stoppe le clic physiquement
+                alert(`🔒 Le jeu "${nomDuJeu}" est verrouillé !\nGagne d'abord de l'XP dans tes missions d'école pour y accéder.`);
+                return false; 
             }
 
-            // 2. Si c'est déverrouillé, on vérifie le temps écoulé
+            // 2. Vérification du chronomètre (Temps Libre)
             let limite = nomEnfant === 'Théo' ? (parametresActuels.limiteLibreTheo || 30) : (parametresActuels.limiteLibreLola || 30);
             let tempsJoue = parseInt(localStorage.getItem(`tempsLibre_${nomEnfant}`)) || 0;
             if (tempsJoue >= limite && localStorage.getItem('modeDev') !== 'actif') { 
@@ -533,7 +535,7 @@
                 return false; 
             }
 
-            // Tout est bon, on enregistre le départ
+            // Tout est bon
             localStorage.setItem('typeJeuCours', 'libre');
             localStorage.setItem('enfantEnCours', nomEnfant); 
             localStorage.setItem('heureDepartJeu', Date.now()); 
