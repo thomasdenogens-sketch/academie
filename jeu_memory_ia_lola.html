@@ -17,118 +17,401 @@
         
         #app-container { 
             background: white; padding: 30px; border-radius: 20px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-width: 800px; width: 100%; text-align: center; position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-width: 850px; width: 100%; text-align: center; position: relative;
         }
         
         h1 { color: #8e44ad; font-weight: 900; font-size: 2.2rem; margin-bottom: 5px; }
         .sous-titre { color: #9b59b6; margin-bottom: 25px; font-weight: 700; font-size: 1.1rem;}
-        
-        /* Scores HUD */
+        .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
+
+        /* HUD & Scores */
         .hud-scores { 
             display: flex; justify-content: space-around; background: #f8f9fa; 
             padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #ecf0f1;
         }
-        .score-box { font-size: 1.4rem; font-weight: 900; padding: 10px 20px; border-radius: 12px; transition: 0.3s; }
+        .score-box { font-size: 1.4rem; font-weight: 900; padding: 10px 20px; border-radius: 12px; transition: 0.3s; opacity: 0.5; }
         .score-lola { color: #e91e63; border: 2px solid transparent; }
         .score-ia { color: #3498db; border: 2px solid transparent; }
-        .tour-actif { transform: scale(1.1); box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-color: inherit; background: white;}
+        .tour-actif { opacity: 1; transform: scale(1.1); box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-color: inherit; background: white;}
+
+        /* Menu Niveaux */
+        .grid-niveaux { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px;}
+        .btn-niveau { 
+            background: white; border: 3px solid #bdc3c7; padding: 20px; border-radius: 15px;
+            font-size: 1.2rem; font-weight: bold; color: #34495e; cursor: pointer; transition: 0.2s;
+            box-shadow: 0 4px 0 #bdc3c7; display: flex; flex-direction: column; align-items: center; gap: 10px;
+        }
+        .btn-niveau:active { transform: translateY(4px); box-shadow: none; }
+        .btn-niveau:hover:not(.verrouille) { border-color: #8e44ad; box-shadow: 0 4px 0 #8e44ad; }
+        .btn-niveau.verrouille { opacity: 0.5; filter: grayscale(100%); cursor: not-allowed; }
+        .niv-icon { font-size: 2.5rem; }
 
         /* GRILLE DU MEMORY */
         .grille-cartes {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;
-            max-width: 500px; margin-left: auto; margin-right: auto;
+            display: grid; gap: 12px; margin-bottom: 20px; justify-content: center;
+            max-width: 100%; margin-left: auto; margin-right: auto;
         }
+        
+        /* Layouts dynamiques selon le niveau */
+        .grille-n1 { grid-template-columns: repeat(4, 110px); } /* 8 cartes = 4x2 */
+        .grille-n2 { grid-template-columns: repeat(4, 110px); } /* 12 cartes = 4x3 */
+        .grille-n3 { grid-template-columns: repeat(4, 110px); } /* 16 cartes = 4x4 */
 
-        .carte { perspective: 1000px; height: 100px; cursor: pointer; }
+        .carte { perspective: 1000px; height: 110px; cursor: pointer; }
         .carte-inner { position: relative; width: 100%; height: 100%; transition: transform 0.5s; transform-style: preserve-3d; }
         .carte.retournee .carte-inner, .carte.trouvee .carte-inner { transform: rotateY(180deg); }
         
         .carte-front, .carte-back {
             position: absolute; width: 100%; height: 100%; backface-visibility: hidden; 
-            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            border-radius: 12px; display: flex; align-items: center; justify-content: center; text-align: center;
         }
-        .carte-front { background: #9b59b6; border: 3px solid #8e44ad; color: white; font-size: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .carte-back { background: white; border: 3px solid #f1c40f; transform: rotateY(180deg); font-size: 3rem; box-shadow: inset 0 0 10px rgba(241,196,15,0.2); }
+        .carte-front { background: #9b59b6; border: 3px solid #8e44ad; color: white; font-size: 2.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .carte-back { background: white; border: 3px solid #f1c40f; transform: rotateY(180deg); font-size: 1.5rem; font-weight: 900; color: #2c3e50; padding: 5px; box-shadow: inset 0 0 10px rgba(241,196,15,0.2); word-break: break-word;}
         
         .carte.trouvee-lola .carte-back { border-color: #e91e63; background: #fce4ec; box-shadow: 0 0 15px rgba(233, 30, 99, 0.4); }
         .carte.trouvee-ia .carte-back { border-color: #3498db; background: #ebf5fb; box-shadow: 0 0 15px rgba(52, 152, 219, 0.4); filter: grayscale(50%);}
 
-        .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s; margin-top: 10px;}
+        /* Boutons d'interface */
+        .btn-nav { font-family: 'Nunito', sans-serif; background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s; margin-top: 10px; display: inline-block;}
         .btn-nav:hover { background: #7f8c8d; }
-        #feedback { font-size: 1.3rem; font-weight: 900; height: 35px; margin-bottom: 15px; color: #8e44ad;}
+        
+        .btn-primaire { background: #8e44ad; box-shadow: 0 4px #732d91; color: white; }
+        
+        /* Configuration et Modales */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;}
+        
+        .zone-config { background: #fff3cd; padding: 25px; border-radius: 15px; margin-top: 20px; border: 2px dashed #f1c40f; text-align: left; }
+        .input-texte { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #dfe6e9; border-radius: 8px; font-family: 'Nunito', sans-serif; font-size: 1rem; }
+        .btn-valider { background: #27ae60; color: white; font-size: 1.1rem; font-weight: bold; padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; margin-top: 10px; width: 100%; transition: 0.2s;}
+
+        .ecran { display: none; }
+        .ecran.actif { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+        
+        #feedback { font-size: 1.4rem; font-weight: 900; height: 35px; margin-bottom: 15px; color: #8e44ad;}
     </style>
 </head>
 <body>
 
     <div id="app-container">
-        <h1>Memory Magique 🧠</h1>
-        <p class="sous-titre">Joue contre l'Ordinateur (IA) !</p>
-        
-        <div class="hud-scores">
-            <div id="box-lola" class="score-box score-lola tour-actif">👧 Lola : <span id="pts-lola">0</span></div>
-            <div id="box-ia" class="score-box score-ia">🤖 Ordi : <span id="pts-ia">0</span></div>
+        <div class="xp-badge" id="ui-xp">XP: ... ⭐</div>
+
+        <!-- ECRAN D'ACCUEIL -->
+        <div id="ecran-accueil" class="ecran actif">
+            <h1>Memory Magique 🧠</h1>
+            <p class="sous-titre">Entraîne ta mémoire et bats l'Ordinateur !</p>
+            
+            <div class="grid-niveaux">
+                <button class="btn-niveau" onclick="lancerJeu(1)">
+                    <span class="niv-icon">🟢</span>
+                    <span>Niveau 1<br><small>(4 paires - Facile)</small></span>
+                </button>
+                <button class="btn-niveau verrouille" id="btn-niv-2" onclick="lancerJeu(2)">
+                    <span class="niv-icon">🟡</span>
+                    <span>Niveau 2<br><small>(6 paires - Moyen)</small></span>
+                </button>
+                <button class="btn-niveau verrouille" id="btn-niv-3" onclick="lancerJeu(3)">
+                    <span class="niv-icon">🔴</span>
+                    <span>Niveau 3<br><small>(8 paires - Difficile)</small></span>
+                </button>
+            </div>
+
+            <div style="border-top: 2px solid #eee; padding-top: 20px; margin-top: 20px;">
+                <h3 style="color: #8e44ad; margin-bottom: 15px;">🟣 Listes Personnalisées (Créées par Papa/Maman)</h3>
+                <div class="grid-niveaux" id="grid-custom">
+                    <p style="color:#7f8c8d; grid-column: 1 / -1;">Aucune liste pour le moment.</p>
+                </div>
+            </div>
+
+            <button class="btn-nav btn-primaire" onclick="ouvrirAuthParent()">⚙️ Créer une Leçon Memory</button>
+            <br>
+            <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
-        <div class="grille-cartes" id="grille-memory"></div>
-        <div id="feedback">C'est à toi de jouer !</div>
+        <!-- ECRAN DE JEU -->
+        <div id="ecran-jeu" class="ecran">
+            <h2 id="titre-partie" style="color: #8e44ad; margin-bottom: 15px;">Niveau X</h2>
+            
+            <div class="hud-scores">
+                <div id="box-lola" class="score-box score-lola tour-actif">👧 Lola : <span id="pts-lola">0</span></div>
+                <div id="box-ia" class="score-box score-ia">🤖 Ordi : <span id="pts-ia">0</span></div>
+            </div>
 
-        <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+            <div class="grille-cartes" id="grille-memory"></div>
+            <div id="feedback">C'est à toi de jouer !</div>
+
+            <button class="btn-nav" onclick="retourAccueil()">Abandonner</button>
+        </div>
+    </div>
+
+    <!-- MODAL AUTHENTIFICATION PARENTS -->
+    <div id="overlay-auth" class="overlay">
+        <div class="modal">
+            <h2 style="color: #2c3e50;">⚙️ Espace Parents</h2>
+            <input type="password" id="pin-parents" class="input-texte" placeholder="Saisissez le code PIN" style="text-align:center;">
+            <button class="btn-valider" onclick="verifierPinParent()">Déverrouiller</button>
+            <p id="msg-auth-erreur" style="color: #e74c3c; font-weight: bold; margin-top:10px;"></p>
+            <button class="btn-nav" style="width:100%; margin-top:20px;" onclick="document.getElementById('overlay-auth').style.display='none'">Fermer</button>
+        </div>
+    </div>
+
+    <!-- MODAL CRÉATION DE LEÇON -->
+    <div id="overlay-creation" class="overlay">
+        <div class="modal">
+            <h2 style="color: #8e44ad;">✍️ Créer une Liste Memory</h2>
+            <p style="color: #7f8c8d; font-size: 0.9rem;">Crée des paires de mots, de traductions ou de concepts.</p>
+            
+            <div class="zone-config">
+                <label><strong>Titre de la leçon :</strong></label>
+                <input type="text" id="input-nom-theme" class="input-texte" placeholder="Ex: Vocabulaire Anglais">
+                
+                <label><strong>Les Paires (séparées par un = ) :</strong></label>
+                <p style="font-size:0.85rem; color:#e67e22; margin-bottom:5px;">Minimum 4 paires. Lola devra retrouver les deux parties.</p>
+                <textarea id="input-mots" class="input-texte" rows="6" placeholder="Dog = Chien&#10;Cat = Chat&#10;10+5 = 15"></textarea>
+                
+                <button class="btn-valider" style="background: #8e44ad;" onclick="sauvegarderThemeCloud()">Sauvegarder dans le Cloud</button>
+                <p id="msg-config" style="color: #27ae60; font-weight: bold; margin-top: 10px; text-align:center;"></p>
+            </div>
+            <button class="btn-nav" style="width:100%; margin-top:20px;" onclick="document.getElementById('overlay-creation').style.display='none'">Fermer l'éditeur</button>
+        </div>
     </div>
 
     <script>
-        const EMOJIS = ["🦄", "🍓", "🦋", "🌻", "🍎", "🌈"];
+        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+        const DB_URL_XP = `${FIREBASE_URL}scores/lola/memoryIA.json`;
+        const DB_CUSTOM_URL = `${FIREBASE_URL}scores/parent_settings/customMemory.json`;
+        const DB_SETTINGS_URL = `${FIREBASE_URL}scores/parent_settings.json`;
+
+        // BASE DE DONNÉES INCLUSE
+        // Le jeu génère les paires à partir de ces associations
+        const baseMots = [
+            { a: "🦁", b: "Lion" }, { a: "🐘", b: "Éléphant" }, { a: "🦒", b: "Girafe" }, { a: "🦊", b: "Renard" },
+            { a: "🍎", b: "Pomme" }, { a: "🍌", b: "Banane" }, { a: "🍇", b: "Raisin" }, { a: "🍓", b: "Fraise" },
+            { a: "🚗", b: "Voiture" }, { a: "✈️", b: "Avion" }, { a: "🚲", b: "Vélo" }, { a: "🚂", b: "Train" },
+            { a: "5x2", b: "10" }, { a: "3x3", b: "9" }, { a: "4x2", b: "8" }, { a: "6x2", b: "12" }
+        ];
+
+        let profil = { xp: 0, niveauMax: 1 };
+        let customThemes = {};
+        let pinParental = "1234";
+
         let cartesEnJeu = [];
         let cartesDOM = [];
-        
-        // Variables d'état du jeu
-        let tourActuel = 'lola'; // 'lola' ou 'ia'
-        let ptsLola = 0;
-        let ptsIA = 0;
+        let tourActuel = 'lola'; 
+        let ptsLola = 0; let ptsIA = 0;
         let pairesTrouvees = 0;
-        
+        let totalPaires = 0;
         let premiereCarteIndex = null;
         let bloqueInterface = false;
-
-        // Le "Cerveau" de l'IA : Mémorise l'index des cartes vues
         let memoireIA = {}; 
+        let niveauActuelJoue = 0; // 1, 2, 3 ou "custom_ID"
 
-        function initJeu() {
+        async function initApp() {
+            // 1. Charge l'XP et le Niveau du joueur
+            try {
+                let res = await fetch(DB_URL_XP);
+                let data = await res.json();
+                if (data) {
+                    if (data.xp !== undefined) profil.xp = parseInt(data.xp);
+                    if (data.niveauMax !== undefined) profil.niveauMax = parseInt(data.niveauMax);
+                }
+            } catch(e) {}
+            
+            // 2. Charge les listes custom
+            try {
+                let resCustom = await fetch(DB_CUSTOM_URL);
+                let dataCustom = await resCustom.json();
+                if (dataCustom) customThemes = dataCustom;
+            } catch(e) {}
+            
+            // 3. Charge le code PIN
+            try {
+                let resSet = await fetch(DB_SETTINGS_URL);
+                let dataSet = await resSet.json();
+                if (dataSet && dataSet.pinCode) pinParental = dataSet.pinCode;
+            } catch(e) {}
+
+            majInterface();
+        }
+
+        async function sauverProfilCloud() {
+            try { await fetch(DB_URL_XP, { method: 'PUT', body: JSON.stringify(profil) }); } catch(e) {}
+        }
+
+        function majInterface() { 
+            document.getElementById('ui-xp').textContent = `XP: ${profil.xp} ⭐`; 
+            
+            if (profil.niveauMax >= 2) {
+                let btn2 = document.getElementById('btn-niv-2');
+                btn2.classList.remove('verrouille');
+                btn2.style.borderColor = "#f1c40f"; btn2.style.boxShadow = "0 4px 0 #f1c40f";
+            }
+            if (profil.niveauMax >= 3) {
+                let btn3 = document.getElementById('btn-niv-3');
+                btn3.classList.remove('verrouille');
+                btn3.style.borderColor = "#e74c3c"; btn3.style.boxShadow = "0 4px 0 #e74c3c";
+            }
+
+            // Affiche les thèmes custom
+            const gridCustom = document.getElementById('grid-custom');
+            if (Object.keys(customThemes).length > 0) {
+                gridCustom.innerHTML = "";
+                for (let id in customThemes) {
+                    let btn = document.createElement('button');
+                    btn.className = "btn-niveau";
+                    btn.style.padding = "10px";
+                    btn.innerHTML = `
+                        <div style="color:#8e44ad; font-size:1.1rem;">${customThemes[id].nom}</div>
+                        <div style="font-size:0.85rem; color:#7f8c8d; font-weight:normal;">${customThemes[id].paires.length} paires</div>
+                        <span class="btn-nav" style="background:#e74c3c; font-size:0.8rem; padding:5px 10px; margin-top:5px;" onclick="supprimerThemeCustom(event, '${id}')">Supprimer</span>
+                    `;
+                    btn.onclick = () => lancerJeu(id);
+                    gridCustom.appendChild(btn);
+                }
+            } else {
+                gridCustom.innerHTML = "<p style='color:#7f8c8d; grid-column: 1 / -1;'>Aucune liste pour le moment.</p>";
+            }
+        }
+
+        function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); document.getElementById(id).classList.add('actif'); }
+        function retourAccueil() { changerEcran('ecran-accueil'); }
+
+        // --- GESTION PARENTALE ---
+        function ouvrirAuthParent() {
+            document.getElementById('pin-parents').value = "";
+            document.getElementById('msg-auth-erreur').textContent = "";
+            document.getElementById('overlay-auth').style.display = 'flex';
+        }
+
+        function verifierPinParent() {
+            if (document.getElementById('pin-parents').value === pinParental) {
+                document.getElementById('overlay-auth').style.display = 'none';
+                document.getElementById('overlay-creation').style.display = 'flex';
+            } else {
+                document.getElementById('msg-auth-erreur').textContent = "Code PIN incorrect.";
+            }
+        }
+
+        async function sauvegarderThemeCloud() {
+            let nom = document.getElementById('input-nom-theme').value.trim(); 
+            let motsBruts = document.getElementById('input-mots').value;
+            
+            if(!nom || !motsBruts) return alert("Remplis le titre et les paires !");
+            
+            let lignes = motsBruts.split('\n'); let pairesFormatees = [];
+            for(let ligne of lignes) { 
+                if(ligne.includes('=')) { 
+                    let parties = ligne.split('=');
+                    let pA = parties[0].trim(); let pB = parties[1].trim();
+                    if (pA.length > 0 && pB.length > 0) pairesFormatees.push({ a: pA, b: pB });
+                } 
+            }
+            
+            if(pairesFormatees.length < 4) return alert("Il faut au minimum 4 paires pour jouer !");
+            
+            let id = 'custom_' + Date.now(); 
+            customThemes[id] = { nom: nom, paires: pairesFormatees }; 
+            
+            try { 
+                await fetch(DB_CUSTOM_URL, { method: 'PUT', body: JSON.stringify(customThemes) }); 
+                document.getElementById('msg-config').textContent = "Liste Memory sauvegardée !"; 
+                document.getElementById('input-nom-theme').value = ""; document.getElementById('input-mots').value = "";
+                setTimeout(() => { document.getElementById('msg-config').textContent = ""; document.getElementById('overlay-creation').style.display = 'none'; }, 2000); 
+                majInterface();
+            } catch(e) { alert("Erreur réseau"); }
+        }
+
+        async function supprimerThemeCustom(e, id) {
+            e.stopPropagation();
+            if(confirm("Supprimer cette liste ?")) {
+                delete customThemes[id];
+                majInterface();
+                try { await fetch(DB_CUSTOM_URL, { method: 'PUT', body: JSON.stringify(customThemes) }); } catch(err) {}
+            }
+        }
+
+        // --- MOTEUR DE JEU MEMORY ---
+        function lancerJeu(niveauOuId) {
+            if (typeof niveauOuId === "number" && niveauOuId > profil.niveauMax) return;
+            
+            niveauActuelJoue = niveauOuId;
+            let listePairesChoisies = [];
+            
+            if (typeof niveauOuId === "number") {
+                document.getElementById('titre-partie').textContent = `Niveau ${niveauOuId}`;
+                let nbPaires = niveauOuId === 1 ? 4 : (niveauOuId === 2 ? 6 : 8);
+                listePairesChoisies = [...baseMots].sort(() => Math.random() - 0.5).slice(0, nbPaires);
+            } else {
+                let theme = customThemes[niveauOuId];
+                document.getElementById('titre-partie').textContent = `Défi : ${theme.nom}`;
+                listePairesChoisies = [...theme.paires].sort(() => Math.random() - 0.5);
+            }
+
+            totalPaires = listePairesChoisies.length;
+            genererGrille(listePairesChoisies);
+            
+            tourActuel = 'lola'; ptsLola = 0; ptsIA = 0; pairesTrouvees = 0;
+            premiereCarteIndex = null; bloqueInterface = false; memoireIA = {};
+            
+            document.getElementById('pts-lola').textContent = "0";
+            document.getElementById('pts-ia').textContent = "0";
+            document.getElementById('feedback').textContent = "C'est à toi Lola !";
+            document.getElementById('box-lola').classList.add('tour-actif');
+            document.getElementById('box-ia').classList.remove('tour-actif');
+            
+            changerEcran('ecran-jeu');
+        }
+
+        function genererGrille(listePaires) {
             const grille = document.getElementById('grille-memory');
             grille.innerHTML = "";
-            cartesEnJeu = [...EMOJIS, ...EMOJIS].sort(() => Math.random() - 0.5);
-            cartesDOM = [];
-            memoireIA = {};
+            grille.className = "grille-cartes"; // Reset class
+            
+            if (totalPaires <= 4) grille.classList.add("grille-n1");
+            else if (totalPaires <= 6) grille.classList.add("grille-n2");
+            else grille.classList.add("grille-n3");
 
-            cartesEnJeu.forEach((symbole, index) => {
+            // Création du deck (on associe un ID unique à chaque paire pour vérifier la correspondance)
+            cartesEnJeu = [];
+            listePaires.forEach((paire, index) => {
+                cartesEnJeu.push({ contenu: paire.a, id_paire: index });
+                cartesEnJeu.push({ contenu: paire.b, id_paire: index });
+            });
+            cartesEnJeu.sort(() => Math.random() - 0.5); // Mélange du deck
+
+            cartesDOM = [];
+            cartesEnJeu.forEach((carteData, index) => {
                 let div = document.createElement('div');
                 div.className = "carte";
                 div.dataset.index = index;
-                div.innerHTML = `<div class="carte-inner"><div class="carte-front">❓</div><div class="carte-back">${symbole}</div></div>`;
+                // Si le contenu est un texte un peu long, on réduit la taille de police
+                let fontSize = carteData.contenu.length > 5 ? "1.2rem" : "1.8rem";
+                div.innerHTML = `<div class="carte-inner"><div class="carte-front">❓</div><div class="carte-back" style="font-size:${fontSize}">${carteData.contenu}</div></div>`;
                 div.onclick = () => cliquerCarteLola(index);
                 grille.appendChild(div);
                 cartesDOM.push(div);
             });
         }
 
-        function enregistrerMemoireIA(index, symbole) {
-            if (!memoireIA[symbole]) memoireIA[symbole] = [];
-            if (!memoireIA[symbole].includes(index)) memoireIA[symbole].push(index);
+        function enregistrerMemoireIA(index, idPaire) {
+            if (!memoireIA[idPaire]) memoireIA[idPaire] = [];
+            if (!memoireIA[idPaire].includes(index)) memoireIA[idPaire].push(index);
         }
 
         function cliquerCarteLola(index) {
             if (bloqueInterface || tourActuel !== 'lola') return;
             const carte = cartesDOM[index];
             if (carte.classList.contains('retournee') || carte.classList.contains('trouvee')) return;
-
             retournerCarte(index);
         }
 
         function retournerCarte(index) {
             const carte = cartesDOM[index];
-            const symbole = cartesEnJeu[index];
+            const dataCarte = cartesEnJeu[index];
             
             carte.classList.add('retournee');
-            enregistrerMemoireIA(index, symbole); // L'IA regarde même quand Lola joue !
+            enregistrerMemoireIA(index, dataCarte.id_paire); 
 
             if (premiereCarteIndex === null) {
                 premiereCarteIndex = index;
@@ -139,12 +422,12 @@
         }
 
         function verifierPaire(idx1, idx2) {
-            const sym1 = cartesEnJeu[idx1];
-            const sym2 = cartesEnJeu[idx2];
+            const data1 = cartesEnJeu[idx1];
+            const data2 = cartesEnJeu[idx2];
             const carte1 = cartesDOM[idx1];
             const carte2 = cartesDOM[idx2];
 
-            if (sym1 === sym2) {
+            if (data1.id_paire === data2.id_paire) {
                 // PAIRE TROUVÉE
                 setTimeout(() => {
                     carte1.classList.replace('retournee', 'trouvee');
@@ -159,12 +442,11 @@
                     pairesTrouvees++;
                     premiereCarteIndex = null;
                     
-                    if (pairesTrouvees === EMOJIS.length) terminerJeu();
+                    if (pairesTrouvees === totalPaires) terminerJeu();
                     else {
-                        // Le joueur rejoue s'il trouve une paire !
                         bloqueInterface = false;
-                        if (tourActuel === 'ia') setTimeout(jouerTourIA, 1000);
-                        else document.getElementById('feedback').textContent = "Bravo Lola ! Rejoue !";
+                        if (tourActuel === 'ia') setTimeout(jouerTourIA, 800);
+                        else document.getElementById('feedback').textContent = "Bien vu Lola ! Rejoue !";
                     }
                 }, 800);
             } else {
@@ -193,60 +475,52 @@
             }
         }
 
-        // --- L'ALGORITHME DE L'INTELLIGENCE ARTIFICIELLE ---
         function jouerTourIA() {
             let carteACliker1 = -1; let carteACliker2 = -1;
 
-            // 1. Chercher si l'IA connaît une paire complète dans sa mémoire
-            for (let symbole in memoireIA) {
-                let positions = memoireIA[symbole];
-                if (positions.length === 2) {
-                    if (!cartesDOM[positions[0]].classList.contains('trouvee')) {
-                        carteACliker1 = positions[0];
-                        carteACliker2 = positions[1];
-                        break;
+            // L'IA est plus forte si le niveau est élevé. Au niveau 1, elle "oublie" parfois.
+            let iaRateSonCoup = (niveauActuelJoue === 1 && Math.random() > 0.6); 
+
+            if (!iaRateSonCoup) {
+                for (let idPaire in memoireIA) {
+                    let positions = memoireIA[idPaire];
+                    if (positions.length === 2) {
+                        if (!cartesDOM[positions[0]].classList.contains('trouvee')) {
+                            carteACliker1 = positions[0];
+                            carteACliker2 = positions[1];
+                            break;
+                        }
                     }
                 }
             }
 
-            // 2. Si l'IA ne connaît pas de paire, elle choisit une carte inconnue au hasard
             if (carteACliker1 === -1) {
                 let indexInconnus = [];
                 cartesDOM.forEach((c, idx) => {
                     if (!c.classList.contains('trouvee') && !c.classList.contains('retournee')) {
-                        // Vérifier si cette carte n'est pas déjà dans la mémoire
                         let estDansMemoire = false;
-                        for (let s in memoireIA) { if (memoireIA[s].includes(idx)) estDansMemoire = true; }
+                        for (let p in memoireIA) { if (memoireIA[p].includes(idx)) estDansMemoire = true; }
                         if (!estDansMemoire) indexInconnus.push(idx);
                     }
                 });
                 
-                if (indexInconnus.length > 0) {
-                    carteACliker1 = indexInconnus[Math.floor(Math.random() * indexInconnus.length)];
-                } else {
-                    // Repli de sécurité : clique sur la première carte non trouvée
-                    carteACliker1 = cartesDOM.findIndex(c => !c.classList.contains('trouvee'));
-                }
+                if (indexInconnus.length > 0) carteACliker1 = indexInconnus[Math.floor(Math.random() * indexInconnus.length)];
+                else carteACliker1 = cartesDOM.findIndex(c => !c.classList.contains('trouvee'));
             }
 
-            // L'IA retourne la première carte
             retournerCarte(carteACliker1);
 
-            // L'IA attend un peu puis choisit sa deuxième carte
             setTimeout(() => {
                 if (carteACliker2 !== -1) {
-                    retournerCarte(carteACliker2); // Elle connaît déjà la deuxième !
+                    retournerCarte(carteACliker2);
                 } else {
-                    // Elle a retourné une carte au hasard. Est-ce que cette nouvelle carte correspond à un symbole qu'elle a déjà vu ?
-                    let nouveauSymbole = cartesEnJeu[carteACliker1];
-                    let positionsVues = memoireIA[nouveauSymbole];
+                    let nouveauIdPaire = cartesEnJeu[carteACliker1].id_paire;
+                    let positionsVues = memoireIA[nouveauIdPaire];
                     
-                    if (positionsVues.length === 2) {
-                        // Oui ! Elle se souvient de l'autre !
+                    if (positionsVues && positionsVues.length === 2 && !iaRateSonCoup) {
                         let autreIndex = positionsVues[0] === carteACliker1 ? positionsVues[1] : positionsVues[0];
                         retournerCarte(autreIndex);
                     } else {
-                        // Non, elle clique sur une autre carte au hasard
                         let indexDispos = [];
                         cartesDOM.forEach((c, idx) => {
                             if (!c.classList.contains('trouvee') && idx !== carteACliker1) indexDispos.push(idx);
@@ -255,25 +529,31 @@
                         retournerCarte(carteACliker2);
                     }
                 }
-            }, 1000);
+            }, 800);
         }
 
         function terminerJeu() {
             const fb = document.getElementById('feedback');
             if (ptsLola > ptsIA) {
-                fb.textContent = "🏆 Lola gagne ! L'IA est battue !";
-                fb.style.color = "#27ae60";
-                // L'ajout des XP Firebase pourra être appelé ici via une fonction externe
+                fb.textContent = "🏆 Lola gagne la partie !"; fb.style.color = "#27ae60";
+                
+                // Progression du Niveau et XP
+                profil.xp += 20;
+                if (typeof niveauActuelJoue === "number" && niveauActuelJoue === profil.niveauMax && profil.niveauMax < 3) {
+                    profil.niveauMax++;
+                    setTimeout(() => alert("✨ Niveau Supérieur Débloqué !"), 500);
+                }
+                sauverProfilCloud();
+                majInterface();
             } else if (ptsIA > ptsLola) {
-                fb.textContent = "🤖 L'ordinateur gagne cette fois !";
-                fb.style.color = "#e74c3c";
+                fb.textContent = "🤖 L'ordinateur gagne cette fois !"; fb.style.color = "#e74c3c";
             } else {
-                fb.textContent = "🤝 Égalité parfaite !";
-                fb.style.color = "#f39c12";
+                fb.textContent = "🤝 Égalité parfaite !"; fb.style.color = "#f39c12";
+                profil.xp += 5; sauverProfilCloud(); majInterface();
             }
         }
 
-        document.addEventListener("DOMContentLoaded", initJeu);
+        document.addEventListener("DOMContentLoaded", initApp);
     </script>
 </body>
 </html>
