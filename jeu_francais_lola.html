@@ -39,6 +39,7 @@
         .btn-menu-theme:active { transform: translateY(4px); box-shadow: none; }
         .btn-menu-theme.niv1 { border-color: #4ecdc4; box-shadow: 0 4px 0 #16a085; }
         .btn-menu-theme.niv2 { border-color: #3498db; box-shadow: 0 4px 0 #2980b9; }
+        .btn-menu-theme.custom { border-color: #9b59b6; box-shadow: 0 4px 0 #8e44ad; }
         .theme-icon { font-size: 1.8rem; }
 
         /* HUD Jeu */
@@ -68,6 +69,14 @@
         .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; text-decoration: none; display: inline-block; transition: 0.2s; margin-top:10px;}
         .btn-nav:hover { background: #7f8c8d; }
         
+        /* Configuration et Modales */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;}
+        
+        .zone-config { background: #fff3cd; padding: 25px; border-radius: 15px; margin-top: 20px; border: 2px dashed #f1c40f; text-align: left; }
+        .input-texte { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #dfe6e9; border-radius: 8px; font-family: 'Nunito', sans-serif; font-size: 1rem; }
+        .btn-valider { background: #27ae60; color: white; font-size: 1.1rem; font-weight: bold; padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; margin-top: 10px; width: 100%; transition: 0.2s;}
+        
         .erreur-anim { animation: secousse 0.4s; }
         @keyframes secousse { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
         
@@ -76,6 +85,9 @@
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
         
         #feedback { font-size: 1.5rem; font-weight: 900; height: 40px; margin: 15px 0; }
+        
+        .liste-custom-container { border-top: 2px solid #eee; padding-top: 20px; margin-top: 20px; }
+        .btn-supprimer { background: #e74c3c; color: white; border: none; border-radius: 8px; padding: 10px 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #c0392b;}
     </style>
 </head>
 <body>
@@ -105,7 +117,6 @@
             <div class="niveau-section">
                 <div class="niveau-titre">🔵 Étape 2 : L'entrée en CE1</div>
                 <div class="grid-menu">
-                    <!-- NOUVEAU : Redirigé vers le moteur QCM -->
                     <button class="btn-menu-theme niv2" onclick="lancerNiveau('ortho_ce1', 'ortho_qcm')">
                         <span class="theme-icon">🧩</span>
                         <div><div style="color:#2980b9;">Sons complexes (QCM)</div><div style="font-size:0.85rem; color:#7f8c8d;">Choisir entre OU/ON, O/EAU, S/SS...</div></div>
@@ -121,6 +132,13 @@
                 </div>
             </div>
             
+            <div class="niveau-section liste-custom-container" id="container-custom" style="display:none;">
+                <div class="niveau-titre" style="color: #8e44ad;">🟣 Étape 3 : Mes Leçons (Créées par Papa/Maman)</div>
+                <div class="grid-menu" id="grid-custom"></div>
+            </div>
+            
+            <button class="btn-nav" style="background:#2c3e50; margin-top:20px;" onclick="ouvrirAuthParent()">⚙️ Créer une Leçon</button>
+            <br>
             <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
@@ -131,14 +149,12 @@
                 <span id="ui-progression" style="color: #7f8c8d;">1 / 5</span>
             </div>
             
-            <!-- Module Orthographe CP (Mélange de lettres) -->
             <div id="module-orthographe" style="display: none;">
                 <div id="dessin-box">🐱</div>
                 <div id="mot-a-construire"></div>
                 <div id="lettres-melangees"></div>
             </div>
 
-            <!-- Module QCM (Orthographe CE1 / Grammaire / Conjugaison) -->
             <div id="module-qcm" style="display: none;">
                 <div id="consigne-qcm">Consigne</div>
                 <div id="phrase-qcm">La petite fille mange une pomme.</div>
@@ -150,9 +166,43 @@
         </div>
     </div>
 
+    <!-- MODAL AUTHENTIFICATION PARENTS -->
+    <div id="overlay-auth" class="overlay">
+        <div class="modal">
+            <h2 style="color: #2c3e50;">⚙️ Espace Parents</h2>
+            <input type="password" id="pin-parents" class="input-texte" placeholder="Saisissez le code PIN" style="text-align:center;">
+            <button class="btn-valider" onclick="verifierPinParent()">Déverrouiller</button>
+            <p id="msg-auth-erreur" style="color: #e74c3c; font-weight: bold; margin-top:10px;"></p>
+            <button class="btn-nav" style="width:100%; margin-top:20px;" onclick="document.getElementById('overlay-auth').style.display='none'">Fermer</button>
+        </div>
+    </div>
+
+    <!-- MODAL CRÉATION DE LEÇON -->
+    <div id="overlay-creation" class="overlay">
+        <div class="modal">
+            <h2 style="color: #8e44ad;">✍️ Créer une Leçon QCM</h2>
+            <p style="color: #7f8c8d; font-size: 0.9rem;">Idéal pour réviser les dictées ou la grammaire de l'école.</p>
+            
+            <div class="zone-config">
+                <label><strong>Titre de la leçon (ex: Dictée du 15 Octobre) :</strong></label>
+                <input type="text" id="input-nom-theme" class="input-texte" placeholder="Titre de la leçon...">
+                
+                <label><strong>Format des questions :</strong></label>
+                <p style="font-size:0.85rem; color:#e67e22; margin-bottom:5px;">Phrase | Consigne | Choix1,Choix2 | BonneRéponse</p>
+                <textarea id="input-mots" class="input-texte" rows="6" placeholder="La m___son | Complète le mot | ai,ei,ay | ai&#10;Les chats (dormir) ___ | Conjugue au présent | dors,dort,dorment | dorment"></textarea>
+                
+                <button class="btn-valider" style="background: #8e44ad;" onclick="sauvegarderThemeCloud()">Sauvegarder dans le Cloud</button>
+                <p id="msg-config" style="color: #27ae60; font-weight: bold; margin-top: 10px; text-align:center;"></p>
+            </div>
+            <button class="btn-nav" style="width:100%; margin-top:20px;" onclick="document.getElementById('overlay-creation').style.display='none'">Fermer l'éditeur</button>
+        </div>
+    </div>
+
     <script>
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
-        const DB_URL = `${FIREBASE_URL}scores/lola/francaisLola.json`;
+        const DB_URL_XP = `${FIREBASE_URL}scores/lola/francaisLola.json`;
+        const DB_CUSTOM_URL = `${FIREBASE_URL}scores/parent_settings/customFrancais.json`;
+        const DB_SETTINGS_URL = `${FIREBASE_URL}scores/parent_settings.json`;
 
         // BASE DE DONNÉES ENRICHIE POUR LE CE1
         const bdd = {
@@ -160,7 +210,9 @@
                 { mot: "CHAT", emoji: "🐱" }, { mot: "VELO", emoji: "🚲" }, 
                 { mot: "LUNE", emoji: "🌙" }, { mot: "FILLE", emoji: "👧" }, 
                 { mot: "LIVRE", emoji: "📖" }, { mot: "POMME", emoji: "🍎" },
-                { mot: "SOLEIL", emoji: "☀️" }, { mot: "TABLE", emoji: "🪑" }
+                { mot: "SOLEIL", emoji: "☀️" }, { mot: "TABLE", emoji: "🪑" },
+                { mot: "FLEUR", emoji: "🌸" }, { mot: "OISEAU", emoji: "🐦" },
+                { mot: "MAISON", emoji: "🏠" }, { mot: "ARBRE", emoji: "🌳" }
             ],
             ortho_ce1: [
                 { phrase: "🏰 CH ___ TEAU", consigne: "Quel est le bon son ?", choix: ["A", "Â", "AN"], rep: "Â" },
@@ -170,24 +222,33 @@
                 { phrase: "👟 CHAU ___ URE", consigne: "Un seul S ou deux S ?", choix: ["S", "SS", "C"], rep: "SS" },
                 { phrase: "🐦 OIS ___", consigne: "Comment s'écrit le son [O] à la fin ?", choix: ["O", "AU", "EAU"], rep: "EAU" },
                 { phrase: "🍓 FR ___ SE", consigne: "Quel est le bon son ?", choix: ["È", "AI", "EI"], rep: "AI" },
-                { phrase: "🦁 L ___ N", consigne: "Quel est le bon son ?", choix: ["I", "IO", "Y"], rep: "IO" }
+                { phrase: "🦁 L ___ N", consigne: "Quel est le bon son ?", choix: ["I", "IO", "Y"], rep: "IO" },
+                { phrase: "🚪 LA P ___ RTE", consigne: "Quel est le bon son ?", choix: ["O", "AU", "EAU"], rep: "O" },
+                { phrase: "🚲 UN VÉL ___", consigne: "Comment s'écrit le son [O] à la fin ?", choix: ["O", "AU", "EAU"], rep: "O" },
+                { phrase: "🐘 UN ÉLÉPH ___ T", consigne: "Quel est le bon son ?", choix: ["EN", "AN", "AM"], rep: "AN" },
+                { phrase: "🦒 UNE GIR ___ FE", consigne: "Un seul F ou deux F ?", choix: ["F", "FF", "PH"], rep: "F" }
             ],
             gram_cp: [
                 { phrase: "Le petit chat dort sur le lit.", consigne: "Trouve le VERBE (l'action)", rep: "dort" },
                 { phrase: "Lola mange une pomme rouge.", consigne: "Trouve le VERBE (l'action)", rep: "mange" },
                 { phrase: "Le grand chien aboie fort.", consigne: "Trouve le VERBE (l'action)", rep: "aboie" },
                 { phrase: "Papa lit une belle histoire.", consigne: "Trouve le VERBE (l'action)", rep: "lit" },
-                { phrase: "Les enfants jouent dans le jardin.", consigne: "Trouve le VERBE (l'action)", rep: "jouent" }
+                { phrase: "Les enfants jouent dans le jardin.", consigne: "Trouve le VERBE (l'action)", rep: "jouent" },
+                { phrase: "La maîtresse explique la leçon.", consigne: "Trouve le VERBE (l'action)", rep: "explique" },
+                { phrase: "Théo court dans la cour.", consigne: "Trouve le VERBE (l'action)", rep: "court" },
+                { phrase: "Maman dessine un bel arbre.", consigne: "Trouve le VERBE (l'action)", rep: "dessine" }
             ],
             gram_ce1: [
                 { phrase: "Maman prépare un bon gâteau.", consigne: "Trouve le SUJET (Qui fait l'action ?)", rep: "Maman" },
                 { phrase: "L'oiseau vole dans le ciel.", consigne: "Trouve le SUJET (Qui fait l'action ?)", rep: "L'oiseau" },
                 { phrase: "La petite fille regarde le livre.", consigne: "Trouve l'ADJECTIF (Comment est la fille ?)", rep: "petite" },
-                { phrase: "Le gros chat noir dort.", consigne: "Trouve un ADJECTIF", rep: "gros" }, // Note: "noir" fonctionnerait aussi avec notre code
+                { phrase: "Le gros chat noir dort.", consigne: "Trouve un ADJECTIF", rep: "gros" }, 
                 { phrase: "Les chevaux galopent vite.", consigne: "Trouve le mot au PLURIEL", rep: "chevaux" },
                 { phrase: "Mes amis arrivent demain.", consigne: "Trouve le mot au PLURIEL", rep: "amis" },
                 { phrase: "Une souris grise se cache.", consigne: "Quel mot est au FÉMININ ?", rep: "grise" },
-                { phrase: "Il porte un pull bleu.", consigne: "Quel mot est au MASCULIN ?", rep: "bleu" }
+                { phrase: "Il porte un pull bleu.", consigne: "Quel mot est au MASCULIN ?", rep: "bleu" },
+                { phrase: "La voiture rapide gagne la course.", consigne: "Trouve l'ADJECTIF", rep: "rapide" },
+                { phrase: "Les étoiles brillent ce soir.", consigne: "Trouve le SUJET", rep: "étoiles" }
             ],
             conj_ce1: [
                 { phrase: "Je (chanter) _____ une chanson.", consigne: "Choisis la bonne terminaison :", choix: ["chante", "chantes", "chantons"], rep: "chante" },
@@ -197,11 +258,16 @@
                 { phrase: "J' (avoir) _____ un beau vélo.", consigne: "Complète avec le verbe AVOIR :", choix: ["est", "ai", "as"], rep: "ai" },
                 { phrase: "Tu (avoir) _____ froid aux mains.", consigne: "Complète avec le verbe AVOIR :", choix: ["a", "as", "ont"], rep: "as" },
                 { phrase: "Tu (être) _____ très gentille.", consigne: "Complète avec le verbe ÊTRE :", choix: ["es", "est", "suis"], rep: "es" },
-                { phrase: "Lola et Théo (être) _____ dans le jardin.", consigne: "Complète avec le verbe ÊTRE :", choix: ["sont", "sommes", "êtes"], rep: "sont" }
+                { phrase: "Lola et Théo (être) _____ dans le jardin.", consigne: "Complète avec le verbe ÊTRE :", choix: ["sont", "sommes", "êtes"], rep: "sont" },
+                { phrase: "Vous (regarder) _____ la télévision.", consigne: "Choisis la bonne terminaison :", choix: ["regardons", "regardez", "regardent"], rep: "regardez" },
+                { phrase: "Elle (avoir) _____ une jolie robe.", consigne: "Complète avec le verbe AVOIR :", choix: ["ai", "as", "a"], rep: "a" }
             ]
         };
 
         let profil = { xp: 0 };
+        let customThemes = {};
+        let pinParental = "1234";
+        
         let vies = 3; 
         let indexQuestion = 0; 
         let listeQuestions = []; 
@@ -215,20 +281,42 @@
             gram_cp: [], gram_ce1: [],
             conj_ce1: []
         };
+        // Initialisation des sacs pour le mode custom dynamiquement
+        function initSacsCustom() {
+            for(let key in customThemes) { if(!sacsQuestions[key]) sacsQuestions[key] = []; }
+        }
 
         const E = (id) => document.getElementById(id);
 
-        async function chargerProfilCloud() {
+        async function initApp() {
+            // 1. Charge l'XP du joueur
             try {
-                let res = await fetch(DB_URL);
+                let res = await fetch(DB_URL_XP);
                 let data = await res.json();
                 if (data && data.xp !== undefined) profil.xp = parseInt(data.xp) || 0;
             } catch(e) {}
+            
+            // 2. Charge les listes custom depuis les paramètres parents
+            try {
+                let resCustom = await fetch(DB_CUSTOM_URL);
+                let dataCustom = await resCustom.json();
+                if (dataCustom) customThemes = dataCustom;
+                initSacsCustom();
+            } catch(e) {}
+            
+            // 3. Charge le code PIN parent
+            try {
+                let resSet = await fetch(DB_SETTINGS_URL);
+                let dataSet = await resSet.json();
+                if (dataSet && dataSet.pinCode) pinParental = dataSet.pinCode;
+            } catch(e) {}
+
             majXP();
+            afficherThemesCustom();
         }
 
         async function sauverProfilCloud() {
-            try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
+            try { await fetch(DB_URL_XP, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
         }
 
         function majXP() { E('ui-xp').textContent = `XP: ${profil.xp} ⭐`; }
@@ -237,11 +325,105 @@
         function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); E(id).classList.add('actif'); }
         function retourAccueil() { changerEcran('ecran-accueil'); }
 
-        function piocherQuestions(categorie, nombre) {
-            if (sacsQuestions[categorie].length < nombre) {
-                sacsQuestions[categorie] = [...bdd[categorie]].sort(() => Math.random() - 0.5);
+        // --- GESTION DES LISTES CUSTOM ---
+        function afficherThemesCustom() {
+            const conteneur = E('grid-custom');
+            const section = E('container-custom');
+            conteneur.innerHTML = '';
+            
+            if (Object.keys(customThemes).length > 0) {
+                section.style.display = "block";
+                for (let id in customThemes) {
+                    let btn = document.createElement('button');
+                    btn.className = "btn-menu-theme custom";
+                    btn.innerHTML = `
+                        <span class="theme-icon">📝</span>
+                        <div style="flex:1;">
+                            <div style="color:#8e44ad;">${customThemes[id].nom}</div>
+                            <div style="font-size:0.85rem; color:#7f8c8d;">${customThemes[id].mots.length} questions</div>
+                        </div>
+                        <span class="btn-supprimer" onclick="supprimerThemeCustom(event, '${id}')">X</span>
+                    `;
+                    btn.onclick = () => lancerNiveau(id, 'ortho_qcm'); // On utilise le moteur QCM pour les leçons créées
+                    conteneur.appendChild(btn);
+                }
+            } else {
+                section.style.display = "none";
             }
-            return sacsQuestions[categorie].splice(0, nombre);
+        }
+
+        function ouvrirAuthParent() {
+            E('pin-parents').value = "";
+            E('msg-auth-erreur').textContent = "";
+            E('overlay-auth').style.display = 'flex';
+        }
+
+        function verifierPinParent() {
+            if (E('pin-parents').value === pinParental) {
+                E('overlay-auth').style.display = 'none';
+                E('overlay-creation').style.display = 'flex';
+            } else {
+                E('msg-auth-erreur').textContent = "Code PIN incorrect.";
+            }
+        }
+
+        async function sauvegarderThemeCloud() {
+            let nom = E('input-nom-theme').value.trim(); 
+            let motsBruts = E('input-mots').value;
+            
+            if(!nom || !motsBruts) return alert("Remplis le titre et les questions !");
+            
+            let lignes = motsBruts.split('\n'); let questionsQCM = [];
+            for(let ligne of lignes) { 
+                if(ligne.includes('|')) { 
+                    let parties = ligne.split('|');
+                    if(parties.length === 4) {
+                        let phrase = parties[0].trim();
+                        let consigne = parties[1].trim();
+                        let choix = parties[2].split(',').map(s => s.trim());
+                        let rep = parties[3].trim();
+                        questionsQCM.push({ phrase: phrase, consigne: consigne, choix: choix, rep: rep });
+                    }
+                } 
+            }
+            
+            if(questionsQCM.length === 0) return alert("Le format n'est pas respecté (utilise les barres | pour séparer les éléments) !");
+            
+            let id = 'custom_' + Date.now(); 
+            customThemes[id] = { nom: nom, mots: questionsQCM }; 
+            
+            try { 
+                await fetch(DB_CUSTOM_URL, { method: 'PUT', body: JSON.stringify(customThemes) }); 
+                E('msg-config').textContent = "Leçon sauvegardée sur le Cloud !"; 
+                E('input-nom-theme').value = ""; E('input-mots').value = "";
+                setTimeout(() => { E('msg-config').textContent = ""; E('overlay-creation').style.display = 'none'; }, 2000); 
+                initSacsCustom();
+                afficherThemesCustom();
+            } catch(e) {
+                alert("Erreur de sauvegarde réseau !");
+            }
+        }
+        
+        async function supprimerThemeCustom(e, id) {
+            e.stopPropagation();
+            if(confirm("Supprimer cette leçon pour de bon ?")) {
+                delete customThemes[id];
+                afficherThemesCustom();
+                try { await fetch(DB_CUSTOM_URL, { method: 'PUT', body: JSON.stringify(customThemes) }); } catch(err) {}
+            }
+        }
+
+        // --- MOTEUR DE JEU ---
+        function piocherQuestions(categorie, nombre) {
+            let dataSource = customThemes[categorie] ? customThemes[categorie].mots : bdd[categorie];
+            
+            if (!sacsQuestions[categorie] || sacsQuestions[categorie].length < nombre) {
+                sacsQuestions[categorie] = [...dataSource].sort(() => Math.random() - 0.5);
+            }
+            
+            let quantiteRestante = sacsQuestions[categorie].length;
+            let questionsPrises = sacsQuestions[categorie].splice(0, Math.min(nombre, quantiteRestante));
+            return questionsPrises;
         }
 
         function lancerNiveau(categorie, typeUi) {
@@ -249,13 +431,15 @@
             vies = 3; 
             indexQuestion = 0; 
             
+            // On limite à 5 exercices par série pour que ce soit digeste pour l'enfant
             listeQuestions = piocherQuestions(categorie, 5);
+            
+            if(listeQuestions.length === 0) return alert("Il n'y a plus de questions dans cette catégorie !");
             
             E('ui-vies').textContent = "❤️❤️❤️"; 
             E('feedback').textContent = ""; 
             
             E('module-orthographe').style.display = (typeUi === 'orthographe') ? 'block' : 'none';
-            // Le module QCM est utilisé pour la grammaire, la conjugaison ET la nouvelle orthographe CE1
             E('module-qcm').style.display = (typeUi === 'ortho_qcm' || typeUi === 'grammaire' || typeUi === 'conjugaison') ? 'block' : 'none';
             
             changerEcran('ecran-jeu'); 
@@ -264,10 +448,10 @@
 
         function poserQuestion() {
             if (vies <= 0) {
-                alert("Plus de vies ! Entraîne-toi encore."); return retourAccueil();
+                alert("Plus de vies ! Révise et retente ta chance."); return retourAccueil();
             }
             if (indexQuestion >= listeQuestions.length) {
-                alert("Série terminée ! Bien joué Lola !"); return retourAccueil();
+                alert("🎉 Série terminée ! Bien joué Lola ! Tu as gagné de l'XP."); return retourAccueil();
             }
 
             bloque = false;
@@ -363,7 +547,7 @@
             }
         }
 
-        chargerProfilCloud();
+        document.addEventListener("DOMContentLoaded", initApp);
     </script>
 </body>
 </html>
