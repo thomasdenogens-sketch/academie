@@ -82,8 +82,9 @@
         .boutique-lola { border-color: #f368e0; background: #fff0f5; }
         .boutique-lola .zone-titre { color: #f368e0; }
         
-        .zone-libre { border-color: #2ecc71; background: #fafffb; }
-        .zone-libre .zone-titre { color: #27ae60; }
+        /* Les zones libres utilisent une couleur verte pour se différencier */
+        .zone-libre.deverrouille { border-color: #2ecc71; background: #fafffb; }
+        .zone-libre.deverrouille .zone-titre { color: #27ae60; }
 
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto;}
@@ -106,9 +107,8 @@
         .admin-label { font-weight: bold; color: #34495e; font-size: 0.95rem; display: block; margin-bottom: 5px;}
         .admin-input { width: 100%; padding: 8px; border: 2px solid #bdc3c7; border-radius: 8px; margin-bottom: 10px; font-family: 'Nunito', sans-serif;}
         
-        /* --- Style du bouton Monde Réel --- */
         .btn-monde-reel { 
-            display: none; /* Caché par défaut */
+            display: none; 
             background: #e67e22; 
             color: white; 
             padding: 15px; 
@@ -124,11 +124,9 @@
             animation: pulse 2s infinite; 
         }
 
-        /* On l'affiche uniquement quand le temps d'écran est dépassé */
         .section-bloquee .btn-monde-reel { display: block; }
         .section-bloquee-libre .btn-monde-reel { display: block; }
 
-        /* Petite animation pour le faire respirer */
         @keyframes pulse { 
             0% { transform: scale(1); } 
             50% { transform: scale(1.05); } 
@@ -196,7 +194,6 @@
                     <a href="jeu_geometrie.html" class="game-btn" onclick="return enregistrerDepart('Géométrie', 'Théo')">
                         <span class="game-icon">📐</span><span>Géométrie</span>
                     </a>
-                    <!-- LE BOUTON D'ANGLAIS DE THÉO RÉINTÉGRÉ ICI -->
                     <a href="jeu_anglais.html" class="game-btn" onclick="return enregistrerDepart('Anglais', 'Théo')">
                         <span class="game-icon">🇬🇧</span><span>Anglais</span>
                     </a>
@@ -205,8 +202,11 @@
                     </a>
                 </div>
 
-                <div class="zone-speciale zone-libre">
+                <!-- ZONE JEUX LIBRES VERROUILLÉE PAR DÉFAUT -->
+                <div id="zone-libre-theo" class="zone-speciale zone-libre verrouille">
                     <div class="zone-titre">🕹️ Jeux de Réflexion (Temps Libre)</div>
+                    <div class="unlock-progress-container"><div id="theo-libre-bar" class="unlock-progress-bar" style="background: #27ae60;"></div></div>
+                    <div id="theo-libre-msg" class="unlock-message" style="color: #27ae60;">Gagne de l'XP à l'école pour débloquer !</div>
                     <div class="games-list">
                         <a href="jeu_echecs.html" class="game-btn libre-btn" onclick="return enregistrerDepartLibre('Échecs', 'Théo')">
                             <span class="game-icon">♟️</span><span>Jeu d'Échecs</span>
@@ -220,6 +220,7 @@
                     </div>
                 </div>
 
+                <!-- ZONE RÉCRÉATION VERROUILLÉE PAR DÉFAUT -->
                 <div id="zone-recreation-theo" class="zone-speciale verrouille">
                     <div class="zone-titre">🔓 Le Bonus du Codeur</div>
                     <div class="unlock-progress-container"><div id="theo-unlock-bar" class="unlock-progress-bar"></div></div>
@@ -270,8 +271,11 @@
                     </a>
                 </div>
 
-                <div class="zone-speciale zone-libre">
+                <!-- ZONE JEUX LIBRES VERROUILLÉE PAR DÉFAUT -->
+                <div id="zone-libre-lola" class="zone-speciale zone-libre verrouille">
                     <div class="zone-titre">🕹️ Jeux de Réflexion (Temps Libre)</div>
+                    <div class="unlock-progress-container"><div id="lola-libre-bar" class="unlock-progress-bar" style="background: #27ae60;"></div></div>
+                    <div id="lola-libre-msg" class="unlock-message" style="color: #27ae60;">Gagne de l'XP à l'école pour débloquer !</div>
                     <div class="games-list">
                         <a href="jeu_dames.html" class="game-btn libre-btn" onclick="return enregistrerDepartLibre('Dames', 'Lola')">
                             <span class="game-icon">👑</span><span>Jeu de Dames vs Ordi</span>
@@ -294,6 +298,7 @@
                     </div>
                 </div>
 
+                <!-- ZONE RÉCRÉATION VERROUILLÉE PAR DÉFAUT -->
                 <div id="zone-recreation-lola" class="zone-speciale verrouille">
                     <div class="zone-titre" style="color: #8e44ad;">🔓 La Salle Bonus</div>
                     <div class="unlock-progress-container"><div id="lola-unlock-bar" class="unlock-progress-bar" style="background: #9b59b6;"></div></div>
@@ -356,6 +361,24 @@
                     <label class="admin-label">Texte de la Super Récompense :</label>
                     <input type="text" id="admin-texte-recompense" class="admin-input" placeholder="Ex: Sortie au parc !">
                 </div>
+                
+                <div class="admin-section" style="border-color: #2ecc71; background: #fafffb;">
+                    <div class="admin-title" style="color: #27ae60;">🕹️ Paramètres Jeux Libres (Dames, Tangram...)</div>
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                        <div style="flex:1;">
+                            <label class="admin-label">XP Requis avant de jouer (Théo) :</label>
+                            <input type="number" id="admin-seuil-libre-theo" class="admin-input" placeholder="Ex: 30">
+                        </div>
+                        <div style="flex:1;">
+                            <label class="admin-label">XP Requis avant de jouer (Lola) :</label>
+                            <input type="number" id="admin-seuil-libre-lola" class="admin-input" placeholder="Ex: 30">
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <div style="flex:1;"><label class="admin-label">Temps Max en Minutes (Théo) :</label><input type="number" id="admin-temps-libre-theo" class="admin-input"></div>
+                        <div style="flex:1;"><label class="admin-label">Temps Max en Minutes (Lola) :</label><input type="number" id="admin-temps-libre-lola" class="admin-input"></div>
+                    </div>
+                </div>
 
                 <div class="admin-section">
                     <div class="admin-title">🎮 Paramètres des Salles de Jeux (Bonus)</div>
@@ -368,14 +391,6 @@
                             <label class="admin-label">XP Requis (Lola) :</label>
                             <input type="number" id="admin-seuil-recre-lola" class="admin-input" placeholder="Ex: 50">
                         </div>
-                    </div>
-                </div>
-
-                <div class="admin-section" style="border-color: #2ecc71; background: #fafffb;">
-                    <div class="admin-title" style="color: #27ae60;">🕹️ Temps Jeux Libres (Dames, Échecs...)</div>
-                    <div style="display:flex; gap:10px;">
-                        <div style="flex:1;"><label class="admin-label">Minutes (Théo) :</label><input type="number" id="admin-temps-libre-theo" class="admin-input"></div>
-                        <div style="flex:1;"><label class="admin-label">Minutes (Lola) :</label><input type="number" id="admin-temps-libre-lola" class="admin-input"></div>
                     </div>
                 </div>
 
@@ -412,7 +427,8 @@
                 let data = await res.json();
                 if (data) return data;
             } catch(e) {}
-            return { pinCode: "1234", objectifFamille: 5000, texteRecompense: "Sortie au Parc !", limiteTheo: 30, limiteLola: 30, limiteLibreTheo: 30, limiteLibreLola: 30, seuilRecreTheo: 50, seuilRecreLola: 50 };
+            // Paramètres par défaut
+            return { pinCode: "1234", objectifFamille: 5000, texteRecompense: "Sortie au Parc !", limiteTheo: 30, limiteLola: 30, limiteLibreTheo: 30, limiteLibreLola: 30, seuilRecreTheo: 50, seuilRecreLola: 50, seuilLibreTheo: 30, seuilLibreLola: 30 };
         }
 
         function activerPorteDerobee() {
@@ -507,7 +523,6 @@
             return true; 
         }
 
-        // On a ajouté le tag anglaisSaveV1 dans le tableau de Théo !
         const matieresTheo = [ 
             { id: "mathsV8", nom: "Mathématiques", icon: "🧮" }, { id: "motsSaveV3", nom: "Orthographe", icon: "📖" }, 
             { id: "conjHero9", nom: "Conjugaison", icon: "✍️" }, { id: "grammaireV1", nom: "Grammaire", icon: "🔎" },
@@ -539,7 +554,8 @@
             } catch (error) { document.getElementById(htmlElementId).innerHTML = "<li>👉 Choisis librement tes matières !</li>"; }
         }
 
-        async function verifierRecreationTheo() {
+        // Nouvelle fonction unifiée pour gérer le déblocage des zones libres et des zones bonus
+        async function verifierDeblocagesTheo() {
             if(!parametresActuels) parametresActuels = await lireParametresCloud();
             try {
                 let res = await fetch(`${FIREBASE_URL}scores/theo.json`); let data = await res.json() || {};
@@ -553,21 +569,38 @@
                 }
 
                 let xpGagneAujourdhui = Math.max(0, xpTotalActuel - xpDebutJournee);
-                const zoneRecre = document.getElementById('zone-recreation-theo'); const msg = document.getElementById('theo-unlock-msg');
-                let seuil = parametresActuels.seuilRecreTheo || 50;
+                
+                // 1. Déblocage Jeux Libres
+                const zoneLibre = document.getElementById('zone-libre-theo'); 
+                const msgLibre = document.getElementById('theo-libre-msg');
+                let seuilLibre = parametresActuels.seuilLibreTheo || 30;
 
-                if (xpGagneAujourdhui >= seuil || localStorage.getItem('modeDev') === 'actif') {
-                    zoneRecre.classList.remove('verrouille'); zoneRecre.classList.add('deverrouille');
-                    msg.textContent = "✨ Objectif atteint ! Salle de jeux déverrouillée !";
+                if (xpGagneAujourdhui >= seuilLibre || localStorage.getItem('modeDev') === 'actif') {
+                    zoneLibre.classList.remove('verrouille'); zoneLibre.classList.add('deverrouille');
+                    msgLibre.textContent = "✨ Jeux Libres déverrouillés ! Amuse-toi bien !";
                 } else {
-                    let pourcentage = (xpGagneAujourdhui / seuil) * 100;
-                    document.getElementById('theo-unlock-bar').style.width = `${pourcentage}%`;
-                    msg.textContent = `Gagne encore ${seuil - xpGagneAujourdhui} XP aujourd'hui pour débloquer !`;
+                    let pourcentageLibre = (xpGagneAujourdhui / seuilLibre) * 100;
+                    document.getElementById('theo-libre-bar').style.width = `${pourcentageLibre}%`;
+                    msgLibre.textContent = `Gagne encore ${seuilLibre - xpGagneAujourdhui} XP à l'école pour débloquer !`;
+                }
+
+                // 2. Déblocage Salle Bonus
+                const zoneRecre = document.getElementById('zone-recreation-theo'); 
+                const msgBonus = document.getElementById('theo-unlock-msg');
+                let seuilBonus = parametresActuels.seuilRecreTheo || 50;
+
+                if (xpGagneAujourdhui >= seuilBonus || localStorage.getItem('modeDev') === 'actif') {
+                    zoneRecre.classList.remove('verrouille'); zoneRecre.classList.add('deverrouille');
+                    msgBonus.textContent = "✨ Objectif atteint ! Salle Bonus déverrouillée !";
+                } else {
+                    let pourcentageBonus = (xpGagneAujourdhui / seuilBonus) * 100;
+                    document.getElementById('theo-unlock-bar').style.width = `${pourcentageBonus}%`;
+                    msgBonus.textContent = `Gagne encore ${seuilBonus - xpGagneAujourdhui} XP aujourd'hui pour débloquer !`;
                 }
             } catch(e) {}
         }
 
-        async function verifierRecreationLola() {
+        async function verifierDeblocagesLola() {
             if(!parametresActuels) parametresActuels = await lireParametresCloud();
             try {
                 let res = await fetch(`${FIREBASE_URL}scores/lola.json`); let data = await res.json() || {};
@@ -581,16 +614,33 @@
                 }
 
                 let xpGagneAujourdhui = Math.max(0, xpTotalActuel - xpDebutJournee);
-                const zoneRecre = document.getElementById('zone-recreation-lola'); const msg = document.getElementById('lola-unlock-msg');
-                let seuil = parametresActuels.seuilRecreLola || 50;
+                
+                // 1. Déblocage Jeux Libres
+                const zoneLibre = document.getElementById('zone-libre-lola'); 
+                const msgLibre = document.getElementById('lola-libre-msg');
+                let seuilLibre = parametresActuels.seuilLibreLola || 30;
 
-                if (xpGagneAujourdhui >= seuil || localStorage.getItem('modeDev') === 'actif') {
-                    zoneRecre.classList.remove('verrouille'); zoneRecre.classList.add('deverrouille');
-                    msg.textContent = "✨ Objectif atteint ! Salle de jeux déverrouillée !";
+                if (xpGagneAujourdhui >= seuilLibre || localStorage.getItem('modeDev') === 'actif') {
+                    zoneLibre.classList.remove('verrouille'); zoneLibre.classList.add('deverrouille');
+                    msgLibre.textContent = "✨ Jeux Libres déverrouillés ! Amuse-toi bien !";
                 } else {
-                    let pourcentage = (xpGagneAujourdhui / seuil) * 100;
-                    document.getElementById('lola-unlock-bar').style.width = `${pourcentage}%`;
-                    msg.textContent = `Gagne encore ${seuil - xpGagneAujourdhui} XP aujourd'hui pour débloquer !`;
+                    let pourcentageLibre = (xpGagneAujourdhui / seuilLibre) * 100;
+                    document.getElementById('lola-libre-bar').style.width = `${pourcentageLibre}%`;
+                    msgLibre.textContent = `Gagne encore ${seuilLibre - xpGagneAujourdhui} XP à l'école pour débloquer !`;
+                }
+
+                // 2. Déblocage Salle Bonus
+                const zoneRecre = document.getElementById('zone-recreation-lola'); 
+                const msgBonus = document.getElementById('lola-unlock-msg');
+                let seuilBonus = parametresActuels.seuilRecreLola || 50;
+
+                if (xpGagneAujourdhui >= seuilBonus || localStorage.getItem('modeDev') === 'actif') {
+                    zoneRecre.classList.remove('verrouille'); zoneRecre.classList.add('deverrouille');
+                    msgBonus.textContent = "✨ Objectif atteint ! Salle Bonus déverrouillée !";
+                } else {
+                    let pourcentageBonus = (xpGagneAujourdhui / seuilBonus) * 100;
+                    document.getElementById('lola-unlock-bar').style.width = `${pourcentageBonus}%`;
+                    msgBonus.textContent = `Gagne encore ${seuilBonus - xpGagneAujourdhui} XP aujourd'hui pour débloquer !`;
                 }
             } catch(e) {}
         }
@@ -615,12 +665,17 @@
                 document.getElementById('admin-pin-code').value = "";
                 document.getElementById('admin-objectif-xp').value = parametresActuels.objectifFamille;
                 document.getElementById('admin-texte-recompense').value = parametresActuels.texteRecompense;
-                document.getElementById('admin-seuil-recre-theo').value = parametresActuels.seuilRecreTheo || 50;
-                document.getElementById('admin-seuil-recre-lola').value = parametresActuels.seuilRecreLola || 50;
-                document.getElementById('admin-temps-theo').value = parametresActuels.limiteTheo;
-                document.getElementById('admin-temps-lola').value = parametresActuels.limiteLola;
+                
+                document.getElementById('admin-seuil-libre-theo').value = parametresActuels.seuilLibreTheo || 30;
+                document.getElementById('admin-seuil-libre-lola').value = parametresActuels.seuilLibreLola || 30;
                 document.getElementById('admin-temps-libre-theo').value = parametresActuels.limiteLibreTheo || 30;
                 document.getElementById('admin-temps-libre-lola').value = parametresActuels.limiteLibreLola || 30;
+
+                document.getElementById('admin-seuil-recre-theo').value = parametresActuels.seuilRecreTheo || 50;
+                document.getElementById('admin-seuil-recre-lola').value = parametresActuels.seuilRecreLola || 50;
+                
+                document.getElementById('admin-temps-theo').value = parametresActuels.limiteTheo;
+                document.getElementById('admin-temps-lola').value = parametresActuels.limiteLola;
             } else { document.getElementById('msg-parent-erreur').textContent = "Code PIN incorrect."; }
         }
 
@@ -632,12 +687,17 @@
                 pinCode: pinASauvegarder,
                 objectifFamille: parseInt(document.getElementById('admin-objectif-xp').value) || 5000,
                 texteRecompense: document.getElementById('admin-texte-recompense').value || "Surprise !",
+                
+                seuilLibreTheo: parseInt(document.getElementById('admin-seuil-libre-theo').value) || 30,
+                seuilLibreLola: parseInt(document.getElementById('admin-seuil-libre-lola').value) || 30,
+                limiteLibreTheo: parseInt(document.getElementById('admin-temps-libre-theo').value) || 30,
+                limiteLibreLola: parseInt(document.getElementById('admin-temps-libre-lola').value) || 30,
+
                 seuilRecreTheo: parseInt(document.getElementById('admin-seuil-recre-theo').value) || 50,
                 seuilRecreLola: parseInt(document.getElementById('admin-seuil-recre-lola').value) || 50,
+                
                 limiteTheo: parseInt(document.getElementById('admin-temps-theo').value) || 30,
-                limiteLola: parseInt(document.getElementById('admin-temps-lola').value) || 30,
-                limiteLibreTheo: parseInt(document.getElementById('admin-temps-libre-theo').value) || 30,
-                limiteLibreLola: parseInt(document.getElementById('admin-temps-libre-lola').value) || 30
+                limiteLola: parseInt(document.getElementById('admin-temps-lola').value) || 30
             };
             
             try {
@@ -646,7 +706,7 @@
                 parametresActuels = paramsCloud; 
             } catch (e) { alert("Erreur de sauvegarde réseau"); }
             
-            chargerJaugeFamiliale(); initTempsEcran(); verifierRecreationTheo(); verifierRecreationLola(); fermerModals();
+            chargerJaugeFamiliale(); initTempsEcran(); verifierDeblocagesTheo(); verifierDeblocagesLola(); fermerModals();
         }
 
         async function donnerBonusManuel() {
@@ -683,7 +743,7 @@
             parametresActuels = await lireParametresCloud();
             
             chargerJaugeFamiliale(); initTempsEcran(); 
-            verifierRecreationTheo(); verifierRecreationLola(); 
+            verifierDeblocagesTheo(); verifierDeblocagesLola(); 
             genererParcoursIntelligent("Théo", matieresTheo, "parcours-theo");
             genererParcoursIntelligent("Lola", matieresLola, "parcours-lola");
         });
