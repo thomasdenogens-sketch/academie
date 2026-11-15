@@ -44,10 +44,7 @@
         /* --- ÉCRAN ENTRAÎNEMENT --- */
         #consigne-frappe { font-size: 1.1rem; color: #7f8c8d; font-weight: bold; margin-bottom: 10px; text-transform: uppercase; height: 25px;}
 
-        #zone-jeu {
-            margin: 10px 0 30px 0;
-            display: flex; justify-content: center; align-items: center; gap: 8px;
-        }
+        #zone-jeu { margin: 10px 0 30px 0; display: flex; justify-content: center; align-items: center; gap: 8px; }
         
         .case-lettre { 
             font-family: 'Fira Code', monospace; font-size: 2.5rem; font-weight: 700; color: #2c3e50;
@@ -60,7 +57,7 @@
         
         @keyframes secousse { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 
-        /* --- CLAVIER & MAINS DYNAMIQUES --- */
+        /* --- CLAVIER & MAINS VECTORIELLES --- */
         .environnement-clavier { position: relative; width: 100%; max-width: 680px; margin: 0 auto 15px auto; }
         
         .clavier-container { 
@@ -76,22 +73,16 @@
         
         .touche.repere { border-bottom: 4px solid #7f8c8d; }
         
+        /* Touche Cible Active (EdClub Style) */
         .touche.suggeree { 
             background: #3498db; color: white; border-color: #2980b9; box-shadow: 0 3px 0 #2980b9; 
             transform: translateY(2px); z-index: 5;
         }
         .touche.suggeree-erreur { background: #e74c3c; border-color: #c0392b; color: white; }
 
-        /* Calque vectoriel généré par JS */
-        #calque-vectoriel {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none; overflow: visible;
-        }
-        
-        /* Les lignes SVG qui représentent les doigts ont une transition CSS fluide sur leurs attributs x2 et y2 ! */
-        .doigt-svg { transition: all 0.3s ease-out; }
-        
-        /* Quand un doigt est actif, il s'épaissit et devient bleu */
-        .doigt-svg.actif { stroke: #3498db; stroke-width: 14; opacity: 0.8; }
+        /* Style des doigts SVG dynamiques */
+        .doigt-svg { transition: fill 0.2s ease; }
+        .doigt-svg.actif { fill: #3498db !important; stroke: #2980b9 !important; }
 
         /* Barre de progression */
         .progression-container { width: 100%; background: #f8bbd0; height: 15px; border-radius: 10px; margin-bottom: 20px; overflow: hidden; border: 2px solid #f06292;}
@@ -183,9 +174,40 @@
                     </div>
                 </div>
                 
-                <!-- Calque SVG dynamique pour les mains -->
-                <svg id="calque-vectoriel" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Généré par JavaScript lors du chargement de l'écran -->
+                <!-- Main Gauche Vectorielle -->
+                <svg id="svg-main-gauche" style="position:absolute; z-index:4; pointer-events:none; opacity:0.8;" viewBox="0 0 204 250" preserveAspectRatio="none">
+                    <!-- Pouce -->
+                    <rect id="doigt-visuel-espace-g" class="doigt-svg" x="160" y="100" width="28" height="70" rx="14" transform="rotate(-30 160 100)" fill="#ffffff" stroke="#95a5a6" stroke-width="2"/>
+                    <!-- Doigts -->
+                    <rect id="doigt-visuel-q" class="doigt-svg" x="10" y="25" width="24" height="70" rx="12" fill="#ffffff" stroke="#95a5a6" stroke-width="2"/>
+                    <rect id="doigt-visuel-s" class="doigt-svg" x="63" y="12" width="24" height="82" rx="12" fill="#ffffff" stroke="#95a5a6" stroke-width="2"/>
+                    <rect id="doigt-visuel-d" class="doigt-svg" x="116" y="0" width="24" height="92" rx="12" fill="#ffffff" stroke="#95a5a6" stroke-width="2"/>
+                    <rect id="doigt-visuel-f" class="doigt-svg" x="169" y="12" width="24" height="82" rx="12" fill="#ffffff" stroke="#95a5a6" stroke-width="2"/>
+                    <!-- Paume (Recouvre la jointure des doigts) -->
+                    <rect x="5" y="75" width="194" height="110" rx="20" fill="#ffffff" stroke="#95a5a6" stroke-width="2"/>
+                    <!-- Cache bordure pour unifier la main -->
+                    <rect x="7" y="73" width="190" height="20" fill="#ffffff" />
+                </svg>
+
+                <!-- Main Droite Vectorielle -->
+                <svg id="svg-main-droite" style="position:absolute; z-index:4; pointer-events:none; opacity:0.8;" viewBox="0 0 204 250" preserveAspectRatio="none">
+                    <!-- Pouce -->
+                    <rect id="doigt-visuel-espace-d" class="doigt-svg" x="16" y="100" width="28" height="70" rx="14" transform="rotate(30 16 100)" fill="#ffffff" stroke="#95a5a6" stroke-width="2"/>
+                    <!-- Doigts -->
+                    <rect id="doigt-visuel-j" class="doigt-svg" x="10" y="12" width="24" height="82" rx="12" fill="#ffffff" stroke="#95a5a6" stroke-width="2"/>
+                    <rect id="doigt-visuel-k" class="doigt-svg" x="63" y="0" width="24" height="92" rx="12" fill="#ffffff" stroke="#95a5a6" stroke-width="2"/>
+                    <rect id="doigt-visuel-l" class="doigt-svg" x="116" y="12" width="24" height="82" rx="12" fill="#ffffff" stroke="#95a5a6" stroke-width="2"/>
+                    <rect id="doigt-visuel-m" class="doigt-svg" x="169" y="25" width="24" height="70" rx="12" fill="#ffffff" stroke="#95a5a6" stroke-width="2"/>
+                    <!-- Paume -->
+                    <rect x="5" y="75" width="194" height="110" rx="20" fill="#ffffff" stroke="#95a5a6" stroke-width="2"/>
+                    <!-- Cache bordure -->
+                    <rect x="7" y="73" width="190" height="20" fill="#ffffff" />
+                </svg>
+
+                <!-- Calque Animation du Mouvement -->
+                <svg id="calque-animation" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:10; pointer-events:none; opacity:0;">
+                    <line id="ligne-mouvement" x1="0" y1="0" x2="0" y2="0" stroke="#3498db" stroke-width="12" stroke-linecap="round" style="transition: all 0.3s ease-out; opacity: 0.7;"/>
+                    <circle id="pointe-doigt" cx="0" cy="0" r="14" fill="#2980b9" style="transition: all 0.3s ease-out;"/>
                 </svg>
             </div>
 
@@ -196,6 +218,7 @@
 
     <!-- MODAL AUTH PARENTS -->
     <div id="overlay-auth" class="overlay">
+        <!-- Reste identique (Caché pour clarté, présent dans le code) -->
         <div class="modal">
             <h2 style="color: #2c3e50;">⚙️ Espace Parents</h2>
             <input type="password" id="pin-parents" class="input-texte" placeholder="Saisissez le code PIN" style="text-align:center;">
@@ -207,6 +230,7 @@
 
     <!-- MODAL CRÉATION DE LEÇON -->
     <div id="overlay-creation" class="overlay">
+        <!-- Reste identique -->
         <div class="modal">
             <h2 style="color: #8e44ad;">✍️ Créer une Liste de Mots</h2>
             <p style="color: #7f8c8d; font-size: 0.9rem;">Idéal pour apprendre l'orthographe des mots de la dictée.</p>
@@ -228,6 +252,7 @@
         const DB_CUSTOM_URL = `${FIREBASE_URL}scores/parent_settings/customDactylo.json`;
         const DB_SETTINGS_URL = `${FIREBASE_URL}scores/parent_settings.json`;
 
+        // BANQUE DE MOTS D'APPRENTISSAGE (Séquences type EdClub)
         const banqueMots = [
             ["f f f j j j", "f j f j f j", "f f j j f j", "j j f f j f"], 
             ["d d k k", "d f k j", "f d j k", "d d f f k k j j"], 
@@ -244,16 +269,14 @@
             'i':'k', 'k':'k', ',':'k', // Majeur Droit
             'o':'l', 'l':'l', // Annulaire Droit
             'p':'m', 'm':'m', // Auriculaire Droit
-            ' ':'espace' // Pouce
+            ' ':'espace-g' // Pouce gauche par défaut
         };
 
         const nomDoigtMap = {
             'q': 'ton petit doigt gauche', 's': 'ton annulaire gauche', 'd': 'ton majeur gauche', 'f': 'ton index gauche',
             'j': 'ton index droit', 'k': 'ton majeur droit', 'l': 'ton annulaire droit', 'm': 'ton petit doigt droit',
-            'espace': 'ton pouce'
+            'espace-g': 'ton pouce'
         };
-
-        const touchesDeRepos = ['q', 's', 'd', 'f', 'espace', 'j', 'k', 'l', 'm'];
 
         const MOTS_POUR_MONTER_NIVEAU = 5;
 
@@ -268,8 +291,6 @@
         let vies = 3;
         let estBloque = false;
         let isCustomMode = false;
-        
-        let positionArticulations = {};
 
         async function initApp() {
             try { let res = await fetch(DB_URL); let data = await res.json(); if (data && data.xp) profil.xp = parseInt(data.xp) || 0; } catch(e) {}
@@ -287,6 +308,7 @@
         function majXP() { document.getElementById('ui-xp').textContent = profil.xp; }
         function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); document.getElementById(id).classList.add('actif'); }
 
+        // --- GESTION DES LISTES CUSTOM ---
         function afficherThemesCustom() {
             const conteneur = document.getElementById('grid-custom');
             const section = document.getElementById('zone-custom');
@@ -295,7 +317,7 @@
                 section.style.display = "block";
                 for (let id in customThemes) {
                     let btn = document.createElement('button'); btn.className = "btn-mode custom-list";
-                    btn.innerHTML = `<div style="font-size: 1.1rem; color:#8e44ad;">${customThemes[id].nom}</div><div style="font-size:0.85rem; color:#7f8c8d; font-weight:normal;">${customThemes[id].mots.length} mots</div><span class="btn-supprimer" onclick="supprimerThemeCustom(event, '${id}')">Supprimer</span>`;
+                    btn.innerHTML = `<div style="font-size: 1.1rem; color:#8e44ad;">${customThemes[id].nom}</div><div style="font-size:0.85rem; color:#7f8c8d; font-weight:normal;">${customThemes[id].mots.length} séquences</div><span class="btn-supprimer" onclick="supprimerThemeCustom(event, '${id}')">Supprimer</span>`;
                     btn.onclick = () => lancerEntrainement(id, true, customThemes[id].nom); conteneur.appendChild(btn);
                 }
             } else { section.style.display = "none"; }
@@ -332,64 +354,39 @@
             changerEcran('ecran-entrainement');
             document.addEventListener('keydown', gestionFrappe);
             
-            // On calcule et on dessine les mains SVG une fois que l'écran est affiché
+            // Attendre que l'écran s'affiche pour calculer la géométrie exacte des mains
             setTimeout(() => {
-                initialiserMainsVirtuelles();
+                placerMainsStatiques();
                 demarrerNouveauMot();
-            }, 50); 
+            }, 50);
         }
 
         function quitterJeu() { document.removeEventListener('keydown', gestionFrappe); changerEcran('ecran-menu'); }
 
-        // --- GÉNÉRATION DYNAMIQUE DES MAINS SVG ---
-        function getCentreTouche(idTouche) {
-            let touche = document.getElementById(idTouche);
-            if (!touche) return {x: 0, y: 0};
-            let clavierRect = document.getElementById('zone-globale-clavier').getBoundingClientRect();
-            let rect = touche.getBoundingClientRect();
-            return {
-                x: (rect.left - clavierRect.left) + (rect.width / 2),
-                y: (rect.top - clavierRect.top) + (rect.height / 2)
-            };
-        }
+        // PLACEMENT DYNAMIQUE DES MAINS SVG SUR LE CLAVIER HTML
+        function placerMainsStatiques() {
+            const clavier = document.getElementById('zone-globale-clavier');
+            const cRect = clavier.getBoundingClientRect();
+            
+            // Repères Main Gauche (Q -> F)
+            const q = document.getElementById('key-q').getBoundingClientRect();
+            const f = document.getElementById('key-f').getBoundingClientRect();
+            
+            const mainGauche = document.getElementById('svg-main-gauche');
+            mainGauche.style.left = (q.left - cRect.left - 12.5) + 'px'; // -12.5 pour aligner le centre du doigt avec le centre de la touche
+            mainGauche.style.top = (q.top - cRect.top - 12.5) + 'px';
+            mainGauche.style.width = (f.right - q.left + 25) + 'px';
+            mainGauche.style.height = '200px';
 
-        function initialiserMainsVirtuelles() {
-            const svg = document.getElementById('calque-vectoriel');
-            svg.innerHTML = ""; // On nettoie
-
-            positionArticulations = {};
-            let svgContent = "";
-
-            // Pour chaque touche de repos (Q,S,D,F et Espace, et J,K,L,M), on calcule la position de repos du bout du doigt
-            touchesDeRepos.forEach(lettre => {
-                let pos = getCentreTouche(lettre === 'espace' ? 'key-espace' : `key-${lettre}`);
-                
-                // L'articulation du doigt (jointure) est située 80px plus bas que la touche
-                let artX = pos.x;
-                let artY = pos.y + 80;
-                
-                if (lettre === 'espace') {
-                    // Les pouces viennent du milieu
-                    artX = pos.x; 
-                    artY = pos.y + 40;
-                } else if (['q', 's', 'd', 'f'].includes(lettre)) {
-                    // Main gauche : poignet vers la gauche
-                    artX -= 15;
-                } else {
-                    // Main droite : poignet vers la droite
-                    artX += 15;
-                }
-
-                positionArticulations[lettre] = { artX: artX, artY: artY, homeX: pos.x, homeY: pos.y };
-
-                // On dessine le doigt au repos (gris semi-transparent)
-                svgContent += `<line id="doigt-${lettre}" x1="${artX}" y1="${artY}" x2="${pos.x}" y2="${pos.y}" stroke="#bdc3c7" stroke-width="12" stroke-linecap="round" class="doigt-svg" opacity="0.5"/>`;
-                
-                // On ajoute une "pulpe" pour adoucir le bout du doigt
-                svgContent += `<circle id="pulpe-${lettre}" cx="${pos.x}" cy="${pos.y}" r="6" fill="#bdc3c7" class="doigt-svg" opacity="0.5"/>`;
-            });
-
-            svg.innerHTML = svgContent;
+            // Repères Main Droite (J -> M)
+            const j = document.getElementById('key-j').getBoundingClientRect();
+            const m = document.getElementById('key-m').getBoundingClientRect();
+            
+            const mainDroite = document.getElementById('svg-main-droite');
+            mainDroite.style.left = (j.left - cRect.left - 12.5) + 'px';
+            mainDroite.style.top = (j.top - cRect.top - 12.5) + 'px';
+            mainDroite.style.width = (m.right - j.left + 25) + 'px';
+            mainDroite.style.height = '200px';
         }
 
         function demarrerNouveauMot() {
@@ -413,31 +410,19 @@
             actualiserInterface();
         }
 
-        function reposerMains() {
-            // Remet tous les doigts à leur position de repos
-            touchesDeRepos.forEach(lettre => {
-                let ligne = document.getElementById(`doigt-${lettre}`);
-                let pulpe = document.getElementById(`pulpe-${lettre}`);
-                if(ligne && positionArticulations[lettre]) {
-                    ligne.setAttribute('x2', positionArticulations[lettre].homeX);
-                    ligne.setAttribute('y2', positionArticulations[lettre].homeY);
-                    ligne.classList.remove('actif');
-                    
-                    pulpe.setAttribute('cx', positionArticulations[lettre].homeX);
-                    pulpe.setAttribute('cy', positionArticulations[lettre].homeY);
-                    pulpe.classList.remove('actif');
-                }
-            });
+        function effacerAidesVisuelles() {
             document.querySelectorAll('.touche.suggeree').forEach(t => t.classList.remove('suggeree'));
+            document.querySelectorAll('.doigt-actif').forEach(d => d.classList.remove('actif'));
+            document.getElementById('calque-animation').style.opacity = "0";
         }
 
         function activerLettreSuivante() {
             document.getElementById('lettre-' + indexLettreActuelle).classList.add('active');
             
-            reposerMains();
+            effacerAidesVisuelles();
             
             let charAttendu = motEnCours[indexLettreActuelle].toLowerCase();
-            let baseId = toucheBaseMap[charAttendu]; // Ex: si on tape 'r', la base est 'f'
+            let baseId = toucheBaseMap[charAttendu]; 
             
             let idToucheCible = charAttendu === " " ? "key-espace" : `key-${charAttendu}`;
             let toucheCible = document.getElementById(idToucheCible);
@@ -445,21 +430,32 @@
             if (toucheCible && baseId) {
                 toucheCible.classList.add('suggeree');
                 
-                // On récupère la position de la touche cible
-                let ciblePos = getCentreTouche(idToucheCible);
+                // Colorer le bon doigt sur la main statique
+                let doigtVisuel = document.getElementById(`doigt-visuel-${baseId}`);
+                if(doigtVisuel) doigtVisuel.classList.add('actif');
                 
-                // On étire le doigt de base vers la cible !
-                let ligneSvg = document.getElementById(`doigt-${baseId}`);
-                let pulpeSvg = document.getElementById(`pulpe-${baseId}`);
+                // Animation de la ligne bleue (Le mouvement vers la touche cible)
+                let clavierRect = document.getElementById('zone-globale-clavier').getBoundingClientRect();
+                let cibleRect = toucheCible.getBoundingClientRect();
                 
-                if (ligneSvg) {
-                    ligneSvg.setAttribute('x2', ciblePos.x);
-                    ligneSvg.setAttribute('y2', ciblePos.y);
-                    ligneSvg.classList.add('actif'); // Devient bleu et plus épais
+                // Si la touche cible n'est pas la touche de repos, on dessine le trait de mouvement
+                if (charAttendu !== baseId) {
+                    let baseRect = document.getElementById(baseId === "espace-g" ? "key-espace" : `key-${baseId}`).getBoundingClientRect();
                     
-                    pulpeSvg.setAttribute('cx', ciblePos.x);
-                    pulpeSvg.setAttribute('cy', ciblePos.y);
-                    pulpeSvg.classList.add('actif');
+                    let departX = (baseRect.left - clavierRect.left) + (baseRect.width / 2);
+                    let departY = (baseRect.top - clavierRect.top) + (baseRect.height / 2) + 20; // Articulation
+                    
+                    let finX = (cibleRect.left - clavierRect.left) + (cibleRect.width / 2);
+                    let finY = (cibleRect.top - clavierRect.top) + (cibleRect.height / 2);
+
+                    let ligneSvg = document.getElementById('ligne-mouvement');
+                    ligneSvg.setAttribute('x1', departX); ligneSvg.setAttribute('y1', departY);
+                    ligneSvg.setAttribute('x2', finX); ligneSvg.setAttribute('y2', finY);
+                    
+                    document.getElementById('pointe-doigt').setAttribute('cx', finX);
+                    document.getElementById('pointe-doigt').setAttribute('cy', finY);
+                    
+                    document.getElementById('calque-animation').style.opacity = "1";
                 }
 
                 // Consigne texte
@@ -477,7 +473,7 @@
 
         function gestionFrappe(event) {
             if (estBloque) return;
-            if (event.key.length > 1 && event.key !== " ") return; // Ignorer Shift, Ctrl
+            if (event.key.length > 1 && event.key !== " ") return; 
             if (event.key === " ") event.preventDefault();
 
             let toucheFrappee = event.key.toLowerCase();
@@ -495,7 +491,6 @@
                 vies--;
                 divActuel.classList.add('erreur');
                 
-                // Touche rouge
                 let fausseTouche = document.getElementById(toucheFrappee === " " ? "key-espace" : `key-${toucheFrappee}`);
                 if (fausseTouche) {
                     fausseTouche.classList.add('suggeree-erreur');
@@ -517,7 +512,7 @@
             estBloque = true; motsReussisNiveau++;
             document.getElementById('feedback').textContent = "Bravo Lola ! ✨";
             
-            reposerMains();
+            effacerAidesVisuelles();
             document.getElementById('consigne-frappe').textContent = "BIEN JOUÉ !";
             
             sauverProfilCloud(2); actualiserInterface();
@@ -529,6 +524,14 @@
             }
             setTimeout(() => { document.getElementById('feedback').textContent = "Continue !"; demarrerNouveauMot(); }, 1000);
         }
+
+        // Pour recalculer la position des mains si on redimensionne la fenêtre
+        window.addEventListener('resize', () => {
+            if(document.getElementById('ecran-entrainement').classList.contains('actif')) {
+                placerMainsStatiques();
+                activerLettreSuivante();
+            }
+        });
 
         document.addEventListener("DOMContentLoaded", initApp);
     </script>
