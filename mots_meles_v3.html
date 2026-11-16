@@ -23,7 +23,7 @@
         .lettre.trouvee { background: #00b4d8; color: #fff; }
         .lettre.erreur { background: #ef233c; color: #fff; }
         
-        #liste-mots-container { background: #f8f9fa; padding: 20px; border-radius: 15px; min-width: 250px; text-align: left; border: 2px solid #ecf0f1;}
+        #liste-mots-container { background: #f8f9fa; padding: 20px; border-radius: 15px; min-width: 250px; text-align: left; border: 2px solid #ecf0f1; max-height: 500px; overflow-y: auto;}
         .mot-a-trouver { font-size: 1.1rem; font-weight: 700; color: #666; margin-bottom: 8px; padding: 8px; border-radius: 8px; }
         .mot-a-trouver.barre { text-decoration: line-through; color: #bbb; background: #e9ecef; cursor: pointer; }
         .mot-a-trouver.barre:hover { background: #d1d8e0; color: #2b2d42; }
@@ -34,25 +34,30 @@
         .btn:active { transform: scale(0.95); }
         .btn-primaire { background: #00b4d8; box-shadow: 0 4px #0096c7; }
         .btn-secondaire { background: #8d99ae; box-shadow: 0 4px #6c757d; }
-        .btn-supprimer { background: #ef233c; padding: 12px 15px; box-shadow: 0 4px #d90429; margin-left:10px;}
+        .btn-supprimer { background: #ef233c; padding: 8px 12px; box-shadow: 0 4px #d90429; font-size: 0.9rem;}
         .btn-dictee { background: #9b59b6; box-shadow: 0 4px #8e44ad; width: 100%; font-size: 1.2rem; padding: 15px; margin-bottom: 20px;}
         
         /* Niveaux */
-        .grille-niveaux { display: flex; flex-direction: column; gap: 10px; max-width: 500px; margin: 0 auto; }
+        .grille-niveaux { display: flex; flex-direction: column; gap: 10px; max-width: 600px; margin: 0 auto; }
         .btn-niveau { display: flex; justify-content: space-between; align-items: center; background: #00b4d8; padding: 15px 20px; border-radius: 12px; color: white; font-weight: bold; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px #0096c7; transition: transform 0.1s; border: none; }
         .btn-niveau:active { transform: scale(0.98); }
         .btn-niveau.verrouille { background: #e9ecef; color: #adb5bd; box-shadow: 0 4px #ced4da; cursor: not-allowed; }
         
+        .btn-ecole { background: #f39c12; box-shadow: 0 4px #d35400; color: white;}
+        .btn-custom { background: #2b2d42; box-shadow: 0 4px #1a1b29; color: white;}
+
         /* Menu Créateur */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;}
         #zone-config { background: #fff3cd; padding: 25px; border-radius: 15px; margin-top: 20px; text-align: left; border: 2px dashed #f1c40f;}
         input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #dfe6e9; border-radius: 8px; font-family: 'Nunito', sans-serif; font-size:1.1rem;}
         
         /* Mode Dictée */
-        .btn-ecouter { background: #f39c12; font-size: 1.5rem; padding: 15px 30px; border-radius: 50px; box-shadow: 0 5px 0 #d35400; margin-bottom: 20px; animation: pulse 2s infinite;}
+        .btn-ecouter { background: #f39c12; font-size: 1.5rem; padding: 15px 30px; border-radius: 50px; box-shadow: 0 5px 0 #d35400; margin-bottom: 20px; animation: pulse 2s infinite; border:none; color:white; cursor:pointer;}
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        #saisie-dictee { font-size: 1.3rem; line-height: 1.5; resize: none; user-select: text; border-color: #9b59b6;}
-        .correction-box { background: #f8f9fa; padding: 20px; border-radius: 15px; border: 2px solid #ecf0f1; margin-top: 20px; text-align: left; font-size: 1.2rem; display: none;}
-        .mot-erreur { color: #e74c3c; text-decoration: line-through; font-weight: bold; margin-right: 5px;}
+        #saisie-dictee { font-size: 1.8rem; line-height: 1.5; text-align: center; resize: none; user-select: text; border-color: #9b59b6; width: 80%; margin: 0 auto; display: block; padding: 15px;}
+        .correction-box { background: #f8f9fa; padding: 20px; border-radius: 15px; border: 2px solid #ecf0f1; margin-top: 20px; text-align: center; font-size: 1.5rem; display: none;}
+        .mot-erreur { color: #e74c3c; text-decoration: line-through; font-weight: bold; margin-right: 15px;}
         .mot-corrige { color: #27ae60; font-weight: bold; margin-right: 5px;}
 
         .ecran { display: none; }
@@ -68,19 +73,41 @@
             <p class="sous-titre">Mots Mêlés & Dictées Vocales</p>
             <div id="hud" style="justify-content: center;"><span class="xp-text">Mon XP : <span id="ui-xp-accueil">...</span> ⭐</span></div>
             
-            <button class="btn btn-dictee" onclick="lancerMenuDictee()">🎙️ Entraînement : La Dictée Vocale</button>
+            <h2 style="color:#f39c12; margin-bottom:15px; text-align:left; border-bottom: 2px solid #f39c12; padding-bottom:5px;">📚 Les Dictées de l'École :</h2>
+            <div class="grille-niveaux" id="liste-dictees-ecole"></div>
 
-            <h2 style="color:#2b2d42; margin-bottom:15px; text-align:left;">Les Mots Mêlés (L'Aventure) :</h2>
+            <h2 style="color:#2b2d42; margin: 25px 0 15px 0; text-align:left; border-bottom: 2px solid #2b2d42; padding-bottom:5px;">🧩 Les Mots Mêlés (Aventure) :</h2>
             <div class="grille-niveaux" id="liste-niveaux-aventure"></div>
             
-            <hr style="margin: 30px 0; border: 1px solid #eee;">
+            <div id="zone-custom-display" style="display:none;">
+                <h2 style="color:#8e44ad; margin: 25px 0 15px 0; text-align:left; border-bottom: 2px solid #8e44ad; padding-bottom:5px;">🟣 Autres Révisions :</h2>
+                <div class="grille-niveaux" id="liste-themes-custom"></div>
+            </div>
             
-            <h2 style="color:#2b2d42; margin-bottom:5px; text-align:left;">Les Révisions de Théo :</h2>
-            <div id="liste-themes-custom" style="text-align:left;"></div>
-            
-            <button class="btn btn-secondaire" style="margin-top: 20px;" onclick="changerEcran('ecran-config')">⚙️ Espace Parents (Ajouter une liste)</button>
+            <button class="btn btn-secondaire" style="margin-top: 30px; background:#2c3e50;" onclick="ouvrirAuthParent()">⚙️ Espace Parents (Créer une liste)</button>
             <br>
             <button class="btn btn-secondaire" style="margin-top: 15px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+        </div>
+
+        <!-- ECRAN CHOIX DU MODE POUR UNE LISTE -->
+        <div id="ecran-choix-mode" class="ecran">
+            <h1 id="titre-choix-liste" style="color:#2b2d42;">Titre Liste</h1>
+            <p class="sous-titre">Comment veux-tu réviser ces mots ?</p>
+            
+            <div style="display: flex; gap: 20px; justify-content: center; margin: 40px 0;">
+                <button class="btn-niveau btn-primaire" style="flex-direction: column; padding: 30px; font-size: 1.3rem; width: 250px; text-align:center;" onclick="lancerPartieMotsMeles()">
+                    <span style="font-size: 3rem; margin-bottom: 10px;">🧩</span>
+                    Mots Mêlés
+                    <span style="font-size: 0.9rem; font-weight: normal; margin-top: 10px;">Trouve les mots cachés</span>
+                </button>
+                <button class="btn-niveau btn-dictee" style="flex-direction: column; padding: 30px; font-size: 1.3rem; width: 250px; text-align:center;" onclick="lancerDicteeVocale()">
+                    <span style="font-size: 3rem; margin-bottom: 10px;">🎙️</span>
+                    Dictée de Mots
+                    <span style="font-size: 0.9rem; font-weight: normal; margin-top: 10px;">Écoute et tape les mots</span>
+                </button>
+            </div>
+            
+            <button class="btn btn-secondaire" onclick="retourAccueil()">⬅️ Retour</button>
         </div>
 
         <!-- ECRAN DE JEU (MOTS MELES) -->
@@ -100,40 +127,53 @@
             <button class="btn btn-secondaire" style="margin-top: 25px;" onclick="retourAccueil()">Abandonner la mission</button>
         </div>
 
-        <!-- ECRAN DICTEE -->
+        <!-- ECRAN DICTEE (DICTÉE DE MOTS) -->
         <div id="ecran-dictee" class="ecran">
             <div id="hud">
-                <span style="color:#9b59b6;">Dictée Vocale</span>
-                <span class="xp-text">XP : <span id="ui-xp-dictee">0</span> ⭐</span>
+                <span style="color:#9b59b6;" id="ui-dictee-titre">Dictée Vocale</span>
+                <span class="xp-text">Mots : <span id="ui-dictee-progression">0/0</span></span>
             </div>
             
-            <p style="font-size: 1.2rem; font-weight: bold; margin-bottom: 20px;">Écoute bien la phrase et écris-la sans faire de fautes !</p>
+            <p style="font-size: 1.2rem; font-weight: bold; margin-bottom: 20px;">Écoute bien le mot et écris-le sans faute !</p>
             
-            <button class="btn btn-ecouter" onclick="lirePhraseAudio()">🔊 Écouter la phrase</button>
+            <button class="btn-ecouter" id="btn-ecouter-mot" onclick="lireMotAudio()">🔊 Écouter le mot</button>
             
-            <textarea id="saisie-dictee" rows="4" placeholder="Tape la phrase ici... N'oublie pas les majuscules et la ponctuation !"></textarea>
+            <input type="text" id="saisie-dictee" placeholder="Tape le mot ici..." autocomplete="off">
             
-            <button class="btn btn-dictee" id="btn-valider-dictee" style="width: auto; padding: 15px 40px;" onclick="validerDictee()">Valider ma dictée</button>
+            <button class="btn btn-dictee" id="btn-valider-dictee" style="width: auto; padding: 15px 40px; margin-top:20px;" onclick="validerMotDictee()">Valider le mot</button>
             
             <div id="correction-dictee" class="correction-box"></div>
             
             <br>
-            <button class="btn btn-primaire" id="btn-dictee-suivante" style="display: none; margin-top: 15px;" onclick="nouvellePhraseDictee()">Phrase suivante ➔</button>
-            <button class="btn btn-secondaire" style="margin-top: 15px;" onclick="retourAccueil()">Retour Menu</button>
+            <button class="btn btn-primaire" id="btn-dictee-suivante" style="display: none; margin-top: 15px; font-size: 1.2rem; padding: 15px 30px;" onclick="motSuivantDictee()">Mot suivant ➔</button>
+            <button class="btn btn-secondaire" style="margin-top: 25px;" onclick="retourAccueil()">Abandonner</button>
         </div>
 
-        <!-- ECRAN DE CONFIGURATION -->
-        <div id="ecran-config" class="ecran">
-            <h2 style="color: #00b4d8;">⚙️ Espace Parents</h2>
-            <div id="zone-config">
-                <label><strong>Nom de la liste :</strong></label>
-                <input type="text" id="input-nom-theme" placeholder="Ex: Dictée Semaine 4">
-                <label><strong>Les mots (séparés par une virgule) :</strong></label>
-                <textarea id="input-mots" rows="4" placeholder="JAMAIS, POURTANT, AINSI, ALORS..."></textarea>
-                <button class="btn btn-primaire" style="width:100%; margin-top:10px;" onclick="sauvegarderTheme()">Sauvegarder la grille</button>
-                <p id="msg-config" style="color: #27ae60; font-weight: bold; margin-top: 10px; text-align:center;"></p>
+        <!-- MODAL AUTH PARENTS -->
+        <div id="overlay-auth" class="overlay">
+            <div class="modal">
+                <h2 style="color: #2c3e50;">⚙️ Espace Parents</h2>
+                <input type="password" id="pin-parents" class="input-texte" placeholder="Saisissez le code PIN" style="text-align:center;">
+                <button class="btn btn-primaire" style="width:100%; margin-top:10px;" onclick="verifierPinParent()">Déverrouiller</button>
+                <p id="msg-auth-erreur" style="color: #e74c3c; font-weight: bold; margin-top:10px;"></p>
+                <button class="btn btn-secondaire" style="width:100%; margin-top:20px;" onclick="document.getElementById('overlay-auth').style.display='none'">Fermer</button>
             </div>
-            <button class="btn btn-secondaire" style="margin-top: 20px;" onclick="retourAccueil()">Retour Menu</button>
+        </div>
+
+        <!-- MODAL CONFIGURATION -->
+        <div id="overlay-creation" class="overlay">
+            <div class="modal">
+                <h2 style="color: #00b4d8;">⚙️ Espace Parents</h2>
+                <div id="zone-config">
+                    <label><strong>Nom de la liste :</strong></label>
+                    <input type="text" id="input-nom-theme" placeholder="Ex: Mots en -tion">
+                    <label><strong>Les mots (séparés par une virgule) :</strong></label>
+                    <textarea id="input-mots" rows="4" placeholder="attention, natation, punition..."></textarea>
+                    <button class="btn btn-primaire" style="width:100%; margin-top:10px;" onclick="sauvegarderTheme()">Sauvegarder dans le Cloud</button>
+                    <p id="msg-config" style="color: #27ae60; font-weight: bold; margin-top: 10px; text-align:center;"></p>
+                </div>
+                <button class="btn btn-secondaire" style="width:100%; margin-top: 20px;" onclick="document.getElementById('overlay-creation').style.display='none'">Fermer</button>
+            </div>
         </div>
 
         <!-- ECRAN DE FIN -->
@@ -149,8 +189,10 @@
     <script>
         const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
         const DB_URL = `${FIREBASE_URL}scores/theo/motsSaveV3.json`;
+        const DB_CUSTOM_URL = `${FIREBASE_URL}scores/parent_settings/customOrthographeTheo.json`;
+        const DB_SETTINGS_URL = `${FIREBASE_URL}scores/parent_settings.json`;
 
-        // CORRECTION : Les 6 niveaux sont bien restaurés !
+        // LES MOTS DE L'AVENTURE
         const parcoursAventure = [
             { id: 1, nom: "Niveau 1 : Les Invariables", xpRequis: 0, taille: 12, mode: 'moyen', mots: ["TOUJOURS", "JAMAIS", "POURQUOI", "SOUDAIN", "CEPENDANT", "BIENTOT"] },
             { id: 2, nom: "Niveau 2 : Les Préfixes", xpRequis: 60, taille: 12, mode: 'moyen', mots: ["IMPOSSIBLE", "MALADROIT", "ILLEGAL", "PARAPLUIE", "DESORDRE", "INCONNU"] },
@@ -160,30 +202,34 @@
             { id: 6, nom: "Niveau 6 : Le Maître", xpRequis: 750, taille: 16, mode: 'difficile', mots: ["HIPPOPOTAME", "RHINOCEROS", "CHRYSANTHEME", "ORTHOGRAPHE", "SYMETRIE", "XYLOPHONE"] }
         ];
 
-        // Base de données des dictées (CM2 : Accords sujet/verbe, pluriels complexes, invariables)
-        const bddDictees = [
-            "Les chevaux sauvages galopent dans la grande prairie verte.",
-            "Soudain, une tempête violente a éclaté pendant la nuit.",
-            "Ils ont toujours aimé écouter les histoires effrayantes.",
-            "Ces vieux châteaux sont entourés de profonds fossés.",
-            "Pourquoi ne viens-tu jamais avec tes nouveaux amis ?"
+        // EXTRACTION DES DICTÉES DU PDF
+        const dicteesEcole = [
+            { id: "d7", nom: "Dictée 7 : Les Masques", mots: ["porter", "danser", "incarner", "permettre", "demander", "posséder", "transmettre", "costume", "manière", "échasse", "musique", "percussion", "terre", "ancêtre", "esprit", "nature", "cérémonie", "protection", "assistance", "initié", "droit", "légende", "fantastique", "multicolore", "impressionnant", "bienveillant", "rituel", "disparu", "ancien", "seul", "très", "parfois", "même", "quelques"] },
+            { id: "d8", nom: "Dictée 8 : Le Palais", mots: ["visiter", "pouvoir", "admirer", "utiliser", "décorer", "encadrer", "graver", "briller", "colorer", "former", "palais", "demeure", "sultan", "roi", "passage", "lieu", "façade", "matériel", "matériaux", "porte", "bronze", "colonne", "marbre", "artisan", "arabesque", "métal", "soleil", "feu", "carreau", "céramique", "mur", "figure", "interdit", "précieux", "somptueux", "géométrique", "doré", "puis", "enfin", "seulement", "mille"] },
+            { id: "d9", nom: "Dictée 9 : Le Conteur", mots: ["raconter", "déplacer", "avoir", "connaître", "montrer", "captiver", "divertir", "histoire", "conteur", "village", "tête", "récit", "mémoire", "centaine", "parole", "talent", "acteur", "public", "soir", "lueur", "feu", "erreur", "auditeur", "aventure", "personnage", "victoire", "plein", "légendaire", "historique", "excellent", "ancien", "plusieurs", "aussi", "cela", "mais", "surtout"] },
+            { id: "d10", nom: "Dictée 10 : Le Sphinx", mots: ["dresser", "tailler", "représenter", "symboliser", "incarner", "permettre", "contrôler", "porte", "désert", "sculpture", "monde", "roche", "créature", "lion", "corps", "tête", "pharaon", "force", "roi", "sagesse", "protection", "pyramide", "tombeau", "rôle", "grand", "monumental", "humain", "plus"] },
+            { id: "d11", nom: "Dictée 11 : Fête des Morts", mots: ["célébrer", "préparer", "voir", "aller", "nettoyer", "décorer", "fabriquer", "placer", "offrir", "découper", "allumer", "aider", "trouver", "fête", "mort", "moment", "voyage", "famille", "cimetière", "tombe", "ancêtre", "autel", "Mexicain", "photo", "défunt", "cadeau", "papier", "fleur", "crâne", "squelette", "gens", "bougie", "chemin", "joyeux", "coloré", "lumineux", "car", "comme", "chez", "eux", "dessus"] },
+            { id: "d12", nom: "Dictée 12 : Le Machu Picchu", mots: ["percher", "vivre", "découvrir", "posséder", "vénérer", "utiliser", "trouver", "cité", "promontoire", "Inca", "Amérique", "Européen", "continent", "territoire", "soleil", "dieu", "architecte", "technique", "construction", "bâtiment", "édifice", "pierre", "chaumière", "résidence", "fontaine", "observatoire", "quartier", "temple", "mystère", "rocheux", "célèbre", "vaste", "extraordinaire", "sacré", "spectaculaire", "astronomique", "plein", "avant", "parmi"] }
         ];
 
-        let customThemes = JSON.parse(localStorage.getItem('motsCustomV3')) || {};
+        let customThemes = {};
         let profil = { xp: 0 };
+        let pinParental = "1234";
+        
+        let listeSelectionnee = null; // Stocke la liste choisie avant de lancer un mode
         
         // Variables Mots Mêlés
         let difficultePartie = { taille: 10, mode: 'facile' }; let motsAFinir = []; let lettresGrille = []; let selection = null; let pointsGagnesCettePartie = 0;
         
-        // Variables Dictée
-        let phraseDicteeActuelle = "";
+        // Variables Dictée de Mots
+        let listeMotsDictee = [];
+        let indexMotDictee = 0;
+        let motDicteeActuel = "";
 
-        async function chargerProfilCloud() {
-            try {
-                let res = await fetch(DB_URL);
-                let data = await res.json();
-                if (data && data.xp !== undefined) profil.xp = parseInt(data.xp) || 0;
-            } catch(e) {}
+        async function initApp() {
+            try { let res = await fetch(DB_URL); let data = await res.json(); if (data && data.xp) profil.xp = parseInt(data.xp) || 0; } catch(e) {}
+            try { let resCustom = await fetch(DB_CUSTOM_URL); let dataCustom = await resCustom.json(); if (dataCustom) customThemes = dataCustom; } catch(e) {}
+            try { let resSet = await fetch(DB_SETTINGS_URL); let dataSet = await resSet.json(); if (dataSet && dataSet.pinCode) pinParental = dataSet.pinCode; } catch(e) {}
             majAccueil();
         }
 
@@ -194,8 +240,19 @@
         function majAccueil() {
             document.getElementById('ui-xp-accueil').textContent = profil.xp;
             document.getElementById('ui-xp-jeu').textContent = profil.xp;
-            document.getElementById('ui-xp-dictee').textContent = profil.xp;
             
+            // MENU DICTEES ECOLE
+            const conteneurDictees = document.getElementById('liste-dictees-ecole'); 
+            conteneurDictees.innerHTML = '';
+            dicteesEcole.forEach(dictee => {
+                let btn = document.createElement('button'); 
+                btn.className = 'btn-niveau btn-ecole';
+                btn.innerHTML = `<span>📝 ${dictee.nom}</span> <span style="font-size:0.85rem;">Réviser ➔</span>`;
+                btn.onclick = () => afficherChoixMode(dictee.nom, dictee.mots, 15, 'difficile');
+                conteneurDictees.appendChild(btn);
+            });
+
+            // MENU AVENTURE
             const conteneurAventure = document.getElementById('liste-niveaux-aventure'); 
             conteneurAventure.innerHTML = '';
             parcoursAventure.forEach(niv => {
@@ -207,118 +264,175 @@
                 conteneurAventure.appendChild(btn);
             });
 
+            // MENU CUSTOM
             const conteneurCustom = document.getElementById('liste-themes-custom'); 
+            const displayCustom = document.getElementById('zone-custom-display');
             conteneurCustom.innerHTML = '';
-            if (Object.keys(customThemes).length === 0) { 
-                conteneurCustom.innerHTML = "<p style='color:#bbb; font-style:italic;'>Aucune liste de révision pour l'instant.</p>"; 
-            } else {
+            if (Object.keys(customThemes).length > 0) { 
+                displayCustom.style.display = "block";
                 for (let id in customThemes) {
-                    let div = document.createElement('div'); div.style.display = "inline-flex"; div.style.margin = "5px";
-                    let btn = document.createElement('button'); btn.className = 'btn btn-secondaire'; btn.style.backgroundColor = '#2b2d42'; btn.textContent = customThemes[id].nom;
+                    let div = document.createElement('div'); div.style.display = "inline-flex"; div.style.margin = "5px"; div.style.width = "100%";
+                    let btn = document.createElement('button'); btn.className = 'btn-niveau btn-custom'; btn.style.flex = "1";
+                    btn.innerHTML = `<span>🟣 ${customThemes[id].nom}</span> <span style="font-size:0.85rem;">Réviser ➔</span>`;
                     let maxLen = Math.max(...customThemes[id].mots.map(m => m.length));
                     let gridTaille = Math.max(12, maxLen + 2);
-                    btn.onclick = () => lancerPartie(customThemes[id].mots, customThemes[id].nom, gridTaille, 'moyen');
+                    btn.onclick = () => afficherChoixMode(customThemes[id].nom, customThemes[id].mots, gridTaille, 'moyen');
                     let btnDel = document.createElement('button'); btnDel.className = 'btn btn-supprimer'; btnDel.textContent = "X";
-                    btnDel.onclick = () => { delete customThemes[id]; sauverCustom(); majAccueil(); };
+                    btnDel.onclick = () => supprimerThemeCustom(id);
                     div.appendChild(btn); div.appendChild(btnDel); conteneurCustom.appendChild(div);
                 }
+            } else {
+                displayCustom.style.display = "none";
             }
         }
 
         function sauverProfil() { sauverProfilCloud(); majAccueil(); }
-        function sauverCustom() { localStorage.setItem('motsCustomV3', JSON.stringify(customThemes)); }
 
-        function sauvegarderTheme() {
+        // --- GESTION PARENTS ---
+        function ouvrirAuthParent() { document.getElementById('pin-parents').value = ""; document.getElementById('msg-auth-erreur').textContent = ""; document.getElementById('overlay-auth').style.display = 'flex'; }
+        
+        function verifierPinParent() {
+            if (document.getElementById('pin-parents').value === pinParental) { document.getElementById('overlay-auth').style.display = 'none'; document.getElementById('overlay-creation').style.display = 'flex';
+            } else { document.getElementById('msg-auth-erreur').textContent = "Code PIN incorrect."; }
+        }
+
+        async function sauvegarderTheme() {
             let nom = document.getElementById('input-nom-theme').value.trim(); let motsBruts = document.getElementById('input-mots').value;
             if(!nom || !motsBruts) return alert("Remplissez les champs !");
-            let motsPropres = motsBruts.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(',').map(m => m.replace(/[^A-Z]/g, '')).filter(m => m.length > 2 && m.length <= 15);
-            if(motsPropres.length === 0) return alert("Aucun mot valide trouvé (ils doivent faire entre 3 et 15 lettres).");
-            customThemes['custom_' + Date.now()] = { nom: nom, mots: motsPropres }; sauverCustom();
-            document.getElementById('msg-config').textContent = "Liste sauvegardée avec succès !"; 
-            document.getElementById('input-nom-theme').value = ""; document.getElementById('input-mots').value = "";
-            setTimeout(() => document.getElementById('msg-config').textContent = "", 3000); majAccueil();
+            let motsPropres = motsBruts.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(',').map(m => m.replace(/[^A-Z]/g, '')).filter(m => m.length >= 2 && m.length <= 16);
+            if(motsPropres.length === 0) return alert("Aucun mot valide trouvé.");
+            let id = 'custom_' + Date.now();
+            customThemes[id] = { nom: nom, mots: motsPropres }; 
+            try {
+                await fetch(DB_CUSTOM_URL, { method: 'PUT', body: JSON.stringify(customThemes) });
+                document.getElementById('msg-config').textContent = "Liste sauvegardée avec succès !"; 
+                document.getElementById('input-nom-theme').value = ""; document.getElementById('input-mots').value = "";
+                setTimeout(() => { document.getElementById('msg-config').textContent = ""; document.getElementById('overlay-creation').style.display = 'none'; }, 2000); majAccueil();
+            } catch(e) { alert("Erreur réseau"); }
+        }
+        
+        async function supprimerThemeCustom(id) {
+            if(confirm("Supprimer cette liste ?")) {
+                delete customThemes[id];
+                majAccueil();
+                try { await fetch(DB_CUSTOM_URL, { method: 'PUT', body: JSON.stringify(customThemes) }); } catch(err) {}
+            }
         }
 
         function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); document.getElementById(id).classList.add('actif'); }
         function retourAccueil() { changerEcran('ecran-accueil'); majAccueil(); }
 
+        function afficherChoixMode(titre, mots, taille, mode) {
+            // Stocke la configuration choisie avant de lancer un des deux modes
+            listeSelectionnee = { titre: titre, mots: mots, taille: taille, mode: mode };
+            document.getElementById('titre-choix-liste').textContent = titre;
+            changerEcran('ecran-choix-mode');
+        }
+
         // ==========================================
-        // LE MOTEUR DE DICTÉE VOCALE
+        // MOTEUR DICTÉE DE MOTS
         // ==========================================
-        function lancerMenuDictee() {
-            nouvellePhraseDictee();
+        function lancerDicteeVocale() {
+            if (!listeSelectionnee) return;
+            // On prend 10 mots au hasard dans la liste pour ne pas faire une dictée de 40 mots d'un coup !
+            let motsSource = [...listeSelectionnee.mots];
+            // Les mots des dictées PDF sont en minuscules (s'ils viennent des custom, ils sont en majuscules). On harmonise pour l'affichage de correction.
+            motsSource = motsSource.map(m => m.toLowerCase());
+            
+            listeMotsDictee = motsSource.sort(() => Math.random() - 0.5).slice(0, 10);
+            indexMotDictee = 0;
+            pointsGagnesCettePartie = 0;
+            
+            document.getElementById('ui-dictee-titre').textContent = listeSelectionnee.titre;
+            
             changerEcran('ecran-dictee');
+            motSuivantDictee();
         }
 
-        function nouvellePhraseDictee() {
-            phraseDicteeActuelle = bddDictees[Math.floor(Math.random() * bddDictees.length)];
-            document.getElementById('saisie-dictee').value = "";
-            document.getElementById('saisie-dictee').disabled = false;
+        function motSuivantDictee() {
+            if (indexMotDictee >= listeMotsDictee.length) {
+                document.getElementById('gain-xp').textContent = pointsGagnesCettePartie;
+                changerEcran('ecran-fin');
+                return;
+            }
+
+            motDicteeActuel = listeMotsDictee[indexMotDictee];
+            document.getElementById('ui-dictee-progression').textContent = `${indexMotDictee + 1} / ${listeMotsDictee.length}`;
+            
+            let inputSaisie = document.getElementById('saisie-dictee');
+            inputSaisie.value = "";
+            inputSaisie.disabled = false;
+            inputSaisie.focus();
+            
             document.getElementById('btn-valider-dictee').style.display = "inline-block";
-            document.getElementById('correction-dictee').style.display = "none";
             document.getElementById('btn-dictee-suivante').style.display = "none";
-            lirePhraseAudio();
+            document.getElementById('correction-dictee').style.display = "none";
+            
+            // On annule l'animation du bouton pour qu'elle reprenne au début
+            const btnAudio = document.getElementById('btn-ecouter-mot');
+            btnAudio.style.animation = 'none';
+            setTimeout(() => btnAudio.style.animation = '', 10);
+
+            lireMotAudio();
         }
 
-        function lirePhraseAudio() {
+        function lireMotAudio() {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
-                let msg = new SpeechSynthesisUtterance(phraseDicteeActuelle);
+                let msg = new SpeechSynthesisUtterance(motDicteeActuel);
                 msg.lang = 'fr-FR';
-                msg.rate = 0.85;
+                msg.rate = 0.8; // Un peu plus lent pour bien entendre
                 window.speechSynthesis.speak(msg);
+                document.getElementById('saisie-dictee').focus();
             } else {
                 alert("Ton navigateur ne supporte pas la synthèse vocale.");
             }
         }
 
-        function validerDictee() {
-            let texteSaisi = document.getElementById('saisie-dictee').value.trim();
+        function validerMotDictee() {
+            let input = document.getElementById('saisie-dictee');
+            let texteSaisi = input.value.trim().toLowerCase();
             if (texteSaisi === "") return;
 
-            document.getElementById('saisie-dictee').disabled = true;
+            input.disabled = true;
             document.getElementById('btn-valider-dictee').style.display = "none";
             document.getElementById('btn-dictee-suivante').style.display = "inline-block";
-
-            let nettoyageRegex = /[.,!?'"]/g;
-            let motsAttendus = phraseDicteeActuelle.toLowerCase().replace(nettoyageRegex, '').split(/\s+/);
-            let motsSaisis = texteSaisi.toLowerCase().replace(nettoyageRegex, '').split(/\s+/);
+            
+            document.getElementById('btn-ecouter-mot').style.animation = "none";
 
             const boiteCorrection = document.getElementById('correction-dictee');
             boiteCorrection.style.display = "block";
-            boiteCorrection.innerHTML = "<p style='margin-bottom: 10px;'><strong>Correction :</strong></p>";
 
-            let toutBon = true;
-            let htmlCorrection = "";
-
-            for (let i = 0; i < motsAttendus.length; i++) {
-                if (motsSaisis[i] === motsAttendus[i]) {
-                    htmlCorrection += `<span class="mot-corrige">${motsAttendus[i]}</span> `;
-                } else {
-                    toutBon = false;
-                    let motFaux = motsSaisis[i] || "___";
-                    htmlCorrection += `<span class="mot-erreur">${motFaux}</span><span class="mot-corrige">${motsAttendus[i]}</span> `;
-                }
-            }
-
-            boiteCorrection.innerHTML += htmlCorrection;
-
-            if (toutBon) {
-                profil.xp += 30;
-                sauverProfil();
-                boiteCorrection.innerHTML = "<p style='color: #27ae60; font-weight: bold;'>Parfait ! Zéro faute ! ✨ +30 XP</p>";
+            // Retrait des accents pour une comparaison tolérente si besoin, mais en CM2 l'accent compte !
+            if (texteSaisi === motDicteeActuel.toLowerCase()) {
+                let xp = motDicteeActuel.length;
+                profil.xp += xp; pointsGagnesCettePartie += xp; sauverProfil();
+                
+                boiteCorrection.innerHTML = `<span style="font-size:2rem;">✨</span><br><span style="color:#27ae60;">Bravo ! Le mot s'écrit bien : <b>${motDicteeActuel}</b></span>`;
                 boiteCorrection.style.borderColor = "#27ae60";
             } else {
-                profil.xp += 10;
-                sauverProfil();
-                boiteCorrection.innerHTML += "<p style='color: #e74c3c; font-weight: bold; margin-top:10px;'>Attention aux fautes soulignées ! +10 XP pour l'effort.</p>";
+                boiteCorrection.innerHTML = `<span style="color:#e74c3c;">Erreur : tu as écrit <span style="text-decoration:line-through;">${texteSaisi}</span></span><br><br><span style="color:#27ae60;">Le mot correct est : <b>${motDicteeActuel}</b></span>`;
                 boiteCorrection.style.borderColor = "#e74c3c";
             }
+            
+            indexMotDictee++;
         }
 
         // ==========================================
         // MOTEUR MOTS MELES
         // ==========================================
+        function lancerPartieMotsMeles() {
+            if (!listeSelectionnee) return;
+            
+            // Pour les mots mêlés, on a besoin des mots en majuscules sans accents
+            let motsAnettoyer = [...listeSelectionnee.mots];
+            let motsPropres = motsAnettoyer.map(m => m.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z]/g, ''));
+            // On limite à 12 mots pour ne pas surcharger la grille
+            let motsChoisis = motsPropres.sort(() => Math.random() - 0.5).slice(0, 12);
+            
+            lancerPartie(motsChoisis, listeSelectionnee.titre, listeSelectionnee.taille, listeSelectionnee.mode);
+        }
+
         function lancerPartie(listeMots, titre, taille, mode) {
             document.getElementById('ui-niveau-titre').textContent = titre; document.getElementById('ui-xp-jeu').textContent = profil.xp;
             difficultePartie = { taille: taille, mode: mode }; motsAFinir = [...listeMots]; selection = null; pointsGagnesCettePartie = 0;
@@ -399,6 +513,7 @@
             elements.forEach(el => el.classList.add('trouvee')); motsAFinir = motsAFinir.filter(m => m !== mot);
             
             let xpGagne = mot.length * 3; profil.xp += xpGagne; pointsGagnesCettePartie += xpGagne; sauverProfil();
+            document.getElementById('ui-xp-jeu').textContent = profil.xp;
             
             if (motsAFinir.length === 0) { 
                 setTimeout(() => { 
@@ -414,7 +529,7 @@
              if(e2) { e2.classList.add('erreur'); setTimeout(() => e2.classList.remove('erreur'), 400); }
         }
 
-        chargerProfilCloud();
+        document.addEventListener("DOMContentLoaded", initApp);
     </script>
 </body>
 </html>
