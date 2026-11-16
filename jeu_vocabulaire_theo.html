@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Vocabulaire CM2 - L'Académie de Théo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            background: linear-gradient(135deg, #16a085 0%, #f4d03f 100%); 
+            color: #2c3e50; display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; padding: 20px; 
+        }
+        
+        #app-container { 
+            background: white; padding: 30px; border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); max-width: 900px; width: 100%; text-align: center; position: relative;
+        }
+        
+        h1 { color: #16a085; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
+        .subtitle { color: #f39c12; font-weight: bold; font-size: 1.2rem; margin-bottom: 30px; }
+        
+        .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
+
+        /* Menu des thèmes */
+        .grid-menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .btn-mode {
+            background: #f8f9fa; border: 3px solid #bdc3c7; padding: 25px 20px; border-radius: 15px;
+            font-size: 1.3rem; font-weight: bold; color: #2c3e50; cursor: pointer; transition: 0.2s;
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+        }
+        .btn-mode:hover { transform: translateY(-4px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); border-color: #16a085; }
+        .mode-icon { font-size: 3rem; margin-bottom: 5px; }
+
+        /* HUD Jeu */
+        #hud { display: flex; justify-content: space-between; background: #fdf2e9; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.2rem; border: 2px solid #fdebd0; color: #d35400;}
+
+        /* Zone de QCM */
+        #question-box { background: #f1f8ff; padding: 30px; border-radius: 15px; border: 3px dashed #3498db; margin-bottom: 30px; min-height: 120px; display: flex; flex-direction: column; justify-content: center;}
+        #consigne { font-size: 1.1rem; font-weight: 900; color: #3498db; margin-bottom: 15px; text-transform: uppercase;}
+        #phrase-qcm { font-size: 1.6rem; font-weight: 900; color: #2c3e50; line-height: 1.4; }
+
+        .zone-boutons { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;}
+        .btn-rep { background: white; border: 3px solid #bdc3c7; padding: 20px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; color: #34495e; cursor: pointer; transition: 0.1s; box-shadow: 0 4px 0 #bdc3c7; display: flex; align-items: center; justify-content: center; min-height: 80px;}
+        .btn-rep:active { transform: translateY(4px); box-shadow: none; }
+        .btn-rep.correct { background: #27ae60; color: white; border-color: #219a52; box-shadow: 0 4px 0 #1e8449; }
+        .btn-rep.erreur { background: #e74c3c; color: white; border-color: #c0392b; box-shadow: 0 4px 0 #a93226; }
+
+        /* Boutons Généraux */
+        .btn-nav { font-family: 'Nunito', sans-serif; background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s; display: inline-block; text-decoration: none;}
+        .btn-nav:hover { background: #7f8c8d; }
+        
+        #feedback { font-size: 1.5rem; font-weight: 900; height: 40px; margin: 15px 0; color: #16a085;}
+        
+        .ecran { display: none; }
+        .ecran.actif { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <div class="xp-badge">XP: <span id="ui-xp">...</span> ⭐</div>
+
+        <!-- ECRAN D'ACCUEIL -->
+        <div id="ecran-accueil" class="ecran actif">
+            <h1>Vocabulaire CM2 📚</h1>
+            <p class="subtitle">Maîtrise le lexique, les synonymes et les définitions !</p>
+            
+            <h2 style="color:#2c3e50; margin: 20px 0; border-bottom: 2px solid #2c3e50; padding-bottom:5px; text-align:left;">Thème : La Littérature (Devoir École)</h2>
+            <div class="grid-menu">
+                <button class="btn-mode" onclick="lancerNiveau('definitions')">
+                    <span class="mode-icon">📖</span>
+                    <span>Les Définitions</span>
+                    <span style="font-size: 0.9rem; color: #7f8c8d; font-weight: normal;">Trouve le mot qui correspond au sens.</span>
+                </button>
+                
+                <button class="btn-mode" onclick="lancerNiveau('synonymes')">
+                    <span class="mode-icon">🤝</span>
+                    <span>Les Synonymes</span>
+                    <span style="font-size: 0.9rem; color: #7f8c8d; font-weight: normal;">Trouve le mot qui a le même sens.</span>
+                </button>
+            </div>
+
+            <button class="btn-nav" style="margin-top: 30px;" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
+        </div>
+
+        <!-- ECRAN DE JEU -->
+        <div id="ecran-jeu" class="ecran">
+            <div id="hud">
+                <span id="ui-titre-niveau">Niveau</span>
+                <span style="color:#e74c3c;">Vies : <span id="ui-vies">❤️❤️❤️</span></span>
+                <span id="ui-progression" style="color: #7f8c8d;">1 / 10</span>
+            </div>
+            
+            <div id="question-box">
+                <div id="consigne">Consigne</div>
+                <div id="phrase-qcm">Chargement...</div>
+            </div>
+
+            <div class="zone-boutons" id="boutons-reponses"></div>
+
+            <div id="feedback"></div>
+
+            <button class="btn-nav" onclick="retourAccueil()">⬅️ Quitter l'exercice</button>
+        </div>
+    </div>
+
+    <script>
+        const FIREBASE_URL = "https://academie-famille-default-rtdb.europe-west1.firebasedatabase.app/";
+        const DB_URL = `${FIREBASE_URL}scores/theo/vocabulaireTheo.json`;
+
+        // BDD ISSUE DU PDF DE DEVOIRS (LITTÉRATURE)
+        const bdd = {
+            definitions: [
+                { rep: "Une biographie", q: "Un livre qui raconte la vie de quelqu'un.", faux: ["Un roman", "Une nouvelle", "Un extrait"] },
+                { rep: "Un chapitre", q: "Chaque partie d'un livre qui porte un numéro et parfois un titre.", faux: ["Un paragraphe", "Un prologue", "Un épilogue"] },
+                { rep: "Un dialogue", q: "Des paroles que des personnages échangent.", faux: ["Un récit", "Une intrigue", "Un index"] },
+                { rep: "Une encyclopédie", q: "Un ouvrage traitant l'ensemble des connaissances d'un ou plusieurs domaines.", faux: ["Un recueil", "Un lexique", "Un roman"] },
+                { rep: "Un épilogue", q: "La fin d'un récit, d'une histoire.", faux: ["Un prologue", "Une préface", "Un index"] },
+                { rep: "Un extrait", q: "Un passage tiré d'un ouvrage.", faux: ["Un résumé", "Un paragraphe", "Un tome"] },
+                { rep: "Une fiction", q: "Une œuvre fondée sur des personnages et des faits imaginaires.", faux: ["Une biographie", "Un documentaire", "Une encyclopédie"] },
+                { rep: "Un index", q: "La liste alphabétique des mots importants utilisés dans un livre.", faux: ["Un lexique", "Un sommaire", "Un chapitre"] },
+                { rep: "Une intrigue", q: "Un ensemble d'évènements et de faits autour duquel un roman est construit.", faux: ["Un récit", "Une légende", "Un dialogue"] },
+                { rep: "La jaquette", q: "La couverture en papier d'un livre (qui peut s'enlever).", faux: ["Le tome", "Le volume", "L'index"] },
+                { rep: "Une légende", q: "Un récit traditionnel comportant des éléments fabuleux.", faux: ["Une biographie", "Une nouvelle", "Un dialogue"] },
+                { rep: "La littérature", q: "L'ensemble des œuvres publiées.", faux: ["La bibliothèque", "L'encyclopédie", "Le recueil"] },
+                { rep: "Une nouvelle", q: "Une histoire courte.", faux: ["Un roman", "Une saga", "Un chapitre"] },
+                { rep: "Un paragraphe", q: "La partie d'un texte qui débute et se termine par un passage à la ligne.", faux: ["Un chapitre", "Un extrait", "Une ligne"] },
+                { rep: "Une préface", q: "Un texte de présentation situé au début d'un livre.", faux: ["Un épilogue", "Une conclusion", "Un index"] },
+                { rep: "Un prologue", q: "1ère partie d'un roman où l'auteur explique ce qui s'est passé avant le récit.", faux: ["Un épilogue", "Une conclusion", "Un résumé"] },
+                { rep: "Un récit", q: "Une histoire vraie ou imaginaire que l'on raconte ou que l'on écrit.", faux: ["Un dialogue", "Une légende", "Un lexique"] },
+                { rep: "Un recueil", q: "Un livre qui réunit plusieurs textes (contes, poèmes, fables...).", faux: ["Une saga", "Une biographie", "Un roman"] },
+                { rep: "Un résumé", q: "Un texte qui raconte une œuvre en moins de mots.", faux: ["Un extrait", "Un paragraphe", "Une nouvelle"] },
+                { rep: "Un roman", q: "Une œuvre littéraire née de l'imagination d'un auteur.", faux: ["Une biographie", "Un recueil", "Un documentaire"] },
+                { rep: "Une saga", q: "L'histoire de plusieurs générations d'une même famille.", faux: ["Une légende", "Une intrigue", "Un recueil"] }
+            ],
+            synonymes: [
+                { q: "Un épilogue", rep: "Une conclusion / un dénouement", faux: ["Une introduction", "Un début", "Un résumé"] },
+                { q: "Un extrait", rep: "Un morceau / une citation", faux: ["Un résumé", "Un livre entier", "Un chapitre"] },
+                { q: "Une intrigue", rep: "La trame / l'action", faux: ["Le début", "La conclusion", "Le personnage"] },
+                { q: "Une légende", rep: "Un conte / une histoire", faux: ["Un poème", "Une biographie", "Une encyclopédie"] },
+                { q: "Un lexique", rep: "Le vocabulaire / petit dictionnaire", faux: ["Une couverture", "Une conclusion", "Un poème"] },
+                { q: "Une préface", rep: "Une introduction / un avant-propos", faux: ["Une conclusion", "Un résumé", "Un extrait"] },
+                { q: "Un prologue", rep: "Une introduction / un avant-propos", faux: ["Une conclusion", "Une fin", "Un chapitre"] },
+                { q: "Rédiger", rep: "Composer / mettre par écrit", faux: ["Lire / parler", "Imprimer / publier", "Dessiner / peindre"] },
+                { q: "Un résumé", rep: "Un abrégé", faux: ["Un livre complet", "Une citation", "Une phrase"] },
+                { q: "Un volume", rep: "Un livre / un tome", faux: ["Une étagère", "Une page", "Une bibliothèque"] }
+            ]
+        };
+
+        let profil = { xp: 0 };
+        let vies = 3;
+        let indexQuestion = 0;
+        let listeQuestions = [];
+        let bloque = false;
+
+        const E = (id) => document.getElementById(id);
+
+        async function initApp() {
+            try {
+                let res = await fetch(DB_URL);
+                let data = await res.json();
+                if (data && data.xp !== undefined) profil.xp = parseInt(data.xp) || 0;
+            } catch(e) {}
+            majXP();
+        }
+
+        async function sauverProfilCloud() {
+            try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
+        }
+
+        function majXP() { E('ui-xp').textContent = profil.xp; }
+        function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); E(id).classList.add('actif'); }
+        function retourAccueil() { changerEcran('ecran-accueil'); }
+
+        function lancerNiveau(mode) {
+            vies = 3; 
+            indexQuestion = 0; 
+            
+            // On prend 10 questions au hasard (ou toutes si < 10)
+            listeQuestions = [...bdd[mode]].sort(() => Math.random() - 0.5).slice(0, 10);
+            
+            E('ui-titre-niveau').textContent = mode === 'definitions' ? "Les Définitions" : "Les Synonymes";
+            E('ui-vies').textContent = "❤️❤️❤️"; 
+            E('feedback').textContent = ""; 
+            
+            changerEcran('ecran-jeu'); 
+            poserQuestion(mode);
+        }
+
+        function poserQuestion(mode) {
+            if (vies <= 0) { alert("Plus de vies ! Réfléchis bien et réessaie."); return retourAccueil(); }
+            if (indexQuestion >= listeQuestions.length) { 
+                alert("🎉 Série terminée ! Excellent travail Théo !"); 
+                profil.xp += 20; sauverProfilCloud(); majXP();
+                return retourAccueil(); 
+            }
+
+            bloque = false;
+            E('ui-progression').textContent = `${indexQuestion + 1} / ${listeQuestions.length}`; 
+            E('feedback').textContent = "";
+            
+            let qData = listeQuestions[indexQuestion];
+            
+            if (mode === 'definitions') {
+                E('consigne').textContent = "À quel mot correspond cette définition ?";
+                E('phrase-qcm').textContent = `« ${qData.q} »`;
+            } else {
+                E('consigne').textContent = "Trouve le synonyme (même sens) de ce mot :";
+                E('phrase-qcm').textContent = qData.q;
+            }
+
+            let options = [qData.rep, ...qData.faux].sort(() => Math.random() - 0.5);
+
+            const boxBoutons = E('boutons-reponses'); 
+            boxBoutons.innerHTML = '';
+            
+            options.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = "btn-rep";
+                btn.textContent = opt;
+                btn.onclick = () => validerReponse(btn, opt === qData.rep, mode);
+                boxBoutons.appendChild(btn);
+            });
+        }
+
+        function validerReponse(btn, isCorrect, mode) {
+            if (bloque) return;
+            bloque = true;
+            
+            const fb = E('feedback');
+            document.querySelectorAll('.btn-rep').forEach(b => b.onclick = null);
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                fb.textContent = "Excellent ! ✨"; fb.style.color = "#27ae60"; 
+                profil.xp += 5; sauverProfilCloud(); majXP();
+                setTimeout(() => { indexQuestion++; poserQuestion(mode); }, 1500);
+            } else {
+                btn.classList.add('erreur');
+                fb.textContent = "Aïe... Regarde la bonne réponse."; fb.style.color = "#c0392b";
+                
+                let repExacte = listeQuestions[indexQuestion].rep;
+                document.querySelectorAll('.btn-rep').forEach(b => {
+                    if (b.textContent === repExacte) b.classList.add('correct');
+                });
+
+                vies--; E('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3 - vies);
+                setTimeout(() => { indexQuestion++; poserQuestion(mode); }, 3500);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", initApp);
+    </script>
+</body>
+</html>
