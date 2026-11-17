@@ -68,13 +68,13 @@
 
         /* --- SOUS-MODE 1 : LA CARTE --- */
         #conteneur-carte-france {
-            position: relative; width: 100%; max-width: 650px; aspect-ratio: 1.4; margin: 0 auto 20px auto;
+            position: relative; width: 100%; max-width: 600px; aspect-ratio: 1.2; margin: 0 auto 20px auto;
             background: white; border: 4px solid #2ecc71; border-radius: 20px; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
         }
         
         .image-carte {
-            width: 100%; height: 100%; object-fit: contain; pointer-events: none; opacity: 0.8;
+            width: 100%; height: 100%; object-fit: contain; pointer-events: none; opacity: 0.7;
         }
         
         .point-ville {
@@ -82,8 +82,8 @@
             transform: translate(-50%, -50%); cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,0.3); z-index: 5;
             display: flex; justify-content: center; align-items: center; transition: 0.2s;
         }
-        .point-ville.survol { transform: translate(-50%, -50%) scale(1.4); background: #f1c40f; border-color: #d35400; }
-        .point-ville .ville-tag { position: absolute; top: -20px; box-shadow: 0 6px 15px rgba(0,0,0,0.4); }
+        .point-ville.survol { transform: translate(-50%, -50%) scale(1.3); background: #f1c40f; border-color: #d35400; }
+        .point-ville .ville-tag { position: absolute; top: -15px; box-shadow: 0 6px 15px rgba(0,0,0,0.4); }
 
         /* --- SOUS-MODE 2 : LE TRI --- */
         .zones-tri-population { 
@@ -181,7 +181,7 @@
             <button class="btn-nav" style="margin-top: 20px;" onclick="changerEcran('ecran-hub')">⬅️ Retour au choix des missions</button>
         </div>
 
-        <!-- ECRAN DE JEU QCM -->
+        <!-- ECRAN DE JEU QCM (Classique) -->
         <div id="ecran-jeu" class="ecran">
             <div class="hud-jeu">
                 <span id="ui-vies-qcm" style="letter-spacing: 3px; color:#e74c3c;">❤️❤️❤️</span>
@@ -276,30 +276,29 @@
             ]
         };
 
-        // --- NOUVEAU CALIBRAGE GPS PRÉCIS ---
-        // J'ai analysé les marges de TON image spécifique (france-contours-vierge-echelle.jpg)
-        // Les coordonnées ont été recalculées pour tomber parfaitement au bon endroit.
+        // --- CALIBRAGE VISUEL MANUEL ---
+        // Ajusté spécifiquement pour l'image 'france-contours-vierge-echelle.jpg' 
         const toutesLesVilles = [
-            { nom: "Paris", cat: "1", top: 28, left: 52 },
-            { nom: "Marseille", cat: "2", top: 78, left: 71 },
-            { nom: "Toulouse", cat: "2", top: 75, left: 46 },
-            { nom: "Lyon", cat: "2", top: 56, left: 68 },
-            { nom: "Lille", cat: "3", top: 13, left: 56 },
-            { nom: "Strasbourg", cat: "3", top: 31, left: 87 },
-            { nom: "Nantes", cat: "3", top: 43, left: 26 },
-            { nom: "Bordeaux", cat: "3", top: 64, left: 32 },
-            { nom: "Montpellier", cat: "3", top: 75, left: 62 },
-            { nom: "Nice", cat: "3", top: 74, left: 84 },
-            { nom: "Rennes", cat: "3", top: 35, left: 25 },
-            { nom: "Le Havre", cat: "4", top: 23, left: 37 },
-            { nom: "Reims", cat: "4", top: 25, left: 63 },
-            { nom: "Dijon", cat: "4", top: 42, left: 69 },
-            { nom: "Angers", cat: "4", top: 41, left: 32 },
-            { nom: "Saint-Étienne", cat: "4", top: 59, left: 65 },
-            { nom: "Villeurbanne", cat: "4", top: 55, left: 69 }, // Légèrement décalée de Lyon pour ne pas se chevaucher
-            { nom: "Grenoble", cat: "4", top: 61, left: 74 },
-            { nom: "Nîmes", cat: "4", top: 73, left: 65 },
-            { nom: "Toulon", cat: "4", top: 80, left: 75 }
+            { nom: "Lille", cat: "3", top: 10, left: 54 },
+            { nom: "Paris", cat: "1", top: 30, left: 51 },
+            { nom: "Strasbourg", cat: "3", top: 32, left: 86 },
+            { nom: "Rennes", cat: "3", top: 38, left: 26 },
+            { nom: "Nantes", cat: "3", top: 47, left: 24 },
+            { nom: "Angers", cat: "4", top: 47, left: 32 },
+            { nom: "Le Havre", cat: "4", top: 24, left: 41 },
+            { nom: "Reims", cat: "4", top: 28, left: 63 },
+            { nom: "Dijon", cat: "4", top: 46, left: 68 },
+            { nom: "Lyon", cat: "2", top: 59, left: 68 },
+            { nom: "Villeurbanne", cat: "4", top: 58, left: 69 }, 
+            { nom: "Saint-Étienne", cat: "4", top: 62, left: 64 },
+            { nom: "Grenoble", cat: "4", top: 65, left: 75 },
+            { nom: "Bordeaux", cat: "3", top: 70, left: 30 },
+            { nom: "Toulouse", cat: "2", top: 79, left: 47 },
+            { nom: "Montpellier", cat: "3", top: 82, left: 61 },
+            { nom: "Nîmes", cat: "4", top: 79, left: 64 },
+            { nom: "Marseille", cat: "2", top: 85, left: 71 },
+            { nom: "Toulon", cat: "4", top: 87, left: 75 },
+            { nom: "Nice", cat: "3", top: 82, left: 86 }
         ];
 
         let niveauActuelId = ""; let indexQuestion = 0; let vies = 3; let bloque = false; let sacQuestions = [];
