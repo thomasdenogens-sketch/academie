@@ -66,15 +66,26 @@
         .ville-tag:active { cursor: grabbing; transform: translateY(4px); box-shadow: none; }
         .ville-tag.erreur-anim { animation: secousse 0.4s; background: #fadbd8; border-color: #e74c3c; color: #c0392b; box-shadow: 0 4px 0 #c0392b;}
 
-        /* --- SOUS-MODE 1 : LA CARTE --- */
+        /* --- SOUS-MODE 1 : LA CARTE (CORRIGÉE) --- */
         #conteneur-carte-france {
-            position: relative; width: 100%; max-width: 600px; aspect-ratio: 1.2; margin: 0 auto 20px auto;
-            background: white; border: 4px solid #2ecc71; border-radius: 20px; overflow: hidden;
-            display: flex; justify-content: center; align-items: center;
+            /* LA CORRECTION EST ICI : Plus de hauteur fixe ni d'aspect-ratio. 
+               Le conteneur s'adapte à l'image. */
+            position: relative; 
+            width: 100%; 
+            max-width: 600px; 
+            margin: 0 auto 20px auto;
+            /* La bordure est mise sur l'image elle-même maintenant pour éviter les espaces vides */
         }
         
         .image-carte {
-            width: 100%; height: 100%; object-fit: contain; pointer-events: none; opacity: 0.7;
+            width: 100%; 
+            height: auto; /* Garde les vraies proportions de TON image */
+            display: block; /* Enlève la petite marge invisible sous les images */
+            border: 4px solid #2ecc71; 
+            border-radius: 20px;
+            pointer-events: none; 
+            opacity: 0.8;
+            background: white;
         }
         
         .point-ville {
@@ -181,7 +192,7 @@
             <button class="btn-nav" style="margin-top: 20px;" onclick="changerEcran('ecran-hub')">⬅️ Retour au choix des missions</button>
         </div>
 
-        <!-- ECRAN DE JEU QCM (Classique) -->
+        <!-- ECRAN DE JEU QCM -->
         <div id="ecran-jeu" class="ecran">
             <div class="hud-jeu">
                 <span id="ui-vies-qcm" style="letter-spacing: 3px; color:#e74c3c;">❤️❤️❤️</span>
@@ -205,8 +216,9 @@
             <p style="font-weight: bold; color: #34495e; margin-bottom: 15px; font-size: 1.1rem;">Glisse le nom de la ville sur le bon point rouge sur la carte !</p>
 
             <div id="conteneur-carte-france">
+                <!-- TON IMAGE PERSONNELLE -->
                 <img src="france-contours-vierge-echelle.jpg" class="image-carte" alt="Carte de France" draggable="false">
-                <!-- Les points géolocalisés seront placés ici -->
+                <!-- Les points géolocalisés seront placés ici par dessus -->
             </div>
 
             <div class="reserve-villes" id="reserve-carte" ondrop="deposerVilleCarte(event)" ondragover="autoriserDepot(event)"></div>
@@ -276,10 +288,9 @@
             ]
         };
 
-        // --- CALIBRAGE VISUEL MANUEL ---
-        // Ajusté spécifiquement pour l'image 'france-contours-vierge-echelle.jpg' 
+        // --- NOUVEAU CALIBRAGE (Adapté exactement à TON image) ---
         const toutesLesVilles = [
-            { nom: "Lille", cat: "3", top: 10, left: 54 },
+            { nom: "Lille", cat: "3", top: 12, left: 54 },
             { nom: "Paris", cat: "1", top: 30, left: 51 },
             { nom: "Strasbourg", cat: "3", top: 32, left: 86 },
             { nom: "Rennes", cat: "3", top: 38, left: 26 },
