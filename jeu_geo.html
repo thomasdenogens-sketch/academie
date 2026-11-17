@@ -66,24 +66,23 @@
         .ville-tag:active { cursor: grabbing; transform: translateY(4px); box-shadow: none; }
         .ville-tag.erreur-anim { animation: secousse 0.4s; background: #fadbd8; border-color: #e74c3c; color: #c0392b; box-shadow: 0 4px 0 #c0392b;}
 
-        /* --- SOUS-MODE 1 : LA CARTE (CORRIGÉE) --- */
+        /* --- SOUS-MODE 1 : LA CARTE --- */
         #conteneur-carte-france {
-            /* LA CORRECTION EST ICI : Plus de hauteur fixe ni d'aspect-ratio. 
-               Le conteneur s'adapte à l'image. */
             position: relative; 
             width: 100%; 
             max-width: 600px; 
-            margin: 0 auto 20px auto;
-            /* La bordure est mise sur l'image elle-même maintenant pour éviter les espaces vides */
+            margin: 0 auto 10px auto;
+            /* Le curseur change pour indiquer qu'on peut cliquer pour calibrer */
+            cursor: crosshair; 
         }
         
         .image-carte {
             width: 100%; 
-            height: auto; /* Garde les vraies proportions de TON image */
-            display: block; /* Enlève la petite marge invisible sous les images */
+            height: auto; 
+            display: block; 
             border: 4px solid #2ecc71; 
             border-radius: 20px;
-            pointer-events: none; 
+            /* pointer-events retiré pour que le clic fonctionne sur le conteneur */
             opacity: 0.8;
             background: white;
         }
@@ -95,6 +94,9 @@
         }
         .point-ville.survol { transform: translate(-50%, -50%) scale(1.3); background: #f1c40f; border-color: #d35400; }
         .point-ville .ville-tag { position: absolute; top: -15px; box-shadow: 0 6px 15px rgba(0,0,0,0.4); }
+
+        /* Outil de développeur */
+        #outils-dev { font-family: monospace; font-size: 1.1rem; color: #27ae60; margin-bottom: 20px; background: #eafaf1; padding: 5px 15px; border-radius: 10px; border: 2px dashed #2ecc71; display: inline-block;}
 
         /* --- SOUS-MODE 2 : LE TRI --- */
         .zones-tri-population { 
@@ -213,12 +215,14 @@
                 <span id="ui-progression-carte">Série 1 / 4</span>
             </div>
 
-            <p style="font-weight: bold; color: #34495e; margin-bottom: 15px; font-size: 1.1rem;">Glisse le nom de la ville sur le bon point rouge sur la carte !</p>
+            <p style="font-weight: bold; color: #34495e; margin-bottom: 10px; font-size: 1.1rem;">Glisse le nom de la ville sur le bon point rouge sur la carte !</p>
+            
+            <!-- OUTIL CACHÉ POUR TOI -->
+            <div id="outils-dev">💡 Outil Parents : Clique sur la carte pour voir ses coordonnées !</div>
 
             <div id="conteneur-carte-france">
-                <!-- TON IMAGE PERSONNELLE -->
                 <img src="france-contours-vierge-echelle.jpg" class="image-carte" alt="Carte de France" draggable="false">
-                <!-- Les points géolocalisés seront placés ici par dessus -->
+                <!-- Les points géolocalisés seront placés ici par JS -->
             </div>
 
             <div class="reserve-villes" id="reserve-carte" ondrop="deposerVilleCarte(event)" ondragover="autoriserDepot(event)"></div>
@@ -288,9 +292,9 @@
             ]
         };
 
-        // --- NOUVEAU CALIBRAGE (Adapté exactement à TON image) ---
+        // --- NOUVEAU CALIBRAGE (Réévalué d'après ta capture d'écran) ---
         const toutesLesVilles = [
-            { nom: "Lille", cat: "3", top: 12, left: 54 },
+            { nom: "Lille", cat: "3", top: 10, left: 54 },
             { nom: "Paris", cat: "1", top: 30, left: 51 },
             { nom: "Strasbourg", cat: "3", top: 32, left: 86 },
             { nom: "Rennes", cat: "3", top: 38, left: 26 },
@@ -373,6 +377,26 @@
 
         function attraperVille(event) { event.dataTransfer.setData("text", event.target.id); }
         function autoriserDepot(event) { event.preventDefault(); }
+
+        // --- OUTIL DE CALIBRAGE PARENT (CLIC SUR LA CARTE) ---
+        document.getElementById('conteneur-carte-france').addEventListener('click', function(e) {
+            // Empêcher l'outil de s'activer si on clique juste sur un point rouge
+            if (e.target.classList.contains('point-ville') || e.target.classList.contains('ville-tag')) return;
+            
+            let rect = this.getBoundingClientRect();
+            // On calcule où se trouve le clic à l'intérieur du conteneur
+            let y = e.clientY - rect.top;
+            let x = e.clientX - rect.left;
+            
+            // On transforme en pourcentage
+            let topPercent = Math.round((y / rect.height) * 100);
+            let leftPercent = Math.round((x / rect.width) * 100);
+            
+            // Affichage dans le petit panneau vert
+            document.getElementById('outils-dev').innerHTML = `📍 Tu as cliqué sur : <strong style="color:#d35400;">top: ${topPercent}, left: ${leftPercent}</strong>`;
+            console.log(`{ nom: "VILLE", cat: "X", top: ${topPercent}, left: ${leftPercent} }`);
+        });
+
 
         // --- MODE CARTOGRAPHE : LOCALISATION ---
         function lancerModeCarte() {
