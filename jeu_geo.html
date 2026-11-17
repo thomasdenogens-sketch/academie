@@ -15,7 +15,7 @@
         
         #app-container { 
             background: white; padding: 30px; border-radius: 20px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2); max-width: 800px; width: 100%; text-align: center; position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); max-width: 900px; width: 100%; text-align: center; position: relative;
         }
         
         h1 { color: #2980b9; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
@@ -35,14 +35,13 @@
         .niveau-icon { font-size: 2.5rem; }
 
         /* HUD Jeu */
-        .hud-jeu { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.2rem; border: 2px solid #ecf0f1; }
+        .hud-jeu { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.2rem; border: 2px solid #ecf0f1; align-items: center;}
         
+        /* Mode QCM */
         #question-box {
             background: #eef2f3; border: 3px dashed #3498db; border-radius: 15px;
             padding: 25px; font-size: 1.5rem; font-weight: 900; color: #2c3e50; margin-bottom: 25px;
         }
-
-        /* Grille des réponses */
         .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .btn-opt {
             background: white; border: 3px solid #bdc3c7; padding: 15px; border-radius: 15px;
@@ -53,14 +52,45 @@
         .btn-opt.correct { background: #2ecc71; color: white; border-color: #27ae60; box-shadow: 0 4px 0 #219a52; }
         .btn-opt.erreur { background: #e74c3c; color: white; border-color: #c0392b; box-shadow: 0 4px 0 #b53120; }
 
+        /* --- NOUVEAU : MODE CARTOGRAPHE (DRAG & DROP VILLES) --- */
+        .layout-villes { display: flex; gap: 20px; margin-bottom: 20px; text-align: left;}
+        
+        .carte-france {
+            flex: 1; background: #eafaf1; border: 3px solid #2ecc71; border-radius: 15px; padding: 15px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        
+        .zones-tri { flex: 1.5; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .zone-box {
+            background: #f1f8ff; border: 3px dashed #3498db; border-radius: 12px; padding: 10px;
+            min-height: 120px; display: flex; flex-direction: column; align-items: center; gap: 5px;
+        }
+        .zone-titre { font-size: 0.9rem; font-weight: 900; color: #2980b9; text-align: center; margin-bottom: 5px; border-bottom: 2px solid #3498db; padding-bottom: 5px; width: 100%;}
+        
+        .reserve-villes {
+            background: #fff3cd; border: 3px dashed #f39c12; border-radius: 15px; padding: 15px;
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; min-height: 80px; margin-bottom: 20px;
+        }
+
+        .ville-tag {
+            background: white; border: 2px solid #e67e22; color: #d35400; font-weight: bold; font-size: 1.1rem;
+            padding: 8px 15px; border-radius: 20px; cursor: grab; box-shadow: 0 3px 0 #e67e22; transition: 0.1s;
+        }
+        .ville-tag:active { cursor: grabbing; transform: translateY(3px); box-shadow: none; }
+        .ville-tag.erreur-anim { animation: secousse 0.3s; background: #fadbd8; border-color: #e74c3c; color: #c0392b; box-shadow: 0 3px 0 #c0392b;}
+        
+        .zone-box.survol { background: #d6eaf8; border-color: #2980b9; }
+
         .btn-nav { background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s;}
         .btn-nav:hover { background: #7f8c8d; }
+        .btn-primaire { background: #27ae60; box-shadow: 0 4px #219a52; margin-top: 10px;}
         
         #feedback { font-size: 1.4rem; font-weight: 900; height: 35px; margin-bottom: 15px; }
 
         .ecran { display: none; }
         .ecran.actif { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+        @keyframes secousse { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     </style>
 </head>
 <body>
@@ -82,10 +112,19 @@
                     </div>
                 </button>
 
+                <!-- LE NOUVEAU NIVEAU (DRAG & DROP) -->
+                <button class="btn-niveau" style="border-color: #2ecc71; background: #f0fdf4;" onclick="lancerMissionVilles()">
+                    <span class="niveau-icon">🏙️</span>
+                    <div>
+                        <div style="color: #27ae60; font-size: 1.3rem;">Niveau 2 : Cartographe (Les Villes)</div>
+                        <div style="font-size: 0.9rem; color: #7f8c8d; font-weight: normal;">Situe et trie les grandes agglomérations.</div>
+                    </div>
+                </button>
+
                 <button class="btn-niveau" onclick="lancerJeu('niveau2', '🇪🇺 Mission Europe')">
                     <span class="niveau-icon">🇪🇺</span>
                     <div>
-                        <div style="color: #2980b9; font-size: 1.3rem;">Niveau 2 : Mission Europe</div>
+                        <div style="color: #2980b9; font-size: 1.3rem;">Niveau 3 : Mission Europe</div>
                         <div style="font-size: 0.9rem; color: #7f8c8d; font-weight: normal;">L'Union Européenne, les pays et capitales.</div>
                     </div>
                 </button>
@@ -93,7 +132,7 @@
                 <button class="btn-niveau" onclick="lancerJeu('niveau3', '🗺️ Mission Monde & Outre-Mer')">
                     <span class="niveau-icon">🗺️</span>
                     <div>
-                        <div style="color: #2980b9; font-size: 1.3rem;">Niveau 3 : Le Grand Voyage</div>
+                        <div style="color: #2980b9; font-size: 1.3rem;">Niveau 4 : Le Grand Voyage</div>
                         <div style="font-size: 0.9rem; color: #7f8c8d; font-weight: normal;">Les océans, les continents et les DROM-COM.</div>
                     </div>
                 </button>
@@ -102,23 +141,78 @@
             <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
-        <!-- ECRAN DE JEU -->
+        <!-- ECRAN DE JEU QCM (Classique) -->
         <div id="ecran-jeu" class="ecran">
             <div class="hud-jeu">
-                <span id="ui-vies" style="letter-spacing: 3px; color:#e74c3c;">❤️❤️❤️</span>
+                <span id="ui-vies-qcm" style="letter-spacing: 3px; color:#e74c3c;">❤️❤️❤️</span>
                 <span id="ui-titre-niveau" style="color: #2980b9;">Niveau...</span>
-                <span id="ui-progression">1 / 5</span>
+                <span id="ui-progression-qcm">1 / 5</span>
             </div>
             
             <div id="question-box">Chargement de la question...</div>
-
-            <div id="zone-boutons" class="options-grid">
-                <!-- Les réponses s'affichent ici -->
-            </div>
-
-            <div id="feedback"></div>
+            <div id="zone-boutons" class="options-grid"></div>
+            <div id="feedback-qcm" style="font-size: 1.4rem; font-weight: 900; height: 35px; margin-bottom: 15px;"></div>
 
             <button class="btn-nav" onclick="retourAccueil()">⬅️ Quitter la mission</button>
+        </div>
+
+        <!-- ECRAN DE JEU VILLES (Drag & Drop) -->
+        <div id="ecran-villes" class="ecran">
+            <div class="hud-jeu">
+                <span id="ui-vies-villes" style="letter-spacing: 3px; color:#e74c3c;">❤️❤️❤️</span>
+                <span style="color: #27ae60;">Mission : Les Villes de France</span>
+                <span id="ui-progression-villes">Vague 1 / 4</span>
+            </div>
+
+            <p style="font-weight: bold; color: #e67e22; margin-bottom: 15px;">Aide-toi de la carte pour situer les villes, et glisse-les dans la bonne catégorie de population !</p>
+
+            <div class="layout-villes">
+                <!-- La carte SVG de la France comme aide visuelle -->
+                <div class="carte-france">
+                    <svg viewBox="0 0 380 400" width="100%" height="250px">
+                        <!-- Contour de la France -->
+                        <polygon points="190,10 350,90 320,310 190,380 60,310 10,120 100,40" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="4"/>
+                        <!-- Points des villes principales -->
+                        <circle cx="190" cy="100" r="5" fill="#e74c3c"/><text x="200" y="105" font-size="12" font-weight="bold" fill="#2c3e50">Paris</text>
+                        <circle cx="210" cy="40" r="4" fill="#3498db"/><text x="220" y="45" font-size="10" font-weight="bold" fill="#34495e">Lille</text>
+                        <circle cx="340" cy="120" r="4" fill="#3498db"/><text x="275" y="125" font-size="10" font-weight="bold" fill="#34495e">Strasbourg</text>
+                        <circle cx="260" cy="220" r="4" fill="#3498db"/><text x="270" y="225" font-size="10" font-weight="bold" fill="#34495e">Lyon</text>
+                        <circle cx="270" cy="310" r="4" fill="#3498db"/><text x="280" y="325" font-size="10" font-weight="bold" fill="#34495e">Marseille</text>
+                        <circle cx="320" cy="300" r="4" fill="#3498db"/><text x="330" y="305" font-size="10" font-weight="bold" fill="#34495e">Nice</text>
+                        <circle cx="230" cy="310" r="4" fill="#3498db"/><text x="235" y="325" font-size="10" font-weight="bold" fill="#34495e">Montpellier</text>
+                        <circle cx="170" cy="310" r="4" fill="#3498db"/><text x="110" y="325" font-size="10" font-weight="bold" fill="#34495e">Toulouse</text>
+                        <circle cx="110" cy="250" r="4" fill="#3498db"/><text x="50" y="255" font-size="10" font-weight="bold" fill="#34495e">Bordeaux</text>
+                        <circle cx="90" cy="170" r="4" fill="#3498db"/><text x="45" y="175" font-size="10" font-weight="bold" fill="#34495e">Nantes</text>
+                        <circle cx="100" cy="120" r="4" fill="#3498db"/><text x="50" y="125" font-size="10" font-weight="bold" fill="#34495e">Rennes</text>
+                    </svg>
+                </div>
+                
+                <!-- Les 4 bacs de tri -->
+                <div class="zones-tri">
+                    <div class="zone-box" data-cat="1" ondrop="deposerVille(event)" ondragover="autoriserDepot(event)" ondragenter="survoler(event)" ondragleave="quitterSurvol(event)">
+                        <div class="zone-titre" style="color:#c0392b; border-color:#e74c3c;">+ de 1 Million</div>
+                    </div>
+                    <div class="zone-box" data-cat="2" ondrop="deposerVille(event)" ondragover="autoriserDepot(event)" ondragenter="survoler(event)" ondragleave="quitterSurvol(event)">
+                        <div class="zone-titre" style="color:#d35400; border-color:#e67e22;">500k à 1 Million</div>
+                    </div>
+                    <div class="zone-box" data-cat="3" ondrop="deposerVille(event)" ondragover="autoriserDepot(event)" ondragenter="survoler(event)" ondragleave="quitterSurvol(event)">
+                        <div class="zone-titre" style="color:#27ae60; border-color:#2ecc71;">200k à 500k</div>
+                    </div>
+                    <div class="zone-box" data-cat="4" ondrop="deposerVille(event)" ondragover="autoriserDepot(event)" ondragenter="survoler(event)" ondragleave="quitterSurvol(event)">
+                        <div class="zone-titre" style="color:#2980b9; border-color:#3498db;">100k à 200k</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- La réserve où apparaissent les villes -->
+            <div class="reserve-villes" id="reserve-villes" ondrop="deposerVille(event)" ondragover="autoriserDepot(event)">
+                <!-- Généré par JS -->
+            </div>
+
+            <div id="feedback-villes" style="font-size: 1.3rem; font-weight: bold; height: 30px; color:#27ae60;"></div>
+
+            <button class="btn-nav btn-primaire" onclick="validerTriVilles()">✅ Valider mon tri</button>
+            <button class="btn-nav" onclick="retourAccueil()" style="margin-top:10px;">⬅️ Quitter la mission</button>
         </div>
 
     </div>
@@ -131,14 +225,12 @@
         let niveauActuelId = "";
         let indexQuestion = 0;
         let vies = 3;
-        const totalQuestions = 5; // 5 questions par série pour ne pas lasser
+        const totalQuestions = 5; 
         let questionEnCours = null;
         let bloque = false;
-
-        // Le fameux "Sac de pioche" pour ne pas répéter les questions
         let sacQuestions = [];
 
-        // --- LA BASE DE DONNÉES GÉOGRAPHIE PROGRESSIVE ---
+        // --- BDD CLASSIQUE (QCM) ---
         const bddGeographie = {
             niveau1: [
                 { q: "Quel est le plus long fleuve de France ?", rep: "La Loire", faux: ["Le Rhône", "La Seine", "La Garonne"] },
@@ -153,134 +245,203 @@
                 { q: "Quelle est la capitale de l'Allemagne ?", rep: "Berlin", faux: ["Munich", "Vienne", "Francfort"] },
                 { q: "Quel pays ressemble à une grande botte sur la carte de l'Europe ?", rep: "L'Italie", faux: ["L'Espagne", "La Grèce", "Le Royaume-Uni"] },
                 { q: "Dans quelle ville européenne se trouve le siège principal du Parlement européen ?", rep: "Strasbourg", faux: ["Bruxelles", "Paris", "Berlin"] },
-                { q: "Quelle monnaie est utilisée par la majorité des pays de l'Union Européenne ?", rep: "L'Euro", faux: ["Le Dollar", "La Livre Sterling", "Le Franc"] },
-                { q: "Quelle île se situe au sud de l'Italie ?", rep: "La Sicile", faux: ["La Corse", "La Crète", "Ibiza"] }
+                { q: "Quelle monnaie est utilisée par la majorité des pays de l'Union Européenne ?", rep: "L'Euro", faux: ["Le Dollar", "La Livre Sterling", "Le Franc"] }
             ],
             niveau3: [
                 { q: "Que signifie le sigle DROM ?", rep: "Département et Région d'Outre-Mer", faux: ["Domaine Réservé d'Outre-Mer", "Direction Régionale des Océans et Mers", "Département Reculé d'Outre-Mer"] },
                 { q: "Laquelle de ces îles est un département français situé dans l'Océan Indien ?", rep: "La Réunion", faux: ["La Martinique", "La Guadeloupe", "La Nouvelle-Calédonie"] },
                 { q: "Où se situe la Guyane française ?", rep: "En Amérique du Sud", faux: ["En Afrique", "En Océanie", "En Asie"] },
-                { q: "Quel est le plus grand océan du monde ?", rep: "L'Océan Pacifique", faux: ["L'Océan Atlantique", "L'Océan Indien", "L'Océan Glacial Arctique"] },
-                { q: "Sur quel continent se trouve le désert du Sahara ?", rep: "L'Afrique", faux: ["L'Asie", "L'Amérique du Sud", "L'Océanie"] },
-                { q: "Lequel de ces territoires d'Outre-Mer est situé dans l'Océan Pacifique ?", rep: "La Polynésie française", faux: ["La Martinique", "Mayotte", "Saint-Pierre-et-Miquelon"] }
+                { q: "Quel est le plus grand océan du monde ?", rep: "L'Océan Pacifique", faux: ["L'Océan Atlantique", "L'Océan Indien", "L'Océan Glacial Arctique"] }
             ]
         };
 
-        // --- GESTION DU CLOUD ---
+        // --- BDD VILLES (Issue du PDF) ---
+        // Catégories : 1(>1M), 2(500k-1M), 3(200k-500k), 4(100k-200k)
+        const toutesLesVilles = [
+            { nom: "Paris", cat: "1" },
+            { nom: "Lyon", cat: "2" }, { nom: "Marseille", cat: "2" }, { nom: "Toulouse", cat: "2" },
+            { nom: "Lille", cat: "3" }, { nom: "Montpellier", cat: "3" }, { nom: "Rennes", cat: "3" }, { nom: "Strasbourg", cat: "3" }, { nom: "Nantes", cat: "3" }, { nom: "Bordeaux", cat: "3" }, { nom: "Nice", cat: "3" },
+            { nom: "Toulon", cat: "4" }, { nom: "Nîmes", cat: "4" }, { nom: "Dijon", cat: "4" }, { nom: "Le Havre", cat: "4" }, { nom: "Grenoble", cat: "4" }, { nom: "Angers", cat: "4" }, { nom: "Saint-Étienne", cat: "4" }, { nom: "Reims", cat: "4" }, { nom: "Villeurbanne", cat: "4" }
+        ];
+
+        let villesAFaire = [];
+        let vagueActuelle = 0;
+        let nbVagues = 4;
+
+        // --- INIT & CLOUD ---
         async function chargerProfilCloud() {
-            try {
-                let res = await fetch(DB_URL);
-                let data = await res.json();
-                if (data && data.xp !== undefined) profil.xp = parseInt(data.xp) || 0;
-            } catch(e) {}
+            try { let res = await fetch(DB_URL); let data = await res.json(); if (data && data.xp) profil.xp = parseInt(data.xp) || 0; } catch(e) {}
             document.getElementById('ui-xp-jeu').textContent = profil.xp;
         }
 
         async function sauverProfilCloud(xpGagne) {
-            profil.xp += xpGagne;
-            document.getElementById('ui-xp-jeu').textContent = profil.xp;
+            profil.xp += xpGagne; document.getElementById('ui-xp-jeu').textContent = profil.xp;
             try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ xp: profil.xp }) }); } catch(e) {}
         }
 
-        // --- NAVIGATION ---
-        function changerEcran(id) { 
-            document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); 
-            document.getElementById(id).classList.add('actif'); 
-        }
+        function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); document.getElementById(id).classList.add('actif'); }
         function retourAccueil() { changerEcran('ecran-hub'); }
 
-        // --- MOTEUR DE JEU ---
+        // --- MOTEUR QCM CLASSIQUE ---
         function lancerJeu(idNiveau, titreNiveau) {
-            niveauActuelId = idNiveau;
-            indexQuestion = 0;
-            vies = 3;
-            bloque = false;
-            sacQuestions = []; // On vide le sac de pioche quand on change de niveau
-
+            niveauActuelId = idNiveau; indexQuestion = 0; vies = 3; bloque = false; sacQuestions = [];
             document.getElementById('ui-titre-niveau').textContent = titreNiveau;
-            document.getElementById('ui-vies').textContent = "❤️❤️❤️";
-            
+            document.getElementById('ui-vies-qcm').textContent = "❤️❤️❤️";
             changerEcran('ecran-jeu');
             poserQuestion();
         }
 
         function poserQuestion() {
-            if (vies <= 0) {
-                alert("Fin de l'expédition ! Plus de vies. Révise un peu et retente ta chance ! 🌍");
-                return retourAccueil();
-            }
-            if (indexQuestion >= totalQuestions) {
-                alert("Mission accomplie ! Un sans-faute parfait ! 🎉 (+20 XP Bonus)");
-                sauverProfilCloud(20);
-                return retourAccueil();
-            }
+            if (vies <= 0) { alert("Fin de l'expédition ! Plus de vies. 🌍"); return retourAccueil(); }
+            if (indexQuestion >= totalQuestions) { alert("Mission accomplie ! Un sans-faute parfait ! 🎉 (+20 XP Bonus)"); sauverProfilCloud(20); return retourAccueil(); }
 
-            bloque = false;
-            indexQuestion++;
-            document.getElementById('ui-progression').textContent = `${indexQuestion} / ${totalQuestions}`;
-            document.getElementById('feedback').textContent = "";
+            bloque = false; indexQuestion++;
+            document.getElementById('ui-progression-qcm').textContent = `${indexQuestion} / ${totalQuestions}`;
+            document.getElementById('feedback-qcm').textContent = "";
             
-            // LA PIOCHE : Si le sac est vide, on le remplit avec les questions du niveau et on mélange !
             let bddNiveau = bddGeographie[niveauActuelId];
-            if (sacQuestions.length === 0) {
-                sacQuestions = [...bddNiveau].sort(() => Math.random() - 0.5);
-            }
-
-            // On tire une question du sac (sans remise)
+            if (sacQuestions.length === 0) sacQuestions = [...bddNiveau].sort(() => Math.random() - 0.5);
             questionEnCours = sacQuestions.pop();
 
-            // Affichage de la question
             document.getElementById('question-box').textContent = questionEnCours.q;
 
-            // Mélange des réponses (1 vraie + 3 fausses)
-            let options = [questionEnCours.rep, ...questionEnCours.faux];
-            options.sort(() => Math.random() - 0.5);
-
-            // Création des boutons HTML
-            const zoneBoutons = document.getElementById('zone-boutons');
-            zoneBoutons.innerHTML = "";
+            let options = [questionEnCours.rep, ...questionEnCours.faux].sort(() => Math.random() - 0.5);
+            const zoneBoutons = document.getElementById('zone-boutons'); zoneBoutons.innerHTML = "";
             
             options.forEach(opt => {
-                let btn = document.createElement('button');
-                btn.className = "btn-opt";
-                btn.textContent = opt;
+                let btn = document.createElement('button'); btn.className = "btn-opt"; btn.textContent = opt;
                 btn.onclick = () => verifierReponse(btn, opt === questionEnCours.rep);
                 zoneBoutons.appendChild(btn);
             });
         }
 
         function verifierReponse(bouton, estCorrect) {
-            if (bloque) return;
-            bloque = true;
-
-            const fb = document.getElementById('feedback');
+            if (bloque) return; bloque = true;
+            const fb = document.getElementById('feedback-qcm');
 
             if (estCorrect) {
-                bouton.classList.add('correct');
-                fb.textContent = "Exact ! Bien joué ! 🧭"; 
-                fb.style.color = "#27ae60";
-                
-                sauverProfilCloud(5); // +5 XP par bonne réponse
-                
-                setTimeout(poserQuestion, 1200);
+                bouton.classList.add('correct'); fb.textContent = "Exact ! Bien joué ! 🧭"; fb.style.color = "#27ae60";
+                sauverProfilCloud(5); setTimeout(poserQuestion, 1200);
             } else {
-                bouton.classList.add('erreur');
-                vies--;
-                document.getElementById('ui-vies').textContent = "❤️".repeat(vies) + "🖤".repeat(3-vies);
-                fb.textContent = `Aïe ! La bonne réponse était : ${questionEnCours.rep}`; 
-                fb.style.color = "#c0392b";
-                
-                // Mettre en surbrillance la bonne réponse pour qu'il apprenne
-                document.querySelectorAll('.btn-opt').forEach(b => {
-                    if (b.textContent === questionEnCours.rep) b.classList.add('correct');
-                });
-
+                bouton.classList.add('erreur'); vies--; document.getElementById('ui-vies-qcm').textContent = "❤️".repeat(vies) + "🖤".repeat(3-vies);
+                fb.textContent = `Aïe ! La bonne réponse était : ${questionEnCours.rep}`; fb.style.color = "#c0392b";
+                document.querySelectorAll('.btn-opt').forEach(b => { if (b.textContent === questionEnCours.rep) b.classList.add('correct'); });
                 setTimeout(poserQuestion, 3000);
             }
         }
 
-        // Lancement Initial
-        chargerProfilCloud();
+        // --- MOTEUR CARTOGRAPHE (DRAG & DROP) ---
+        function lancerMissionVilles() {
+            vies = 3; vagueActuelle = 0; bloque = false;
+            document.getElementById('ui-vies-villes').textContent = "❤️❤️❤️";
+            
+            // On mélange toutes les villes
+            villesAFaire = [...toutesLesVilles].sort(() => Math.random() - 0.5);
+            // On détermine le nombre de vagues (par ex: 5 villes par vague)
+            nbVagues = Math.ceil(villesAFaire.length / 5);
+            
+            changerEcran('ecran-villes');
+            lancerVagueVilles();
+        }
+
+        function lancerVagueVilles() {
+            if (vies <= 0) { alert("Mission échouée... Révise ta leçon et réessaie !"); return retourAccueil(); }
+            if (villesAFaire.length === 0) { alert("Incroyable ! Tu as trié toutes les villes ! 🎉 (+30 XP)"); sauverProfilCloud(30); return retourAccueil(); }
+
+            vagueActuelle++;
+            document.getElementById('ui-progression-villes').textContent = `Vague ${vagueActuelle} / ${nbVagues}`;
+            document.getElementById('feedback-villes').textContent = "";
+            bloque = false;
+
+            // Vider les boîtes
+            document.querySelectorAll('.zone-box').forEach(box => {
+                // Garder seulement le titre
+                let titre = box.querySelector('.zone-titre');
+                box.innerHTML = ""; box.appendChild(titre);
+            });
+
+            // Piocher 5 villes
+            let villesVague = villesAFaire.splice(0, 5);
+            
+            const reserve = document.getElementById('reserve-villes');
+            reserve.innerHTML = "";
+            
+            villesVague.forEach(ville => {
+                let div = document.createElement('div');
+                div.className = "ville-tag";
+                div.draggable = true;
+                div.id = "ville-" + ville.nom.replace(/\s+/g, '-');
+                div.textContent = ville.nom;
+                div.dataset.cat = ville.cat; // La solution cachée
+                div.ondragstart = attraperVille;
+                reserve.appendChild(div);
+            });
+        }
+
+        function attraperVille(event) { event.dataTransfer.setData("text", event.target.id); }
+        function autoriserDepot(event) { event.preventDefault(); }
+        function survoler(event) { if (event.currentTarget.classList.contains('zone-box')) event.currentTarget.classList.add('survol'); }
+        function quitterSurvol(event) { if (event.currentTarget.classList.contains('zone-box')) event.currentTarget.classList.remove('survol'); }
+
+        function deposerVille(event) {
+            event.preventDefault();
+            let cible = event.currentTarget;
+            cible.classList.remove('survol');
+            
+            let idVille = event.dataTransfer.getData("text");
+            let villeElement = document.getElementById(idVille);
+            
+            if (villeElement && (cible.classList.contains('zone-box') || cible.id === 'reserve-villes')) {
+                cible.appendChild(villeElement);
+            }
+        }
+
+        function validerTriVilles() {
+            if (bloque) return;
+
+            const reserve = document.getElementById('reserve-villes');
+            if (reserve.children.length > 0) {
+                document.getElementById('feedback-villes').textContent = "Tu dois classer toutes les villes !";
+                document.getElementById('feedback-villes').style.color = "#d35400";
+                return;
+            }
+
+            bloque = true;
+            let toutBon = true;
+            const toutesVillesPlacees = document.querySelectorAll('.ville-tag');
+
+            toutesVillesPlacees.forEach(ville => {
+                let boiteParente = ville.parentElement;
+                let catAttendue = ville.dataset.cat;
+                let catBoite = boiteParente.dataset.cat;
+
+                if (catAttendue !== catBoite) {
+                    toutBon = false;
+                    ville.classList.add('erreur-anim');
+                    setTimeout(() => {
+                        ville.classList.remove('erreur-anim');
+                        reserve.appendChild(ville); // On la remet dans la réserve
+                    }, 1000);
+                }
+            });
+
+            const fb = document.getElementById('feedback-villes');
+
+            if (toutBon) {
+                fb.textContent = "C'est un sans-faute ! ✨ (+10 XP)";
+                fb.style.color = "#27ae60";
+                sauverProfilCloud(10);
+                setTimeout(lancerVagueVilles, 1500);
+            } else {
+                vies--;
+                document.getElementById('ui-vies-villes').textContent = "❤️".repeat(vies) + "🖤".repeat(3-vies);
+                fb.textContent = "Attention, certaines villes sont mal rangées !";
+                fb.style.color = "#c0392b";
+                setTimeout(() => { bloque = false; fb.textContent = ""; }, 1500);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", chargerProfilCloud);
     </script>
 </body>
 </html>
