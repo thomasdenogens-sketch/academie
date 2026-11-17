@@ -66,16 +66,15 @@
         .ville-tag:active { cursor: grabbing; transform: translateY(4px); box-shadow: none; }
         .ville-tag.erreur-anim { animation: secousse 0.4s; background: #fadbd8; border-color: #e74c3c; color: #c0392b; box-shadow: 0 4px 0 #c0392b;}
 
-        /* --- SOUS-MODE 1 : LA CARTE (AVEC IMAGE PUBLIQUE) --- */
+        /* --- SOUS-MODE 1 : LA CARTE (AVEC IMAGE LOCALE) --- */
         #conteneur-carte-france {
-            position: relative; width: 100%; max-width: 500px; aspect-ratio: 1; margin: 0 auto 20px auto;
-            background: #eafaf1; border: 4px solid #2ecc71; border-radius: 20px; overflow: hidden;
+            position: relative; width: 100%; max-width: 600px; aspect-ratio: 1.2; margin: 0 auto 20px auto;
+            background: white; border: 4px solid #2ecc71; border-radius: 20px; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
         }
         
-        /* On charge une image depuis les serveurs publics de Wikimedia Commons */
         .image-carte {
-            width: 100%; height: auto; object-fit: contain; pointer-events: none; opacity: 0.6;
+            width: 100%; height: 100%; object-fit: contain; pointer-events: none; opacity: 0.7;
         }
         
         .point-ville {
@@ -206,8 +205,8 @@
             <p style="font-weight: bold; color: #34495e; margin-bottom: 15px; font-size: 1.1rem;">Glisse le nom de la ville sur le bon point rouge sur la carte !</p>
 
             <div id="conteneur-carte-france">
-                <!-- VRAIE CARTE CONNECTÉE À UNE BASE PUBLIQUE (Wikimedia) -->
-                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/France_location_map_%28blank%29.svg" class="image-carte" alt="Carte de France">
+                <!-- ON UTILISE L'IMAGE LOCALE TÉLÉCHARGÉE -->
+                <img src="france-contours-vierge-echelle.jpg" class="image-carte" alt="Carte de France Vierge" draggable="false">
                 <!-- Les points d'ancrage seront injectés ici par JS -->
             </div>
 
@@ -281,30 +280,29 @@
             ]
         };
 
-        // --- BDD VILLES EXACTES DU PDF CM2 ---
-        // Les coordonnées ont été recalibrées pour correspondre parfaitement à la carte Wikimedia "France_location_map_(blank).svg".
-        // Le repère "top/left" indique le pourcentage de positionnement sur l'image de fond.
+        // --- BDD VILLES EXACTES DU PDF CM2 (Coordonnées calibrées pour france-contours-vierge-echelle.jpg) ---
+        // Top et Left sont en pourcentages
         const toutesLesVilles = [
-            { nom: "Paris", cat: "1", top: 29, left: 51 },
-            { nom: "Marseille", cat: "2", top: 83, left: 72 },
-            { nom: "Toulouse", cat: "2", top: 81, left: 45 },
-            { nom: "Lyon", cat: "2", top: 62, left: 70 },
-            { nom: "Lille", cat: "3", top: 12, left: 55 },
-            { nom: "Strasbourg", cat: "3", top: 31, left: 88 },
+            { nom: "Paris", cat: "1", top: 25, left: 52 },
+            { nom: "Marseille", cat: "2", top: 82, left: 74 },
+            { nom: "Toulouse", cat: "2", top: 80, left: 47 },
+            { nom: "Lyon", cat: "2", top: 60, left: 72 },
+            { nom: "Lille", cat: "3", top: 8, left: 57 },
+            { nom: "Strasbourg", cat: "3", top: 30, left: 91 },
             { nom: "Nantes", cat: "3", top: 48, left: 27 },
-            { nom: "Bordeaux", cat: "3", top: 72, left: 32 },
-            { nom: "Montpellier", cat: "3", top: 81, left: 63 },
-            { nom: "Nice", cat: "3", top: 80, left: 85 },
-            { nom: "Rennes", cat: "3", top: 40, left: 28 },
-            { nom: "Le Havre", cat: "4", top: 23, left: 42 },
-            { nom: "Reims", cat: "4", top: 27, left: 65 },
-            { nom: "Dijon", cat: "4", top: 46, left: 71 },
-            { nom: "Angers", cat: "4", top: 48, left: 35 },
-            { nom: "Saint-Étienne", cat: "4", top: 66, left: 66 },
-            { nom: "Villeurbanne", cat: "4", top: 61, left: 71 },
-            { nom: "Grenoble", cat: "4", top: 70, left: 75 },
-            { nom: "Nîmes", cat: "4", top: 79, left: 65 },
-            { nom: "Toulon", cat: "4", top: 87, left: 75 }
+            { nom: "Bordeaux", cat: "3", top: 71, left: 32 },
+            { nom: "Montpellier", cat: "3", top: 81, left: 64 },
+            { nom: "Nice", cat: "3", top: 77, left: 88 },
+            { nom: "Rennes", cat: "3", top: 39, left: 28 },
+            { nom: "Le Havre", cat: "4", top: 21, left: 42 },
+            { nom: "Reims", cat: "4", top: 25, left: 67 },
+            { nom: "Dijon", cat: "4", top: 46, left: 72 },
+            { nom: "Angers", cat: "4", top: 47, left: 35 },
+            { nom: "Saint-Étienne", cat: "4", top: 65, left: 67 },
+            { nom: "Villeurbanne", cat: "4", top: 59, left: 74 },
+            { nom: "Grenoble", cat: "4", top: 68, left: 78 },
+            { nom: "Nîmes", cat: "4", top: 78, left: 67 },
+            { nom: "Toulon", cat: "4", top: 86, left: 77 }
         ];
 
         // --- Variables Globales d'État ---
@@ -403,7 +401,7 @@
             reserve.innerHTML = "";
             
             villesVague.forEach(ville => {
-                // Créer le point de repère sur la carte (en utilisant le nouveau calibrage)
+                // Créer le point de repère sur la carte 
                 let point = document.createElement('div');
                 point.className = "point-ville";
                 point.style.left = ville.left + "%";
@@ -416,7 +414,7 @@
                 
                 // Différencier la taille des points selon l'importance de la ville (Catégorie 1 et 2 plus gros)
                 if (ville.cat === "1" || ville.cat === "2") {
-                    point.style.width = "28px"; point.style.height = "28px"; point.style.borderColor = "#d35400";
+                    point.style.width = "30px"; point.style.height = "30px"; point.style.borderColor = "#c0392b";
                 }
                 
                 carte.appendChild(point);
