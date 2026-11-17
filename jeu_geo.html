@@ -66,17 +66,18 @@
         .ville-tag:active { cursor: grabbing; transform: translateY(4px); box-shadow: none; }
         .ville-tag.erreur-anim { animation: secousse 0.4s; background: #fadbd8; border-color: #e74c3c; color: #c0392b; box-shadow: 0 4px 0 #c0392b;}
 
-        /* --- SOUS-MODE 1 : LA CARTE --- */
+        /* --- SOUS-MODE 1 : LA CARTE (AVEC IMAGE PUBLIQUE) --- */
         #conteneur-carte-france {
             position: relative; width: 100%; max-width: 500px; aspect-ratio: 1; margin: 0 auto 20px auto;
             background: #eafaf1; border: 4px solid #2ecc71; border-radius: 20px; overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
         }
-        /* Un SVG très détaillé de la France mis en fond pour être responsive */
-        .svg-france-bg {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><path fill="%23d5f5e3" stroke="%2327ae60" stroke-width="8" stroke-linejoin="round" d="M 440,70 L 530,30 L 570,90 L 670,80 L 800,200 L 870,300 L 850,420 L 920,490 L 900,560 L 800,540 L 780,630 L 890,750 L 880,820 L 760,880 L 670,860 L 550,970 L 460,930 L 330,950 L 250,910 L 250,770 L 150,700 L 60,700 L 40,580 L 110,480 L 40,430 L 100,340 L 50,300 L 150,220 L 200,240 L 260,190 L 280,120 L 380,110 Z"/></svg>');
-            background-size: cover; background-position: center; pointer-events: none;
+        
+        /* On charge une image depuis les serveurs publics de Wikimedia Commons */
+        .image-carte {
+            width: 100%; height: auto; object-fit: contain; pointer-events: none; opacity: 0.6;
         }
+        
         .point-ville {
             position: absolute; width: 24px; height: 24px; background: white; border: 4px solid #e74c3c; border-radius: 50%;
             transform: translate(-50%, -50%); cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,0.3); z-index: 5;
@@ -205,7 +206,8 @@
             <p style="font-weight: bold; color: #34495e; margin-bottom: 15px; font-size: 1.1rem;">Glisse le nom de la ville sur le bon point rouge sur la carte !</p>
 
             <div id="conteneur-carte-france">
-                <div class="svg-france-bg"></div>
+                <!-- VRAIE CARTE CONNECTÉE À UNE BASE PUBLIQUE (Wikimedia) -->
+                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/France_location_map_%28blank%29.svg" class="image-carte" alt="Carte de France">
                 <!-- Les points d'ancrage seront injectés ici par JS -->
             </div>
 
@@ -279,29 +281,30 @@
             ]
         };
 
-        // --- BDD VILLES EXACTES DU PDF CM2 (Coordonnées top/left en % sur la carte carrée) ---
-        // top = pourcentage de haut en bas, left = pourcentage de gauche à droite
+        // --- BDD VILLES EXACTES DU PDF CM2 ---
+        // Les coordonnées ont été recalibrées pour correspondre parfaitement à la carte Wikimedia "France_location_map_(blank).svg".
+        // Le repère "top/left" indique le pourcentage de positionnement sur l'image de fond.
         const toutesLesVilles = [
-            { nom: "Paris", cat: "1", top: 30, left: 56 },
-            { nom: "Marseille", cat: "2", top: 85, left: 74 },
-            { nom: "Toulouse", cat: "2", top: 83, left: 47 },
+            { nom: "Paris", cat: "1", top: 29, left: 51 },
+            { nom: "Marseille", cat: "2", top: 83, left: 72 },
+            { nom: "Toulouse", cat: "2", top: 81, left: 45 },
             { nom: "Lyon", cat: "2", top: 62, left: 70 },
-            { nom: "Lille", cat: "3", top: 12, left: 59 },
-            { nom: "Strasbourg", cat: "3", top: 32, left: 88 },
-            { nom: "Nantes", cat: "3", top: 48, left: 29 },
-            { nom: "Bordeaux", cat: "3", top: 70, left: 34 },
-            { nom: "Montpellier", cat: "3", top: 82, left: 63 },
-            { nom: "Nice", cat: "3", top: 82, left: 87 },
-            { nom: "Rennes", cat: "3", top: 38, left: 30 },
-            { nom: "Le Havre", cat: "4", top: 22, left: 43 },
-            { nom: "Reims", cat: "4", top: 28, left: 66 },
+            { nom: "Lille", cat: "3", top: 12, left: 55 },
+            { nom: "Strasbourg", cat: "3", top: 31, left: 88 },
+            { nom: "Nantes", cat: "3", top: 48, left: 27 },
+            { nom: "Bordeaux", cat: "3", top: 72, left: 32 },
+            { nom: "Montpellier", cat: "3", top: 81, left: 63 },
+            { nom: "Nice", cat: "3", top: 80, left: 85 },
+            { nom: "Rennes", cat: "3", top: 40, left: 28 },
+            { nom: "Le Havre", cat: "4", top: 23, left: 42 },
+            { nom: "Reims", cat: "4", top: 27, left: 65 },
             { nom: "Dijon", cat: "4", top: 46, left: 71 },
-            { nom: "Angers", cat: "4", top: 46, left: 37 },
-            { nom: "Saint-Étienne", cat: "4", top: 66, left: 65 },
-            { nom: "Villeurbanne", cat: "4", top: 61, left: 73 },
-            { nom: "Grenoble", cat: "4", top: 69, left: 76 },
-            { nom: "Nîmes", cat: "4", top: 80, left: 66 },
-            { nom: "Toulon", cat: "4", top: 89, left: 78 }
+            { nom: "Angers", cat: "4", top: 48, left: 35 },
+            { nom: "Saint-Étienne", cat: "4", top: 66, left: 66 },
+            { nom: "Villeurbanne", cat: "4", top: 61, left: 71 },
+            { nom: "Grenoble", cat: "4", top: 70, left: 75 },
+            { nom: "Nîmes", cat: "4", top: 79, left: 65 },
+            { nom: "Toulon", cat: "4", top: 87, left: 75 }
         ];
 
         // --- Variables Globales d'État ---
@@ -391,7 +394,7 @@
             let villesVague = villesAFaire.splice(0, 5);
             const carte = document.getElementById('conteneur-carte-france');
             
-            // On retire les anciens points de la carte (on garde le SVG en fond)
+            // On retire les anciens points de la carte (mais on garde l'image de fond qui est le 1er enfant)
             Array.from(carte.children).forEach(enfant => {
                 if(enfant.classList.contains('point-ville')) carte.removeChild(enfant);
             });
@@ -400,7 +403,7 @@
             reserve.innerHTML = "";
             
             villesVague.forEach(ville => {
-                // Créer le point sur la carte
+                // Créer le point de repère sur la carte (en utilisant le nouveau calibrage)
                 let point = document.createElement('div');
                 point.className = "point-ville";
                 point.style.left = ville.left + "%";
@@ -410,6 +413,12 @@
                 point.ondragover = autoriserDepot;
                 point.ondragenter = (e) => e.currentTarget.classList.add('survol');
                 point.ondragleave = (e) => e.currentTarget.classList.remove('survol');
+                
+                // Différencier la taille des points selon l'importance de la ville (Catégorie 1 et 2 plus gros)
+                if (ville.cat === "1" || ville.cat === "2") {
+                    point.style.width = "28px"; point.style.height = "28px"; point.style.borderColor = "#d35400";
+                }
+                
                 carte.appendChild(point);
 
                 // Créer l'étiquette dans la réserve
@@ -480,7 +489,7 @@
 
             const reserve = document.getElementById('reserve-tri'); reserve.innerHTML = "";
             
-            // On met les 20 villes direct dans la réserve
+            // On met les 20 villes direct dans la réserve, mélangées
             let villesMelangees = [...toutesLesVilles].sort(() => Math.random() - 0.5);
             
             villesMelangees.forEach(ville => {
