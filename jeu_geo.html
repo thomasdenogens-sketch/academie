@@ -37,21 +37,6 @@
         /* HUD Jeu */
         .hud-jeu { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.2rem; border: 2px solid #ecf0f1; align-items: center;}
         
-        /* Mode QCM */
-        #question-box {
-            background: #eef2f3; border: 3px dashed #3498db; border-radius: 15px;
-            padding: 25px; font-size: 1.5rem; font-weight: 900; color: #2c3e50; margin-bottom: 25px;
-        }
-        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .btn-opt {
-            background: white; border: 3px solid #bdc3c7; padding: 15px; border-radius: 15px;
-            font-size: 1.2rem; font-weight: bold; color: #34495e; cursor: pointer; transition: 0.1s;
-            box-shadow: 0 4px 0 #bdc3c7;
-        }
-        .btn-opt:active { transform: translateY(4px); box-shadow: none; }
-        .btn-opt.correct { background: #2ecc71; color: white; border-color: #27ae60; box-shadow: 0 4px 0 #219a52; }
-        .btn-opt.erreur { background: #e74c3c; color: white; border-color: #c0392b; box-shadow: 0 4px 0 #b53120; }
-
         /* --- MODE VILLES : GÉNÉRAL --- */
         .reserve-villes {
             background: #fff3cd; border: 3px dashed #f39c12; border-radius: 15px; padding: 20px;
@@ -59,41 +44,53 @@
         }
 
         .ville-tag {
-            background: white; border: 2px solid #e67e22; color: #d35400; font-weight: bold; font-size: 1.1rem;
-            padding: 8px 15px; border-radius: 20px; cursor: grab; box-shadow: 0 4px 0 #e67e22; transition: 0.1s;
-            z-index: 10;
+            background: white; border: 2px solid #e67e22; color: #d35400; font-weight: bold; font-size: 1rem;
+            padding: 5px 12px; border-radius: 15px; cursor: grab; box-shadow: 0 4px 0 #e67e22; transition: 0.1s;
+            z-index: 100;
         }
         .ville-tag:active { cursor: grabbing; transform: translateY(4px); box-shadow: none; }
         .ville-tag.erreur-anim { animation: secousse 0.4s; background: #fadbd8; border-color: #e74c3c; color: #c0392b; box-shadow: 0 4px 0 #c0392b;}
 
-        /* --- SOUS-MODE 1 : LA CARTE --- */
+        /* --- SOUS-MODE 1 : LA CARTE (AVEC ZONES INVISIBLES) --- */
         #conteneur-carte-france {
             position: relative; 
             width: 100%; 
-            max-width: 600px; 
+            max-width: 800px; 
             margin: 0 auto 10px auto;
-            /* Le curseur change pour indiquer qu'on peut cliquer pour calibrer */
-            cursor: crosshair; 
+            border: 4px solid #2ecc71; 
+            border-radius: 20px; 
+            overflow: hidden;
+            background: white;
+            cursor: crosshair; /* Curseur du mode développeur */
         }
         
         .image-carte {
             width: 100%; 
             height: auto; 
             display: block; 
-            border: 4px solid #2ecc71; 
-            border-radius: 20px;
-            /* pointer-events retiré pour que le clic fonctionne sur le conteneur */
-            opacity: 0.8;
-            background: white;
+            pointer-events: none; /* L'image ne bloque pas le clic */
+        }
+
+        /* Le Masque Blanc pour cacher le faux tableau du bas de l'image */
+        .masque-blanc {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 26%; 
+            background: white; z-index: 5;
         }
         
-        .point-ville {
-            position: absolute; width: 22px; height: 22px; background: white; border: 4px solid #e74c3c; border-radius: 50%;
-            transform: translate(-50%, -50%); cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,0.3); z-index: 5;
-            display: flex; justify-content: center; align-items: center; transition: 0.2s;
+        /* Les zones de dépôt (HTML par-dessus le dessin) */
+        .zone-invisible {
+            position: absolute;
+            width: 15%; /* Largeur de la case blanche sur l'image */
+            height: 4%;  /* Hauteur de la case blanche sur l'image */
+            background: rgba(52, 152, 219, 0.1); /* Légèrement bleuâtre pour t'aider à les voir, tu pourras mettre 0.0 à la fin pour les rendre 100% transparentes */
+            border: 2px dashed rgba(52, 152, 219, 0.5);
+            border-radius: 5px;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 10;
         }
-        .point-ville.survol { transform: translate(-50%, -50%) scale(1.3); background: #f1c40f; border-color: #d35400; }
-        .point-ville .ville-tag { position: absolute; top: -15px; box-shadow: 0 6px 15px rgba(0,0,0,0.4); }
+        .zone-invisible.survol { background: rgba(46, 204, 113, 0.4); border-color: #27ae60; }
+        .zone-invisible .ville-tag { width: 100%; height: 100%; font-size: 0.8rem; padding: 2px; box-shadow: none; border-radius: 3px; display: flex; justify-content: center; align-items: center;}
 
         /* Outil de développeur */
         #outils-dev { font-family: monospace; font-size: 1.1rem; color: #27ae60; margin-bottom: 20px; background: #eafaf1; padding: 5px 15px; border-radius: 10px; border: 2px dashed #2ecc71; display: inline-block;}
@@ -114,7 +111,6 @@
         .zone-tri-box[data-cat="2"] .titre-tri { color: #d35400; border-color: #e67e22; }
         .zone-tri-box[data-cat="3"] .titre-tri { color: #27ae60; border-color: #2ecc71; }
         .zone-tri-box[data-cat="4"] .titre-tri { color: #2980b9; border-color: #3498db; }
-        
         .conteneur-tags-deposes { display: flex; flex-direction: column; gap: 8px; width: 100%; align-items: center;}
 
         /* Boutons de base */
@@ -123,7 +119,6 @@
         .btn-primaire { background: #27ae60; box-shadow: 0 4px #219a52; margin-top: 10px; font-size: 1.3rem; padding: 15px 30px;}
         
         #feedback-villes { font-size: 1.4rem; font-weight: 900; height: 35px; margin-bottom: 15px; color:#27ae60;}
-
         .ecran { display: none; }
         .ecran.actif { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
@@ -141,14 +136,6 @@
             <p class="sous-titre">Programme de Géographie CM2</p>
             
             <div class="grid-niveaux">
-                <button class="btn-niveau" onclick="lancerJeu('niveau1', '🇫🇷 Mission France')">
-                    <span class="niveau-icon">🇫🇷</span>
-                    <div>
-                        <div style="color: #2980b9; font-size: 1.3rem;">Niveau 1 : Mission France</div>
-                        <div style="font-size: 0.9rem; color: #7f8c8d; font-weight: normal;">Révisions : Fleuves, massifs et frontières.</div>
-                    </div>
-                </button>
-
                 <button class="btn-niveau" style="border-color: #2ecc71; background: #f0fdf4;" onclick="changerEcran('ecran-menu-cartographe')">
                     <span class="niveau-icon">🏙️</span>
                     <div>
@@ -156,17 +143,7 @@
                         <div style="font-size: 0.9rem; color: #7f8c8d; font-weight: normal;">Localise et trie les 20 grandes agglomérations.</div>
                     </div>
                 </button>
-
-                <button class="btn-niveau" onclick="lancerJeu('niveau2', '🇪🇺 Mission Europe')">
-                    <span class="niveau-icon">🇪🇺</span>
-                    <div>
-                        <div style="color: #2980b9; font-size: 1.3rem;">Niveau 3 : Mission Europe</div>
-                        <div style="font-size: 0.9rem; color: #7f8c8d; font-weight: normal;">L'Union Européenne, les pays et capitales.</div>
-                    </div>
-                </button>
             </div>
-
-            <button class="btn-nav" onclick="window.location.href='index.html'">🏠 Retour à l'Académie</button>
         </div>
 
         <!-- SOUS-MENU : NIVEAU 2 CARTOGRAPHE -->
@@ -179,7 +156,7 @@
                     <span class="niveau-icon">📍</span>
                     <div>
                         <div style="color: #2980b9; font-size: 1.3rem;">Étape 1 : Localisation</div>
-                        <div style="font-size: 0.9rem; color: #7f8c8d; font-weight: normal;">Place les villes sur la carte de France.</div>
+                        <div style="font-size: 0.9rem; color: #7f8c8d; font-weight: normal;">Place les villes sur la carte (Devoir Visuel).</div>
                     </div>
                 </button>
                 <button class="btn-niveau" style="border-color: #f39c12; background: #fef9e7;" onclick="lancerModeTri()">
@@ -191,20 +168,7 @@
                 </button>
             </div>
             
-            <button class="btn-nav" style="margin-top: 20px;" onclick="changerEcran('ecran-hub')">⬅️ Retour au choix des missions</button>
-        </div>
-
-        <!-- ECRAN DE JEU QCM -->
-        <div id="ecran-jeu" class="ecran">
-            <div class="hud-jeu">
-                <span id="ui-vies-qcm" style="letter-spacing: 3px; color:#e74c3c;">❤️❤️❤️</span>
-                <span id="ui-titre-niveau" style="color: #2980b9;">Niveau...</span>
-                <span id="ui-progression-qcm">1 / 5</span>
-            </div>
-            <div id="question-box">Chargement de la question...</div>
-            <div id="zone-boutons" class="options-grid"></div>
-            <div id="feedback-qcm" style="font-size: 1.4rem; font-weight: 900; height: 35px; margin-bottom: 15px;"></div>
-            <button class="btn-nav" onclick="changerEcran('ecran-hub')">⬅️ Quitter la mission</button>
+            <button class="btn-nav" style="margin-top: 20px;" onclick="changerEcran('ecran-hub')">⬅️ Retour</button>
         </div>
 
         <!-- ECRAN : CARTOGRAPHE (LOCALISATION SUR CARTE) -->
@@ -215,19 +179,23 @@
                 <span id="ui-progression-carte">Série 1 / 4</span>
             </div>
 
-            <p style="font-weight: bold; color: #34495e; margin-bottom: 10px; font-size: 1.1rem;">Glisse le nom de la ville sur le bon point rouge sur la carte !</p>
+            <p style="font-weight: bold; color: #34495e; margin-bottom: 10px; font-size: 1.1rem;">Glisse le nom de la ville DANS LA CASE BLANCHE correspondante !</p>
             
-            <!-- OUTIL CACHÉ POUR TOI -->
-            <div id="outils-dev">💡 Outil Parents : Clique sur la carte pour voir ses coordonnées !</div>
+            <div id="outils-dev">💡 Outil de réglage : Clique sur l'image pour voir les coordonnées de la case !</div>
 
             <div id="conteneur-carte-france">
-                <img src="france-contours-vierge-echelle.jpg" class="image-carte" alt="Carte de France" draggable="false">
-                <!-- Les points géolocalisés seront placés ici par JS -->
+                <!-- TON IMAGE PERSONNELLE -->
+                <img src="d609c0e9-aeb9-477f-a82a-4bf871fb48d6.webp" class="image-carte" alt="Carte de France avec cases" draggable="false">
+                
+                <!-- Le masque blanc pour cacher le tableau de l'image -->
+                <div class="masque-blanc"></div>
+
+                <!-- Les zones de dépôt (HTML par-dessus les cases dessinées) injectées ici par JS -->
             </div>
 
             <div class="reserve-villes" id="reserve-carte" ondrop="deposerVilleCarte(event)" ondragover="autoriserDepot(event)"></div>
 
-            <div id="feedback-carte" style="font-size: 1.3rem; font-weight: bold; height: 30px; color:#27ae60;"></div>
+            <div id="feedback-carte"></div>
 
             <button class="btn-nav btn-primaire" onclick="validerCarte()">✅ Valider la série</button>
             <br>
@@ -277,47 +245,50 @@
         const DB_URL = `${FIREBASE_URL}scores/theo/geoSaveV1.json`;
 
         let profil = { xp: 0 };
-        
-        const bddGeographie = {
-            niveau1: [
-                { q: "Quel est le plus long fleuve de France ?", rep: "La Loire", faux: ["Le Rhône", "La Seine", "La Garonne"] },
-                { q: "Quelle chaîne de montagnes sépare la France de l'Espagne ?", rep: "Les Pyrénées", faux: ["Les Alpes", "Le Jura", "Le Massif Central"] },
-                { q: "Quel océan borde la côte ouest de la France ?", rep: "L'Océan Atlantique", faux: ["La Mer Méditerranée", "La Manche", "L'Océan Pacifique"] },
-                { q: "Quelle est la plus haute montagne de France et d'Europe ?", rep: "Le Mont Blanc", faux: ["Le Mont Ventoux", "Le Pic du Midi", "Le Piton des Neiges"] },
-                { q: "Quel fleuve traverse Paris ?", rep: "La Seine", faux: ["Le Rhône", "La Loire", "Le Rhin"] }
-            ],
-            niveau2: [
-                { q: "Combien de pays font partie de l'Union Européenne (en 2024) ?", rep: "27", faux: ["15", "50", "32"] },
-                { q: "Quelle est la capitale de l'Allemagne ?", rep: "Berlin", faux: ["Munich", "Vienne", "Francfort"] }
-            ]
-        };
 
-        // --- NOUVEAU CALIBRAGE (Réévalué d'après ta capture d'écran) ---
+        // --- LES 20 VILLES ET L'EMPLACEMENT DES ZONES INVISIBLES (Adapté à d609c0e9-aeb9-477f-a82a-4bf871fb48d6.webp) ---
+        // Top et Left définissent la position de la zone transparente qui vient se coller sur la case blanche dessinée dans ton image.
         const toutesLesVilles = [
-            { nom: "Lille", cat: "3", top: 10, left: 54 },
-            { nom: "Paris", cat: "1", top: 30, left: 51 },
-            { nom: "Strasbourg", cat: "3", top: 32, left: 86 },
-            { nom: "Rennes", cat: "3", top: 38, left: 26 },
-            { nom: "Nantes", cat: "3", top: 47, left: 24 },
-            { nom: "Angers", cat: "4", top: 47, left: 32 },
-            { nom: "Le Havre", cat: "4", top: 24, left: 41 },
-            { nom: "Reims", cat: "4", top: 28, left: 63 },
-            { nom: "Dijon", cat: "4", top: 46, left: 68 },
-            { nom: "Lyon", cat: "2", top: 59, left: 68 },
-            { nom: "Villeurbanne", cat: "4", top: 58, left: 69 }, 
-            { nom: "Saint-Étienne", cat: "4", top: 62, left: 64 },
-            { nom: "Grenoble", cat: "4", top: 65, left: 75 },
-            { nom: "Bordeaux", cat: "3", top: 70, left: 30 },
-            { nom: "Toulouse", cat: "2", top: 79, left: 47 },
-            { nom: "Montpellier", cat: "3", top: 82, left: 61 },
-            { nom: "Nîmes", cat: "4", top: 79, left: 64 },
-            { nom: "Marseille", cat: "2", top: 85, left: 71 },
-            { nom: "Toulon", cat: "4", top: 87, left: 75 },
-            { nom: "Nice", cat: "3", top: 82, left: 86 }
+            { nom: "Lille", cat: "3", top: 10, left: 61 },
+            { nom: "Paris", cat: "1", top: 25, left: 56 },
+            { nom: "Strasbourg", cat: "3", top: 29, left: 88 },
+            { nom: "Rennes", cat: "3", top: 35, left: 10 },
+            { nom: "Nantes", cat: "3", top: 45, left: 13 },
+            { nom: "Angers", cat: "4", top: 44, left: 39 },
+            { nom: "Le Havre", cat: "4", top: 23, left: 24 },
+            { nom: "Reims", cat: "4", top: 25, left: 70 },
+            { nom: "Dijon", cat: "4", top: 43, left: 70 },
+            { nom: "Lyon", cat: "2", top: 51, left: 49 },
+            { nom: "Villeurbanne", cat: "4", top: 54, left: 79 }, 
+            { nom: "Saint-Étienne", cat: "4", top: 55, left: 45 },
+            { nom: "Grenoble", cat: "4", top: 64, left: 78 },
+            { nom: "Bordeaux", cat: "3", top: 64, left: 18 },
+            { nom: "Toulouse", cat: "2", top: 73, left: 37 },
+            { nom: "Montpellier", cat: "3", top: 76, left: 51 },
+            { nom: "Nîmes", cat: "4", top: 70, left: 64 },
+            { nom: "Marseille", cat: "2", top: 79, left: 63 },
+            { nom: "Toulon", cat: "4", top: 82, left: 80 },
+            { nom: "Nice", cat: "3", top: 76, left: 87 }
         ];
 
-        let niveauActuelId = ""; let indexQuestion = 0; let vies = 3; let bloque = false; let sacQuestions = [];
+        let vies = 3; let bloque = false;
         let villesAFaire = []; let vagueActuelle = 0; let nbVagues = 4;
+
+        // --- OUTIL DE DÉVELOPPEMENT (Clique pour trouver les bonnes coordonnées) ---
+        document.getElementById('conteneur-carte-france').addEventListener('click', function(e) {
+            // N'agit que si on clique sur l'image elle-même, pas sur un bouton déposé
+            if (e.target.classList.contains('zone-invisible') || e.target.classList.contains('ville-tag')) return;
+            
+            let rect = this.getBoundingClientRect();
+            let y = e.clientY - rect.top;
+            let x = e.clientX - rect.left;
+            
+            // Calcul du point cliqué en pourcentage de la hauteur/largeur totale de l'image
+            let topPercent = Math.round((y / rect.height) * 100);
+            let leftPercent = Math.round((x / rect.width) * 100);
+            
+            document.getElementById('outils-dev').innerHTML = `📍 Tu as cliqué sur : <strong style="color:#d35400;">top: ${topPercent}, left: ${leftPercent}</strong>`;
+        });
 
         async function chargerProfilCloud() {
             try { let res = await fetch(DB_URL); let data = await res.json(); if (data && data.xp !== undefined) profil.xp = parseInt(data.xp) || 0; } catch(e) {}
@@ -331,74 +302,10 @@
 
         function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); document.getElementById(id).classList.add('actif'); }
 
-        // --- MOTEUR QCM CLASSIQUE ---
-        function lancerJeu(idNiveau, titreNiveau) {
-            niveauActuelId = idNiveau; indexQuestion = 0; vies = 3; bloque = false; sacQuestions = [];
-            document.getElementById('ui-titre-niveau').textContent = titreNiveau;
-            document.getElementById('ui-vies-qcm').textContent = "❤️❤️❤️";
-            changerEcran('ecran-jeu');
-            poserQuestion();
-        }
-
-        function poserQuestion() {
-            if (vies <= 0) { alert("Fin de l'expédition ! Plus de vies. 🌍"); return changerEcran('ecran-hub'); }
-            if (indexQuestion >= 5) { alert("Mission accomplie ! 🎉 (+15 XP)"); sauverProfilCloud(15); return changerEcran('ecran-hub'); }
-
-            bloque = false; indexQuestion++;
-            document.getElementById('ui-progression-qcm').textContent = `${indexQuestion} / 5`;
-            document.getElementById('feedback-qcm').textContent = "";
-            
-            let bddNiveau = bddGeographie[niveauActuelId];
-            if (sacQuestions.length === 0) sacQuestions = [...bddNiveau].sort(() => Math.random() - 0.5);
-            let questionEnCours = sacQuestions.pop();
-
-            document.getElementById('question-box').textContent = questionEnCours.q;
-
-            let options = [questionEnCours.rep, ...questionEnCours.faux].sort(() => Math.random() - 0.5);
-            const zoneBoutons = document.getElementById('zone-boutons'); zoneBoutons.innerHTML = "";
-            
-            options.forEach(opt => {
-                let btn = document.createElement('button'); btn.className = "btn-opt"; btn.textContent = opt;
-                btn.onclick = () => {
-                    if (bloque) return; bloque = true;
-                    if (opt === questionEnCours.rep) {
-                        btn.classList.add('correct'); document.getElementById('feedback-qcm').textContent = "Exact !"; document.getElementById('feedback-qcm').style.color = "#27ae60";
-                        sauverProfilCloud(3); setTimeout(poserQuestion, 1000);
-                    } else {
-                        btn.classList.add('erreur'); vies--; document.getElementById('ui-vies-qcm').textContent = "❤️".repeat(vies) + "🖤".repeat(3-vies);
-                        document.getElementById('feedback-qcm').textContent = `La réponse était : ${questionEnCours.rep}`; document.getElementById('feedback-qcm').style.color = "#c0392b";
-                        document.querySelectorAll('.btn-opt').forEach(b => { if (b.textContent === questionEnCours.rep) b.classList.add('correct'); });
-                        setTimeout(poserQuestion, 2500);
-                    }
-                };
-                zoneBoutons.appendChild(btn);
-            });
-        }
-
         function attraperVille(event) { event.dataTransfer.setData("text", event.target.id); }
         function autoriserDepot(event) { event.preventDefault(); }
 
-        // --- OUTIL DE CALIBRAGE PARENT (CLIC SUR LA CARTE) ---
-        document.getElementById('conteneur-carte-france').addEventListener('click', function(e) {
-            // Empêcher l'outil de s'activer si on clique juste sur un point rouge
-            if (e.target.classList.contains('point-ville') || e.target.classList.contains('ville-tag')) return;
-            
-            let rect = this.getBoundingClientRect();
-            // On calcule où se trouve le clic à l'intérieur du conteneur
-            let y = e.clientY - rect.top;
-            let x = e.clientX - rect.left;
-            
-            // On transforme en pourcentage
-            let topPercent = Math.round((y / rect.height) * 100);
-            let leftPercent = Math.round((x / rect.width) * 100);
-            
-            // Affichage dans le petit panneau vert
-            document.getElementById('outils-dev').innerHTML = `📍 Tu as cliqué sur : <strong style="color:#d35400;">top: ${topPercent}, left: ${leftPercent}</strong>`;
-            console.log(`{ nom: "VILLE", cat: "X", top: ${topPercent}, left: ${leftPercent} }`);
-        });
-
-
-        // --- MODE CARTOGRAPHE : LOCALISATION ---
+        // --- MODE CARTOGRAPHE : LOCALISATION (ZONES INVISIBLES) ---
         function lancerModeCarte() {
             vies = 3; vagueActuelle = 0; bloque = false;
             document.getElementById('ui-vies-carte').textContent = "❤️❤️❤️";
@@ -420,30 +327,30 @@
             let villesVague = villesAFaire.splice(0, 5);
             const carte = document.getElementById('conteneur-carte-france');
             
+            // Nettoyage des anciennes zones
             Array.from(carte.children).forEach(enfant => {
-                if(enfant.classList.contains('point-ville')) carte.removeChild(enfant);
+                if(enfant.classList.contains('zone-invisible')) carte.removeChild(enfant);
             });
 
             const reserve = document.getElementById('reserve-carte'); 
             reserve.innerHTML = "";
             
             villesVague.forEach(ville => {
-                let point = document.createElement('div');
-                point.className = "point-ville";
-                point.style.left = ville.left + "%";
-                point.style.top = ville.top + "%";
-                point.dataset.ville = ville.nom;
-                point.ondrop = deposerVilleCarte;
-                point.ondragover = autoriserDepot;
-                point.ondragenter = (e) => e.currentTarget.classList.add('survol');
-                point.ondragleave = (e) => e.currentTarget.classList.remove('survol');
+                // Création de la ZONE INVISIBLE par-dessus la case de l'image
+                let zone = document.createElement('div');
+                zone.className = "zone-invisible";
+                // Les coordonnées viennent de la base de données
+                zone.style.left = ville.left + "%";
+                zone.style.top = ville.top + "%";
+                zone.dataset.ville = ville.nom;
+                zone.ondrop = deposerVilleCarte;
+                zone.ondragover = autoriserDepot;
+                zone.ondragenter = (e) => e.currentTarget.classList.add('survol');
+                zone.ondragleave = (e) => e.currentTarget.classList.remove('survol');
                 
-                if (ville.cat === "1" || ville.cat === "2") {
-                    point.style.width = "28px"; point.style.height = "28px"; point.style.borderColor = "#c0392b";
-                }
-                
-                carte.appendChild(point);
+                carte.appendChild(zone);
 
+                // Création du bouton à glisser
                 let tag = document.createElement('div'); tag.className = "ville-tag"; tag.draggable = true;
                 tag.id = "tag-carte-" + ville.nom.replace(/\s+/g, '-'); tag.textContent = ville.nom; tag.dataset.ville = ville.nom;
                 tag.ondragstart = attraperVille; reserve.appendChild(tag);
@@ -459,7 +366,8 @@
             let tag = document.getElementById(idTag);
             
             if (tag) {
-                if (cible.classList.contains('point-ville')) {
+                if (cible.classList.contains('zone-invisible')) {
+                    // Si la case est vide, on l'insère
                     if(cible.children.length === 0) cible.appendChild(tag);
                 } 
                 else if (cible.id === 'reserve-carte') {
@@ -472,16 +380,16 @@
             if (bloque) return;
             const reserve = document.getElementById('reserve-carte');
             if (reserve.children.length > 0) {
-                document.getElementById('feedback-carte').textContent = "Place toutes les villes sur les points rouges !";
+                document.getElementById('feedback-carte').textContent = "Remplis toutes les cases colorées de la carte !";
                 document.getElementById('feedback-carte').style.color = "#d35400";
                 return;
             }
 
             bloque = true; let toutBon = true;
             
-            document.querySelectorAll('.point-ville').forEach(point => {
-                let tag = point.children[0];
-                if (tag && tag.dataset.ville !== point.dataset.ville) {
+            document.querySelectorAll('.zone-invisible').forEach(zone => {
+                let tag = zone.children[0];
+                if (tag && tag.dataset.ville !== zone.dataset.ville) {
                     toutBon = false; tag.classList.add('erreur-anim');
                     setTimeout(() => { tag.classList.remove('erreur-anim'); reserve.appendChild(tag); }, 1000);
                 }
@@ -493,7 +401,7 @@
                 setTimeout(vagueCarte, 1200);
             } else {
                 vies--; document.getElementById('ui-vies-carte').textContent = "❤️".repeat(vies) + "🖤".repeat(3-vies);
-                fb.textContent = "Aïe, des villes sont mal placées !"; fb.style.color = "#c0392b";
+                fb.textContent = "Aïe, des villes sont dans la mauvaise case !"; fb.style.color = "#c0392b";
                 setTimeout(() => { bloque = false; fb.textContent = ""; }, 1500);
             }
         }
