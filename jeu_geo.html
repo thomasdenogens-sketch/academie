@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <title>Géographie CM2 - L'Académie</title>
     <style>
+        /* Importation d'une police agréable pour la lecture */
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        
         body { 
             font-family: 'Nunito', sans-serif; 
             background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%); 
@@ -20,10 +22,12 @@
         
         h1 { color: #2980b9; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px; }
         .sous-titre { color: #7f8c8d; margin-bottom: 25px; font-weight: 700; font-size: 1.1rem;}
-        
         .xp-badge { position: absolute; top: 20px; right: 25px; font-weight: 900; background: #fff3cd; color: #f39c12; padding: 8px 15px; border-radius: 20px; border: 2px solid #ffeeba; font-size: 1.1rem;}
 
-        /* Menu Hub Niveaux */
+        /* HUD Jeu (Bandeau de progression) */
+        .hud-jeu { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.2rem; border: 2px solid #ecf0f1; align-items: center;}
+        
+        /* Boutons des menus */
         .grid-niveaux { display: flex; flex-direction: column; gap: 15px; max-width: 700px; margin: 0 auto 30px auto; }
         .btn-niveau {
             background: #f8f9fa; border: 3px solid #bdc3c7; padding: 20px; border-radius: 15px;
@@ -31,71 +35,58 @@
             display: flex; align-items: center; gap: 20px; text-align: left;
         }
         .btn-niveau:hover { background: #ebf5fb; border-color: #3498db; transform: translateX(5px); }
-        .btn-niveau:active { transform: translateY(2px); }
-        .niveau-icon { font-size: 2.5rem; }
 
-        /* HUD Jeu */
-        .hud-jeu { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 1.2rem; border: 2px solid #ecf0f1; align-items: center;}
-        
-        /* --- MODE VILLES : GÉNÉRAL --- */
+        /* Les étiquettes de villes à glisser (Drag & Drop) */
         .reserve-villes {
             background: #fff3cd; border: 3px dashed #f39c12; border-radius: 15px; padding: 20px;
             display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; min-height: 90px; margin-bottom: 20px;
         }
-
         .ville-tag {
             background: white; border: 2px solid #e67e22; color: #d35400; font-weight: bold; font-size: 1rem;
             padding: 5px 12px; border-radius: 15px; cursor: grab; box-shadow: 0 4px 0 #e67e22; transition: 0.1s;
             z-index: 100;
         }
         .ville-tag:active { cursor: grabbing; transform: translateY(4px); box-shadow: none; }
-        .ville-tag.erreur-anim { animation: secousse 0.4s; background: #fadbd8; border-color: #e74c3c; color: #c0392b; box-shadow: 0 4px 0 #c0392b;}
+        .ville-tag.erreur-anim { animation: secousse 0.4s; background: #fadbd8; border-color: #e74c3c; color: #c0392b;}
 
-        /* --- SOUS-MODE 1 : LA CARTE (AVEC ZONES INVISIBLES) --- */
+        /* --- LE CONTENEUR DE LA CARTE (Structure robuste) --- */
         #conteneur-carte-france {
-            position: relative; 
+            position: relative; /* Indispensable pour que les zones se placent par rapport à lui */
             width: 100%; 
             max-width: 800px; 
-            margin: 0 auto 10px auto;
+            margin: 0 auto 20px auto;
             border: 4px solid #2ecc71; 
-            border-radius: 20px; 
+            border-radius: 10px; 
             overflow: hidden;
-            background: white;
+            line-height: 0; /* Élimine l'espace invisible sous l'image */
             cursor: crosshair; /* Curseur du mode développeur */
         }
         
         .image-carte {
             width: 100%; 
-            height: auto; 
+            height: auto; /* L'image garde ses vraies proportions */
             display: block; 
-            pointer-events: none; /* L'image ne bloque pas le clic */
-        }
-
-        /* Le Masque Blanc pour cacher le faux tableau du bas de l'image */
-        .masque-blanc {
-            position: absolute;
-            bottom: 0; left: 0; width: 100%; height: 26%; 
-            background: white; z-index: 5;
+            pointer-events: none; /* Empêche le drag natif de l'image */
         }
         
-        /* Les zones de dépôt (HTML par-dessus le dessin) */
+        /* Les zones de dépôt (HTML par-dessus les cases dessinées) */
         .zone-invisible {
             position: absolute;
-            width: 15%; /* Largeur de la case blanche sur l'image */
-            height: 4%;  /* Hauteur de la case blanche sur l'image */
-            background: rgba(52, 152, 219, 0.1); /* Légèrement bleuâtre pour t'aider à les voir, tu pourras mettre 0.0 à la fin pour les rendre 100% transparentes */
-            border: 2px dashed rgba(52, 152, 219, 0.5);
-            border-radius: 5px;
+            width: 14%; /* Taille ajustée pour correspondre aux boîtes de l'image */
+            height: 3.5%;
+            background: rgba(52, 152, 219, 0.2); /* Teinte bleutée pour bien voir les cases */
+            border: 2px solid #3498db;
+            border-radius: 3px;
             display: flex; justify-content: center; align-items: center;
             z-index: 10;
         }
-        .zone-invisible.survol { background: rgba(46, 204, 113, 0.4); border-color: #27ae60; }
-        .zone-invisible .ville-tag { width: 100%; height: 100%; font-size: 0.8rem; padding: 2px; box-shadow: none; border-radius: 3px; display: flex; justify-content: center; align-items: center;}
+        .zone-invisible.survol { background: rgba(46, 204, 113, 0.5); border-color: #27ae60; }
+        .zone-invisible .ville-tag { width: 100%; height: 100%; font-size: 0.8rem; padding: 2px; box-shadow: none; border-radius: 0; display: flex; justify-content: center; align-items: center;}
 
-        /* Outil de développeur */
-        #outils-dev { font-family: monospace; font-size: 1.1rem; color: #27ae60; margin-bottom: 20px; background: #eafaf1; padding: 5px 15px; border-radius: 10px; border: 2px dashed #2ecc71; display: inline-block;}
+        /* Outil de développeur affiché en bas de carte */
+        #outils-dev { font-family: monospace; font-size: 1rem; color: #27ae60; margin-bottom: 20px; background: #eafaf1; padding: 5px 15px; border-radius: 10px; border: 2px dashed #2ecc71; display: inline-block;}
 
-        /* --- SOUS-MODE 2 : LE TRI --- */
+        /* --- ZONES DU TRI DÉMOGRAPHIQUE --- */
         .zones-tri-population { 
             display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; 
             align-items: stretch;
@@ -119,6 +110,7 @@
         .btn-primaire { background: #27ae60; box-shadow: 0 4px #219a52; margin-top: 10px; font-size: 1.3rem; padding: 15px 30px;}
         
         #feedback-villes { font-size: 1.4rem; font-weight: 900; height: 35px; margin-bottom: 15px; color:#27ae60;}
+        
         .ecran { display: none; }
         .ecran.actif { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
@@ -156,7 +148,7 @@
                     <span class="niveau-icon">📍</span>
                     <div>
                         <div style="color: #2980b9; font-size: 1.3rem;">Étape 1 : Localisation</div>
-                        <div style="font-size: 0.9rem; color: #7f8c8d; font-weight: normal;">Place les villes sur la carte (Devoir Visuel).</div>
+                        <div style="font-size: 0.9rem; color: #7f8c8d; font-weight: normal;">Place les villes dans les cases de la carte.</div>
                     </div>
                 </button>
                 <button class="btn-niveau" style="border-color: #f39c12; background: #fef9e7;" onclick="lancerModeTri()">
@@ -179,18 +171,14 @@
                 <span id="ui-progression-carte">Série 1 / 4</span>
             </div>
 
-            <p style="font-weight: bold; color: #34495e; margin-bottom: 10px; font-size: 1.1rem;">Glisse le nom de la ville DANS LA CASE BLANCHE correspondante !</p>
+            <p style="font-weight: bold; color: #34495e; margin-bottom: 10px; font-size: 1.1rem;">Glisse le nom de la ville DANS LA CASE correspondante !</p>
             
-            <div id="outils-dev">💡 Outil de réglage : Clique sur l'image pour voir les coordonnées de la case !</div>
+            <div id="outils-dev">💡 Outil Développeur : Clique sur une case de l'image pour voir ses coordonnées.</div>
 
+            <!-- LE CONTENEUR PROTECTEUR DE L'IMAGE -->
             <div id="conteneur-carte-france">
-                <!-- TON IMAGE PERSONNELLE -->
-                <img src="d609c0e9-aeb9-477f-a82a-4bf871fb48d6.webp" class="image-carte" alt="Carte de France avec cases" draggable="false">
-                
-                <!-- Le masque blanc pour cacher le tableau de l'image -->
-                <div class="masque-blanc"></div>
-
-                <!-- Les zones de dépôt (HTML par-dessus les cases dessinées) injectées ici par JS -->
+                <img src="d609c0e9-aeb9-477f-a82a-4bf871fb48d6.webp" class="image-carte" alt="Carte de France vierge" draggable="false">
+                <!-- Les zones HTML viendront se superposer ici par JavaScript -->
             </div>
 
             <div class="reserve-villes" id="reserve-carte" ondrop="deposerVilleCarte(event)" ondragover="autoriserDepot(event)"></div>
@@ -208,7 +196,7 @@
                 <span style="color: #d35400; font-size: 1.3rem;">Classement Démographique</span>
             </div>
 
-            <p style="font-weight: bold; color: #e67e22; margin-bottom: 15px; font-size: 1.1rem;">Trie les 20 agglomérations dans la bonne catégorie de population.</p>
+            <p style="font-weight: bold; color: #e67e22; margin-bottom: 15px; font-size: 1.1rem;">Ignore le tableau de l'image et utilise ces 4 colonnes pour ranger les 20 villes.</p>
 
             <div class="reserve-villes" id="reserve-tri" ondrop="deposerVilleTri(event)" ondragover="autoriserDepot(event)" style="border-color:#3498db; background:#ebf5fb;"></div>
 
@@ -246,48 +234,48 @@
 
         let profil = { xp: 0 };
 
-        // --- LES 20 VILLES ET L'EMPLACEMENT DES ZONES INVISIBLES (Adapté à d609c0e9-aeb9-477f-a82a-4bf871fb48d6.webp) ---
-        // Top et Left définissent la position de la zone transparente qui vient se coller sur la case blanche dessinée dans ton image.
+        // --- LES 20 VILLES ET LEURS COORDONNÉES EXACTES ---
+        // Coordonnées calculées par rapport aux dimensions de l'image (d609c0e9-aeb9-477f-a82a-4bf871fb48d6.webp)
         const toutesLesVilles = [
-            { nom: "Lille", cat: "3", top: 10, left: 61 },
-            { nom: "Paris", cat: "1", top: 25, left: 56 },
+            { nom: "Lille", cat: "3", top: 12, left: 63 },
+            { nom: "Paris", cat: "1", top: 26, left: 47 },
             { nom: "Strasbourg", cat: "3", top: 29, left: 88 },
-            { nom: "Rennes", cat: "3", top: 35, left: 10 },
-            { nom: "Nantes", cat: "3", top: 45, left: 13 },
-            { nom: "Angers", cat: "4", top: 44, left: 39 },
-            { nom: "Le Havre", cat: "4", top: 23, left: 24 },
-            { nom: "Reims", cat: "4", top: 25, left: 70 },
-            { nom: "Dijon", cat: "4", top: 43, left: 70 },
-            { nom: "Lyon", cat: "2", top: 51, left: 49 },
-            { nom: "Villeurbanne", cat: "4", top: 54, left: 79 }, 
-            { nom: "Saint-Étienne", cat: "4", top: 55, left: 45 },
-            { nom: "Grenoble", cat: "4", top: 64, left: 78 },
-            { nom: "Bordeaux", cat: "3", top: 64, left: 18 },
-            { nom: "Toulouse", cat: "2", top: 73, left: 37 },
-            { nom: "Montpellier", cat: "3", top: 76, left: 51 },
-            { nom: "Nîmes", cat: "4", top: 70, left: 64 },
-            { nom: "Marseille", cat: "2", top: 79, left: 63 },
-            { nom: "Toulon", cat: "4", top: 82, left: 80 },
-            { nom: "Nice", cat: "3", top: 76, left: 87 }
+            { nom: "Rennes", cat: "3", top: 37, left: 19 },
+            { nom: "Nantes", cat: "3", top: 45, left: 21 },
+            { nom: "Angers", cat: "4", top: 45, left: 45 },
+            { nom: "Le Havre", cat: "4", top: 24, left: 32 },
+            { nom: "Reims", cat: "4", top: 25, left: 71 },
+            { nom: "Dijon", cat: "4", top: 44, left: 71 },
+            { nom: "Lyon", cat: "2", top: 52, left: 49 },
+            { nom: "Villeurbanne", cat: "4", top: 54, left: 80 }, 
+            { nom: "Saint-Étienne", cat: "4", top: 58, left: 45 },
+            { nom: "Grenoble", cat: "4", top: 65, left: 80 },
+            { nom: "Bordeaux", cat: "3", top: 66, left: 22 },
+            { nom: "Toulouse", cat: "2", top: 75, left: 39 },
+            { nom: "Montpellier", cat: "3", top: 79, left: 52 },
+            { nom: "Nîmes", cat: "4", top: 71, left: 66 },
+            { nom: "Marseille", cat: "2", top: 82, left: 64 },
+            { nom: "Toulon", cat: "4", top: 84, left: 80 },
+            { nom: "Nice", cat: "3", top: 78, left: 89 }
         ];
 
         let vies = 3; let bloque = false;
         let villesAFaire = []; let vagueActuelle = 0; let nbVagues = 4;
 
-        // --- OUTIL DE DÉVELOPPEMENT (Clique pour trouver les bonnes coordonnées) ---
+        // --- L'OUTIL DU DÉVELOPPEUR : POUR AJUSTER LES COORDONNÉES EN 1 CLIC ---
         document.getElementById('conteneur-carte-france').addEventListener('click', function(e) {
-            // N'agit que si on clique sur l'image elle-même, pas sur un bouton déposé
+            // Empêche le déclenchement si on clique sur une zone de dépôt
             if (e.target.classList.contains('zone-invisible') || e.target.classList.contains('ville-tag')) return;
             
             let rect = this.getBoundingClientRect();
             let y = e.clientY - rect.top;
             let x = e.clientX - rect.left;
             
-            // Calcul du point cliqué en pourcentage de la hauteur/largeur totale de l'image
+            // Calcul du pourcentage strict
             let topPercent = Math.round((y / rect.height) * 100);
             let leftPercent = Math.round((x / rect.width) * 100);
             
-            document.getElementById('outils-dev').innerHTML = `📍 Tu as cliqué sur : <strong style="color:#d35400;">top: ${topPercent}, left: ${leftPercent}</strong>`;
+            document.getElementById('outils-dev').innerHTML = `📍 Clic détecté -> <strong style="color:#d35400;">top: ${topPercent}, left: ${leftPercent}</strong>`;
         });
 
         async function chargerProfilCloud() {
@@ -327,7 +315,7 @@
             let villesVague = villesAFaire.splice(0, 5);
             const carte = document.getElementById('conteneur-carte-france');
             
-            // Nettoyage des anciennes zones
+            // Nettoyage des anciennes zones (on garde l'image de fond)
             Array.from(carte.children).forEach(enfant => {
                 if(enfant.classList.contains('zone-invisible')) carte.removeChild(enfant);
             });
@@ -339,7 +327,6 @@
                 // Création de la ZONE INVISIBLE par-dessus la case de l'image
                 let zone = document.createElement('div');
                 zone.className = "zone-invisible";
-                // Les coordonnées viennent de la base de données
                 zone.style.left = ville.left + "%";
                 zone.style.top = ville.top + "%";
                 zone.dataset.ville = ville.nom;
@@ -367,7 +354,6 @@
             
             if (tag) {
                 if (cible.classList.contains('zone-invisible')) {
-                    // Si la case est vide, on l'insère
                     if(cible.children.length === 0) cible.appendChild(tag);
                 } 
                 else if (cible.id === 'reserve-carte') {
