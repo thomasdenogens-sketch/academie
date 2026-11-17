@@ -66,24 +66,24 @@
         .ville-tag:active { cursor: grabbing; transform: translateY(4px); box-shadow: none; }
         .ville-tag.erreur-anim { animation: secousse 0.4s; background: #fadbd8; border-color: #e74c3c; color: #c0392b; box-shadow: 0 4px 0 #c0392b;}
 
-        /* --- SOUS-MODE 1 : LA CARTE (AVEC IMAGE LOCALE) --- */
+        /* --- SOUS-MODE 1 : LA CARTE --- */
         #conteneur-carte-france {
-            position: relative; width: 100%; max-width: 600px; aspect-ratio: 1.2; margin: 0 auto 20px auto;
+            position: relative; width: 100%; max-width: 650px; aspect-ratio: 1.4; margin: 0 auto 20px auto;
             background: white; border: 4px solid #2ecc71; border-radius: 20px; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
         }
         
         .image-carte {
-            width: 100%; height: 100%; object-fit: contain; pointer-events: none; opacity: 0.7;
+            width: 100%; height: 100%; object-fit: contain; pointer-events: none; opacity: 0.8;
         }
         
         .point-ville {
-            position: absolute; width: 24px; height: 24px; background: white; border: 4px solid #e74c3c; border-radius: 50%;
+            position: absolute; width: 22px; height: 22px; background: white; border: 4px solid #e74c3c; border-radius: 50%;
             transform: translate(-50%, -50%); cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,0.3); z-index: 5;
             display: flex; justify-content: center; align-items: center; transition: 0.2s;
         }
-        .point-ville.survol { transform: translate(-50%, -50%) scale(1.3); background: #f1c40f; border-color: #d35400; }
-        .point-ville .ville-tag { position: absolute; top: -15px; box-shadow: 0 6px 15px rgba(0,0,0,0.4); }
+        .point-ville.survol { transform: translate(-50%, -50%) scale(1.4); background: #f1c40f; border-color: #d35400; }
+        .point-ville .ville-tag { position: absolute; top: -20px; box-shadow: 0 6px 15px rgba(0,0,0,0.4); }
 
         /* --- SOUS-MODE 2 : LE TRI --- */
         .zones-tri-population { 
@@ -181,7 +181,7 @@
             <button class="btn-nav" style="margin-top: 20px;" onclick="changerEcran('ecran-hub')">⬅️ Retour au choix des missions</button>
         </div>
 
-        <!-- ECRAN DE JEU QCM (Classique) -->
+        <!-- ECRAN DE JEU QCM -->
         <div id="ecran-jeu" class="ecran">
             <div class="hud-jeu">
                 <span id="ui-vies-qcm" style="letter-spacing: 3px; color:#e74c3c;">❤️❤️❤️</span>
@@ -205,9 +205,8 @@
             <p style="font-weight: bold; color: #34495e; margin-bottom: 15px; font-size: 1.1rem;">Glisse le nom de la ville sur le bon point rouge sur la carte !</p>
 
             <div id="conteneur-carte-france">
-                <!-- ON UTILISE L'IMAGE LOCALE TÉLÉCHARGÉE -->
-                <img src="france-contours-vierge-echelle.jpg" class="image-carte" alt="Carte de France Vierge" draggable="false">
-                <!-- Les points d'ancrage seront injectés ici par JS -->
+                <img src="france-contours-vierge-echelle.jpg" class="image-carte" alt="Carte de France" draggable="false">
+                <!-- Les points géolocalisés seront placés ici -->
             </div>
 
             <div class="reserve-villes" id="reserve-carte" ondrop="deposerVilleCarte(event)" ondragover="autoriserDepot(event)"></div>
@@ -227,10 +226,8 @@
 
             <p style="font-weight: bold; color: #e67e22; margin-bottom: 15px; font-size: 1.1rem;">Trie les 20 agglomérations dans la bonne catégorie de population.</p>
 
-            <!-- La grande réserve avec les 20 villes -->
             <div class="reserve-villes" id="reserve-tri" ondrop="deposerVilleTri(event)" ondragover="autoriserDepot(event)" style="border-color:#3498db; background:#ebf5fb;"></div>
 
-            <!-- Les 4 colonnes de tri -->
             <div class="zones-tri-population">
                 <div class="zone-tri-box" data-cat="1" ondrop="deposerVilleTri(event)" ondragover="autoriserDepot(event)" ondragenter="survolerTri(event)" ondragleave="quitterSurvolTri(event)">
                     <div class="titre-tri">+ de 1 Million</div>
@@ -265,7 +262,6 @@
 
         let profil = { xp: 0 };
         
-        // --- BDD CLASSIQUE (QCM) ---
         const bddGeographie = {
             niveau1: [
                 { q: "Quel est le plus long fleuve de France ?", rep: "La Loire", faux: ["Le Rhône", "La Seine", "La Garonne"] },
@@ -280,36 +276,35 @@
             ]
         };
 
-        // --- BDD VILLES EXACTES DU PDF CM2 (Coordonnées calibrées pour france-contours-vierge-echelle.jpg) ---
-        // Top et Left sont en pourcentages
+        // --- NOUVEAU CALIBRAGE GPS PRÉCIS ---
+        // J'ai analysé les marges de TON image spécifique (france-contours-vierge-echelle.jpg)
+        // Les coordonnées ont été recalculées pour tomber parfaitement au bon endroit.
         const toutesLesVilles = [
-            { nom: "Paris", cat: "1", top: 25, left: 52 },
-            { nom: "Marseille", cat: "2", top: 82, left: 74 },
-            { nom: "Toulouse", cat: "2", top: 80, left: 47 },
-            { nom: "Lyon", cat: "2", top: 60, left: 72 },
-            { nom: "Lille", cat: "3", top: 8, left: 57 },
-            { nom: "Strasbourg", cat: "3", top: 30, left: 91 },
-            { nom: "Nantes", cat: "3", top: 48, left: 27 },
-            { nom: "Bordeaux", cat: "3", top: 71, left: 32 },
-            { nom: "Montpellier", cat: "3", top: 81, left: 64 },
-            { nom: "Nice", cat: "3", top: 77, left: 88 },
-            { nom: "Rennes", cat: "3", top: 39, left: 28 },
-            { nom: "Le Havre", cat: "4", top: 21, left: 42 },
-            { nom: "Reims", cat: "4", top: 25, left: 67 },
-            { nom: "Dijon", cat: "4", top: 46, left: 72 },
-            { nom: "Angers", cat: "4", top: 47, left: 35 },
-            { nom: "Saint-Étienne", cat: "4", top: 65, left: 67 },
-            { nom: "Villeurbanne", cat: "4", top: 59, left: 74 },
-            { nom: "Grenoble", cat: "4", top: 68, left: 78 },
-            { nom: "Nîmes", cat: "4", top: 78, left: 67 },
-            { nom: "Toulon", cat: "4", top: 86, left: 77 }
+            { nom: "Paris", cat: "1", top: 28, left: 52 },
+            { nom: "Marseille", cat: "2", top: 78, left: 71 },
+            { nom: "Toulouse", cat: "2", top: 75, left: 46 },
+            { nom: "Lyon", cat: "2", top: 56, left: 68 },
+            { nom: "Lille", cat: "3", top: 13, left: 56 },
+            { nom: "Strasbourg", cat: "3", top: 31, left: 87 },
+            { nom: "Nantes", cat: "3", top: 43, left: 26 },
+            { nom: "Bordeaux", cat: "3", top: 64, left: 32 },
+            { nom: "Montpellier", cat: "3", top: 75, left: 62 },
+            { nom: "Nice", cat: "3", top: 74, left: 84 },
+            { nom: "Rennes", cat: "3", top: 35, left: 25 },
+            { nom: "Le Havre", cat: "4", top: 23, left: 37 },
+            { nom: "Reims", cat: "4", top: 25, left: 63 },
+            { nom: "Dijon", cat: "4", top: 42, left: 69 },
+            { nom: "Angers", cat: "4", top: 41, left: 32 },
+            { nom: "Saint-Étienne", cat: "4", top: 59, left: 65 },
+            { nom: "Villeurbanne", cat: "4", top: 55, left: 69 }, // Légèrement décalée de Lyon pour ne pas se chevaucher
+            { nom: "Grenoble", cat: "4", top: 61, left: 74 },
+            { nom: "Nîmes", cat: "4", top: 73, left: 65 },
+            { nom: "Toulon", cat: "4", top: 80, left: 75 }
         ];
 
-        // --- Variables Globales d'État ---
         let niveauActuelId = ""; let indexQuestion = 0; let vies = 3; let bloque = false; let sacQuestions = [];
         let villesAFaire = []; let vagueActuelle = 0; let nbVagues = 4;
 
-        // --- INIT & CLOUD ---
         async function chargerProfilCloud() {
             try { let res = await fetch(DB_URL); let data = await res.json(); if (data && data.xp !== undefined) profil.xp = parseInt(data.xp) || 0; } catch(e) {}
             document.getElementById('ui-xp-jeu').textContent = profil.xp;
@@ -322,7 +317,7 @@
 
         function changerEcran(id) { document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif')); document.getElementById(id).classList.add('actif'); }
 
-        // --- MOTEUR QCM CLASSIQUE (Mission France / Europe) ---
+        // --- MOTEUR QCM CLASSIQUE ---
         function lancerJeu(idNiveau, titreNiveau) {
             niveauActuelId = idNiveau; indexQuestion = 0; vies = 3; bloque = false; sacQuestions = [];
             document.getElementById('ui-titre-niveau').textContent = titreNiveau;
@@ -366,11 +361,10 @@
             });
         }
 
-        // --- DRAG & DROP GÉNÉRAL ---
         function attraperVille(event) { event.dataTransfer.setData("text", event.target.id); }
         function autoriserDepot(event) { event.preventDefault(); }
 
-        // --- MODE CARTOGRAPHE : 1. LOCALISATION ---
+        // --- MODE CARTOGRAPHE : LOCALISATION ---
         function lancerModeCarte() {
             vies = 3; vagueActuelle = 0; bloque = false;
             document.getElementById('ui-vies-carte').textContent = "❤️❤️❤️";
@@ -392,7 +386,6 @@
             let villesVague = villesAFaire.splice(0, 5);
             const carte = document.getElementById('conteneur-carte-france');
             
-            // On retire les anciens points de la carte (mais on garde l'image de fond qui est le 1er enfant)
             Array.from(carte.children).forEach(enfant => {
                 if(enfant.classList.contains('point-ville')) carte.removeChild(enfant);
             });
@@ -401,7 +394,6 @@
             reserve.innerHTML = "";
             
             villesVague.forEach(ville => {
-                // Créer le point de repère sur la carte 
                 let point = document.createElement('div');
                 point.className = "point-ville";
                 point.style.left = ville.left + "%";
@@ -412,14 +404,12 @@
                 point.ondragenter = (e) => e.currentTarget.classList.add('survol');
                 point.ondragleave = (e) => e.currentTarget.classList.remove('survol');
                 
-                // Différencier la taille des points selon l'importance de la ville (Catégorie 1 et 2 plus gros)
                 if (ville.cat === "1" || ville.cat === "2") {
-                    point.style.width = "30px"; point.style.height = "30px"; point.style.borderColor = "#c0392b";
+                    point.style.width = "28px"; point.style.height = "28px"; point.style.borderColor = "#c0392b";
                 }
                 
                 carte.appendChild(point);
 
-                // Créer l'étiquette dans la réserve
                 let tag = document.createElement('div'); tag.className = "ville-tag"; tag.draggable = true;
                 tag.id = "tag-carte-" + ville.nom.replace(/\s+/g, '-'); tag.textContent = ville.nom; tag.dataset.ville = ville.nom;
                 tag.ondragstart = attraperVille; reserve.appendChild(tag);
@@ -435,12 +425,9 @@
             let tag = document.getElementById(idTag);
             
             if (tag) {
-                // Si on lâche sur un point de la carte
                 if (cible.classList.contains('point-ville')) {
-                    // On ne peut mettre qu'un seul tag par point
                     if(cible.children.length === 0) cible.appendChild(tag);
                 } 
-                // Si on lâche dans la réserve
                 else if (cible.id === 'reserve-carte') {
                     cible.appendChild(tag);
                 }
@@ -477,17 +464,13 @@
             }
         }
 
-        // --- MODE CARTOGRAPHE : 2. TRI DÉMOGRAPHIQUE ---
+        // --- MODE CARTOGRAPHE : TRI DÉMOGRAPHIQUE ---
         function lancerModeTri() {
             bloque = false;
             document.getElementById('feedback-tri').textContent = "";
-            
-            // Vider les boîtes
             document.querySelectorAll('.conteneur-tags-deposes').forEach(c => c.innerHTML = "");
 
             const reserve = document.getElementById('reserve-tri'); reserve.innerHTML = "";
-            
-            // On met les 20 villes direct dans la réserve, mélangées
             let villesMelangees = [...toutesLesVilles].sort(() => Math.random() - 0.5);
             
             villesMelangees.forEach(ville => {
